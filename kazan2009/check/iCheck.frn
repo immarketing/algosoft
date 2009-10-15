@@ -1,0 +1,91 @@
+.form iCheck_otchet_1
+.hide
+.NameInList 'Отчет по некорректным документам'
+.fields			
+
+VidSopr
+VidSoprName
+KatSoprNRec
+DSopr
+NSopr
+Descr
+
+SpSoprNRec
+SpSoprNpp
+MCUslName
+
+isWrong1
+comment1
+
+isWrong2
+comment2
+
+isWrong3
+comment3
+
+isWrong4
+comment4
+
+.endfields			
+ 
+.{ //mc checkenter     
+
+^ ^ ^ ^ ^ ^
+.{ //plan  checkenter
+^ ^ ^
+^ ^ ^ ^ ^ ^ ^ ^ 
+.} 
+     
+.} 
+  
+.endform	
+
+
+.linkform iCheck_otchet_1_00  prototype is iCheck_otchet_1
+.NameInList 'Отчет по некорректным документам _1_00'
+.fields			
+
+VidSoprName
+NSopr
+DSopr
+Descr
+KatSoprNRec
+
+SpSoprNpp
+
+SpSoprNRec
+
+MCUslName
+
+if (isWrong1 =1, 'Есть', 'Нет')
+comment1
+
+if (isWrong2 =1, 'Есть', 'Нет')
+comment2
+
+if (isWrong3 =1, 'Есть', 'Нет')
+comment3
+
+if (isWrong4 =1, 'Есть', 'Нет')
+comment4
+
+.endfields			
+ 
+.{ //mc checkenter     
+
+Документ [^] №^ от ^
+Дескриптор пользователя: ^
+NRec: ^
+.{ //plan  checkenter
+Строка №:^  (NRec = ^) МЦ/Услуга: ^
+Проблема 1:^ (^)
+Проблема 2:^ (^)
+Проблема 3:^ (^)
+Проблема 4:^ (^)
+.} 
+     
+.} 
+  
+.endform	
+
+	

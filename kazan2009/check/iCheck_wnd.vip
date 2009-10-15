@@ -1,0 +1,75 @@
+window wCheckFltr;
+  show at  (0,0,100,30);
+  tabbedSheet tabbed   
+    screen  sCheckFltr 'Фильтр';
+    show at( , , ,);
+    fields
+      dtStart      : noprotect, pickbutton;
+      dtFinish     : noprotect, pickbutton;
+      fltrfpco.name     : protect , pickbutton;
+      sFltrUsDesc       : protect , pickbutton;
+  buttons
+          cmOk,,, 'Отчеты';
+          cmCancel,,, 'Отмена';
+!          cmCmd03,,, 'F***K IN';
+  <<
+`                 Даты с:` .@@@@@@@@@@@@@ ` по:` .@@@@@@@@@@@@@
+`  Центр ответственности:` .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+`             Дескриптор:` .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+  
+  
+!    `Таблица соответствий для проблемы 2:`  `Таблица соответствий для проблемы 3`  
+!    .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@   .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@           
+! 
+!  `Целевая группа для проблемы 4:` .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+  
+  <. Получить отчет .>    <. Отказ .> 
+  >>
+    end;
+    
+  //end;  
+  screen  sCheckdop 'Дополнительно';
+    fields
+      
+      cTBL_SOOTV  : noprotect;
+      cTBL_SOOTV3 : noprotect;
+      TargetBudGroup : noprotect;
+  <<
+` ВНИМАНИЕ! данные параметры могут быть изменены `
+` ТОЛЬКО АДМИНИСТРАТОРОМ СИСТЕМЫ!`
+` Если вы не понимаете назначение этих параметров, то просто уйдите с этой закладки!`
+` В полях указываются значения NREC в шестнадцетиричном виде!`
+
+`  Таблица соответствий для проблемы 2:` .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+`  Таблица соответствий для проблемы 3:` .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+`      'Целевая' группа для проблемы 4:` .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+  >>
+  end; //screen
+end;  
+  
+  HandleEvent
+    cmOK : {
+      savedsk;
+      handleOK;
+      closewindow (wCheckFltr);
+    }
+    
+    cmPick : {
+      case curfield of
+        #fltrfpco.name:{
+          RunInterface('F_FPCATALOG::GetCO', word(cgiPick), comp(0), comp(0), cFltrCO);
+        } ;
+        #sFltrUsDesc: {
+          RunInterface('C_COMMON::GetDescr',sFltrUsDesc, '' , true );
+        }
+      end;
+      
+      // RunInterface('GetDescr', InvTab.Descr, InvTab.DesGr, CurVisible);
+      // C_COMMON::GetDescr
+      
+      // 
+    }
+    //cmPrint : PrintRep01;
+  end;
+end;  //window

@@ -1,0 +1,58 @@
+
+  create view prob3
+  var
+    cFPKATIMP : comp; // ссылка на рабочую таблицу соответствий
+    anc1, anc2 : word;
+    cAn1, cAn2 : comp;
+  as 
+  select *
+    from  FPKATIMP FPKATIMPPR3,
+          FPIMPREL FPIMPRELpr3
+   where ((
+     cFPKATIMP == FPKATIMPPR3.nRec and
+     FPKATIMPPR3.nrec == FPIMPRELpr3.CMAIN and
+     
+     anc1 == FPIMPRELpr3.IMPKODAN and
+     cAn1 == FPIMPRELpr3.CIMPMEAN and
+     
+     anc2 == FPIMPRELpr3.KODAN (noindex)  and
+     cAn2 == FPIMPRELpr3.CMEAN (noindex) 
+   ))
+  ;
+  
+  
+  function isCurrentWrong3 (out comment : string):boolean;
+  begin
+    result := false;
+    comment := '';
+    
+    var co1,co2 : comp;
+    
+    co1 := getCUAnVal (coSpSopr, SpSopr.NRec, 20);  // статья бюджета
+    co2 := getCUAnVal (coSpSopr, SpSopr.NRec, 22);  // центр ответственности
+    
+    //Message ('co: '+co1 + ''#13'' + co2);
+    
+    if (prob3.cFPKATIMP = 0) then {
+      result := true;
+      comment := 'Не определена рабочая таблица соответствий аналитик 20 и 22';
+    }
+    
+    prob3.anc1 := 20;
+    prob3.anc2 := 22;
+    
+    prob3.can1 := co1;
+    prob3.can2 := co2;
+    
+    if ( prob3.getfirst FPKATIMPPR3 = tsOK ) then {
+      if ( prob3.getfirst FPIMPRELpr3 = tsOK ) then {
+      } else {
+        result  := true;
+        comment := 'Соответствие значений аналитик в таблице не обнаружено!';
+      }
+    } else {
+      result := true;
+      comment := 'Таблица соответствий <'+ String (prob3.cFPKATIMP,20,0) + '> не обнаружена!';
+    }
+    
+  end;

@@ -1,0 +1,31 @@
+  procedure doHandleTest;
+  begin
+     var sPath : String;
+
+    sPath := translatepath('%curpath%\tmpl_7_9_1.xls');
+    
+    xlCreateExcelWithTemplate(sPath,true); 
+    
+    if (xlIsExcelValid) {
+       //xlOpenWorkBook(trim(sPath));
+       //xlSetActiveWorkBookByName(trim(sPath));
+       //xlSaveAsWorkBookByName(trim(sPath), NameExcel+'.xls');
+    } 
+    
+    xlSetActiveSheetByName('datas'); //?????_1
+    
+    xlSetCellStringValue('[f[f[f', 1, 6, 1, 6); // 
+    xlSetCellStringValue('хахахаха', 1, 8, 1, 8); // 
+    
+    
+
+    xlRunMacro('SetDoubleValue(GROUPSTART, 128)');
+    xlRunMacro('SetDoubleValue(GROUPFINISH, 200)');
+    xlRunMacro('CopyRow(ROW0)');
+    
+    xlSetActiveSheetByName('Отчет'); //?????_1
+    xlKillExcel;
+    
+    
+  end;
+  
