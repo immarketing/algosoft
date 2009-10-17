@@ -52,13 +52,13 @@ procedure Run;
 begin
   //RunInterface('szmn_bud_Form714_20091012');
   //RunInterface(#_INTERFVERSSTRINGQUOTED_(szmn_bud_Form714_));
-  RunInterface('szmn_bud_Form741' );
+  RunInterface('szmn_bud_Form741_20091017' );
 end;
 !-------------------------------------------------------------------------------
 // Наименование отчета в списке
 function GetReportName: String;
 begin
-  GetReportName := 'Форма 7.4.1';
+  GetReportName := 'Форма 7.4.1 v.20091017';
 end;
 !-------------------------------------------------------------------------------
 // Наименования групп, в которые входит отчет
@@ -98,10 +98,10 @@ vipInterface szmn_bud_Form741 licensed(free);
 //vipInterface #(_VERSIONEDNAME_(szmn_bud_Form714_)) licensed(free);
 //#_VIPINTERFVERS_(szmn_bud_Form714_);
 
-Interface szmn_bud_Form741 
+Interface szmn_bud_Form741_20091017
 //Interface #_VERSIONEDNAME_(szmn_bud_Form714_) 
 //#_INTERFVERS_(szmn_bud_Form714_)
-  '-= СЗМН Бюджет. Форма 7.4.1. v20091014 =- ' (,hcNoContext,) EscClose, Cyan;
+  '-= СЗМН Бюджет. Форма 7.4.1. v20091017 =- ' (,hcNoContext,) EscClose, Cyan;
   show at  (0,0,70,10)
   //show at  (0,0,100,30)
   ;

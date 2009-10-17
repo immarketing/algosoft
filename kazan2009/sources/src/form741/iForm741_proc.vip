@@ -24,6 +24,21 @@
     xlGetCellValue(1, 1, result);
   end;
   
+  function rebuildNPP(n: String) : String;
+  begin
+    var ps : byte;
+    ps := pos ('.', n);
+    if (ps = 0) then {
+      result := lPad(ps,4);
+      exit;
+    }
+    var s1 : string;
+    
+    s1 := SubStr (n,1,ps-1);
+    result := lpad(s1,4) + '.' + rebuildNPP( substr(n,ps+1,255)) ;
+  end;
+  
+  
   procedure printSigners;
   begin
     _loop spKAUPodp {
@@ -409,13 +424,16 @@
     
     var b : byte;
     
-    update f714_stbud where (( 0 == f714_stbud.cNode  )) set f714_stbud.lvl := 1, f714_stbud.SortCode := f714_stbud.LevelCode ; 
+    update f714_stbud where (( 0 == f714_stbud.cNode  )) set  f714_stbud.lvl := 1, 
+                                                              //f714_stbud.SortCode := f714_stbud.LevelCode , 
+                                                              f714_stbud.SortCode := rebuildNPP(f714_stbud.code)
+                                                              ; 
     
     for (b := 1; b <= 250; b := b+1){
       update f714_stbud
         from f714_stbud fsb 
        where ((f714_stbud.cnode /== fsb.nRec and b == fsb.lvl))
-         set lvl := b + 1, SortCode :=  fsb.SortCode + '|' + f714_stbud.LevelCode ;
+         set lvl := b + 1, SortCode :=  fsb.SortCode + '|' + rebuildNPP(f714_stbud.code) /*f714_stbud.LevelCode */;
     }
     //update f714_stbud set SortCode := PAdCh(SortCode+'|','0',250);
     update f714_stbud set SortCode := lPad('|'+SortCode,250);
@@ -456,7 +474,6 @@
     */
   end;
   
-
   procedure PrepareData;
   begin
     delete all f714_datas;
@@ -542,7 +559,8 @@
         s := trim (s);
         if s <> '' then break;
       }
-      update current f714_datas set f714_datas.DogPred := s;
+      
+      update current f714_datas set f714_datas.DogPred := s, f714_datas.NppSort := rebuildNPP(f714_datas.npp);
     }
     
     // схлопываем пустые строки
