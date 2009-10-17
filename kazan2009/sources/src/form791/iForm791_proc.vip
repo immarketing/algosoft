@@ -1,0 +1,129 @@
+procedure ExcelPrint(CopyBud:comp; FP:word; Nstr:word; Nstol:word);
+begin
+   Set cCopyBud:=CopyBud;
+   Set cFP:= FP;
+    _LOOP  fpV 
+      {
+        if((month(fpP.dbeg)=month(fpP.dEnd)) and (year(fpP.dbeg)=year(fpperiod.dbeg)))// and (fpvalues.chashan = 0))) //chek year
+        {
+          if(Check=0)
+	  {
+	    xlSetCellNumberValue(fpv.summa     , Nstr, Nstol + month(fpP.dbeg), Nstr, Nstol + month(fpP.dbeg));
+	  }
+	  else
+	  {
+	    xlSetCellNumberValue(fpv.summa/1000, Nstr, Nstol + month(fpP.dbeg), Nstr, Nstol + month(fpP.dbeg));
+	  }
+        }
+        else{}
+      }
+end;
+
+//определяет первый день текущего квартала
+
+function FirstKvartalDay(D:date):date;
+var Kvartal: byte;
+begin 
+	case Month(D) of
+		1..3  : Kvartal:=1;
+		4..6  : Kvartal:=2;
+		7..9  : Kvartal:=3;
+		10..12: Kvartal:=4;
+	end;
+	case Kvartal of
+		1: FirstKvartalDay:=To_Date(1,1,Year(D));
+		2: FirstKvartalDay:=To_Date(4,1,Year(D));
+		3: FirstKvartalDay:=To_Date(7,1,Year(D));
+		4: FirstKvartalDay:=To_Date(10,1,Year(D));
+	end;
+end;
+
+procedure doPrintReport;
+begin
+  pathUserOut := GetDefaultUserPath;
+  NameExcel   := pathUserOut;
+  wPeriod:=word(trim(NextNumStr(sPeriod)))-1;
+  
+  xlCreateExcel('',true);
+  if (xlIsExcelValid)
+  {
+    xlOpenWorkBook(trim(sPath));
+    xlSetActiveWorkBookByName(trim(sPath));
+    xlSaveAsWorkBookByName(trim(sPath), NameExcel+'.xls');
+  } 
+  
+  xlSetActiveSheet(1); //Титул_1
+  
+  xlSetCellStringValue(month(fpperiod.dbeg), 1, 1, 1, 1); //
+  xlSetCellStringValue(year(fpperiod.dbeg), 1, 2, 1, 2); //	
+  
+  
+  xlSetNumberFormat('@'        ,2 , 41, 65000, 46);
+  
+  
+  var tt:word;
+  tt:=0;
+  
+    
+  _LOOP fpSpAxtf {
+    inc(tt);
+    
+    if(fpSpAxtf.coTable = word(22217) )       // (isValid(tnfpstbud)) 
+    {
+      set cStBud  := fpSpAxtf.cMean;//
+      set cHashAn := comp(0);
+      xlSetCellStringValue('1', 1+tt, 40, 1+tt, 40);
+    } else{
+      set cHashAn := Hashan.nrec;
+      xlSetCellStringValue('2', 1+tt, 40, 1+tt, 40);
+    }
+    
+    
+    xlSetCellStringValue(string(fpSpAxtf.cMean), 1+tt, 41, 1+tt, 41);  
+    xlSetCellStringValue(string(cStBud),         1+tt, 42, 1+tt, 42);   
+                                                             
+    
+    
+    xlSetCellStringValue(string(fpBV.nrec ),     1+tt, 43, 1+tt, 43);
+    xlSetCellStringValue(string(cFP   ),         1+tt, 44, 1+tt, 44);
+    xlSetCellStringValue(string(cStBud),         1+tt, 45, 1+tt, 45);
+    xlSetCellStringValue(string(cHashAn),        1+tt, 46, 1+tt, 46);
+    xlSetCellStringValue(string(fpStBud.ABBR),   1+tt, 47, 1+tt, 47);
+    
+    
+    
+    xlSetCellStringValue(fpSpAxtf.code, 1+tt, 1, 1+tt, 1); //
+    xlSetCellStringValue(fpSpAxtf.name, 1+tt, 2, 1+tt, 2); //
+    xlSetCellStringValue(kated.name, 1+tt, 39, 1+tt, 39);
+    ExcelPrint(cPlan1,150,1+tt,2);
+    ExcelPrint(cPlan2,150,1+tt,14);
+    ExcelPrint(cPlan3,150,1+tt,26);
+    xlSetCellStringValue(fpstbud.levelcode, 1+tt, 50, 1+tt, 50);                            
+  }
+  
+  xlSetCellStringValue(Check, 1, 49, 1, 49);
+  tt:=0;
+  /*
+  _loop TabPersons{
+  xlSetCellStringValue(TabPersons.name, 1+tt, 51, 1+tt, 51);
+  xlSetCellStringValue(TabPersons.work, 1+tt, 52, 1+tt, 52);
+  inc(tt);
+  }
+  */
+  xlSetCellStringValue(tt, 1, 53, 1, 53);
+  
+  xlRunMacro('GalFpUser_AfterReport');
+  xlKillExcel;
+  
+  SaveMyDsk(sPersons,  '7dsksPath7');
+  SaveMyDsk(sPath,     '7dsksPath1');
+  SaveMyDsk(cTForm,    '7dsksPath2');
+  SaveMyDsk(cPeriod,   '7dsksPath3');										
+  SaveMyDsk(cPlan1,    '7dsksPath4');
+  SaveMyDsk(cPlan2,    '7dsksPath5');
+  SaveMyDsk(cPlan3,    '7dsksPath6');
+  
+  PutCommand(cmClose);
+  
+end;
+

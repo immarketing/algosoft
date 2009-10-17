@@ -1,0 +1,271 @@
+#include Tables.vih
+
+
+const 
+
+#include GLOCONST.INC
+end;
+
+VipInterface RepBDR5   Licensed(Free);
+
+#doc
+Настройка фильтров для отчета График погашения обязательств
+#end
+Interface RepBDR5 'Установка фильтров' DoAccept, EscClose, Cyan;
+  show at (5,5,75,25);
+create view BDR
+var
+ cC,
+ cPlan,
+ cFact,
+ cPeriod, 
+ cTForm,     
+ cCopyBud,
+ cFP :comp;
+ sPath :string;
+ pathUserOut : string;
+ NameExcel   : string;
+ wPeriod,mp,i  : word;
+ Check: integer;
+ isError: boolean;
+ sPersons: string;
+
+As select
+  if(cPeriod=0   ,'выберите значение',fpPeriod.Name)   (FieldName = sPeriod) 
+, if(cTForm=0    ,'выберите значение',fpTForm.Name)    (FieldName = sTForm)
+, if(cPlan=0     ,'выберите значение',fpBudVar.Name)   (FieldName = sPlan)   
+, if(cFact=0     ,'выберите значение',fpBudVar1.Name)  (FieldName = sFact)    
+, fpvalues.summa
+From
+  fpBudVar
+ ,synonym  fpPeriod  fpP
+ ,synonym  fpBudVar  fpBudVar1
+
+ ,fpAxTF Axis1
+ ,fpAxTF Axis2
+ ,fpSpAxTF SpAxis1
+ ,fpSpAxTF SpAxis2
+ ,fpvalues
+ ,Synonym fpBudVar fpBV
+ ,Synonym fpValues fpV
+ where
+((
+  // иерархия оси1
+
+cPeriod   == fpPeriod.nrec  and
+cTForm         == fpTForm.nrec    and
+
+
+
+
+cPlan     == fpBudVar.nrec   and
+cFact     == fpBudVar1.nrec
+
+
+and fpBudVar.cBudget   == FpBudget.nrec
+
+// лог таблица для знач1ений
+
+and fpTForm.nrec   == fpAxTF.cMain     //может быть несколько
+and fpAxTF.NRec    == fpSpAxtf.cMain    
+and fpSpAxtf.cMean == fpStBud.nrec    
+and cCopyBud       == fpBV.nrec        
+and fpBV.nrec      == fpV.cBudVar
+and word(cFP)      == fpV.KodReg //план факт1
+and fpStBud.nrec   == fpV.cStBud
+and fpV.cPeriod    == fpP.nrec
+and fpStBud.ced    == kated.nrec//еденицы измерения
+))
+;
+
+//
+procedure ExcelPrint(CopyBud:comp; FP:word; Nstr:word; Nstol:word);
+begin
+      Set cCopyBud:=CopyBud;
+      Set cFP:= FP; 
+//      _LOOP  fpSpAxtf
+      _LOOP  fpV
+      {                                                                                                                           
+        if((month(fpP.dbeg)=month(fpP.dEnd)) and (year(fpP.dbeg)=year(fpperiod.dbeg)))// and (fpvalues.chashan = 0))) //chek year 
+        {                                                                                                                         
+          if(Check=0)                                                                                                             
+	  {                                                                                                                       
+	    xlSetCellNumberValue(fpv.summa     , Nstr, Nstol + month(fpP.dbeg), Nstr, Nstol + month(fpP.dbeg));                   
+	  }                                                                                                                       
+	  else                                                                                                                    
+	  {                                                                                                                       
+	    xlSetCellNumberValue(fpv.summa/1000, Nstr, Nstol + month(fpP.dbeg), Nstr, Nstol + month(fpP.dbeg));                   
+	  }                                                                                                                       
+        }                                                                                                                         
+        else{}                                                                                                                    
+      }
+end;                                                                                                                           
+
+//определяет первый день текущего квартала
+
+function FirstKvartalDay(D:date):date;
+var Kvartal: byte;
+begin 
+	case Month(D) of
+		1..3  : Kvartal:=1;
+		4..6  : Kvartal:=2;
+		7..9  : Kvartal:=3;
+		10..12: Kvartal:=4;
+	end;
+	case Kvartal of
+		1: FirstKvartalDay:=To_Date(1,1,Year(D));
+		2: FirstKvartalDay:=To_Date(4,1,Year(D));
+		3: FirstKvartalDay:=To_Date(7,1,Year(D));
+		4: FirstKvartalDay:=To_Date(10,1,Year(D));
+	end;
+end;
+
+
+//пересмотр дат
+
+
+
+
+Screen scKatH01 'Установка фильтров' (,, sci13Esc);
+!  Table KatH;
+Fields
+  sTForm  ('',,) : Protect,PickButton,
+    {Font = {BackColor = if (cTForm=0,    ColorNeed,0)}};
+  sPeriod ('',,) : Protect,PickButton,
+    {Font = {BackColor = if (cPeriod=0,   ColorNeed,0)}};
+  sPlan   ('',,) : Protect,PickButton,
+    {Font = {BackColor = if (cPlan =0,    ColorNeed,0)}};
+  sFact   ('',,) : Protect,PickButton,
+    {Font = {BackColor = if (cFact =0,    ColorNeed,0)}};
+
+  sPersons ('Выбор сотрудников для подписи',,) : protect,pickbutton, 
+    {Font = {BackColor = if (sPersons='выберите значение',    ColorNeed,0)}};
+  
+  sPath ('',,) : Protect,PickButton,
+    {Font = {BackColor = if (sPath='',    ColorNeed,0)}};
+  Check ('') :NoProtect;
+	
+buttons
+cmApply;
+cmCancel;
+<<
+
+ Типовая форма бюджета .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+ Месяц                 .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+
+                           Варианты бюджета
+
+ План                          .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+ Факт                          .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+ Cотрудники для подписи        .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+ 	
+
+ Путь к шаблону        .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+    `Печатать в` 
+     (.) руб`    
+     (.) тыс.руб`
+
+          <.Сформировать.>    <.  Отмена  .>
+>>
+end; // Screen
+Handleevent
+cmApply:
+{
+                                                              
+//    message('Нажали на кнопку');
+    pathUserOut := GetDefaultUserPath;
+    NameExcel   := pathUserOut;
+    wPeriod:=word(trim(NextNumStr(sPeriod)))-1;
+
+    xlCreateExcel('',true);
+      if (xlIsExcelValid)
+      {
+         xlOpenWorkBook(trim(sPath));
+         xlSetActiveWorkBookByName(trim(sPath));
+         xlSaveAsWorkBookByName(trim(sPath), NameExcel+'.xls');
+
+      }
+
+
+      xlSetActiveSheet(1); //Титул_1
+
+      xlSetCellStringValue(month(fpperiod.dbeg), 1, 1, 1, 1); //
+      xlSetCellStringValue(year(fpperiod.dbeg), 1, 2, 1, 2); //	
+      var tt:word;
+      tt:=0;
+      _LOOP  fpSpAxtf 
+      {
+        if(isValid(tnfpstbud)) //chek year
+        {
+          inc(tt);
+          xlSetCellStringValue(fpSpAxtf.code, 1+tt, 1, 1+tt, 1); //
+          xlSetCellStringValue(fpstbud.Name, 1+tt, 2, 1+tt, 2); //
+          xlSetCellStringValue(fpstbud.LevelCode, 1+tt, 40, 1+tt, 40); //
+          xlSetCellStringValue(kated.name, 1+tt, 27, 1+tt, 27);
+          ExcelPrint(cPlan,150,1+tt,2);
+          ExcelPrint(cFact,151,1+tt,14);                            
+        }
+        else{}
+      }
+
+      tt:=0;
+      _loop TabPersons{
+        xlSetCellStringValue(TabPersons.name, 1+tt, 41, 1+tt, 41);
+        xlSetCellStringValue(TabPersons.work, 1+tt, 42, 1+tt, 42);
+        inc(tt);
+      }
+      xlSetCellStringValue(tt, 1, 43, 1, 43);
+
+
+      xlRunMacro('GalFpUser_AfterReport');
+      xlKillExcel;
+
+     SaveMyDsk(sPath,'dsksPath');
+     SaveMyDsk(sPersons,  'szmn_rep_9_1_spers');
+  PutCommand(cmClose);
+}
+cmPick:
+  case curField of
+    #sPlan     :  RunInterface('F_FpBudget::Budget', word(cgiPick), word(0), word(0), comp(0), cPlan, 0, 0);
+    #sFact     :  RunInterface('F_FpBudget::Budget', word(cgiPick), word(0), word(0), comp(0), cFact , 0, 0);
+    #sTForm    :  RunInterface('F_FpBudget::getTForm', cgiPick, 0, cTForm);
+    #sPeriod   :  RunInterface('F_FpCatalog::getPeriod', cgiPick, comp(0), comp(0), cPeriod, cgSetFPTuneDefault);
+    #sPersons  :  RunInterface('SelectPersons', sPersons);
+
+    #sPath     :
+   {
+        var sTmp : string;
+            sTmp := GetFileName('*.XLS', 'Выберите файл с шаблоном');
+        if (trim(sTmp) = '')
+         { Exit; }
+        Set sPath := sTmp;
+    }
+
+  end;  
+!-------------------------------------------------------------------------------
+cmDelOnProtect:
+  case curField of
+    #sPeriod   : Set cPeriod:=0;
+    #sTForm    : Set cTForm:=0;
+    #sPlan    : Set cPlan:=0;
+    #sFact     : Set cFact:=0;
+  end;
+
+cmInit:
+{
+ cPlan:=0;
+ cFact:=0;
+ cTForm:=0;
+ cPeriod:=0;     
+ sPath:='C:\8.1.XLS';
+
+ if (not ReadMyDsk(sPath,'dsksPath',isError))  sPath := '';
+ //if (not ReadMyDsk(sPersons,'szmn_rep_9_1_spers',isError))  sPersons := '';
+
+}
+
+end;
+end.
+

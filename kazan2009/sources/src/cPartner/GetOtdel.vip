@@ -1,0 +1,61 @@
+!#include getkau.vih;
+
+interface GetOtdel 'Выбор отделения для заполнения шапки' doaccept escclose;
+//  show at(,,67,7);
+  show at(,,67,7);
+  const
+   GETRUK_KAUCODE = 10080;
+   cmEdit : Word = 2242;
+   sci1478EnEsc : Word = 6966;
+  end;
+  var
+    Otdel : string;
+  parameters Otdel;
+  create view
+  var
+    cRec : comp; 
+  as select * 
+  from katpodr
+  where ((
+    cRec == katpodr.nrec
+  ));
+
+  screen scOtdel 'Фильтр по отделам' (,, sci13Esc);
+    fields
+      Otdel : Protect,PickButton;
+    buttons
+      cmDoOk;
+<<
+    Отдел
+    .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+    
+                         <.      OK      .>
+>>
+  end;
+  
+  procedure refreshfields; {
+    set Otdel := if(getfirst katpodr where ((cRec == katpodr.nrec)) = tsok, katpodr.name , '')
+  }
+
+  
+  handleevent
+    cmPick: {
+      if curfield = #Otdel { 
+        runinterface('Z_KATPODR::GetAnyPodr',cRec,0)
+//          set crec1 := crec;
+      }
+      refreshfields;
+    }
+    cmDoOk: {
+      SaveMyDSK(cRec, 'GetOtdel_cRec');
+      closeinterface(cmdefault);
+    }
+    cmDefault: {
+      refreshfields;
+    }
+    cmInit: {
+	    if not ReadMyDSK(cRec, 'GetOtdel_cRec', false) then cRec := 0;
+	    refreshfields;
+    }
+  end;
+end.

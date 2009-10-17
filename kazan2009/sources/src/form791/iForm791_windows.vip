@@ -1,0 +1,73 @@
+//
+Screen scKatH01 'Установка фильтров' (,, sci13Esc);
+!  Table KatH;
+Fields
+  sTForm  ('',,) : Protect,PickButton,
+    {Font = {BackColor = if (cTForm=0,    ColorNeed,0)}};
+  sPeriod ('',,) : Protect,PickButton,
+    {Font = {BackColor = if (cPeriod=0,   ColorNeed,0)}};
+  sPlan1  ('',,) : Protect,PickButton,
+    {Font = {BackColor = if (cPlan1=0,    ColorNeed,0)}};
+  sPlan2  ('',,) : Protect,PickButton,
+    {Font = {BackColor = if (cPlan2=0,    ColorNeed,0)}};
+  sPlan3  ('',,) : Protect,PickButton,
+    {Font = {BackColor = if (cPlan3=0,    ColorNeed,0)}};
+  sPodpGrp ('Выбор сотрудников для подписи',,) : protect,pickbutton, {Font = {BackColor = if (sPersons='выберите значение',    ColorNeed,0)}};
+  sPath ('',,) : Protect,PickButton,
+    {Font = {BackColor = if (sPath='',    ColorNeed,0)}};
+  Check ('') :NoProtect;
+  
+	
+buttons
+cmApply;
+cmCancel;
+cmTest;
+cmWindow;
+<<
+
+ Типовая форма бюджета .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+ Месяц                 .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+
+                           Варианты бюджета
+
+ План                                 .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+ План потребности по заявкам отделов  .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+ План с учетом доппотребностей        .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+ Cотрудники для подписи               .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+
+ Путь к шаблону        .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+    `Печатать в`
+     (.) руб`          
+     (.) тыс.руб`
+
+          <.Сформировать.>    <.  Отмена  .> <. Проба .> <. WINDOWS .>
+>>
+end; // Screen
+
+Window wnInfoWindow 'gg' ('gg', hcNoContext);
+  Show at(,,,29);
+
+  Browse brPrinted 'gg' ('gg', hcNoContext);
+    Show at(,1,,5);
+    Table f791_printed;
+  Fields
+    f791_printed.nRec 'f791_printed.nRec':[10],protect;
+    f791_printed.name 'f791_printed.name':[10],protect;
+    f791_printed.crec 'f791_printed.crec':[10],protect;
+    f791_printed.cnode 'f791_printed.cnode':[10],protect;
+    f791_printed.printedAtRow 'f791_printed.printedAtRow':[10],protect;
+    f791_printed.groupFrom 'f791_printed.groupFrom':[10],protect;
+    f791_printed.groupTo 'f791_printed.groupTo':[10],protect;
+    f791_printed.rowsToGroup 'f791_printed.rowsToGroup':[10],protect;
+  End; // Browse
+  Browse brStack '' ('',  hcNoContext);
+    Show at(,6,,10);
+    Table f791_stack;
+  Fields
+    f791_stack.nrec 'f791_stack.nrec':[10],protect;
+  End; // Browse
+
+End; // Window

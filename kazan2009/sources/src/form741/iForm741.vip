@@ -1,0 +1,318 @@
+
+!#include galnet.ccm 
+!end;   
+!#include uAlgor.vih
+!#include oAlgSetup.vih
+
+!#include iXLSRepBuilder.VIH
+
+!#include alg_5998.vih
+
+
+!#component "L_DOGOVOR"
+
+!#include consts_alg1.inc
+!end;
+
+!#include alg1.vih
+
+!#include selDate.vip
+
+!#component "M_MNPLAN"
+
+!#include agdefines.inc
+
+#include FpExCO.Vih
+#include Getkau.vih
+
+#include UserReport.vih
+
+// Для попадания примера в список отчетов -
+// раскомментировать конструкцию VipInterface (Implements для Атлантиса 5.1)
+
+#ifdef Atl51
+VipInterface UserReport_szmn_form741  Implements IUserReport
+  Licensed(Free)
+;
+#else
+!VipInterface UserReport_szmn_form741 Implements IUserReport;
+#end
+
+#doc
+Пример пользовательского отчета #1
+#end
+
+Interface UserReport_szmn_form741;
+
+create view;
+
+!-------------------------------------------------------------------------------
+// Запуск отчета на выполнение при выборе его из списка отчетов
+procedure Run;
+begin
+  //RunInterface('szmn_bud_Form714_20091012');
+  //RunInterface(#_INTERFVERSSTRINGQUOTED_(szmn_bud_Form714_));
+  RunInterface('szmn_bud_Form741' );
+end;
+!-------------------------------------------------------------------------------
+// Наименование отчета в списке
+function GetReportName: String;
+begin
+  GetReportName := 'Форма 7.4.1';
+end;
+!-------------------------------------------------------------------------------
+// Наименования групп, в которые входит отчет
+// Группа n+1 делается подчиненной группе n
+// В данном случае будет иерархия:
+// [+] Группа 1
+//     [+] Группа 2
+//         Отчет 1
+function GetGroupName (Level : Word) : String;
+begin
+  GetGroupName := '';
+  case Level of
+    1 : GetGroupName := 'Форма 7.4.1';
+  end;
+end;
+!-------------------------------------------------------------------------------
+// Приоритет отчета - сортировка внутри группы выполняется сначала
+// по приоритету, а затем по наименованию
+function GetPriority : Integer;
+begin
+  GetPriority := 0;
+end;
+!-------------------------------------------------------------------------------
+// ModuleID модулей, в которых будет виден отчет
+// '*' - отчет будет виден в любом модуле
+function VisibleInModule(Ind : Byte) : String;
+begin
+  VisibleInModule := '*';
+  case Ind of
+  end;
+end;
+!-------------------------------------------------------------------------------
+end.
+
+
+vipInterface szmn_bud_Form741 licensed(free);
+//vipInterface #(_VERSIONEDNAME_(szmn_bud_Form714_)) licensed(free);
+//#_VIPINTERFVERS_(szmn_bud_Form714_);
+
+Interface szmn_bud_Form741 
+//Interface #_VERSIONEDNAME_(szmn_bud_Form714_) 
+//#_INTERFVERS_(szmn_bud_Form714_)
+  '-= СЗМН Бюджет. Форма 7.4.1. v20091014 =- ' (,hcNoContext,) EscClose, Cyan;
+  show at  (0,0,70,10)
+  //show at  (0,0,100,30)
+  ;
+
+#include iForm741_memtbls.vip
+
+create view 
+var
+  paramSopr   : comp;
+  pcSopr      : comp;
+  
+  cPeriod     : comp;
+  cFltrCO     : comp;
+  
+  coMarker    : longint;
+  coPodpis    : longint;
+  
+  wKODGRKAU   : word;
+  cPodpGrp    : comp;
+  
+  cStatus     : comp;
+  
+as 
+select 
+  if(cPeriod=0   ,'Выберите период',fpPeriod.Name)   (FieldName = sPeriod),
+  if(GetMarkerCount(coMarker)=0   ,'Выберите центр ответственности', 
+    if (GetMarkerCount(coMarker)=1 , fltrfpco.Name , 
+    'ОАО СЗМН. Выбрано [' + GetMarkerCount(coMarker) + '] ЦО'
+    ))   (FieldName = sFltrCO),
+  if(cPodpGrp=0   ,'Выберите подписантов', spKAU.name)   (FieldName = sPodpGrp),
+  if(cStatus=0   ,'Выберите статус', katNotes.Name)   (FieldName = sStatus),
+  * 
+  from  KatMC km,
+        f714_datas, 
+        f714_datas f714_datas_empty,
+        f714_stbud,
+        f714_sb_iter,
+        fpco fltrfpco,
+        spKAU , 
+        spKAU spKAUPodp (SPKAU07),
+        katNotes
+where (( 
+   0 == km.nrec and
+   cFltrCO == fltrfpco.nRec and
+   cPeriod   == fpPeriod.nrec and
+   wKODGRKAU == spKAU.KODGRKAU (noindex) and
+   cPodpGrp == spKAU.nrec and 
+   wKODGRKAU == spKAUPodp.KODGRKAU and 
+   cPodpGrp == spKAUPodp.cNode (noindex) and 
+   
+   '' == f714_datas_empty.OrgName and
+   '' == f714_datas_empty.DogName and
+   '' == f714_datas_empty.AppDogName and
+   
+   cStatus == katNotes.nRec
+   
+ ));
+ 
+#include iForm741_windows.vip 
+#include iForm741_proc.vip 
+   
+
+  handleEvent
+    cmPick: {
+      case curfield of
+        //#FPKATIMP.name : {
+          //RunInterface ('F_FPBUDGET::GetKatImpRel', 1 );
+          //RunInterface ('F_FPBUDGET::GetKatImpRel', 2 );
+        //}
+        
+        #sPeriod   :  {
+          var cp : comp;
+          cp := cPeriod;
+          RunInterface('F_FpCatalog::getPeriod', cgiPick, comp(0), comp(0), cPeriod, cgSetFPTuneDefault);
+          if (getfirst fpPeriod = tsOK ){
+            if (fpPeriod.size > 31){
+              Message ('Тип выбираемого периода должен быть "МЕСЯЦ"');
+              set cPeriod := cp;
+              //message ('cPeriod == ' + cPeriod);
+              if (getfirst fpPeriod = tsOK ){};
+              //rereadrecord(#fpPeriod);
+              //rereadrecord(tnfpPeriod);
+              //RescanPanel (brplan_src);
+            }
+          }
+        }
+        #sFltrCO  :  {
+          //RunInterface('F_FPCATALOG::GetCO', word(cgiPickMult + cgiNotEdit + cgiNotClear ), comp(0), comp(0), cFltrCO);
+          
+          var qwer : F_FpCatalog::vExtFpCO new;
+          
+          if  (qwer.RunViewCO(word(cgiPickMult + cgiNotEdit + cgiNotClear ), comp(0), cFltrCO) =0) then {/*set cFltrCO := 0; */exit;};
+          
+          var MarkVal: longInt;
+          
+          DoneMarker(coMarker,'');
+          set coMarker := InitMarker(qwer.GetMarkerName,8,50,10);
+          
+          if ( GetMarkerCount(coMarker)=1 ) then {
+            GetMarker (coMarker,0,cFltrCO);
+            set cFltrCO := cFltrCO;
+          }
+          
+          RescanPanel (brplan_src);
+          
+        }
+        #sPodpGrp: {
+          var qwer : F_GetAn::GetKau new;
+          
+          if  (qwer.GetCodeKau(word(cgiPickMult + cgiNotEdit + cgiNotClear ), wKODGRKAU, cPodpGrp) =0) then {set cPodpGrp := 0;exit;};
+
+          DoneMarker(coPodpis,'');
+          set coPodpis := InitMarker(qwer.GetMarkerName(wKODGRKAU),8,50,10);
+          RescanPanel (brplan_src);
+        }
+        #sStatus: {
+          if (RunInterface (  'L_DOGOVOR::GETSOMKATNOTES', 
+                              822, // 822 - фин. обязательства предприятия
+                              0,
+                              0, // выбирать все
+                              false , // выбирать один
+                              cStatus
+                              ) <> cmCancel) {};
+          RescanPanel (brplan_src) ;
+          
+        }
+      end;
+      
+    }
+    cmInit: {
+       cPeriod:=0;     
+       
+       var qwer : F_FpCatalog::vExtFpCO new;
+       
+       set coMarker := InitMarker(qwer.GetMarkerName,8,50,10);
+       
+       //set wKODGRKAU := 10035;
+       set wKODGRKAU := 50005;
+       
+       ReadDsk;
+       
+      if ( GetMarkerCount(coMarker)=1 ) then {
+        GetMarker (coMarker,0,cFltrCO);
+        set cFltrCO := cFltrCO;
+      }
+       
+      var qwer1 : F_GetAn::GetKau new;
+      //DoneMarker(coPodpis,'');
+      set coPodpis := InitMarker(qwer1.GetMarkerName(wKODGRKAU),8,50,10);
+       
+       
+       RescanPanel (brplan_src);
+
+      //TargetBudGroup := comp('000000000000000Ah');
+      //if paramSopr = 0 then pcSopr := 281474976710687 else pcSopr := paramSopr ;//281474976710659;//281474976710659; // для отладки
+    };
+    cmDone: {
+      DoneMarker(coMarker,'');
+      
+    } ;
+    cmdelete : {
+      //Message ('CmDelete');
+    };
+    cmDelOnProtect : {
+      case curfield of
+        #sPeriod   :  {
+          set cPeriod := 0;
+        }
+        #sFltrCO  :  {
+          var qwer : F_FpCatalog::vExtFpCO new;
+          ClearMarker (coMarker);
+          DoneMarker(coMarker,qwer.GetMarkerName);
+          set coMarker := InitMarker(qwer.GetMarkerName,8,50,10);
+          set cFltrCO := 0;
+          
+        }
+        #sPodpGrp : {
+          var qwer : F_GetAn::GetKau new;
+          ClearMarker (coPodpis);
+          DoneMarker(coPodpis,qwer.GetMarkerName(wKODGRKAU));
+          set coPodpis := InitMarker(qwer.GetMarkerName(wKODGRKAU),8,50,10);
+        }
+        #sStatus  : {
+          cStatus := 0;
+        }
+      end;
+      RescanPanel (brplan_src);
+    };
+    cmOK: {
+      if (cPeriod = 0 ){
+        Message ('Необходимо указать период получения отчета!');
+        exit;
+      }
+      
+      savedsk;
+      
+      PrepareData;
+      
+      printReport;
+      
+    }//handleOK;
+    /*
+    cmCmd03 : {
+      var ar : array [1..2] of string;
+      ar[1] := 100;
+      ar[2] := 200;
+      
+      SaveMyDsk ('ar', ar);
+    }
+    */
+  end;
+  
+
+End.  // interface
