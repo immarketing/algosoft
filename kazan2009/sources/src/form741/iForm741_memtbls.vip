@@ -26,7 +26,8 @@ with index
   f714_ds_nrec = NREC(Unique, Surrogate),
   f714_OrgName = cStBud + OrgName,
   f714_ON_DN_SDN = OrgName + DogName + AppDogName,
-  f714_ON_DN_SDN_SB = OrgName + DogName + AppDogName + cStBud
+  f714_ON_DN_SDN_SB = OrgName + DogName + AppDogName + cStBud,
+  f714_NppSort = NppSort
 
 )
 ;

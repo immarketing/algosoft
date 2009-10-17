@@ -1,6 +1,6 @@
 
   screen  brplan_src;
-  show at( , , ,);
+  show at( , , ,7);
   fields
     //pcSopr      : noprotect;
     //cTBL_SOOTV  : noprotect;
@@ -26,7 +26,6 @@
 ! <.   2   .>  <. 3 .>
   >>
   end;
-/*
 
 
   BROWSE  brplan_f714_stbud;
@@ -71,5 +70,6 @@ f714_stbud.SortCode 'SortCode' : [10], protect;
   
 
 
+/*
 
   */

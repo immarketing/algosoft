@@ -29,7 +29,7 @@
     var ps : byte;
     ps := pos ('.', n);
     if (ps = 0) then {
-      result := lPad(ps,4);
+      result := lPad(n,4);
       exit;
     }
     var s1 : string;
@@ -79,7 +79,7 @@
     if (getfirst f714_stbud where ((curNode == nRec)) = tsOK ){
       insert f714_sb_iter set crec := f714_stbud.nRec, level := curLev, prStart := 1, f714_sb_iter.cNode := f714_stbud.cnode;
     }
-    _loop f714_stbud where ((curNode == f714_stbud.cNode)) {
+    _loop f714_stbud (f714_sb_scode) where ((curNode == f714_stbud.cNode)) {
       prepareHierData (f714_stbud.nRec , curLev +1);
     }
     if (getfirst f714_stbud where ((curNode == nRec)) = tsOK ){
@@ -397,7 +397,7 @@
     var lr : longint;
     var cn : comp;
     
-    _loop f714_datas {
+    _loop f714_datas (f714_NppSort) {
       cn := f714_datas.cStBud;
       
       while (getFirst FPSTBUD where ((cn == FPSTBUD.nrec)) = tsOK ){
@@ -426,14 +426,14 @@
     
     update f714_stbud where (( 0 == f714_stbud.cNode  )) set  f714_stbud.lvl := 1, 
                                                               //f714_stbud.SortCode := f714_stbud.LevelCode , 
-                                                              f714_stbud.SortCode := rebuildNPP(f714_stbud.code)
+                                                              f714_stbud.SortCode := rebuildNPP(f714_stbud.levelcode)
                                                               ; 
     
     for (b := 1; b <= 250; b := b+1){
       update f714_stbud
         from f714_stbud fsb 
        where ((f714_stbud.cnode /== fsb.nRec and b == fsb.lvl))
-         set lvl := b + 1, SortCode :=  fsb.SortCode + '|' + rebuildNPP(f714_stbud.code) /*f714_stbud.LevelCode */;
+         set lvl := b + 1, SortCode :=  fsb.SortCode + '|' + rebuildNPP(f714_stbud.levelcode) /*f714_stbud.LevelCode */;
     }
     //update f714_stbud set SortCode := PAdCh(SortCode+'|','0',250);
     update f714_stbud set SortCode := lPad('|'+SortCode,250);
