@@ -534,6 +534,17 @@
     
     update f714_datas set f714_datas.sumAr[f714_datas.plDay] := f714_datas.sum;
     
+    _loop f714_datas {
+      var s : string;
+      s := '';
+      _loop AttrDog where ((f714_datas.cDog == AttrDog.cDogovor)) {
+        s := AttrDog.SUBJECT1 + AttrDog.SUBJECT2 + AttrDog.SUBJECT3;
+        s := trim (s);
+        if s <> '' then break;
+      }
+      update current f714_datas set f714_datas.DogPred := s;
+    }
+    
     // схлопываем пустые строки
     var subSymb : string ; // строка-заменитель пустых строк
     
@@ -603,6 +614,7 @@
     SaveMyDsk (cFltrCO,'iForm741_cFltrCO' );
     
     SaveMyDsk (cPodpGrp,'iForm741_cPodpGrp' );
+    SaveMyDsk (cStatus,'iForm741_cStatus' );
     
   end;
   
@@ -617,6 +629,7 @@
     ReadMyDsk (cFltrCO,'iForm741_cFltrCO', dc)
     
     ReadMyDsk (cPodpGrp,'iForm741_cPodpGrp', dc)
+    ReadMyDsk (cStatus,'iForm741_cStatus', dc)
     
   end;
   

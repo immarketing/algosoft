@@ -71,7 +71,7 @@ function GetGroupName (Level : Word) : String;
 begin
   GetGroupName := '';
   case Level of
-    1 : GetGroupName := 'Форма 7.4.1';
+    1 : GetGroupName := 'Отчеты по бюджетам';
   end;
 end;
 !-------------------------------------------------------------------------------
