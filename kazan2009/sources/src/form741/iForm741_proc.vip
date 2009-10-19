@@ -275,8 +275,38 @@
     printSigners;
     
     // sGetTune ('USER.FIO') USER.REMARK
-    xlSetCellStringValue('/ '+ sGetTune ('USER.FIO') + ' /', 15, 5, 15, 5); 
-    xlSetCellStringValue(sGetTune ('USER.REMARK'), 15, 12, 15, 12); 
+    
+    var sFIO :String ;
+    sFIO := Trim (sGetTune ('USER.FIO'));
+    var ps1 : byte;
+    ps1 := pos (' ',sFIO);
+    if (ps1 <> 0 ){
+      var sfam : String;
+      //sFAM := substr (sFIO,1,ps1-1);
+      sFAM := substr (sFIO,1,ps1-1) + ' ' + Substr (trim (substr (sFIO,ps1+1,255)),1,1) + '.';
+      
+      sFIO := trim (substr (sFIO,ps1+1,255));
+      ps1 := pos (' ',sFIO);
+      
+      if (ps1 <> 0) {
+        sFAM := sFAM + ' ' + Substr (trim (substr (sFIO,ps1+1,255)),1,1) + '.';
+      } else {
+      }
+      
+      sFIO := sFAM;
+    }
+    
+    
+    xlSetCellStringValue('/ '+ sFIO + ' /', 15, 10, 15, 10); 
+    
+    var tel : string;
+    
+    if (getFirst persons where (( sGetTune ('USER.FIO') == persons.FIO (noindex) )) = tsOK) {
+      if (getFirst COMMUNICATIONS where ((persons.nrec == COMMUNICATIONS.person)) = tsOK){
+        tel := COMMUNICATIONS.ADDR;
+      }
+    }
+    xlSetCellStringValue(tel /* sGetTune ('USER.REMARK') */, 15, 12, 15, 12); 
     xlRunMacro('CopyRow6');
 
     xlSetActiveSheetByName('отчет'); //?????_1
