@@ -98,6 +98,7 @@ end.
 form741showdebug menu
 {
   - 'Показать отладочную информацию', cmShowDebug, 'Отладочная информация' ;
+  - 'Показать отладочную информацию - 2', cmShowDebug2, 'Отладочная информация' ;
 }
 
 vipInterface szmn_bud_Form741 licensed(free);
@@ -221,7 +222,7 @@ where ((
         #sPodpGrp: {
           var qwer : F_GetAn::GetKau new;
           
-          if  (qwer.GetCodeKau(word(cgiPickMult + cgiNotEdit + cgiNotClear ), wKODGRKAU, cPodpGrp) =0) then {set cPodpGrp := 0;exit;};
+          if  (qwer.GetCodeKau(word(cgiPick + cgiNotEdit + cgiNotClear ), wKODGRKAU, cPodpGrp) =0) then {set cPodpGrp := 0;exit;};
 
           DoneMarker(coPodpis,'');
           set coPodpis := InitMarker(qwer.GetMarkerName(wKODGRKAU),8,50,10);
@@ -240,6 +241,10 @@ where ((
         }
       end;
       
+    }
+    
+    cmShowDebug2: {
+      //Message (s);
     }
     
     cmShowDebug: {
@@ -261,29 +266,37 @@ where ((
     }
     
     cmInit: {
-       cPeriod:=0;     
-       
-       var qwer : F_FpCatalog::vExtFpCO new;
-       
-       set coMarker := InitMarker(qwer.GetMarkerName,8,50,10);
-       
-       //set wKODGRKAU := 10035;
-       set wKODGRKAU := 50005;
-       
-       ReadDsk;
-       
+      cPeriod:=0;     
+      
+      var qwer : F_FpCatalog::vExtFpCO new;
+      
+      set coMarker := InitMarker(qwer.GetMarkerName,8,50,10);
+      
+      //set wKODGRKAU := 10035;
+      set wKODGRKAU := 50005;
+      
+      var s : String;
+      s := '';
+      s := TranslatePath ('%FORM741_PODP_KODAN%');
+      if (s <> '') {
+        wKODGRKAU := word (s);
+      }
+      
+      
+      ReadDsk;
+      
       if ( GetMarkerCount(coMarker)=1 ) then {
         GetMarker (coMarker,0,cFltrCO);
         set cFltrCO := cFltrCO;
       }
-       
+      
       var qwer1 : F_GetAn::GetKau new;
       //DoneMarker(coPodpis,'');
       set coPodpis := InitMarker(qwer1.GetMarkerName(wKODGRKAU),8,50,10);
-       
-       
-       RescanPanel (brplan_src);
-
+      
+      
+      RescanPanel (brplan_src);
+      
       //TargetBudGroup := comp('000000000000000Ah');
       //if paramSopr = 0 then pcSopr := 281474976710687 else pcSopr := paramSopr ;//281474976710659;//281474976710659; // для отладки
     };
@@ -325,11 +338,16 @@ where ((
         exit;
       }
       
+      StartNewVisual (vtRotateVisual , vfScreenBottom + vfTimer  + vfThread  , 'Подготовка данных отчета', 100);
       savedsk;
       
       PrepareData;
       
+      SetVisualHeader ('Печать отчета');
+      
       printReport;
+      
+      StopVisual('',0);
       
     }//handleOK;
     /*

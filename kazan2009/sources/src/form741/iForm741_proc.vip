@@ -270,6 +270,7 @@
     repSetPrintRow(15);
     
     _loop f714_sb_iter (f714_sbi_nrec) {
+      if (f714_sb_iter.cNode = 0) then {continue;};
       printCuHierReportData(f714_sb_iter.cRec,0);      
     }
     printSigners;
@@ -302,7 +303,9 @@
     var tel : string;
     
     if (getFirst persons where (( sGetTune ('USER.FIO') == persons.FIO (noindex) )) = tsOK) {
-      if (getFirst COMMUNICATIONS where ((persons.nrec == COMMUNICATIONS.person)) = tsOK){
+      if (getFirst COMMUNICATIONS where ((  persons.nrec == COMMUNICATIONS.person and 
+                                            comp('000000000000022Bh') == COMMUNICATIONS.comtype
+                                            )) = tsOK){
         tel := COMMUNICATIONS.ADDR;
       }
     }
