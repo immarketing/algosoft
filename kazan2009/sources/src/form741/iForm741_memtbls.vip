@@ -19,7 +19,8 @@ table struct f714_datas
   StBudName   : string,
   sum         : double,
   sumAr       : array [1..31] of double,
-  AKTOFPnRec  : comp
+  AKTOFPnRec  : comp,
+  groupLevel  : byte
 )
 with index
 (
@@ -27,7 +28,8 @@ with index
   f714_OrgName = cStBud + OrgName,
   f714_ON_DN_SDN = OrgName + DogName + AppDogName,
   f714_ON_DN_SDN_SB = OrgName + DogName + AppDogName + cStBud,
-  f714_NppSort = NppSort
+  f714_NppSort = NppSort,
+  f714_groupLevel = groupLevel + cOrg + cDog + cAppDog + cStBud
 
 )
 ;

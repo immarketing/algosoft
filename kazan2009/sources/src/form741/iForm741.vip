@@ -160,10 +160,12 @@ where ((
    wKODGRKAU == spKAUPodp.KODGRKAU and 
    cPodpGrp == spKAUPodp.cNode (noindex) and 
    
+   0 == f714_datas_empty.groupLevel and
+   /*
    '' == f714_datas_empty.OrgName and
    '' == f714_datas_empty.DogName and
    '' == f714_datas_empty.AppDogName and
-   
+   */
    cStatus == katNotes.nRec
    
  ));

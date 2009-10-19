@@ -479,6 +479,89 @@
     */
   end;
   
+  procedure GroupDatas;
+  begin
+    var subSymb : string ; // строка-заменитель пустых строк
+    
+    subSymb := 'aaaaaaaaaaaaaaaaaaaaaaa'#255;
+    
+    update f714_datas set f714_datas.groupLevel := 0;
+    
+    _loop f714_datas_empty {
+      if (getfirst f714_datas where ((  
+                                        1       == f714_datas.groupLevel and
+                                        f714_datas_empty.cOrg == f714_datas.cOrg and 
+                                        f714_datas_empty.cDog == f714_datas.cDog and 
+                                        f714_datas_empty.cAppDog == f714_datas.cAppDog and 
+                                        f714_datas_empty.cStBud == f714_datas.cStBud )) = tsOK ){
+        //
+        update current f714_datas set f714_datas.sum := f714_datas.sum + f714_datas_empty.sum, 
+                                      f714_datas.sumar[f714_datas_empty.plDay] := f714_datas.sumar[f714_datas_empty.plDay] + 
+                                                                                  f714_datas_empty.sumar[f714_datas_empty.plDay] ;
+        
+        /*
+        var i : byte;
+        
+        for (i := 1; i<=31;inc (i)){
+          update current f714_datas set f714_datas.sumar[i] := f714_datas.sumar[i] + f714_datas_empty.sumar[i];
+        }
+        */
+        
+      } else {
+        var r1 : type$f714_datas;
+        //var r2 : record as table f714_datas_empty;
+        //f714_datas = f714_datas_empty;
+        //GetTableBuffer  (r1);
+        //r2 := r1;
+        r1 := f714_datas_empty.buffer;
+        r1.groupLevel := 1;
+        r1.sumar[r1.plDay] := r1.sum;
+        
+        r1.nRec := 0;//mtGetNextNrec(tnf714_datas, true);
+        
+        f714_datas.buffer := r1;
+        
+        insert current f714_datas ;
+        
+        /*
+        //Message ( 'f714_datas_empty.plDay == '+f714_datas_empty.plDay+''#13+                  'f714_datas_empty.sumar[] =='+ f714_datas_empty.sumar[f714_datas_empty.plDay] +''#13);
+        insert f714_datas set f714_datas.OrgName := subSymb,  f714_datas.DogName := subSymb, f714_datas.AppDogName := subSymb,
+                              f714_datas.cStBud := f714_datas_empty.cStBud,
+                              f714_datas.sum := f714_datas_empty.sum, 
+                              f714_datas.sumar[f714_datas_empty.plDay] := f714_datas_empty.sumar[f714_datas_empty.plDay],
+                              f714_datas.plDay := f714_datas_empty.plDay
+                               ;
+        update current f714_datas set f714_datas.sum := f714_datas_empty.sum, 
+                                      f714_datas.sumar[f714_datas_empty.plDay] := 
+                                                                                  f714_datas_empty.sumar[f714_datas_empty.plDay] ;
+        */
+      }
+    }
+    
+    delete f714_datas where ((
+      0 == f714_datas.groupLevel
+    ))
+    ;
+    
+    /*
+    delete f714_datas where ((
+      '' == f714_datas.OrgName and
+      '' == f714_datas.DogName and
+      '' == f714_datas.AppDogName 
+    ))
+    ;
+    
+    update f714_datas where ((
+      subSymb == f714_datas.OrgName and 
+      subSymb == f714_datas.DogName and 
+      subSymb == f714_datas.AppDogName
+    )) set f714_datas.OrgName := '',  f714_datas.DogName := '', f714_datas.AppDogName := ''
+    ;
+    */
+    
+  end;
+  
+  
   procedure PrepareData;
   begin
     delete all f714_datas;
@@ -569,55 +652,7 @@
     }
     
     // схлопываем пустые строки
-    var subSymb : string ; // строка-заменитель пустых строк
-    
-    subSymb := 'aaaaaaaaaaaaaaaaaaaaaaa'#255;
-    
-    _loop f714_datas_empty {
-      if (getfirst f714_datas where ((  subSymb == OrgName and 
-                                        subSymb == DogName and 
-                                        subSymb == AppDogName and 
-                                        f714_datas_empty.cStBud == f714_datas.cStBud )) = tsOK ){
-        //
-        update current f714_datas set f714_datas.sum := f714_datas.sum + f714_datas_empty.sum, 
-                                      f714_datas.sumar[f714_datas_empty.plDay] := f714_datas.sumar[f714_datas_empty.plDay] + 
-                                                                                  f714_datas_empty.sumar[f714_datas_empty.plDay] ;
-        
-        /*
-        var i : byte;
-        
-        for (i := 1; i<=31;inc (i)){
-          update current f714_datas set f714_datas.sumar[i] := f714_datas.sumar[i] + f714_datas_empty.sumar[i];
-        }
-        */
-        
-      } else {
-        //Message ( 'f714_datas_empty.plDay == '+f714_datas_empty.plDay+''#13+                  'f714_datas_empty.sumar[] =='+ f714_datas_empty.sumar[f714_datas_empty.plDay] +''#13);
-        insert f714_datas set f714_datas.OrgName := subSymb,  f714_datas.DogName := subSymb, f714_datas.AppDogName := subSymb,
-                              f714_datas.cStBud := f714_datas_empty.cStBud,
-                              f714_datas.sum := f714_datas_empty.sum, 
-                              f714_datas.sumar[f714_datas_empty.plDay] := f714_datas_empty.sumar[f714_datas_empty.plDay],
-                              f714_datas.plDay := f714_datas_empty.plDay
-                               ;
-        update current f714_datas set f714_datas.sum := f714_datas_empty.sum, 
-                                      f714_datas.sumar[f714_datas_empty.plDay] := 
-                                                                                  f714_datas_empty.sumar[f714_datas_empty.plDay] ;
-      }
-    }
-    
-    delete f714_datas where ((
-      '' == f714_datas.OrgName and
-      '' == f714_datas.DogName and
-      '' == f714_datas.AppDogName 
-    ))
-    ;
-    
-    update f714_datas where ((
-      subSymb == f714_datas.OrgName and 
-      subSymb == f714_datas.DogName and 
-      subSymb == f714_datas.AppDogName
-    )) set f714_datas.OrgName := '',  f714_datas.DogName := '', f714_datas.AppDogName := ''
-    ;
+    GroupDatas;
 
     BuildStHeir;
     
