@@ -39,7 +39,7 @@ table struct f714_stbud
   name        : String,
   levelcode   : String,
   code        : String,
-  cNode       :comp,
+  cNode       : comp,
   lvl         : word,
   isLeaf      : byte,
   SortCode    : String,
@@ -50,11 +50,9 @@ with index
 (
   f714_sb_nrec   = NREC(Unique),
   f714_sb_lvl    = lvl + nrec,
-  f714_sb_cNode  = cnode + levelcode,
+  f714_sb_cNode  = cnode + SortCode,
   f714_sb_lcode   = levelcode,
-  f714_sb_scode   = SortCode
-  
-
+  f714_sb_scode   = cnode + SortCode
 )
 ;
 

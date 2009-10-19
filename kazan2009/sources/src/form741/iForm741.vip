@@ -32,7 +32,7 @@
 // раскомментировать конструкцию VipInterface (Implements для Атлантиса 5.1)
 
 #ifdef Atl51
-VipInterface UserReport_szmn_form741_20091017  Implements IUserReport
+VipInterface UserReport_szmn_form741  Implements IUserReport
   Licensed(Free)
 ;
 #else
@@ -43,7 +43,7 @@ VipInterface UserReport_szmn_form741_20091017  Implements IUserReport
 Пример пользовательского отчета #1
 #end
 
-Interface UserReport_szmn_form741_20091017;
+Interface UserReport_szmn_form741;
 
 create view;
 
@@ -53,13 +53,13 @@ procedure Run;
 begin
   //RunInterface('szmn_bud_Form714_20091012');
   //RunInterface(#_INTERFVERSSTRINGQUOTED_(szmn_bud_Form714_));
-  RunInterface('szmn_bud_Form741_20091017' );
+  RunInterface('szmn_bud_Form741' );
 end;
 !-------------------------------------------------------------------------------
 // Наименование отчета в списке
 function GetReportName: String;
 begin
-  GetReportName := 'Форма 7.4.1 v.20091017';
+  GetReportName := 'Форма 7.4.1';
 end;
 !-------------------------------------------------------------------------------
 // Наименования групп, в которые входит отчет
@@ -95,16 +95,21 @@ end;
 end.
 
 
-vipInterface szmn_bud_Form741_20091017 licensed(free);
+form741showdebug menu
+{
+  - 'Показать отладочную информацию', cmShowDebug, 'Отладочная информация' ;
+}
+
+vipInterface szmn_bud_Form741 licensed(free);
 //vipInterface #(_VERSIONEDNAME_(szmn_bud_Form714_)) licensed(free);
 //#_VIPINTERFVERS_(szmn_bud_Form714_);
 
-Interface szmn_bud_Form741_20091017
+Interface szmn_bud_Form741
 //Interface #_VERSIONEDNAME_(szmn_bud_Form714_) 
 //#_INTERFVERS_(szmn_bud_Form714_)
   '-= СЗМН Бюджет. Форма 7.4.1. v20091017 =- ' (,hcNoContext,) EscClose, Cyan;
-  //show at  (0,0,70,10)
-  show at  (0,0,100,30)
+  show at  (0,0,70,10)
+  //show at  (0,0,100,30)
   ;
 
 #include iForm741_memtbls.vip
@@ -143,7 +148,9 @@ select
         fpco fltrfpco,
         spKAU , 
         spKAU spKAUPodp (SPKAU07),
-        katNotes
+        katNotes,
+        f714_datas f714_datasSorted(f714_NppSort),
+        f714_stbud f714_stbudSorted (f714_sb_scode)
 where (( 
    0 == km.nrec and
    cFltrCO == fltrfpco.nRec and
@@ -232,6 +239,25 @@ where ((
       end;
       
     }
+    
+    cmShowDebug: {
+      //message ('ShowDebug');
+      runwindow (wnInfoWindow741);
+    }
+    
+    
+    cmHotKeys : {
+      //message ('cmMenu');
+      
+      var mn : longint ;
+      mn := LoadMenu('form741showdebug') ;
+      var i : integer;
+      i := RunLoadMenu (mn);
+      if (i <> 0 ) {Putcommand(i)};
+      
+      //AddMenuItem (mn, 'Отладка',cmShowDebug);
+    }
+    
     cmInit: {
        cPeriod:=0;     
        

@@ -79,9 +79,12 @@
     if (getfirst f714_stbud where ((curNode == nRec)) = tsOK ){
       insert f714_sb_iter set crec := f714_stbud.nRec, level := curLev, prStart := 1, f714_sb_iter.cNode := f714_stbud.cnode;
     }
-    _loop f714_stbud (f714_sb_scode) where ((curNode == f714_stbud.cNode)) {
-      prepareHierData (f714_stbud.nRec , curLev +1);
+    
+    _loop f714_stbud (f714_sb_scode) where (( curNode == f714_stbud.cNode (noindex) )) {
+      //Message (f714_stbud.LevelCode);
+      prepareHierData (f714_stbud.nRec , curLev + 1);
     }
+    
     if (getfirst f714_stbud where ((curNode == nRec)) = tsOK ){
       insert f714_sb_iter set crec := f714_stbud.nRec, level := curLev, prStart := 2, f714_sb_iter.cNode := f714_stbud.cnode;
     }
@@ -243,7 +246,9 @@
     //sPath := 'D:\tmpl_7_4_1.xls';
     
     //message (translatepath('%curpath%'));
-    sPath := translatepath('%curpath%\tmpl_7_4_1.xls');
+    //sPath := translatepath('%curpath%\tmpl_7_4_1.xls');
+    sPath := translatepath('%startpath%Xls\F_FPBUDGET\SZMN_Budjet\tmpl_7_4_1.xls');
+    //message (sPath);
     
     xlCreateExcelWithTemplate(sPath,true); 
     
@@ -409,7 +414,7 @@
                             isLeaf,
                             codeLen
                              )
-        select FPSTBUD.nRec,
+        select  FPSTBUD.nRec,
                 FPSTBUD.name,
                 FPSTBUD.levelcode,
                 FPSTBUD.code,
@@ -436,7 +441,7 @@
          set lvl := b + 1, SortCode :=  fsb.SortCode + '|' + rebuildNPP(f714_stbud.levelcode) /*f714_stbud.LevelCode */;
     }
     //update f714_stbud set SortCode := PAdCh(SortCode+'|','0',250);
-    update f714_stbud set SortCode := lPad('|'+SortCode,250);
+    update f714_stbud set f714_stbud.SortCode := lPad('|'+ f714_stbud.SortCode,250);
     
     _loop f714_stbud {
       if ( getFirst f714_stbud sbraz where (( f714_stbud.nrec == sbraz.cnode)) <> tsOK ) {

@@ -1,6 +1,6 @@
 
   screen  brplan_src;
-  show at( , , ,7);
+  show at( , , ,);
   fields
     //pcSopr      : noprotect;
     //cTBL_SOOTV  : noprotect;
@@ -27,21 +27,67 @@
   >>
   end;
 
+Window wnInfoWindow741 '-= Отладочная информация интерфейса 741 =-' ('', hcNoContext);
+  Show at(,,,29);
+  
+  BROWSE  brplan_f714_stbudSorted;
+  show at( , , , 6 );
+  table f714_stbudSorted;
+  Fields
+    //f714_stbudSorted.nrec 'f714_stbud.nrec':[10],protect;
+    f714_stbudSorted.name        'name' : [10], protect;
+    f714_stbudSorted.levelcode   'levelcode' : [10], protect;
+    f714_stbudSorted.code        'code' : [10], protect;
+    //f714_stbudSorted.cNode       'cNode' : [10], protect;
+    //f714_stbud.lvl       'lvl' : [10], protect;
+    //f714_stbud.isLeaf 'isLeaf' : [10], protect;
+    f714_stbudSorted.SortCode 'SortCode' : [250], protect;
+  end;
 
+  /*
+  BROWSE  brplan_f714_datasSorted;
+  show at( , , ,6);
+  table f714_datasSorted  ;
+  Fields
+    //f714_stbud.nrec 'f714_stbud.nrec':[10],protect;
+    f714_datasSorted.npp        'name' : [10], protect;
+    f714_datasSorted.NppSort   'levelcode' : [10], protect;
+    f714_datasSorted.StBudName        'code' : [10], protect;
+    //f714_datasSorted.SortCode 'SortCode' : [10], protect;
+  end;
+  */
+  
+  
+  
+  BROWSE  brplan_f714_sb_iter;
+  show at( , 7, ,13);
+  table f714_sb_iter;
+  Fields
+    f714_sb_iter.nrec 'nrec':[10],protect;
+    f714_sb_iter.crec        'crec' : [10], protect;
+    //f714_sb_iter.levelcode   'levelcode' : [10], protect;
+    //f714_sb_iter.code        'code' : [10], protect;
+    //f714_sb_iter.cNode       'cNode' : [10], protect;
+    //f714_sb_iter.lvl       'lvl' : [10], protect;
+    //f714_sb_iter.isLeaf 'isLeaf' : [10], protect;
+    //f714_sb_iter.SortCode 'SortCode' : [10], protect;
+  end;
+
+  /*
   BROWSE  brplan_f714_stbud;
-  show at( ,8 , ,13);
+  show at( , 7, ,13);
   table f714_stbud;
   Fields
     f714_stbud.nrec 'f714_stbud.nrec':[10],protect;
-f714_stbud.name        'name' : [10], protect;
-f714_stbud.levelcode   'levelcode' : [10], protect;
-f714_stbud.code        'code' : [10], protect;
-f714_stbud.cNode       'cNode' : [10], protect;
-f714_stbud.lvl       'lvl' : [10], protect;
-f714_stbud.isLeaf 'isLeaf' : [10], protect;
-f714_stbud.SortCode 'SortCode' : [10], protect;
-    
+    f714_stbud.name        'name' : [10], protect;
+    f714_stbud.levelcode   'levelcode' : [10], protect;
+    f714_stbud.code        'code' : [10], protect;
+    f714_stbud.cNode       'cNode' : [10], protect;
+    f714_stbud.lvl       'lvl' : [10], protect;
+    f714_stbud.isLeaf 'isLeaf' : [10], protect;
+    f714_stbud.SortCode 'SortCode' : [10], protect;
   end;
+  */
 
   BROWSE  brplan_f714_datas;
   show at( , 14, , );
@@ -67,9 +113,4 @@ f714_stbud.SortCode 'SortCode' : [10], protect;
     
   end;
   
-  
-
-
-/*
-
-  */
+end; 
