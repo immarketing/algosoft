@@ -69,5 +69,13 @@ Window wnInfoWindow 'gg' ('gg', hcNoContext);
   Fields
     f791_stack.nrec 'f791_stack.nrec':[10],protect;
   End; // Browse
+  
+  Browse brpodpisanty '' ('',  hcNoContext);
+    Show at(,11,,);
+    Table podpisanty;
+  Fields
+    podpisanty.dolj 'dolj':[10],protect;
+    podpisanty.fio 'fio':[10],protect;
+  End; // Browse
 
 End; // Window

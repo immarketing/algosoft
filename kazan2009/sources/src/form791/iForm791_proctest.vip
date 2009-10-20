@@ -140,19 +140,12 @@
   
   procedure printSigners;
   begin
-    _loop spKAUPodp {
-      var lsname : string;
-      
-      lsname := spKAUPodp.name;
-      var b : byte;
-      
-      b := pos ('|', lsname);
-      
+    if not podpisanty.isSelected then exit;
+    
+    _loop podpisanty {
       var ar : array [1..2] of string;
-      ar[1] := substr (lsname, 1, b-1);
-      ar[2] := substr (lsname, b+1, 255);
-      
-      //Message (ar[1]+''#13''+ar[2]);
+      ar[1] := podpisanty.dolj;
+      ar[2] := podpisanty.fio;
       
       xlSetCellStringValue(ar[1] , 14, 2, 14, 2); // ??N? - ????
       xlSetCellStringValue(ar[2] , 14, 7, 14, 7); // ??N? - ????

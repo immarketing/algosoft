@@ -17,8 +17,6 @@ end;
 
 #define Licensed_Free licensed (FREE)
 
+!timever
+
 #include szmn_cmn.inc
-
-#make "src\form791\iForm791.vip"
-
-

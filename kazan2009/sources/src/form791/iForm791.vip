@@ -27,6 +27,8 @@
 
 #include UserReport.vih
 
+#include podpis.vih
+
 // Для попадания примера в список отчетов -
 // раскомментировать конструкцию VipInterface (Implements для Атлантиса 5.1)
 
@@ -116,6 +118,10 @@ var
   
   wKODGRKAU   : word;
   cPodpGrp    : comp;
+  
+  //ppp         : SZMN_COMMON::vPodpis new;
+  
+  podpisanty  : SZMN_COMMON::IPodpis (vPodpis) new;// (  ) new;
 
 As select
   if(cPeriod=0   ,'выберите значение',fpPeriod.Name)  (FieldName = sPeriod) 
@@ -123,11 +129,11 @@ As select
 , if(cPlan1=0    ,'выберите значение',fpBudVar.Name)   (FieldName = sPlan1)   
 , if(cPlan2=0    ,'выберите значение',fpBudVar1.Name)  (FieldName = sPlan2)
 , if(cPlan3=0    ,'выберите значение',fpBudVar2.Name)  (FieldName = sPlan3)    
-, if(cPodpGrp=0   ,'выберите значение', spKAU.name)   (FieldName = sPodpGrp)
+, podpisanty.DialogFieldString  (FieldName = sPodpGrp)
 
 //, if(fpSpAxtf.coTable  ,'выберите значение',fpBudVar2.Name)  (FieldName = sPlan3)    
-
 , fpvalues.summa
+
 From
   fpBudVar
  ,synonym  fpPeriod  fpP
@@ -142,7 +148,7 @@ From
  ,f791_stack
  ,spKAU
  ,spKAU spKAUPodp (SPKAU07)
- 
+ , podpisanty
  where
 ((
 
@@ -205,7 +211,12 @@ cmPick:
     #sTForm    :  RunInterface('F_FpBudget::getTForm', cgiPick, 0, cTForm);
     #sPeriod   :  RunInterface('F_FpCatalog::getPeriod', cgiPick, comp(0), comp(0), cPeriod, cgSetFPTuneDefault);
     #sPersons  :  RunInterface('SelectPersons', sPersons);
+    
     #sPodpGrp    : {
+      podpisanty.SelectPodpis;
+      RescanPanel (scKatH01);
+      
+      /*
       var qwer : F_GetAn::GetKau new;
       
       if  (qwer.GetCodeKau(word(cgiPickMult + cgiNotEdit + cgiNotClear ), wKODGRKAU, cPodpGrp) =0) then {set cPodpGrp := 0;exit;};
@@ -213,6 +224,7 @@ cmPick:
       DoneMarker(coPodpis,'');
       set coPodpis := InitMarker(qwer.GetMarkerName(wKODGRKAU),8,50,10);
       //RescanPanel (brplan_src);
+      */
 
     }
 
@@ -237,8 +249,9 @@ cmDelOnProtect:
   end;
 
 cmInit:
-{ 
-  set wKODGRKAU := 50005;
+{
+  podpisanty.setprefix('szmn_bud_Form791'); 
+  podpisanty.reinit;
   ReadDsk;
 }
 
