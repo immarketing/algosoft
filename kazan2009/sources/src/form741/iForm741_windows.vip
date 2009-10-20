@@ -30,7 +30,17 @@
 Window wnInfoWindow741 '-= Отладочная информация интерфейса 741 =-' ('', hcNoContext);
   Show at(,,,29);
   
-  BROWSE  brplan_f714_stbudSorted;
+  BROWSE  brplan_f714_pTest;
+  show at( , , , 6 );
+  table pTest;
+  Fields
+    //f714_stbudSorted.nrec 'f714_stbud.nrec':[10],protect;
+    pTest.pName        'pName' : [10], protect;
+  end;
+
+  /*
+
+BROWSE  brplan_f714_stbudSorted;
   show at( , , , 6 );
   table f714_stbudSorted;
   Fields
@@ -44,8 +54,7 @@ Window wnInfoWindow741 '-= Отладочная информация интерфейса 741 =-' ('', hcNoCon
     f714_stbudSorted.SortCode 'SortCode' : [250], protect;
   end;
 
-  /*
-  BROWSE  brplan_f714_datasSorted;
+BROWSE  brplan_f714_datasSorted;
   show at( , , ,6);
   table f714_datasSorted  ;
   Fields

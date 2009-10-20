@@ -41,6 +41,9 @@
   
   procedure printSigners;
   begin
+    if (cPodpGrp = 0) then {
+      exit;
+    }
     _loop spKAUPodp {
       var lsname : string;
       
@@ -111,6 +114,7 @@
     if (f714_sb_iter.prStart = 1  ){ // это начало этой статьи
       if (f714_stbud.isLeaf = 1) {
         xlSetCellStringValue('', 7, 1, 7, 6); // узел -  лист
+        xlSetCellStringValue('' , 7, 7, 7, 7); // узел - лист
         xlSetCellStringValue('', 7, 8, 7, 38); // узел -  лист
         xlSetCellStringValue(f714_stbud.LevelCode , 7, 1, 7, 1); // узел - лист
         xlSetCellStringValue(f714_stbud.Name , 7, 3, 7, 3); // узел - лист
@@ -164,6 +168,7 @@
       
       if (f714_stbud.isLeaf = 1) {
         xlSetCellStringValue('', 7, 1, 7, 3); // узел -  лист
+        xlSetCellFormula('=СУММ(RC[1]:RC[31])',7,7,7,7);
         xlSetCellStringValue('', 7, 8, 7, 38); // узел -  лист
         xlSetCellStringValue(f714_stbud.LevelCode , 7, 1, 7, 1); // узел - лист
         xlSetCellStringValue('Итого: ['+ f714_stbud.Name + ']' , 7, 3, 7, 3); // узел - лист
@@ -298,7 +303,7 @@
     }
     
     
-    xlSetCellStringValue('/ '+ sFIO + ' /', 15, 10, 15, 10); 
+    xlSetCellStringValue('/ '+ sFIO + ' /', 15, 9, 15, 9); 
     
     var tel : string;
     
@@ -309,7 +314,7 @@
         tel := COMMUNICATIONS.ADDR;
       }
     }
-    xlSetCellStringValue(tel /* sGetTune ('USER.REMARK') */, 15, 12, 15, 12); 
+    xlSetCellStringValue(tel /* sGetTune ('USER.REMARK') */, 15, 11, 15, 11); 
     xlRunMacro('CopyRow6');
 
     xlSetActiveSheetByName('отчет'); //?????_1

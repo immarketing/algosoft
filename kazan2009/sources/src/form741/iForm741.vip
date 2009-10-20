@@ -99,7 +99,59 @@ form741showdebug menu
 {
   - 'Показать отладочную информацию', cmShowDebug, 'Отладочная информация' ;
   - 'Показать отладочную информацию - 2', cmShowDebug2, 'Отладочная информация' ;
+  - 'Показать отладочную информацию - 3', cmShowDebug3, 'Отладочная информация' ;
+  - 'Показать отладочную информацию - 4', cmShowDebug4, 'Отладочная информация' ;
 }
+
+objInterface iTest;
+ property pName : string[50] read;
+
+ index iByPName = pName;
+ 
+  procedure MakeItSimple ;
+  
+  procedure SetPredicat(s : String);
+ 
+end;
+
+// ------------------- ╨хрышчрЎш  ------------------
+
+vipInterface cTest1 implements iTest;
+public:
+  //constructor initByName(nm : String);
+  procedure iTest.MakeItSimple ;
+  procedure iTest.SetPredicat(s : String);
+end;
+
+interface cTest1;
+  create view 
+  var prdk : String
+  as
+  select * from KatMC where (( root==KatMC.nrec and (KatMC.Name like prdk) ));
+  
+  property pName  : string[50] absolute KatMC.name read;
+  
+  index iByPName auto;
+  
+  
+  procedure iTest.MakeItSimple ;
+  begin
+    //Message ('MakeItSimple');
+  end;
+  
+  procedure iTest.SetPredicat(s : String);
+  begin
+    set prdk := s;
+    if (getfirst katmc = tsOK) {};
+  end;
+
+end.
+
+/*
+alter interface cTest1;
+end;  
+*/
+
 
 vipInterface szmn_bud_Form741 licensed(free);
 //vipInterface #(_VERSIONEDNAME_(szmn_bud_Form714_)) licensed(free);
@@ -108,7 +160,7 @@ vipInterface szmn_bud_Form741 licensed(free);
 Interface szmn_bud_Form741
 //Interface #_VERSIONEDNAME_(szmn_bud_Form714_) 
 //#_INTERFVERS_(szmn_bud_Form714_)
-  '-= СЗМН Бюджет. Форма 7.4.1. v20091017 =- ' (,hcNoContext,) EscClose, Cyan;
+  '-= СЗМН Бюджет. Форма 7.4.1. =- ' (,hcNoContext,) EscClose, Cyan;
   show at  (0,0,70,10)
   //show at  (0,0,100,30)
   ;
@@ -130,6 +182,9 @@ var
   cPodpGrp    : comp;
   
   cStatus     : comp;
+  pTest       : iTest(cTest1) new;
+  //pTest       : iTest noauto; //(cTest1) new initByName ('Test');
+  
   
 as 
 select 
@@ -151,12 +206,13 @@ select
         spKAU spKAUPodp (SPKAU07),
         katNotes,
         f714_datas f714_datasSorted(f714_NppSort),
-        f714_stbud f714_stbudSorted (f714_sb_scode)
+        f714_stbud f714_stbudSorted (f714_sb_scode),
+        pTest
 where (( 
    0 == km.nrec and
    cFltrCO == fltrfpco.nRec and
    cPeriod   == fpPeriod.nrec and
-   wKODGRKAU == spKAU.KODGRKAU (noindex) and
+   //wKODGRKAU == spKAU.KODGRKAU (noindex) and
    cPodpGrp == spKAU.nrec and 
    wKODGRKAU == spKAUPodp.KODGRKAU and 
    cPodpGrp == spKAUPodp.cNode (noindex) and 
@@ -204,7 +260,11 @@ where ((
           
           var qwer : F_FpCatalog::vExtFpCO new;
           
-          if  (qwer.RunViewCO(word(cgiPickMult + cgiNotEdit + cgiNotClear ), comp(0), cFltrCO) =0) then {/*set cFltrCO := 0; */exit;};
+          if  (qwer.RunViewCO(word(cgiPickMult + cgiNotEdit + cgiNotClear ), comp(0), cFltrCO) =0) then {/*set cFltrCO := 0; */
+            RescanPanel (brplan_src);
+            //exit;
+            
+          };
           
           var MarkVal: longInt;
           
@@ -222,10 +282,16 @@ where ((
         #sPodpGrp: {
           var qwer : F_GetAn::GetKau new;
           
-          if  (qwer.GetCodeKau(word(cgiPick + cgiNotEdit + cgiNotClear ), wKODGRKAU, cPodpGrp) =0) then {set cPodpGrp := 0;exit;};
+          if  (qwer.GetCodeKau(word(cgiPick + cgiNotEdit + cgiNotClear ), wKODGRKAU, cPodpGrp) =0) then {
+            //set cPodpGrp := 0;
+            RescanPanel (brplan_src);
+            exit;
+          };
 
           DoneMarker(coPodpis,'');
           set coPodpis := InitMarker(qwer.GetMarkerName(wKODGRKAU),8,50,10);
+          
+          if (getfirst spKAU = tsOK){};
           RescanPanel (brplan_src);
         }
         #sStatus: {
@@ -247,6 +313,14 @@ where ((
       //Message (s);
     }
     
+    cmShowDebug3: {
+      pTest.SetPredicat ('%');
+    }
+    cmShowDebug4: {
+      pTest.SetPredicat ('1%');
+    }
+    
+    
     cmShowDebug: {
       //message ('ShowDebug');
       runwindow (wnInfoWindow741);
@@ -266,7 +340,11 @@ where ((
     }
     
     cmInit: {
-      cPeriod:=0;     
+      cPeriod:=0; 
+      
+      pTest.MakeItSimple (); // := iTest (new ( cTest1,InitByName ('InitByName') ) );    
+      
+      if (getfirst pTest = tsOK ) {};
       
       var qwer : F_FpCatalog::vExtFpCO new;
       
@@ -325,6 +403,7 @@ where ((
           ClearMarker (coPodpis);
           DoneMarker(coPodpis,qwer.GetMarkerName(wKODGRKAU));
           set coPodpis := InitMarker(qwer.GetMarkerName(wKODGRKAU),8,50,10);
+          set cPodpGrp := 0;
         }
         #sStatus  : {
           cStatus := 0;
