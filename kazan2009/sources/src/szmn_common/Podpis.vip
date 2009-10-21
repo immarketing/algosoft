@@ -86,7 +86,7 @@ interface vPodpis;
   function getDialogFieldString : String;
   begin
     if (cPodpGrp = 0) then {
-      result := 'Выберите подписываюх лиц';
+      result := 'Выберите подписывающих лиц';
     } else {
       result := spKAU.Name;
     }

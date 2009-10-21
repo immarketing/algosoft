@@ -122,6 +122,10 @@ var
   //ppp         : SZMN_COMMON::vPodpis new;
   
   podpisanty  : SZMN_COMMON::IPodpis (vPodpis) new;// (  ) new;
+  
+  extClName   : String;
+  excCode1    : String;
+  excCode2    : String;
 
 As select
   if(cPeriod=0   ,'выберите значение',fpPeriod.Name)  (FieldName = sPeriod) 
@@ -149,6 +153,7 @@ From
  ,spKAU
  ,spKAU spKAUPodp (SPKAU07)
  , podpisanty
+ , f791_podval
  where
 ((
 
@@ -186,8 +191,8 @@ and comp(cHashAn)  == fpV.cHashAn (noindex)
 ))
 ;
 #include iForm791_windows.vip 
-#include iForm791_proc.vip 
 #include iForm791_proctest.vip 
+#include iForm791_proc.vip 
    
 Handleevent
   
@@ -210,7 +215,7 @@ cmPick:
     #sPlan3    :  RunInterface('F_FpBudget::Budget', word(cgiPick), word(0), word(0), comp(0), cPlan3, 0, 0);
     #sTForm    :  RunInterface('F_FpBudget::getTForm', cgiPick, 0, cTForm);
     #sPeriod   :  RunInterface('F_FpCatalog::getPeriod', cgiPick, comp(0), comp(0), cPeriod, cgSetFPTuneDefault);
-    #sPersons  :  RunInterface('SelectPersons', sPersons);
+    //#sPersons  :  RunInterface('SelectPersons', sPersons);
     
     #sPodpGrp    : {
       podpisanty.SelectPodpis;

@@ -5,6 +5,20 @@ table struct f791_2fields
 )
 ;
 
+table struct f791_podval
+(
+  nRec          : comp "",
+  cRec          : comp ,
+  code          : String,
+  name          : String,
+  summa         : double
+)
+with index
+(
+  f791_pdv_nrec = NREC(Unique, Surrogate)
+)
+;
+
 
 table struct f791_stack
 (

@@ -127,7 +127,7 @@ interface cTest1;
   create view 
   var prdk : String
   as
-  select * from KatMC where (( root==KatMC.nrec and (KatMC.Name like prdk) ));
+  select * from KatMC where (( 0==KatMC.nrec and (KatMC.Name like prdk) ));
   
   property pName  : string[50] absolute KatMC.name read;
   

@@ -1,7 +1,9 @@
+#include iForm791_extClass.vip
+
   // 0FFFFFFFFFFFFFFFFh
   
   Procedure StoreDSK();
-  {
+  begin
     SaveMyDsk(sPersons,  '7dsksPath7');
     SaveMyDsk(sPath,     '7dsksPath1');
     SaveMyDsk(cTForm,    '7dsksPath2');
@@ -10,8 +12,17 @@
     SaveMyDsk(cPlan2,    '7dsksPath5');
     SaveMyDsk(cPlan3,    '7dsksPath6');
     
+    if (extClName = '') {set extClName := 'Характеристики статьи для форм 7.9.1 и 7.9'}
+    if (excCode1 = '') {set excCode1 := 'Разделитель'}
+    if (excCode2 = '') {set excCode2 := 'Вынос в подвал'}
+
+    SaveMyDsk(extClName,    'iForm791_extClName');
+    SaveMyDsk(excCode1,    'iForm791_excCode1');
+    SaveMyDsk(excCode2,    'iForm791_excCode2');
+    
+    
     SaveMyDsk (cPodpGrp,'iForm791_cPodpGrp' );
-  }
+  end;
   
   procedure ReadDSK;
   begin
@@ -28,6 +39,15 @@
     if (not ReadMyDsk(cPeriod,'7dsksPath3',isError))  cPeriod:=0;
       
     ReadMyDsk (cPodpGrp,'iForm791_cPodpGrp', dc);
+    
+    ReadMyDsk (extClName,    'iForm791_extClName', dc);
+    ReadMyDsk (excCode1,    'iForm791_excCode1', dc);
+    ReadMyDsk (excCode2,    'iForm791_excCode2', dc);
+    
+    if (extClName = '') {set extClName := 'Характеристики статьи для форм 7.9.1 и 7.9'}
+    if (excCode1 = '') {set excCode1 := 'Разделитель'}
+    if (excCode2 = '') {set excCode2 := 'Вынос в подвал'}
+    
   end;
 
   function repGetPrintRow: word;
@@ -36,8 +56,9 @@
     xlGetCellValue(1, 1, result);
   end;
 
-  procedure ExcelPrint2(CopyBud:comp; FP:word; Nstr:word; Nstol:word);
+  procedure ExcelPrint2(CopyBud:comp; FP:word; Nstr:word; Nstol:word; var vl : double);
   begin
+    xlSetCellNumberValue(0 , Nstr, Nstol , Nstr, Nstol );
     Set cCopyBud:=CopyBud;
     Set cFP:= FP;
     _LOOP  fpV {
@@ -46,10 +67,12 @@
         if(Check=0)
         {
           xlSetCellNumberValue(fpv.summa     , Nstr, Nstol , Nstr, Nstol );
+          vl := fpv.summa;
         }
         else
         {
           xlSetCellNumberValue(fpv.summa/1000, Nstr, Nstol , Nstr, Nstol );
+          vl := fpv.summa/1000;
         }
       }
       else{}
@@ -64,15 +87,17 @@
           (select min (printedAtRow), max(printedAtRow) from f791_printed pt where ((f791_printed_ord.cRec == pt.cnode ))   ) subrowmm,
           f791_printed subprntd (f791_ptd_node_prrow),
           f791_printed f791_printed_ord2 (f791_ptd_rowsToGroup),
-          f791_printed subp2 (f791_ptd_node_prrow)
+          f791_printed subp2 (f791_ptd_node_prrow),
+          f791_printed subp3
    where ((
    f791_printed_ord.cRec == subprntd.cNode and
    0 << f791_printed_ord2.groupFrom (noindex) and
    f791_printed_ord.cRec == subp2.cNode and 
-   (f791_printed_ord.groupTo < subp2.groupTo)
+   (f791_printed_ord.groupTo < subp2.groupTo) and 
+   f791_printed_ord2.cRec == subp3.cNode
    ))
         ;
-  
+  /*
   procedure doGroupData(datSheet, repSheet : String; lastNRec, lastCNode : comp; curNRec, curCNode : comp; lastPrintedAt: word);
   begin
     xlSetActiveSheetByName(repSheet); 
@@ -88,6 +113,7 @@
     }
     xlSetActiveSheetByName(datSheet); 
   end;
+  */
   
   procedure doGroupData2 (datSheet, repSheet : String);
   begin
@@ -134,6 +160,24 @@
     
     forGrouping._loop f791_printed_ord2{
       xlRunMacro('ActiveSheetGroupData('+String ( forGrouping.f791_printed_ord2.groupFrom)+','+ String ( forGrouping.f791_printed_ord2.groupTo) +')');
+      
+      var fSum : string;
+      fSum := '';
+      
+      forGrouping._loop subp3{
+        var tsts : string;
+        var raz : integer;
+        
+        raz  := forGrouping.subp3.printedAtRow - forGrouping.f791_printed_ord2.printedAtRow ;
+        tsts := ''+ raz;
+        
+        fSum := fSum + ';R[' + tsts + ']C'; 
+      }
+      if (fSum > '') {
+        xlSetCellFormula('=Сумм('+fSum+')',forGrouping.f791_printed_ord2.printedAtRow,3,forGrouping.f791_printed_ord2.printedAtRow,7);
+      }
+       
+      
     }
     xlSetActiveSheetByName(datSheet); 
   end;
@@ -154,6 +198,17 @@
     }  
   end;
   
+  procedure printPodval(sn : String);
+  begin
+    xlSetActiveSheetByName(sn); 
+    xlRunMacro('CopyRow(ROW4)');
+    _loop f791_podval {
+      xlSetCellStringValue(f791_podval.code + '. ' + f791_podval.name, 20, 2, 20, 2); //
+      xlSetCellNumberValue(f791_podval.summa , 20, 3, 20, 3); //
+      xlRunMacro('CopyRow(ROW5)');
+    }
+    xlRunMacro('CopyRow(ROW6)');
+  end;
   
   
   procedure doHandleTest;
@@ -162,6 +217,7 @@
     
     delete all f791_printed;
     delete all f791_stack;
+    delete all f791_podval;
 
     var sPath : String;
     var sMacroses : String;
@@ -250,27 +306,71 @@
         xlSetCellStringValue('2', 1+tt, 40, 1+tt, 40);
       }
       
+      var
+        arValues : array [1..3] of double;
+        
+        
+      var delit : double;
+        
+      if(Check=0)      {
+        delit := 1;
+      }      else      {
+        delit := 1000;
+      }
       
-      if ( fpSpAxtf.cNode = 0h)then {
+      var extCl : byte;
+      
+      extCl := 0;
+      
+      if ( fpSpAxtf.coTable = coFPSTBUD ) {
+        extCl := GetStBudExtraParameters( coFPSTBUD , fpSpAxtf.CMEAN );
+      }
+      
+      if ( extCl = 1 /* fpSpAxtf.cNode = 0h */)then {
+        // самый верхний уровень группировки
         xlSetCellStringValue(fpstbud.levelcode, 8, 1, 8, 1);
         xlSetCellStringValue(fpSpAxtf.levelcode, 8, 1, 8, 1); //
         xlSetCellStringValue(fpSpAxtf.name, 8, 2, 8, 2); //
         xlRunMacro('CopyRow(ROW0)');
       } else if ( fpSpAxtf.isLeaf = 0 )then {
+        // Группа не верхнего уровня
         xlSetCellStringValue(fpstbud.levelcode, 10, 1, 10, 1);
         xlSetCellStringValue(fpSpAxtf.levelcode, 10, 1, 10, 1); //
         xlSetCellStringValue(fpSpAxtf.name, 10, 2, 10, 2); //
-        ExcelPrint2(cPlan1,150,10,3); // План 1
-        ExcelPrint2(cPlan2,150,10,4); // План 2
-        ExcelPrint2(cPlan3,150,10,5); // План 3
+        ExcelPrint2(cPlan1,150,10,3, arValues[1]); // План 1
+        ExcelPrint2(cPlan3,150,10,4, arValues[3]); // План 3
+        ExcelPrint2(cPlan2,150,10,4, arValues[2]); // План 2
+        
+        if (extCl = 2) {
+          // - в подвал
+          insert f791_podval set  f791_podval.name := fpSpAxtf.name, 
+                                  f791_podval.code := fpSpAxtf.levelcode, 
+                                  f791_podval.summa:= arValues[1];
+        }
+        
+        arValues[3] := arValues[3] - if ( (arValues[1]- arValues[2]) < 0 ,arValues[1],arValues[2]) ;
+        xlSetCellNumberValue(if (arValues[3]<0,0,arValues[3]) , 10, 6 , 10, 6 );
+
         xlRunMacro('CopyRow(ROW2)');
       } else {
+        // Лист
         xlSetCellStringValue(fpstbud.levelcode, 9, 1, 9, 1);
         xlSetCellStringValue(fpSpAxtf.levelcode, 9, 1, 9, 1); //
         xlSetCellStringValue(fpSpAxtf.name, 9, 2, 9, 2); //
-        ExcelPrint2(cPlan1,150,9,3); // План 1
-        ExcelPrint2(cPlan2,150,9,4); // План 2
-        ExcelPrint2(cPlan3,150,9,5); // План 3
+        ExcelPrint2(cPlan1,150,9,3, arValues[1]); // План 1
+        ExcelPrint2(cPlan3,150,9,4, arValues[3]); // План 3
+        ExcelPrint2(cPlan2,150,9,4, arValues[2]); // План 2
+
+        if (extCl = 2) {
+          // - в подвал
+          insert f791_podval set  f791_podval.name := fpSpAxtf.name, 
+                                  f791_podval.code := fpSpAxtf.levelcode, 
+                                  f791_podval.summa:= arValues[1];
+        }
+
+        arValues[3] := arValues[3] - if ( (arValues[1]- arValues[2]) < 0 ,arValues[1],arValues[2]) ;
+        xlSetCellNumberValue( if (arValues[3]<0,0,arValues[3]) , 9, 6 , 9, 6 );
+
         xlRunMacro('CopyRow(ROW1)');
       }
       insert f791_printed set f791_printed.cRec := fpSpAxtf.nRec , 
@@ -285,6 +385,8 @@
     
     doGroupData2(dataSheetName, reportSheetName);
     
+    printPodval (dataSheetName);
+    
     printSigners;
 
     xlSetActiveSheetByName(reportSheetName); //?????_1
@@ -292,7 +394,7 @@
     
     
   end;
-  
+  /*
   procedure doPrintReport2;
   begin
     pathUserOut := GetDefaultUserPath;
@@ -358,13 +460,11 @@
     
     xlSetCellStringValue(Check, 1, 49, 1, 49);
     tt:=0;
-    /*
     _loop TabPersons{
     xlSetCellStringValue(TabPersons.name, 1+tt, 51, 1+tt, 51);
     xlSetCellStringValue(TabPersons.work, 1+tt, 52, 1+tt, 52);
     inc(tt);
     }
-    */
     xlSetCellStringValue(tt, 1, 53, 1, 53);
     
     xlRunMacro('GalFpUser_AfterReport');
@@ -373,4 +473,4 @@
     //PutCommand(cmClose);
     
   end;
-  
+  */

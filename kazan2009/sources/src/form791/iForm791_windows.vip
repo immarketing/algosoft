@@ -1,52 +1,69 @@
-//
-Screen scKatH01 'Установка фильтров' (,, sci13Esc);
+tabbedSheet tabbed   
+  //
+  Screen scKatH01 'Установка фильтров' ;
 !  Table KatH;
-Fields
-  sTForm  ('',,) : Protect,PickButton,
-    {Font = {BackColor = if (cTForm=0,    ColorNeed,0)}};
-  sPeriod ('',,) : Protect,PickButton,
-    {Font = {BackColor = if (cPeriod=0,   ColorNeed,0)}};
-  sPlan1  ('',,) : Protect,PickButton,
-    {Font = {BackColor = if (cPlan1=0,    ColorNeed,0)}};
-  sPlan2  ('',,) : Protect,PickButton,
-    {Font = {BackColor = if (cPlan2=0,    ColorNeed,0)}};
-  sPlan3  ('',,) : Protect,PickButton,
-    {Font = {BackColor = if (cPlan3=0,    ColorNeed,0)}};
-  sPodpGrp ('Выбор сотрудников для подписи',,) : protect,pickbutton, {Font = {BackColor = if (sPersons='выберите значение',    ColorNeed,0)}};
-  sPath ('',,) : Protect,PickButton,
-    {Font = {BackColor = if (sPath='',    ColorNeed,0)}};
-  Check ('') :NoProtect;
+  Fields
+    sTForm  ('',,) : Protect,PickButton,
+      {Font = {BackColor = if (cTForm=0,    ColorNeed,0)}};
+    sPeriod ('',,) : Protect,PickButton,
+      {Font = {BackColor = if (cPeriod=0,   ColorNeed,0)}};
+    sPlan1  ('',,) : Protect,PickButton,
+      {Font = {BackColor = if (cPlan1=0,    ColorNeed,0)}};
+    sPlan2  ('',,) : Protect,PickButton,
+      {Font = {BackColor = if (cPlan2=0,    ColorNeed,0)}};
+    sPlan3  ('',,) : Protect,PickButton,
+      {Font = {BackColor = if (cPlan3=0,    ColorNeed,0)}};
+    sPodpGrp ('Выбор сотрудников для подписи',,) : protect,pickbutton, {Font = {BackColor = if (sPersons='выберите значение',    ColorNeed,0)}};
+    sPath ('',,) : Protect,PickButton,
+      {Font = {BackColor = if (sPath='',    ColorNeed,0)}};
+    Check ('') :NoProtect;
+    
+  	
+  buttons
+  cmApply;
+  cmCancel;
+  cmTest;
+  cmWindow;
+  <<
   
-	
-buttons
-cmApply;
-cmCancel;
-cmTest;
-cmWindow;
-<<
-
- Типовая форма бюджета .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
- Месяц                 .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-
-
-                           Варианты бюджета
-
- План                                 .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
- План потребности по заявкам отделов  .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
- План с учетом доппотребностей        .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
- Cотрудники для подписи               .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-
-
- Путь к шаблону        .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-
-    `Печатать в`
-     (.) руб`          
-     (.) тыс.руб`
-
-          <.Сформировать.>    <.  Отмена  .> <. Проба .> <. WINDOWS .>
->>
-end; // Screen
-
+   Типовая форма бюджета .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+   Месяц                 .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+  
+  
+                             Варианты бюджета
+  
+   План                                 .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+   План потребности по заявкам отделов  .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+   План с учетом доппотребностей        .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+   Cотрудники для подписи               .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+  
+  
+   Путь к шаблону        .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+  
+      `Печатать в`
+       (.) руб`          
+       (.) тыс.руб`
+  
+            <.Сформировать.>    <.  Отмена  .> <. Проба .> <. WINDOWS .>
+  >>
+  end; // Screen
+  screen  sCheckdop 'Дополнительно';
+  Fields
+  
+    extClName  ('',,) : NoProtect,noPickButton,
+      {Font = {BackColor = if (extClName='',    ColorNeed,0)}};
+    excCode1  ('',,) : NoProtect,noPickButton,
+      {Font = {BackColor = if (excCode1='',    ColorNeed,0)}};
+    excCode2  ('',,) : NoProtect,noPickButton,
+      {Font = {BackColor = if (excCode2='',    ColorNeed,0)}};
+  
+  <<
+         Название классификатора .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+     Код аналитики [Разделитель] .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+  Код аналитики [Вынос в подвал] .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+  >>
+  end; // screen  sCheckdop 'Дополнительно';
+end;
 Window wnInfoWindow 'gg' ('gg', hcNoContext);
   Show at(,,,29);
 

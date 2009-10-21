@@ -115,6 +115,9 @@ begin
   xlRunMacro('GalFpUser_AfterReport');
   xlKillExcel;
   
+  StoreDSK;
+  /*
+  
   SaveMyDsk(sPersons,  '7dsksPath7');
   SaveMyDsk(sPath,     '7dsksPath1');
   SaveMyDsk(cTForm,    '7dsksPath2');
@@ -122,6 +125,7 @@ begin
   SaveMyDsk(cPlan1,    '7dsksPath4');
   SaveMyDsk(cPlan2,    '7dsksPath5');
   SaveMyDsk(cPlan3,    '7dsksPath6');
+  */
   
   PutCommand(cmClose);
   
