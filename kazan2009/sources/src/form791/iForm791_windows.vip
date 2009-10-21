@@ -13,7 +13,10 @@ tabbedSheet tabbed
       {Font = {BackColor = if (cPlan2=0,    ColorNeed,0)}};
     sPlan3  ('',,) : Protect,PickButton,
       {Font = {BackColor = if (cPlan3=0,    ColorNeed,0)}};
-    sPodpGrp ('Выбор сотрудников для подписи',,) : protect,pickbutton, {Font = {BackColor = if (sPersons='выберите значение',    ColorNeed,0)}};
+    sPodpGrp ('Выбор сотрудников для подписи',,) : protect,pickbutton, 
+      {Font = {BackColor = if ( not podpisanty.iSSelected ,    ColorNeed,0)}};
+    sPodpGrp2 ('Выбор сотрудников для подписи',,) : protect,pickbutton, 
+      {Font = {BackColor = if ( not podpisanty2.iSSelected ,    ColorNeed,0)}};
     sPath ('',,) : Protect,PickButton,
       {Font = {BackColor = if (sPath='',    ColorNeed,0)}};
     Check ('') :NoProtect;
@@ -35,7 +38,8 @@ tabbedSheet tabbed
    План                                 .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
    План потребности по заявкам отделов  .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
    План с учетом доппотребностей        .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-   Cотрудники для подписи               .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+   Cотрудники для подписи 7.9.1         .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+   Cотрудники для подписи 7.9           .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
   
   
    Путь к шаблону        .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@

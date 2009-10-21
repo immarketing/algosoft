@@ -198,16 +198,108 @@
     }  
   end;
   
+  procedure printSigners2;
+  begin
+    if not podpisanty2.isSelected then exit;
+    
+    _loop podpisanty2 {
+      var ar : array [1..2] of string;
+      ar[1] := podpisanty2.dolj;
+      ar[2] := podpisanty2.fio;
+      
+      xlSetCellStringValue(ar[1] , 14, 2, 14, 2); // ??N? - ????
+      xlSetCellStringValue(ar[2] , 14, 7, 14, 7); // ??N? - ????
+      xlRunMacro('CopyRow(ROW3)');
+      
+    }  
+  end;
+
+  procedure printExecutor;
+  begin
+    var sFIO :String ;
+    sFIO := Trim (sGetTune ('USER.FIO'));
+    var ps1 : byte;
+    ps1 := pos (' ',sFIO);
+    if (ps1 <> 0 ){
+      var sfam : String;
+      //sFAM := substr (sFIO,1,ps1-1);
+      sFAM := substr (sFIO,1,ps1-1) + ' ' + Substr (trim (substr (sFIO,ps1+1,255)),1,1) + '.';
+      
+      sFIO := trim (substr (sFIO,ps1+1,255));
+      ps1 := pos (' ',sFIO);
+      
+      if (ps1 <> 0) {
+        sFAM := sFAM + ' ' + Substr (trim (substr (sFIO,ps1+1,255)),1,1) + '.';
+      } else {
+      }
+      
+      sFIO := sFAM;
+    }
+    
+    
+    //xlSetCellStringValue('/ '+ sFIO + ' /', 15, 9, 15, 9); 
+    
+    var tel : string;
+    
+    if (getFirst persons where (( sGetTune ('USER.FIO') == persons.FIO (noindex) )) = tsOK) {
+      if (getFirst COMMUNICATIONS where ((  persons.nrec == COMMUNICATIONS.person and 
+                                            comp('000000000000022Bh') == COMMUNICATIONS.comtype
+                                            )) = tsOK){
+        tel := COMMUNICATIONS.ADDR;
+      }
+    }
+    xlSetCellStringValue(sFIO + ',' + tel , 26, 2, 29, 2); 
+    xlRunMacro('CopyRow(ROW7)');
+
+  end;
+  
+  
   procedure printPodval(sn : String);
   begin
-    xlSetActiveSheetByName(sn); 
-    xlRunMacro('CopyRow(ROW4)');
+    xlSetActiveSheetByName(sn);
+    
+    if getfirst f791_podval = tsOK {
+      xlRunMacro('CopyRow(ROW4)');
+    }
     _loop f791_podval {
       xlSetCellStringValue(f791_podval.code + '. ' + f791_podval.name, 20, 2, 20, 2); //
       xlSetCellNumberValue(f791_podval.summa , 20, 3, 20, 3); //
       xlRunMacro('CopyRow(ROW5)');
     }
-    xlRunMacro('CopyRow(ROW6)');
+    
+    if getLast f791_podval = tsOK {
+      xlRunMacro('CopyRow(ROW6)');
+    }
+  end;
+  
+  procedure printReport79 (dataSheetName, report791Sheet, report79Sheet : String);
+  begin
+    xlSetActiveSheetByName(dataSheetName); 
+    xlRunMacro('setReportSheetName('+report79Sheet+')');
+    xlRunMacro('setRowToFill('+String (13)+')');
+    
+    _loop f791_printed {
+      xlSetActiveSheetByName(dataSheetName);
+      if (f791_printed.extPar = 1){
+        xlRunMacro('CopyRow(ROW10)');
+      } else if (f791_printed.isLeaf = 0) {
+        xlRunMacro('CopyRow(ROW12)');
+      } else {
+        xlRunMacro('CopyRow(ROW11)');
+      }
+      update current f791_printed set f791_printed.printedatrow79 := repGetPrintRow - 1;
+      
+      // =rep791!R[-2]C
+      xlSetActiveSheetByName(report79Sheet);
+      
+      xlSetCellFormula('=' + report791Sheet + '!R[-2]C', f791_printed.printedatrow79,1,f791_printed.printedatrow79,2);
+      xlSetCellFormula('=' + report791Sheet + '!R[-2]C[2]', f791_printed.printedatrow79,3,f791_printed.printedatrow79,4);
+      // =—”ÃÃ(RC[-2]:RC[-1])
+      xlSetCellFormula('=ëìåå(RC[-2]:RC[-1])', f791_printed.printedatrow79,5,f791_printed.printedatrow79,5);
+    }
+    xlSetActiveSheetByName(dataSheetName); 
+    printSigners2;
+    xlSetActiveSheetByName(report79Sheet);
   end;
   
   
@@ -239,32 +331,31 @@
     var reportSheetName : string;
     reportSheetName  := 'rep791';
     
+    var reportSheetName79 : string;
+    reportSheetName79:= 'rep79';
+
     xlRunMacro('setDataSheetName('+dataSheetName+')');
     xlRunMacro('setReportSheetName('+reportSheetName+')');
-    xlRunMacro('setRowToFill('+String (12)+')');
+    xlRunMacro('setRowToFill('+String (11)+')');
     
     xlSetActiveSheetByName(dataSheetName); 
     
-    xlSetCellStringValue(month(fpperiod.dbeg), 1, 1, 1, 1); //
-    xlSetCellStringValue(year(fpperiod.dbeg), 1, 2, 1, 2); //	
+    //xlSetCellStringValue(month(fpperiod.dbeg), 1, 1, 1, 1); //
+    //xlSetCellStringValue(year(fpperiod.dbeg), 1, 2, 1, 2); //	
     
+    xlSetCellStringValue(sPeriod, 4, 2, 4, 2); //	
+    
+    if(Check=0) {
+      xlSetCellStringValue('‡„°.', 4, 3, 4, 3); //	
+    } else {
+      xlSetCellStringValue('‚Î·.‡„°.', 4, 3, 4, 3); //	
+    }
     
     //xlSetNumberFormat('@'        ,2 , 41, 65000, 46);
 
     
     var tt:word;
     tt:=0;
-    
-    /*
-    table struct f791_stack
-    (
-      nRec          : comp "",
-      cRec          : comp ,
-      cNode         : comp ,
-      level         : word
-    )
-    */
-    //insert f791_stack set cRec := 0, cNode := 0FFFFFFFFFFFFFFFFh, level := 0;
     
     var lastnRec, lastCNode : comp;
     var lastPrintedAt : word;
@@ -376,7 +467,10 @@
       insert f791_printed set f791_printed.cRec := fpSpAxtf.nRec , 
                               f791_printed.printedAtRow := repGetPrintRow - 1,
                               f791_printed.cNode := fpSpAxtf.cNode,
-                              f791_printed.name := fpSpAxtf.name
+                              f791_printed.name := fpSpAxtf.name,
+                              f791_printed.extPar := extCl,
+                              f791_printed.isLeaf := fpSpAxtf.isLeaf
+                              
                               ;
       lastPrintedAt := repGetPrintRow - 1;
       lastnRec := fpSpAxtf.nRec;
@@ -388,89 +482,14 @@
     printPodval (dataSheetName);
     
     printSigners;
+    
+    printExecutor;
 
     xlSetActiveSheetByName(reportSheetName); //?????_1
+    
+    printReport79(dataSheetName, reportSheetName, reportSheetName79);
+    
     xlKillExcel;
     
     
   end;
-  /*
-  procedure doPrintReport2;
-  begin
-    pathUserOut := GetDefaultUserPath;
-    NameExcel   := pathUserOut;
-    wPeriod:=word(trim(NextNumStr(sPeriod)))-1;
-    
-    xlCreateExcel('',true);
-    if (xlIsExcelValid)
-    {
-      xlOpenWorkBook(trim(sPath));
-      xlSetActiveWorkBookByName(trim(sPath));
-      xlSaveAsWorkBookByName(trim(sPath), NameExcel+'.xls');
-    } 
-    
-    xlSetActiveSheet(1); //í®‚„´_1
-    
-    xlSetCellStringValue(month(fpperiod.dbeg), 1, 1, 1, 1); //
-    xlSetCellStringValue(year(fpperiod.dbeg), 1, 2, 1, 2); //	
-    
-    
-    xlSetNumberFormat('@'        ,2 , 41, 65000, 46);
-    
-    
-    var tt:word;
-    tt:=0;
-    
-      
-    _LOOP fpSpAxtf {
-      inc(tt);
-      
-      if(fpSpAxtf.coTable = word(22217) )       // (isValid(tnfpstbud)) 
-      {
-        set cStBud  := fpSpAxtf.cMean;//
-        set cHashAn := comp(0);
-        xlSetCellStringValue('1', 1+tt, 40, 1+tt, 40);
-      } else{
-        set cHashAn := Hashan.nrec;
-        xlSetCellStringValue('2', 1+tt, 40, 1+tt, 40);
-      }
-      
-      
-      xlSetCellStringValue(string(fpSpAxtf.cMean), 1+tt, 41, 1+tt, 41);  
-      xlSetCellStringValue(string(cStBud),         1+tt, 42, 1+tt, 42);   
-                                                               
-      
-      
-      xlSetCellStringValue(string(fpBV.nrec ),     1+tt, 43, 1+tt, 43);
-      xlSetCellStringValue(string(cFP   ),         1+tt, 44, 1+tt, 44);
-      xlSetCellStringValue(string(cStBud),         1+tt, 45, 1+tt, 45);
-      xlSetCellStringValue(string(cHashAn),        1+tt, 46, 1+tt, 46);
-      xlSetCellStringValue(string(fpStBud.ABBR),   1+tt, 47, 1+tt, 47);
-      
-      
-      
-      xlSetCellStringValue(fpSpAxtf.code, 1+tt, 1, 1+tt, 1); //
-      xlSetCellStringValue(fpSpAxtf.name, 1+tt, 2, 1+tt, 2); //
-      xlSetCellStringValue(kated.name, 1+tt, 39, 1+tt, 39);
-      ExcelPrint(cPlan1,150,1+tt,2); // è´†≠ 1 
-      ExcelPrint(cPlan2,150,1+tt,14); // è´†≠ 2
-      ExcelPrint(cPlan3,150,1+tt,26); // è´†≠ 3
-      xlSetCellStringValue(fpstbud.levelcode, 1+tt, 50, 1+tt, 50);                            
-    }
-    
-    xlSetCellStringValue(Check, 1, 49, 1, 49);
-    tt:=0;
-    _loop TabPersons{
-    xlSetCellStringValue(TabPersons.name, 1+tt, 51, 1+tt, 51);
-    xlSetCellStringValue(TabPersons.work, 1+tt, 52, 1+tt, 52);
-    inc(tt);
-    }
-    xlSetCellStringValue(tt, 1, 53, 1, 53);
-    
-    xlRunMacro('GalFpUser_AfterReport');
-    xlKillExcel;
-    
-    //PutCommand(cmClose);
-    
-  end;
-  */

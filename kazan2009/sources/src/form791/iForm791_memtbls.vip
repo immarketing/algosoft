@@ -47,7 +47,10 @@ table struct f791_printed
   name          : String,
   groupFrom     : word,
   groupTo       : word,
-  rowsToGroup   : word
+  rowsToGroup   : word,
+  extPar        : byte,
+  isLeaf        : byte,
+  printedatrow79: word
 )
 with index
 (
