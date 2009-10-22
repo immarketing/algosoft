@@ -37,8 +37,19 @@ begin
   
   extClass._loop ExClassVal {
     extClass._loop ExClassName {
+      insert f791_2extcl 
+         set  f791_2extcl.name := extClass.ExClassName.Name, 
+              f791_2extcl.val := extClass.ExClassSeg.Value,
+              f791_2extcl.cRec := cr,
+              f791_2extcl.wTable := wt
       if (extClass.ExClassName.Name <> extClName /*'Характеристики статьи для форм 7.9.1 и 7.9'*/) {continue};
       extClass._loop ExClassSeg {
+        insert f791_2extcl 
+           set  f791_2extcl.name := extClass.ExClassName.Name, 
+                f791_2extcl.val := extClass.ExClassSeg.Value,
+                f791_2extcl.cRec := cr,
+                f791_2extcl.wTable := wt
+                ;
         if (extClass.ExClassSeg.Value = excCode1 /*'Разделитель'*/) {result := 1; exit};
         if (extClass.ExClassSeg.Value = excCode2 /*'Вынос в подвал'*/) {result := 2; exit};
       }

@@ -26,7 +26,7 @@ tabbedSheet tabbed
   cmApply;
   cmCancel;
   cmTest;
-  cmWindow;
+!  cmWindow;
   <<
   
    Типовая форма бюджета .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -48,7 +48,7 @@ tabbedSheet tabbed
        (.) руб`          
        (.) тыс.руб`
   
-            <.Сформировать.>    <.  Отмена  .> <. Проба .> <. WINDOWS .>
+            <.Сформировать.>  <.  Отмена  .>  <. Отчет 7.9 и 7.9.1 .>
   >>
   end; // Screen
   screen  sCheckdop 'Дополнительно';
@@ -83,6 +83,7 @@ Window wnInfoWindow 'gg' ('gg', hcNoContext);
     f791_printed.groupFrom 'f791_printed.groupFrom':[10],protect;
     f791_printed.groupTo 'f791_printed.groupTo':[10],protect;
     f791_printed.rowsToGroup 'f791_printed.rowsToGroup':[10],protect;
+    f791_printed.rowsToGroup 'f791_printed.rowsToGroup':[10],protect;
   End; // Browse
   Browse brStack '' ('',  hcNoContext);
     Show at(,6,,10);
@@ -91,12 +92,32 @@ Window wnInfoWindow 'gg' ('gg', hcNoContext);
     f791_stack.nrec 'f791_stack.nrec':[10],protect;
   End; // Browse
   
+  /*
   Browse brpodpisanty '' ('',  hcNoContext);
-    Show at(,11,,);
+    Show at(,11,,13);
     Table podpisanty;
   Fields
     podpisanty.dolj 'dolj':[10],protect;
     podpisanty.fio 'fio':[10],protect;
   End; // Browse
+  */
 
+  Browse brf791_podval '' ('',  hcNoContext);
+    Show at(,11,,13);
+    Table f791_podval;
+  Fields
+    f791_podval.code 'code':[10],protect;
+    f791_podval.name 'name':[10],protect;
+    f791_podval.summa 'summa':[10],protect;
+  End; // Browse
+
+  Browse brf791_2extcl '' ('',  hcNoContext);
+    Show at(,14,,);
+    Table f791_2extcl;
+  Fields
+    f791_2extcl.wTable 'wTable':[10],protect;
+    f791_2extcl.crec 'crec':[10],protect;
+    f791_2extcl.name 'name':[10],protect;
+    f791_2extcl.val 'val':[10],protect;
+  End; // Browse
 End; // Window

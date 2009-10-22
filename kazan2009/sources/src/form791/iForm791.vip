@@ -83,6 +83,10 @@ end;
 !-------------------------------------------------------------------------------
 end.
 
+form791showdebug menu
+{
+  - 'Показать отладочную информацию', cmShowDebug791, 'Отладочная информация' ;
+}
 
 vipInterface szmn_bud_Form791 licensed(free);
 
@@ -157,6 +161,7 @@ From
  , podpisanty
  , podpisanty2
  , f791_podval
+ , f791_2extcl
  where
 ((
 
@@ -198,19 +203,29 @@ and comp(cHashAn)  == fpV.cHashAn (noindex)
 #include iForm791_proc.vip 
    
 Handleevent
+  cmHotKeys : {
+    var mn : longint ;
+    mn := LoadMenu('form791showdebug') ;
+    var i : integer;
+    i := RunLoadMenu (mn);
+    //message  ('i == ' + i);
+    if (i <> 0 and i <> cmCancel) {
+      Putcommand(i)
+    }
+  }
   
   cmTest: {
     doHandleTest;
   }
   
-  cmWindow: {
+  cmShowDebug791: {
     RunWindowModal( wnInfoWindow );
   }
-cmApply:
-{
-  doPrintReport();
-
-}
+  cmApply:
+  {
+    doPrintReport();
+  
+  }
 cmPick:
   case curField of
     #sPlan1    :  RunInterface('F_FpBudget::Budget', word(cgiPick), word(0), word(0), comp(0), cPlan1, 0, 0);

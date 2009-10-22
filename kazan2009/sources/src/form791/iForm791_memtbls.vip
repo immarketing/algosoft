@@ -5,9 +5,19 @@ table struct f791_2fields
 )
 ;
 
+table struct f791_2extcl
+(
+  wTable        : word,
+  cRec          : comp,
+  name          : String,
+  val           : String
+)
+;
+
+
 table struct f791_podval
 (
-  nRec          : comp "",
+!  nRec          : comp "",
   cRec          : comp ,
   code          : String,
   name          : String,
@@ -15,7 +25,9 @@ table struct f791_podval
 )
 with index
 (
-  f791_pdv_nrec = NREC(Unique, Surrogate)
+!  f791_pdv_nrec = NREC(Unique, Surrogate),
+  f791_pdv_code = code
+  
 )
 ;
 
@@ -44,6 +56,7 @@ table struct f791_printed
   cRec          : comp ,
   cnode         : comp,
   printedAtRow  : word,
+  code          : String,
   name          : String,
   groupFrom     : word,
   groupTo       : word,
