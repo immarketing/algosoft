@@ -41,6 +41,20 @@
   
   procedure printSigners;
   begin
+    if not podpisanty.isSelected then exit;
+    
+    _loop podpisanty {
+      var ar : array [1..2] of string;
+      ar[1] := podpisanty.dolj;
+      ar[2] := podpisanty.fio;
+      
+      xlSetCellStringValue(ar[1] , 10, 2, 10, 2); // узел - лист
+      xlSetCellStringValue(ar[2] , 10, 10, 10, 10); // узел - лист
+      xlRunMacro('CopyRow5');
+    }  
+    
+    /*
+    
     if (cPodpGrp = 0) then {
       exit;
     }
@@ -63,6 +77,7 @@
       xlRunMacro('CopyRow5');
       
     }  
+    */
   end;
     
   
@@ -247,12 +262,12 @@
 
   procedure printReport;
   begin
-    var sPath : String;
+    //var sPath : String;
     //sPath := 'D:\tmpl_7_4_1.xls';
     
     //message (translatepath('%curpath%'));
     //sPath := translatepath('%curpath%\tmpl_7_4_1.xls');
-    sPath := translatepath('%startpath%Xls\F_FPBUDGET\SZMN_Budjet\tmpl_7_4_1.xls');
+    //sPath := translatepath('%startpath%Xls\F_FPBUDGET\SZMN_Budjet\tmpl_7_4_1.xls');
     //message (sPath);
     
     xlCreateExcelWithTemplate(sPath,true); 
@@ -730,6 +745,11 @@
     SaveMyDsk (cPodpGrp,'iForm741_cPodpGrp' );
     SaveMyDsk (cStatus,'iForm741_cStatus' );
     
+    if (sPath = '') then {
+      sPath := translatepath('%startpath%Xls\F_FPBUDGET\SZMN_Budjet\tmpl_7_4_1.xls');
+    }
+    
+    SaveMyDsk (sPath,'iForm741_sPath' );
   end;
   
   procedure ReadDsk;
@@ -738,13 +758,18 @@
     
     dc := true;
     
-    ReadMyDsk (cPeriod,'iForm741_cPeriod', dc)
+    ReadMyDsk (cPeriod,'iForm741_cPeriod', dc);
     //ReadMyDsk (wKODGRKAU,'iForm741_wKODGRKAU', dc)
-    ReadMyDsk (cFltrCO,'iForm741_cFltrCO', dc)
+    ReadMyDsk (cFltrCO,'iForm741_cFltrCO', dc);
     
-    ReadMyDsk (cPodpGrp,'iForm741_cPodpGrp', dc)
-    ReadMyDsk (cStatus,'iForm741_cStatus', dc)
+    ReadMyDsk (cPodpGrp,'iForm741_cPodpGrp', dc);
+    ReadMyDsk (cStatus,'iForm741_cStatus', dc);
     
+    ReadMyDsk (sPath,'iForm741_sPath', dc);
+    
+    if (sPath = '') then {
+      sPath := translatepath('%startpath%Xls\F_FPBUDGET\SZMN_Budjet\tmpl_7_4_1.xls');
+    }
   end;
   
   

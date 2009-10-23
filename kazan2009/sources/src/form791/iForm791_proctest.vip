@@ -5,7 +5,10 @@
   Procedure StoreDSK();
   begin
     SaveMyDsk(sPersons,  '7dsksPath7');
-    SaveMyDsk(sPath,     '7dsksPath1');
+    SaveMyDsk(sPath,     'iForm791_sPath');
+    
+    if (sPath='') set sPath := translatepath('%startpath%Xls\F_FPBUDGET\SZMN_Budjet\tmpl_7_9_1.xls');
+    
     SaveMyDsk(cTForm,    '7dsksPath2');
     SaveMyDsk(cPeriod,   '7dsksPath3');
     SaveMyDsk(cPlan1,    '7dsksPath4');
@@ -33,8 +36,8 @@
     
     dc := true;
     
-    if (not ReadMyDsk(sPath  ,'7dsksPath7',isError))  sPersons := 'выберите значение';
-    if (not ReadMyDsk(sPath  ,'7dsksPath1',isError))  sPath := '';
+    //if (not ReadMyDsk(sPath  ,'7dsksPath7',isError))  sPersons := 'выберите значение';
+    if (not ReadMyDsk(sPath  ,'iForm791_sPath',isError))  sPath := '';
     if (not ReadMyDsk(cPlan1 ,'7dsksPath4',isError))  cPlan1:=0; 
     if (not ReadMyDsk(cPlan2 ,'7dsksPath5',isError))  cPlan2:=0; 
     if (not ReadMyDsk(cPlan3 ,'7dsksPath6',isError))  cPlan3:=0;  
@@ -52,6 +55,8 @@
     if (excCode1 = '') {set excCode1 := 'Разделитель'}
     if (excCode2 = '') {set excCode2 := 'Вынос в подвал'}
     if (excCode3 = '') {set excCode3 := 'Итого'}
+    
+    if (sPath='') set sPath := translatepath('%startpath%Xls\F_FPBUDGET\SZMN_Budjet\tmpl_7_9_1.xls');
     
     ReadMyDsk (Check,    'iForm791_Check', dc);
     
@@ -327,10 +332,12 @@
     delete all f791_podval;
     delete all f791_2extcl;
 
-    var sPath : String;
+    //var sPath : String;
     var sMacroses : String;
 
-    sPath := translatepath('%curpath%\tmpl_7_9_1.xls');
+    //sPath := translatepath('%curpath%\tmpl_7_9_1.xls');
+    //sPath := translatepath('%startpath%Xls\F_FPBUDGET\SZMN_Budjet\tmpl_7_4_1.xls');
+    
     //sMacroses := translatepath('%curpath%\agmacroses.vba');
     
     xlCreateExcelWithTemplate(sPath,true); 

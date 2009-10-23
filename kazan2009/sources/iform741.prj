@@ -19,5 +19,6 @@ end;
 
 !timever
 
+#include szmn_cmn.inc
 
 #make "src\form741\iForm741.vip"

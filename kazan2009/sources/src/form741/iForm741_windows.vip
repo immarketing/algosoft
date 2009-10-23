@@ -10,6 +10,8 @@
 !  wKODGRKAU  : Protect,noPickButton,{Font = {BackColor = if (cPeriod=0,   ColorNeed,0)}};
   sPodpGrp('',,) : Protect,PickButton,{Font = {BackColor = if (cPodpGrp=0,   ColorNeed,0)}};
   sStatus ('',,) : Protect,PickButton,{Font = {BackColor = if (cStatus=0,   ColorNeed,0)}};
+    sPath ('',,) : Protect,PickButton,
+      {Font = {BackColor = if (sPath='',    ColorNeed,0)}};
   
   buttons
           cmOk,,, 'OGON';
@@ -22,6 +24,8 @@
 `           Подписанты:` .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ 
 `               Статуc:` .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ 
   
+`       Путь к шаблону:` .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ 
+
  <. Получить отчет .>    
 ! <.   2   .>  <. 3 .>
   >>

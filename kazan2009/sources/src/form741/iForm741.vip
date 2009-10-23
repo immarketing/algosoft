@@ -28,6 +28,8 @@
 
 #include UserReport.vih
 
+#include podpis.vih
+
 // Для попадания примера в список отчетов -
 // раскомментировать конструкцию VipInterface (Implements для Атлантиса 5.1)
 
@@ -180,11 +182,14 @@ var
   
   wKODGRKAU   : word;
   cPodpGrp    : comp;
+
+  sPath :string;
   
   cStatus     : comp;
   pTest       : iTest(cTest1) new;
   //pTest       : iTest noauto; //(cTest1) new initByName ('Test');
   
+  podpisanty  : SZMN_COMMON::IPodpis (vPodpis) new;// (  ) new;
   
 as 
 select 
@@ -193,8 +198,9 @@ select
     if (GetMarkerCount(coMarker)=1 , fltrfpco.Name , 
     'ОАО СЗМН. Выбрано [' + GetMarkerCount(coMarker) + '] ЦО'
     ))   (FieldName = sFltrCO),
-  if(cPodpGrp=0   ,'Выберите подписантов', spKAU.name)   (FieldName = sPodpGrp),
   if(cStatus=0   ,'Выберите статус', katNotes.Name)   (FieldName = sStatus),
+  //if(cPodpGrp=0   ,'Выберите подписантов', spKAU.name)   (FieldName = sPodpGrp),
+  podpisanty.DialogFieldString  (FieldName = sPodpGrp) ,
   * 
   from  KatMC km,
         f714_datas, 
@@ -207,7 +213,8 @@ select
         katNotes,
         f714_datas f714_datasSorted(f714_NppSort),
         f714_stbud f714_stbudSorted (f714_sb_scode),
-        pTest
+        pTest,
+        podpisanty
 where (( 
    0 == km.nrec and
    cFltrCO == fltrfpco.nRec and
@@ -238,6 +245,13 @@ where ((
           //RunInterface ('F_FPBUDGET::GetKatImpRel', 1 );
           //RunInterface ('F_FPBUDGET::GetKatImpRel', 2 );
         //}
+        #sPath     : {
+          var sTmp : string;
+          sTmp := GetFileName('*.XLS', 'Выберите файл с шаблоном');
+          if (trim(sTmp) = '')
+          { Exit; }
+          Set sPath := sTmp;
+        }
         
         #sPeriod   :  {
           var cp : comp;
@@ -280,6 +294,10 @@ where ((
           
         }
         #sPodpGrp: {
+          podpisanty.SelectPodpis;
+          
+          /*
+
           var qwer : F_GetAn::GetKau new;
           
           if  (qwer.GetCodeKau(word(cgiPick + cgiNotEdit + cgiNotClear ), wKODGRKAU, cPodpGrp) =0) then {
@@ -292,6 +310,7 @@ where ((
           set coPodpis := InitMarker(qwer.GetMarkerName(wKODGRKAU),8,50,10);
           
           if (getfirst spKAU = tsOK){};
+          */
           RescanPanel (brplan_src);
         }
         #sStatus: {
@@ -362,6 +381,8 @@ where ((
         wKODGRKAU := word (s);
       }
       
+      podpisanty.setprefix('szmn_bud_Form741'); 
+      podpisanty.reinit;
       
       ReadDsk;
       
