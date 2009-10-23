@@ -23,9 +23,9 @@ tabbedSheet tabbed
     
   	
   buttons
-  cmApply;
-  cmCancel;
   cmTest;
+  cmCancel;
+!  cmApply;
 !  cmWindow;
   <<
   
@@ -48,7 +48,9 @@ tabbedSheet tabbed
        (.) руб`          
        (.) тыс.руб`
   
-            <.Сформировать.>  <.  Отмена  .>  <. Отчет 7.9 и 7.9.1 .>
+  <. Отчет 7.9 и 7.9.1 .>  <.  Отмена  .>  
+  
+!            <.Сформировать.>    
   >>
   end; // Screen
   screen  sCheckdop 'Дополнительно';
@@ -60,11 +62,16 @@ tabbedSheet tabbed
       {Font = {BackColor = if (excCode1='',    ColorNeed,0)}};
     excCode2  ('',,) : NoProtect,noPickButton,
       {Font = {BackColor = if (excCode2='',    ColorNeed,0)}};
+    excCode3  ('',,) : NoProtect,noPickButton,
+      {Font = {BackColor = if (excCode3='',    ColorNeed,0)}};
   
   <<
+  
          Название классификатора .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
      Код аналитики [Разделитель] .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
   Код аналитики [Вынос в подвал] .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+           Код аналитики [Итого] .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+           
   >>
   end; // screen  sCheckdop 'Дополнительно';
 end;

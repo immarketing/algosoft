@@ -15,11 +15,12 @@
     if (extClName = '') {set extClName := 'Характеристики статьи для форм 7.9.1 и 7.9'}
     if (excCode1 = '') {set excCode1 := 'Разделитель'}
     if (excCode2 = '') {set excCode2 := 'Вынос в подвал'}
+    if (excCode3 = '') {set excCode3 := 'Итого'}
 
     SaveMyDsk(extClName,    'iForm791_extClName');
     SaveMyDsk(excCode1,    'iForm791_excCode1');
     SaveMyDsk(excCode2,    'iForm791_excCode2');
-    
+    SaveMyDsk(excCode3,    'iForm791_excCode3');
     
     SaveMyDsk (cPodpGrp,'iForm791_cPodpGrp' );
     
@@ -45,10 +46,12 @@
     ReadMyDsk (extClName,    'iForm791_extClName', dc);
     ReadMyDsk (excCode1,    'iForm791_excCode1', dc);
     ReadMyDsk (excCode2,    'iForm791_excCode2', dc);
+    ReadMyDsk (excCode3,    'iForm791_excCode3', dc);
     
     if (extClName = '') {set extClName := 'Характеристики статьи для форм 7.9.1 и 7.9'}
     if (excCode1 = '') {set excCode1 := 'Разделитель'}
     if (excCode2 = '') {set excCode2 := 'Вынос в подвал'}
+    if (excCode3 = '') {set excCode3 := 'Итого'}
     
     ReadMyDsk (Check,    'iForm791_Check', dc);
     
@@ -286,7 +289,10 @@
     _loop f791_printed {
       xlSetActiveSheetByName(dataSheetName);
       if (f791_printed.extPar = 1){
-        xlRunMacro('CopyRow(ROW10)');
+        xlRunMacro('CopyRow(ROW10)'); // Разделитель
+      } else if (f791_printed.extPar = 3){
+        // итоги
+        xlRunMacro('CopyRow(ROW13)');        
       } else if (f791_printed.isLeaf = 0) {
         xlRunMacro('CopyRow(ROW12)');
       } else {
@@ -294,17 +300,21 @@
       }
       update current f791_printed set f791_printed.printedatrow79 := repGetPrintRow - 1;
       
-      // =rep791!R[-2]C
       xlSetActiveSheetByName(report79Sheet);
       
       xlSetCellFormula('=' + report791Sheet + '!R[-2]C', f791_printed.printedatrow79,1,f791_printed.printedatrow79,2);
-      xlSetCellFormula('=' + report791Sheet + '!R[-2]C[2]', f791_printed.printedatrow79,3,f791_printed.printedatrow79,4);
-      // =╤╙╠╠(RC[-2]:RC[-1])
-      xlSetCellFormula('=СУММ(RC[-2]:RC[-1])', f791_printed.printedatrow79,5,f791_printed.printedatrow79,5);
+      if ( f791_printed.extPar <> 1 ){
+        xlSetCellFormula('=' + report791Sheet + '!R[-2]C[2]', f791_printed.printedatrow79,3,f791_printed.printedatrow79,4);
+        xlSetCellFormula('=СУММ(RC[-2]:RC[-1])', f791_printed.printedatrow79,5,f791_printed.printedatrow79,5);
+      }
+      
     }
     xlSetActiveSheetByName(dataSheetName); 
     printSigners2;
     xlSetActiveSheetByName(report79Sheet);
+    
+    xlRunMacro('AfterPrint');
+    
   end;
   
   
@@ -397,10 +407,10 @@
       {
         set cStBud  := fpSpAxtf.cMean;//
         set cHashAn := comp(0);
-        xlSetCellStringValue('1', 1+tt, 40, 1+tt, 40);
+        //xlSetCellStringValue('1', 1+tt, 40, 1+tt, 40);
       } else{
         set cHashAn := Hashan.nrec;
-        xlSetCellStringValue('2', 1+tt, 40, 1+tt, 40);
+        //xlSetCellStringValue('2', 1+tt, 40, 1+tt, 40);
       }
       
       var
@@ -504,6 +514,8 @@
     printExecutor;
 
     xlSetActiveSheetByName(reportSheetName); //?????_1
+    
+    xlRunMacro('AfterPrint');
     
     printReport79(dataSheetName, reportSheetName, reportSheetName79);
     

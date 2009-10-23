@@ -334,7 +334,9 @@ where ((
       mn := LoadMenu('form741showdebug') ;
       var i : integer;
       i := RunLoadMenu (mn);
-      if (i <> 0 ) {Putcommand(i)};
+      if (i <> 0 and i <> cmCancel) {
+        Putcommand(i)
+      };
       
       //AddMenuItem (mn, 'Отладка',cmShowDebug);
     }

@@ -52,6 +52,7 @@ begin
                 ;
         if (extClass.ExClassSeg.Value = excCode1 /*'Разделитель'*/) {result := 1; exit};
         if (extClass.ExClassSeg.Value = excCode2 /*'Вынос в подвал'*/) {result := 2; exit};
+        if (extClass.ExClassSeg.Value = excCode3 /*'Итого'*/) {result := 3; exit};
       }
     }
   }

@@ -318,6 +318,9 @@
     xlRunMacro('CopyRow6');
 
     xlSetActiveSheetByName('отчет'); //?????_1
+    
+    xlRunMacro('afterprint');
+    
     xlKillExcel;
   end;
   
@@ -434,6 +437,19 @@
      rst.cNode == rstUp.nRec
    ))
           ;
+          
+  function trimFirst0 (st : String):string;
+  begin
+    if st = '' then {
+      result := '';
+      exit
+    };
+    if substr (st,1,1) = '0' then 
+      result := trimFirst0 (substr (st,2,255)) 
+    else 
+      result := st;
+  end;
+  
     
   procedure BuildStHeir;
   begin
@@ -454,7 +470,7 @@
                              )
         select  FPSTBUD.nRec,
                 FPSTBUD.name,
-                FPSTBUD.levelcode,
+                trimFirst0 (FPSTBUD.levelcode),
                 FPSTBUD.code,
                 FPSTBUD.cNode,
                 FPSTBUD.isLeaf,
@@ -693,6 +709,8 @@
     GroupDatas;
 
     BuildStHeir;
+    
+
     
     //select * from f714_datas to dbf f714_datas.dbf;
     //select * from f714_datas to txt f714_datas.txt;

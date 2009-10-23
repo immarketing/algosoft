@@ -92,8 +92,8 @@ vipInterface szmn_bud_Form791 licensed(free);
 
 Interface szmn_bud_Form791 
   '-= СЗМН Бюджет. Форма 7.9.1. v20091014 =- ' (,hcNoContext,) EscClose, Cyan;
-  show at  (0,0,70,10)
-  //show at  (0,0,100,30)
+  //show at  (0,0,70,10)
+  show at  (0,0,100,30)
   ;
 
 #include iForm791_memtbls.vip
@@ -131,6 +131,7 @@ var
   extClName   : String;
   excCode1    : String;
   excCode2    : String;
+  excCode3    : String;
 
 As select
   if(cPeriod=0   ,'выберите значение',fpPeriod.Name)  (FieldName = sPeriod) 
