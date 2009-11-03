@@ -504,8 +504,8 @@
                                                               ; 
     
     for (b := 1; b <= 250; b := b+1){
-      update f714_stbud
-        from f714_stbud fsb 
+      update f714_stbud //,  f714_stbud fsb 
+        //from 
        where ((f714_stbud.cnode /== fsb.nRec and b == fsb.lvl))
          set lvl := b + 1, SortCode :=  fsb.SortCode + '|' + rebuildNPP(f714_stbud.levelcode) /*f714_stbud.LevelCode */;
     }

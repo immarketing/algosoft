@@ -205,7 +205,8 @@ select
   from  KatMC km,
         f714_datas, 
         f714_datas f714_datas_empty,
-        f714_stbud,
+        f714_stbud, // f714_stbud
+        f714_stbud fsb,
         f714_sb_iter,
         fpco fltrfpco,
         spKAU , 

@@ -1,0 +1,37 @@
+
+table struct f641_printed
+(
+  nRec          : comp "",
+  cRec          : comp ,
+  cnode         : comp,
+  printedAtRow  : word,
+  code          : String,
+  name          : String,
+  groupFrom     : word,
+  groupTo       : word,
+  rowsToGroup   : word,
+  extPar        : byte,
+  isLeaf        : byte,
+  printedatrow79: word,
+  prior         : word,
+
+  sumvar1       : array [1..12] of double,  // Plan
+  sumvar2       : array [1..12] of double,  // DopPlan
+  sumvar3       : array [1..12] of double,  // Fact
+  sumvar4       : array [1..12] of double,  // OjidPlan
+
+  SumKorr       : array [1..12] of double,  // корректировка
+
+  Sumojid       : double,
+  SumBDSGod     : double
+)
+with index
+(
+  f641_ptd_nrec = NREC(Unique, Surrogate),
+  f641_ptd_crec = crec,
+  f641_ptd_cnode = cnode,
+  f641_ptd_node_prrow = cnode + printedAtRow,
+  f641_ptd_rowsToGroup = groupFrom + rowsToGroup (desc)
+
+)
+;
