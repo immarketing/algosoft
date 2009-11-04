@@ -6,7 +6,7 @@ rem set ApiDataBase=D:\TEMP\DEMO.20081106\Galtest_data
 set ApiExePath=D:\GALAKTIKA\GAL810\exe
 rem set ApiExePath=D:\TEMP\nmz\exe
 
-set ApiOutFile=debug3.res
+set ApiOutFile=debug.res
 set ApiTempPath=.\Temp
 
 set SuppExePath=D:\Galaktika\Sup5208\exe

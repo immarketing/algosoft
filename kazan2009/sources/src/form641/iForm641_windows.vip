@@ -1,3 +1,5 @@
+tabbedSheet tabbed
+
 Screen scKatH01 'Установка фильтров' (,, sci13Esc);
 !  Table KatH;
 Fields
@@ -48,6 +50,31 @@ cmCancel;
           <.Сформировать.>    <.  Отмена  .>
 >>
 end; // Screen
+  screen  sCheckdop 'Дополнительно';
+  Fields
+
+    extClName  ('',,) : NoProtect,noPickButton,
+      {Font = {BackColor = if (extClName='',    ColorNeed,0)}};
+    excCode1  ('',,) : NoProtect,noPickButton,
+      {Font = {BackColor = if (excCode1='',    ColorNeed,0)}};
+    excCode2  ('',,) : NoProtect,noPickButton,
+      {Font = {BackColor = if (excCode2='',    ColorNeed,0)}};
+    excCode3  ('',,) : NoProtect,noPickButton,
+      {Font = {BackColor = if (excCode3='',    ColorNeed,0)}};
+    excCode4  ('',,) : NoProtect,noPickButton,
+      {Font = {BackColor = if (excCode4='',    ColorNeed,0)}};
+
+  <<
+
+         Название классификатора .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+     Код аналитики [Разделитель] .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+  Код аналитики [Вынос в подвал] .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+           Код аналитики [Итого] .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+        Код аналитики [Аггрегат] .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+  >>
+  end; // screen  sCheckdop 'Дополнительно';
+end;
 
 Window wnInfoWindow 'gg' ('gg', hcNoContext);
   Show at(,,,29);

@@ -61,7 +61,7 @@ end;
 // Наименование отчета в списке
 function GetReportName: String;
 begin
-  GetReportName := 'Форма 6.4.1';
+  GetReportName := 'Форма 6.4.1 (by AlGo)';
 end;
 !-------------------------------------------------------------------------------
 // Наименования групп, в которые входит отчет
@@ -148,6 +148,13 @@ var
  RadioB: byte;
  Check: integer;
   podpisanty  : SZMN_COMMON::IPodpis (vPodpis) new;// (  ) new;
+
+  extClName   : String;
+  excCode1    : String;
+  excCode2    : String;
+  excCode3    : String;
+  excCode4    : String;
+
 As select
   if(cPeriod=0   ,'выберите значение',fpPeriod.Name)  (FieldName = sPeriod)
 , if(cTForm=0    ,'выберите значение',fpTForm.Name)   (FieldName = sTForm)
@@ -234,10 +241,11 @@ Handleevent
   }
 cmApply:
 {
+  StartNewVisual (vtRotateVisual , vfScreenBottom + vfTimer  + vfThread  , 'Подготовка данных отчета', 100);
   StoreDSK;
+  SetVisualHeader ('Печать отчета');
   doPrintReport ;
-
-
+  StopVisual('',0);
   //PutCommand(cmClose);
 }
 cmPick:
