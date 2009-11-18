@@ -2,23 +2,32 @@
 
   // 0FFFFFFFFFFFFFFFFh
 
+  procedure CheckDefValues;
+  begin
+    if (extClName = '') {set extClName := 'Характеристики для форм 7.9.1 и 7.9'};
+
+    if (excCode1 = '') {set excCode1 := 'Разделитель'};
+    if (excCode2 = '') {set excCode2 := 'Вынос в подвал'};
+    if (excCode3 = '') {set excCode3 := 'Итого'};
+    if (excCode4 = '') {set excCode4 := 'Аггрегат'};
+
+    if (sPath='') set sPath := translatepath('%startpath%Xls\F_FPBUDGET\SZMN_Budjet\tmpl_7_9_1.xls');
+  end;
+
   Procedure StoreDSK();
   begin
+    CheckDefValues;
+
     SaveMyDsk(sPersons,  '7dsksPath7');
     SaveMyDsk(sPath,     'iForm791_sPath');
 
-    if (sPath='') set sPath := translatepath('%startpath%Xls\F_FPBUDGET\SZMN_Budjet\tmpl_7_9_1.xls');
+    //if (sPath='') set sPath := translatepath('%startpath%Xls\F_FPBUDGET\SZMN_Budjet\tmpl_7_9_1.xls');
 
     SaveMyDsk(cTForm,    '7dsksPath2');
     SaveMyDsk(cPeriod,   '7dsksPath3');
     SaveMyDsk(cPlan1,    '7dsksPath4');
     SaveMyDsk(cPlan2,    '7dsksPath5');
     SaveMyDsk(cPlan3,    '7dsksPath6');
-
-    if (extClName = '') {set extClName := 'Характеристики статьи для форм 7.9.1 и 7.9'}
-    if (excCode1 = '') {set excCode1 := 'Разделитель'}
-    if (excCode2 = '') {set excCode2 := 'Вынос в подвал'}
-    if (excCode3 = '') {set excCode3 := 'Итого'}
 
     SaveMyDsk(extClName,    'iForm791_extClName');
     SaveMyDsk(excCode1,    'iForm791_excCode1');
@@ -54,17 +63,10 @@
     ReadMyDsk (excCode4,    'iForm791_excCode4', dc);
 
     //if (extClName = '') {set extClName := 'Характеристики статьи для форм 7.9.1 и 7.9'}
-    if (extClName = '') {set extClName := 'Характеристики для форм 7.9.1 и 7.9'};
-
-    if (excCode1 = '') {set excCode1 := 'Разделитель'};
-    if (excCode2 = '') {set excCode2 := 'Вынос в подвал'};
-    if (excCode3 = '') {set excCode3 := 'Итого'};
-    if (excCode4 = '') {set excCode4 := 'Аггрегат'};
-
-    if (sPath='') set sPath := translatepath('%startpath%Xls\F_FPBUDGET\SZMN_Budjet\tmpl_7_9_1.xls');
 
     ReadMyDsk (Check,    'iForm791_Check', dc);
 
+    CheckDefValues;
   end;
 
   function trimFirst0 (st : String):string;
