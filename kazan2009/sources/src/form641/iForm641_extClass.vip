@@ -5,12 +5,15 @@ var
   cRec    : comp;
 as select *
 from
-X$Files,
-ExClassName,
+  //X$Files,
+  ExClassName,
   ExClassVal,
-  ExClassSeg,
+  ExClassSeg
+  /*
+  ,
   synonym ExClassSeg ExClassSeg1,
   synonym ExClassVal ExClassVal1
+  */
   where
   ((
   wTable                == ExClassVal.wTable   and

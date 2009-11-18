@@ -1,6 +1,6 @@
 
-!#include galnet.ccm 
-!end;   
+!#include galnet.ccm
+!end;
 !#include uAlgor.vih
 !#include oAlgSetup.vih
 
@@ -78,6 +78,7 @@ function VisibleInModule(Ind : Byte) : String;
 begin
   VisibleInModule := '*';
   case Ind of
+    1 : VisibleInModule := 'SFP';
   end;
 end;
 !-------------------------------------------------------------------------------
@@ -90,8 +91,8 @@ form791showdebug menu
 
 vipInterface szmn_bud_Form791 licensed(free);
 
-Interface szmn_bud_Form791 
-  '-= СЗМН Бюджет. Форма 7.9.1. v20091014 =- ' (,hcNoContext,) EscClose, Cyan;
+Interface szmn_bud_Form791
+  '-= СЗМН Бюджет. Форма 7.9.1. v20091118 =- ' (,hcNoContext,) EscClose, Cyan;
   //show at  (0,0,70,10)
   show at  (0,0,100,30)
   ;
@@ -103,8 +104,8 @@ var
  cPlan1,
  cPlan2,
  cPlan3,
- cPeriod, 
- cTForm,     
+ cPeriod,
+ cTForm,
  cCopyBud,
  cFP,
  cStBud,
@@ -116,37 +117,39 @@ var
  isError: boolean;
  Check:integer;
  sPersons: string;
- 
- 
+
+
   coPodpis    : longint;
-  
+
   wKODGRKAU   : word;
   cPodpGrp    : comp;
-  
+
   //ppp         : SZMN_COMMON::vPodpis new;
-  
+
   podpisanty  : SZMN_COMMON::IPodpis (vPodpis) new;// (  ) new;
   podpisanty2 : SZMN_COMMON::IPodpis (vPodpis) new;// (  ) new;
-  
+
   extClName   : String;
   excCode1    : String;
   excCode2    : String;
   excCode3    : String;
+  excCode4    : String;
 
 As select
-  if(cPeriod=0   ,'выберите значение',fpPeriod.Name)  (FieldName = sPeriod) 
+  if(cPeriod=0   ,'выберите значение',fpPeriod.Name)  (FieldName = sPeriod)
 , if(cTForm=0    ,'выберите значение',fpTForm.Name)   (FieldName = sTForm)
-, if(cPlan1=0    ,'выберите значение',fpBudVar.Name)   (FieldName = sPlan1)   
+, if(cPlan1=0    ,'выберите значение',fpBudVar.Name)   (FieldName = sPlan1)
 , if(cPlan2=0    ,'выберите значение',fpBudVar1.Name)  (FieldName = sPlan2)
-, if(cPlan3=0    ,'выберите значение',fpBudVar2.Name)  (FieldName = sPlan3)    
+, if(cPlan3=0    ,'выберите значение',fpBudVar2.Name)  (FieldName = sPlan3)
 , podpisanty.DialogFieldString  (FieldName = sPodpGrp)
 , podpisanty2.DialogFieldString  (FieldName = sPodpGrp2)
 
-//, if(fpSpAxtf.coTable  ,'выберите значение',fpBudVar2.Name)  (FieldName = sPlan3)    
+//, if(fpSpAxtf.coTable  ,'выберите значение',fpBudVar2.Name)  (FieldName = sPlan3)
 , fpvalues.summa
 
 From
   fpBudVar
+  ,fpPeriod
  ,synonym  fpPeriod  fpP
  ,synonym  fpBudVar  fpBudVar1
  ,synonym  fpBudVar  fpBudVar2
@@ -155,7 +158,7 @@ From
  ,Synonym fpBudVar fpBV
  ,Synonym fpValues fpV
  ,Synonym fpValues fpV2
- ,f791_printed 
+ ,f791_printed
  ,f791_stack
  ,spKAU
  ,spKAU spKAUPodp (SPKAU07)
@@ -166,30 +169,32 @@ From
  where
 ((
 
-cPeriod   == fpPeriod.nrec   and      
+cPeriod   == fpPeriod.nrec   and
 cTForm    == fpTForm.nrec    and
 cPlan1    == fpBudVar.nrec   and
 cPlan2    == fpBudVar1.nrec  and
 cPlan3     == fpBudVar2.nrec
-                                 
+
 and fpBudVar.cBudget   == FpBudget.nrec
 
-//and wKODGRKAU == spKAU.KODGRKAU (noindex) 
+//and wKODGRKAU == spKAU.KODGRKAU (noindex)
 and cPodpGrp == spKAU.nrec // Группа подписантов
-and wKODGRKAU == spKAUPodp.KODGRKAU 
-and cPodpGrp == spKAUPodp.cNode (noindex) 
+and wKODGRKAU == spKAUPodp.KODGRKAU
+and cPodpGrp == spKAUPodp.cNode (noindex)
 
 
 // лог таблица для знач1ений
-                                            
+
 and fpTForm.nrec   == fpAxTF.cMain     //может быть несколько
-and fpAxTF.NRec    == fpSpAxtf.cMain    
-// and fpSpAxtf.cMean == fpStBud.nrec    
-and cCopyBud       == fpBV.nrec        
-and fpBV.nrec      == fpV.cBudVar
-and word(cFP)      == fpV.KodReg //план факт1
-and comp(cStBud)   == fpV.cStBud
-and fpV.cPeriod    == fpP.nrec
+and fpAxTF.NRec    == fpSpAxtf.cMain
+// and fpSpAxtf.cMean == fpStBud.nrec
+
+and cCopyBud       == fpBV.nrec
+and fpBV.nrec      == fpV.cBudVar // вариант бюджета
+and word(cFP)      == fpV.KodReg //план факт резерв
+and comp(cStBud)   == fpV.cStBud // статья бюджета
+and fpV.cPeriod    == fpP.nrec   // ссылка на период
+
 and comp(cStBud)   == fpStBud.nrec
 and fpStBud.ced    == kated.nrec//еденицы измерения
 and fpSpAxtf.cSloj == HashAn.cSloj
@@ -199,10 +204,10 @@ and comp(cHashAn)  == fpV.cHashAn (noindex)
 
 ))
 ;
-#include iForm791_windows.vip 
-#include iForm791_proctest.vip 
-#include iForm791_proc.vip 
-   
+#include iForm791_windows.vip
+#include iForm791_proctest.vip
+#include iForm791_proc.vip
+
 Handleevent
   cmHotKeys : {
     var mn : longint ;
@@ -214,18 +219,18 @@ Handleevent
       Putcommand(i)
     }
   }
-  
+
   cmTest: {
     doHandleTest;
   }
-  
+
   cmShowDebug791: {
     RunWindowModal( wnInfoWindow );
   }
   cmApply:
   {
     doPrintReport();
-  
+
   }
 cmPick:
   case curField of
@@ -235,16 +240,16 @@ cmPick:
     #sTForm    :  RunInterface('F_FpBudget::getTForm', cgiPick, 0, cTForm);
     #sPeriod   :  RunInterface('F_FpCatalog::getPeriod', cgiPick, comp(0), comp(0), cPeriod, cgSetFPTuneDefault);
     //#sPersons  :  RunInterface('SelectPersons', sPersons);
-    
+
     #sPodpGrp    : {
       podpisanty.SelectPodpis;
       RescanPanel (scKatH01);
-      
+
       /*
       var qwer : F_GetAn::GetKau new;
-      
+
       if  (qwer.GetCodeKau(word(cgiPickMult + cgiNotEdit + cgiNotClear ), wKODGRKAU, cPodpGrp) =0) then {set cPodpGrp := 0;exit;};
-  
+
       DoneMarker(coPodpis,'');
       set coPodpis := InitMarker(qwer.GetMarkerName(wKODGRKAU),8,50,10);
       //RescanPanel (brplan_src);
@@ -265,7 +270,7 @@ cmPick:
         Set sPath := sTmp;
     }
 
-  end;  
+  end;
 !-------------------------------------------------------------------------------
 cmDelOnProtect:
   case curField of
@@ -278,12 +283,12 @@ cmDelOnProtect:
 
 cmInit:
 {
-  podpisanty.setprefix('szmn_bud_Form791'); 
+  podpisanty.setprefix('szmn_bud_Form791');
   podpisanty.reinit;
-  
-  podpisanty2.setprefix('szmn_bud_Form791_2'); 
+
+  podpisanty2.setprefix('szmn_bud_Form791_2');
   podpisanty2.reinit;
-  
+
   ReadDsk;
 }
 

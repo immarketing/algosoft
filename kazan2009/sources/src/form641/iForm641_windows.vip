@@ -37,7 +37,7 @@ cmCancel;
  План                                           .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
  План с учетом доп.потребности                  .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
  Факт                                           .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
- Вариант плана для заполнения колонки ожидаемое .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+ Ожидаемый факт                                 .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
  Cотрудники для подписи                         .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
@@ -64,6 +64,14 @@ end; // Screen
     excCode4  ('',,) : NoProtect,noPickButton,
       {Font = {BackColor = if (excCode4='',    ColorNeed,0)}};
 
+    cReg1  ('',,) : NoProtect,noPickButton,
+      {Font = {BackColor = if (cReg1=0,    ColorNeed,0)}};
+    cReg2  ('',,) : NoProtect,noPickButton,
+      {Font = {BackColor = if (cReg2=0,    ColorNeed,0)}};
+    cReg3  ('',,) : NoProtect,noPickButton,
+      {Font = {BackColor = if (cReg3=0,    ColorNeed,0)}};
+    cReg4  ('',,) : NoProtect,noPickButton,
+      {Font = {BackColor = if (cReg4=0,    ColorNeed,0)}};
   <<
 
          Название классификатора .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -72,6 +80,10 @@ end; // Screen
            Код аналитики [Итого] .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
         Код аналитики [Аггрегат] .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
+            Код Регистра учета 1 .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+            Код Регистра учета 2 .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+            Код Регистра учета 3 .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+            Код Регистра учета 4 .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
   >>
   end; // screen  sCheckdop 'Дополнительно';
 end;
@@ -92,6 +104,36 @@ Window wnInfoWindow 'gg' ('gg', hcNoContext);
     f641_printed.groupTo '.groupTo':[10],protect;
     f641_printed.rowsToGroup '.rowsToGroup':[10],protect;
     f641_printed.rowsToGroup '.rowsToGroup':[10],protect;
+
+    /*
+    f641_printed.SumKorr[1] 'SumKorr[1]':[10],protect;
+    f641_printed.SumKorr[2] 'SumKorr[2]':[10],protect;
+    f641_printed.SumKorr[3] 'SumKorr[3]':[10],protect;
+    f641_printed.SumKorr[4] 'SumKorr[4]':[10],protect;
+    f641_printed.SumKorr[5] 'SumKorr[5]':[10],protect;
+    f641_printed.SumKorr[6] 'SumKorr[6]':[10],protect;
+    f641_printed.SumKorr[7] 'SumKorr[7]':[10],protect;
+    f641_printed.SumKorr[8] 'SumKorr[8]':[10],protect;
+    f641_printed.SumKorr[9] 'SumKorr[9]':[10],protect;
+    f641_printed.SumKorr[10] 'SumKorr[10]':[10],protect;
+    f641_printed.SumKorr[11] 'SumKorr[11]':[10],protect;
+    */
+    f641_printed.SumKorr[12] 'SumKorr[12]':[10],protect;
+
+    /*
+    f641_printed.SumKorrStr[1] 'SumKorrStr[1]':[10],protect;
+    f641_printed.SumKorrStr[2] 'SumKorrStr[2]':[10],protect;
+    f641_printed.SumKorrStr[3] 'SumKorrStr[3]':[10],protect;
+    f641_printed.SumKorrStr[4] 'SumKorrStr[4]':[10],protect;
+    f641_printed.SumKorrStr[5] 'SumKorrStr[5]':[10],protect;
+    f641_printed.SumKorrStr[6] 'SumKorrStr[6]':[10],protect;
+    f641_printed.SumKorrStr[7] 'SumKorrStr[7]':[10],protect;
+    f641_printed.SumKorrStr[8] 'SumKorrStr[8]':[10],protect;
+    f641_printed.SumKorrStr[9] 'SumKorrStr[9]':[10],protect;
+    f641_printed.SumKorrStr[10] 'SumKorrStr[10]':[10],protect;
+    f641_printed.SumKorrStr[11] 'SumKorrStr[11]':[10],protect;
+    */
+    f641_printed.SumKorrStr[12] 'SumKorrStr[12]':[10],protect;
 
     f641_printed.sumvar1[1] 'sumvar1[1]':[10],protect;
     f641_printed.sumvar1[2] 'sumvar1[2]':[10],protect;
@@ -119,6 +161,10 @@ Window wnInfoWindow 'gg' ('gg', hcNoContext);
     f641_printed.sumvar2[11] 'sumvar2[11]':[10],protect;
     f641_printed.sumvar2[12] 'sumvar2[12]':[10],protect;
 
+    f641_printed.sumvar4[10] 'sumvar4[10]':[10],protect;
+
+    /*
+
     f641_printed.sumvar3[1] 'sumvar3[1]':[10],protect;
     f641_printed.sumvar3[2] 'sumvar3[2]':[10],protect;
     f641_printed.sumvar3[3] 'sumvar3[3]':[10],protect;
@@ -144,6 +190,7 @@ Window wnInfoWindow 'gg' ('gg', hcNoContext);
     f641_printed.sumvar4[10] 'sumvar4[10]':[10],protect;
     f641_printed.sumvar4[11] 'sumvar4[11]':[10],protect;
     f641_printed.sumvar4[12] 'sumvar4[12]':[10],protect;
+    */
   End; // Browse
 
   /*

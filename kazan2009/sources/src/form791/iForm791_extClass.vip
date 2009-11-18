@@ -4,18 +4,20 @@ var
   wTable  : word;
   cRec    : comp;
 as select *
-from  
-X$Files,  
-ExClassName,
+from
+  ExClassName,
   ExClassVal,
-  ExClassSeg,
+  ExClassSeg
+  /*
+  ,
   synonym ExClassSeg ExClassSeg1,
-  synonym ExClassVal ExClassVal1 
+  synonym ExClassVal ExClassVal1
+  */
   where
   ((
   wTable                == ExClassVal.wTable   and
   cRec                  == ExClassVal.cRec     and
-  ExClassVal.cClassSeg  == ExClassSeg.NRec     and 
+  ExClassVal.cClassSeg  == ExClassSeg.NRec     and
   ExClassVal.wTable     == ExClassName.wTable  and
   ExClassSeg.ClassCode  == ExClassName.ClassCode
   ))
@@ -23,7 +25,7 @@ ExClassName,
 
 //   'Характеристики статьи для форм 7.9.1 и 7.9'
 //   'Разделитель'
-//   'Вынос в подвал' 
+//   'Вынос в подвал'
 // 0 - никаких особых признаков нет
 // 1 - строка - разделитель
 // 2 - строка - выносится в подвал
@@ -34,18 +36,18 @@ begin
   result := 0;
   set extClass.wTable := wt;
   set extClass.cRec   := cr;
-  
+
   extClass._loop ExClassVal {
     extClass._loop ExClassName {
-      insert f791_2extcl 
-         set  f791_2extcl.name := extClass.ExClassName.Name, 
+      insert f791_2extcl
+         set  f791_2extcl.name := extClass.ExClassName.Name,
               f791_2extcl.val := extClass.ExClassSeg.Value,
               f791_2extcl.cRec := cr,
-              f791_2extcl.wTable := wt
+              f791_2extcl.wTable := wt;
       if (extClass.ExClassName.Name <> extClName /*'Характеристики статьи для форм 7.9.1 и 7.9'*/) {continue};
       extClass._loop ExClassSeg {
-        insert f791_2extcl 
-           set  f791_2extcl.name := extClass.ExClassName.Name, 
+        insert f791_2extcl
+           set  f791_2extcl.name := extClass.ExClassName.Name,
                 f791_2extcl.val := extClass.ExClassSeg.Value,
                 f791_2extcl.cRec := cr,
                 f791_2extcl.wTable := wt
@@ -53,8 +55,9 @@ begin
         if (extClass.ExClassSeg.Value = excCode1 /*'Разделитель'*/) {result := 1; exit};
         if (extClass.ExClassSeg.Value = excCode2 /*'Вынос в подвал'*/) {result := 2; exit};
         if (extClass.ExClassSeg.Value = excCode3 /*'Итого'*/) {result := 3; exit};
+        if (extClass.ExClassSeg.Value = excCode4 /*'Итого'*/) {result := 4; exit};
       }
     }
   }
-  
+
 end;

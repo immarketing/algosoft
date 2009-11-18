@@ -1,10 +1,16 @@
 #include Tables.vih
 
+#include podpis.vih
 
-const 
+const
 
 #include GLOCONST.INC
 end;
+
+form91showdebug menu
+{
+  - 'Показать отладочную информацию', cmShowDebug91, 'Отладочная информация' ;
+}
 
 VipInterface RepBDR5   Licensed(Free);
 
@@ -12,14 +18,15 @@ VipInterface RepBDR5   Licensed(Free);
 Настройка фильтров для отчета График погашения обязательств
 #end
 Interface RepBDR5 'Установка фильтров' DoAccept, EscClose, Cyan;
-  show at (5,5,75,25);
+  show at (5,5,80,30);
 create view BDR
 var
  cC,
  cPlan,
+ cPlanDop,
  cFact,
- cPeriod, 
- cTForm,     
+ cPeriod,
+ cTForm,
  cCopyBud,
  cFP :comp;
  sPath :string;
@@ -30,15 +37,25 @@ var
  isError: boolean;
  sPersons: string;
 
+ extClName   : String;
+ excCode1    : String; // разделитель
+ excCode2    : String; // итого
+ excCode3    : String; // аггрегат
+
+ podpisanty  : SZMN_COMMON::IPodpis (vPodpis) new;// (  ) new;
+
 As select
-  if(cPeriod=0   ,'выберите значение',fpPeriod.Name)   (FieldName = sPeriod) 
+  if(cPeriod=0   ,'выберите значение',fpPeriod.Name)   (FieldName = sPeriod)
 , if(cTForm=0    ,'выберите значение',fpTForm.Name)    (FieldName = sTForm)
-, if(cPlan=0     ,'выберите значение',fpBudVar.Name)   (FieldName = sPlan)   
-, if(cFact=0     ,'выберите значение',fpBudVar1.Name)  (FieldName = sFact)    
+, if(cPlan=0     ,'выберите значение',fpBudVar.SBUDSTAGE  + ' | ' + fpBudVar.Name)   (FieldName = sPlan)
+, if(cPlanDop=0     ,'выберите значение',fpBudVarDop.SBUDSTAGE  + ' | ' + fpBudVarDop.Name)   (FieldName = sPlanDop)
+, if(cFact=0     ,'выберите значение',fpBudVar1.SBUDSTAGE + ' | ' + fpBudVar1.Name)  (FieldName = sFact)
+, podpisanty.DialogFieldString  (FieldName = sPodpGrp)
 , fpvalues.summa
 From
   fpBudVar
  ,synonym  fpPeriod  fpP
+ , fpBudVar  fpBudVarDop
  ,synonym  fpBudVar  fpBudVar1
 
  ,fpAxTF Axis1
@@ -48,6 +65,8 @@ From
  ,fpvalues
  ,Synonym fpBudVar fpBV
  ,Synonym fpValues fpV
+ , podpisanty
+
  where
 ((
   // иерархия оси1
@@ -59,6 +78,7 @@ cTForm         == fpTForm.nrec    and
 
 
 cPlan     == fpBudVar.nrec   and
+cPlanDop  == fpBudVarDop.nrec   and
 cFact     == fpBudVar1.nrec
 
 
@@ -67,9 +87,9 @@ and fpBudVar.cBudget   == FpBudget.nrec
 // лог таблица для знач1ений
 
 and fpTForm.nrec   == fpAxTF.cMain     //может быть несколько
-and fpAxTF.NRec    == fpSpAxtf.cMain    
-and fpSpAxtf.cMean == fpStBud.nrec    
-and cCopyBud       == fpBV.nrec        
+and fpAxTF.NRec    == fpSpAxtf.cMain
+and fpSpAxtf.cMean == fpStBud.nrec
+and cCopyBud       == fpBV.nrec
 and fpBV.nrec      == fpV.cBudVar
 and word(cFP)      == fpV.KodReg //план факт1
 and fpStBud.nrec   == fpV.cStBud
@@ -82,30 +102,30 @@ and fpStBud.ced    == kated.nrec//еденицы измерения
 procedure ExcelPrint(CopyBud:comp; FP:word; Nstr:word; Nstol:word);
 begin
       Set cCopyBud:=CopyBud;
-      Set cFP:= FP; 
+      Set cFP:= FP;
 //      _LOOP  fpSpAxtf
       _LOOP  fpV
-      {                                                                                                                           
-        if((month(fpP.dbeg)=month(fpP.dEnd)) and (year(fpP.dbeg)=year(fpperiod.dbeg)))// and (fpvalues.chashan = 0))) //chek year 
-        {                                                                                                                         
-          if(Check=0)                                                                                                             
-	  {                                                                                                                       
-	    xlSetCellNumberValue(fpv.summa     , Nstr, Nstol + month(fpP.dbeg), Nstr, Nstol + month(fpP.dbeg));                   
-	  }                                                                                                                       
-	  else                                                                                                                    
-	  {                                                                                                                       
-	    xlSetCellNumberValue(fpv.summa/1000, Nstr, Nstol + month(fpP.dbeg), Nstr, Nstol + month(fpP.dbeg));                   
-	  }                                                                                                                       
-        }                                                                                                                         
-        else{}                                                                                                                    
+      {
+        if((month(fpP.dbeg)=month(fpP.dEnd)) and (year(fpP.dbeg)=year(fpperiod.dbeg)))// and (fpvalues.chashan = 0))) //chek year
+        {
+          if(Check=0)
+	  {
+	    xlSetCellNumberValue(fpv.summa     , Nstr, Nstol + month(fpP.dbeg), Nstr, Nstol + month(fpP.dbeg));
+	  }
+	  else
+	  {
+	    xlSetCellNumberValue(fpv.summa/1000, Nstr, Nstol + month(fpP.dbeg), Nstr, Nstol + month(fpP.dbeg));
+	  }
+        }
+        else{}
       }
-end;                                                                                                                           
+end;
 
 //определяет первый день текущего квартала
 
 function FirstKvartalDay(D:date):date;
 var Kvartal: byte;
-begin 
+begin
 	case Month(D) of
 		1..3  : Kvartal:=1;
 		4..6  : Kvartal:=2;
@@ -126,6 +146,7 @@ end;
 
 
 
+tabbedSheet tabbed
 Screen scKatH01 'Установка фильтров' (,, sci13Esc);
 !  Table KatH;
 Fields
@@ -135,16 +156,21 @@ Fields
     {Font = {BackColor = if (cPeriod=0,   ColorNeed,0)}};
   sPlan   ('',,) : Protect,PickButton,
     {Font = {BackColor = if (cPlan =0,    ColorNeed,0)}};
+  sPlanDop('',,) : Protect,PickButton,
+    {Font = {BackColor = if (cPlanDop =0,    ColorNeed,0)}};
   sFact   ('',,) : Protect,PickButton,
     {Font = {BackColor = if (cFact =0,    ColorNeed,0)}};
 
-  sPersons ('Выбор сотрудников для подписи',,) : protect,pickbutton, 
-    {Font = {BackColor = if (sPersons='выберите значение',    ColorNeed,0)}};
-  
+!  sPersons ('Выбор сотрудников для подписи',,) : protect,pickbutton,
+!    {Font = {BackColor = if (sPersons='выберите значение',    ColorNeed,0)}};
+
+    sPodpGrp ('Выбор сотрудников для подписи',,) : protect,pickbutton,
+      {Font = {BackColor = if ( not podpisanty.iSSelected ,    ColorNeed,0)}};
+
   sPath ('',,) : Protect,PickButton,
     {Font = {BackColor = if (sPath='',    ColorNeed,0)}};
   Check ('') :NoProtect;
-	
+
 buttons
 cmApply;
 cmCancel;
@@ -157,82 +183,424 @@ cmCancel;
                            Варианты бюджета
 
  План                          .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+ План с учетом доп. потр.      .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
  Факт                          .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
  Cотрудники для подписи        .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
- 	
+
 
  Путь к шаблону        .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
-    `Печатать в` 
-     (.) руб`    
+    `Печатать в`
+     (.) руб`
      (.) тыс.руб`
 
           <.Сформировать.>    <.  Отмена  .>
 >>
 end; // Screen
-Handleevent
-cmApply:
-{
-                                                              
-//    message('Нажали на кнопку');
+  screen  sCheckdop 'Дополнительно';
+  Fields
+
+
+    extClName  ('',,) : NoProtect,noPickButton,
+      {Font = {BackColor = if (extClName='',    ColorNeed,0)}};
+    excCode1  ('',,) : NoProtect,noPickButton,
+      {Font = {BackColor = if (excCode1='',    ColorNeed,0)}};
+    excCode2 ('',,) : NoProtect,noPickButton,
+      {Font = {BackColor = if (excCode2='',    ColorNeed,0)}};
+    excCode3  ('',,) : NoProtect,noPickButton,
+      {Font = {BackColor = if (excCode3='',    ColorNeed,0)}};
+  <<
+
+         Название классификатора .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+     Код аналитики [РАЗДЕЛИТЕЛЬ] .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+           Код аналитики [ИТОГО] .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+        Код аналитики [АГГРЕГАТ] .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+  >>
+  end; // Screen sCheckdop 'Дополнительно'
+end; // Screen
+  // для обработки внешней классификации по статьям бюджета
+  create view extClass
+  var
+    wTable  : word;
+    cRec    : comp;
+  as select *
+  from
+  //X$Files,
+  ExClassName,
+    ExClassVal,
+    ExClassSeg
+    /*
+    ,
+    synonym ExClassSeg ExClassSeg1,
+    synonym ExClassVal ExClassVal1
+    */
+    where
+    ((
+    wTable                == ExClassVal.wTable   and
+    cRec                  == ExClassVal.cRec     and
+    ExClassVal.cClassSeg  == ExClassSeg.NRec     and
+    ExClassVal.wTable     == ExClassName.wTable  and
+    ExClassSeg.ClassCode  == ExClassName.ClassCode
+    ))
+  ;
+
+  //   'Характеристики статьи для форм 7.9.1 и 7.9'
+  //   'Разделитель'
+  //   'Вынос в подвал'
+  // 0 - никаких особых признаков нет
+  // 1 - строка - разделитель
+  // 2 - строка - выносится в подвал
+
+  // coFPSTBUD
+  function GetStBudExtraParameters (wt : word; cr : comp) : byte;
+  begin
+    result := 0;
+    set extClass.wTable := wt;
+    set extClass.cRec   := cr;
+
+    extClass._loop ExClassVal {
+      extClass._loop ExClassName {
+        if (extClass.ExClassName.Name <> extClName /*'Характеристики статьи для форм 7.9.1 и 7.9'*/) {continue};
+        extClass._loop ExClassSeg {
+          if (extClass.ExClassSeg.Value = excCode1 /*'Разделитель'*/) {result := 1; exit};
+          if (extClass.ExClassSeg.Value = excCode2 /*'Вынос в подвал'*/) {result := 2; exit};
+          if (extClass.ExClassSeg.Value = excCode3 /*'Итого'*/) {result := 3; exit};
+        }
+      }
+    }
+
+  end;
+
+  procedure CheckExtAttr ;
+  begin
+    if (extClName = '') {set extClName := 'Характеристики для форм 7.9.1 и 7.9'};
+    if (excCode1 = '') {set excCode1 := 'Разделитель'};
+    if (excCode2 = '') {set excCode2 := 'Итого'};
+    if (excCode3 = '') {set excCode3 := 'Аггрегат'};
+  end;
+
+  procedure CheckDefValues;
+  begin
+    if (sPath='') set sPath := translatepath('%startpath%Xls\F_FPBUDGET\SZMN_Budjet\9.1.xls');
+  end;
+
+  procedure ReadDSK;
+  begin
+    var dc : boolean;
+
+    dc := true;
+
+    //if (not ReadMyDsk(sPath  ,'7dsksPath7',isError))  sPersons := 'o?iN???N ??a?N??N';
+    if (not ReadMyDsk(cTForm ,'szmn_bud_Form91.cTForm',isError))  cTForm := 0;
+    if (not ReadMyDsk(cPlan  ,'szmn_bud_Form91.cPlan',isError))  cPlan:=0;
+    if (not ReadMyDsk(cPlanDop  ,'szmn_bud_Form91.cPlanDop',isError))  cPlanDop:=0;
+
+    if (not ReadMyDsk(cFact  ,'szmn_bud_Form91.cFact',isError))  cFact:=0;
+    if (not ReadMyDsk(sPath  ,'szmn_bud_Form91.sPath',isError))  sPath:='';
+    if (not ReadMyDsk(cPeriod,'szmn_bud_Form91.cPeriod',isError))  cPeriod:=0;
+
+    //
+
+    ReadMyDsk (Check,    'szmn_bud_Form91.Check', dc);
+
+    ReadMyDsk (extClName,   'szmn_bud_Form91.extClName', dc);
+    ReadMyDsk (excCode1,    'szmn_bud_Form91.excCode1', dc);
+    ReadMyDsk (excCode2,    'szmn_bud_Form91.excCode2', dc);
+    ReadMyDsk (excCode3,    'szmn_bud_Form91.excCode3', dc);
+    CheckExtAttr;
+
+    CheckDefValues;
+
+  end;
+
+  procedure StoreDSK;
+  begin
+    CheckDefValues;
+    // szmn_bud_Form91
+
+    //if (sPath='') set sPath := translatepath('%startpath%Xls\F_FPBUDGET\SZMN_Budjet\tmpl_7_9_1.xls');
+
+    SaveMyDsk(cTForm,    'szmn_bud_Form91.cTForm');
+    SaveMyDsk(cPeriod,   'szmn_bud_Form91.cPeriod');
+    SaveMyDsk(cPlan,     'szmn_bud_Form91.cPlan');
+    SaveMyDsk(cPlanDop,     'szmn_bud_Form91.cPlanDop');
+    SaveMyDsk(cFact,     'szmn_bud_Form91.cFact');
+
+    SaveMyDsk(sPath,     'szmn_bud_Form91.sPath');
+
+    SaveMyDsk (Check,    'szmn_bud_Form91.Check' );
+
+    SaveMyDsk (extClName,'szmn_bud_Form91.extClName' );
+    SaveMyDsk (excCode1, 'szmn_bud_Form91.excCode1' );
+
+    CheckExtAttr;
+
+    SaveMyDsk(extClName,   'szmn_bud_Form91.extClName');
+    SaveMyDsk(excCode1,    'szmn_bud_Form91.excCode1');
+    SaveMyDsk(excCode2,    'szmn_bud_Form91.excCode2');
+    SaveMyDsk(excCode3,    'szmn_bud_Form91.excCode3');
+
+
+  end;
+
+
+  procedure handleInit;
+  begin
+    ReadDSK
+    cPlan:=0;
+    cFact:=0;
+    cTForm:=0;
+    cPeriod:=0;
+    ReadDSK;
+    if (sPath = '') then sPath:='C:\8.1.XLS';
+
+    podpisanty.setprefix('szmn_bud_Form91');
+    podpisanty.reinit;
+
+
+    //if (not ReadMyDsk(sPath,'dsksPath',isError))  sPath := '';
+    //if (not ReadMyDsk(sPersons,'szmn_rep_9_1_spers',isError))  sPersons := '';
+
+  end;
+
+  create view lvlnmb
+  var
+    cPos : comp
+  as
+  select *
+    from fpSpAxtf spAx
+   where ((
+   cPos == spAx.nrec
+   ))
+   ;
+
+  function getCurrentLevelNumber : word;
+  begin
+
+    result := 0;
+
+    set lvlnmb.cPos := fpSpAxtf.nRec;
+    do {
+      if (lvlnmb.getfirst spAx = tsOK) {
+        if (lvlnmb.spAx.cNode = 0) {
+          exit;
+        } else {
+          inc (result);
+          set lvlnmb.cPos := lvlnmb.spAx.cNode;
+        }
+      } else {
+        exit;
+      }
+    } while true;
+  end;
+
+
+  procedure printSigners (var startPrintAt : word);
+  begin
+    //
+    var i : word;
+    i := 0;
+    if not podpisanty.isSelected then exit;
+    _loop podpisanty {
+      var ar : array [1..2] of string;
+      ar[1] := podpisanty.dolj;
+      ar[2] := podpisanty.fio;
+
+      xlSetCellStringValue(ar[1] , startPrintAt + i, 2,  startPrintAt + i, 2); // ??N? - ????
+      xlSetFontStyle (xlBold , startPrintAt + i, 2,  startPrintAt + i, 2);
+      xlAlignCells (xlRight,startPrintAt + i, 2,  startPrintAt + i, 2);
+
+      xlFrameCells ( xlBorderB,//xlEdgeBottom, //xlBorderB,
+                     2,
+                     xlContinuous,
+                     0 ,
+                     startPrintAt + i,
+                     3,
+                     startPrintAt + i,
+                     4);
+      xlSetCellStringValue(ar[2] , startPrintAt + i, 5,  startPrintAt + i, 5); // ??N? - ????
+      xlSetFontStyle (xlBold , startPrintAt + i, 5,  startPrintAt + i, 5);
+      //xlRunMacro('CopyRow(ROW3)');
+      inc (i);
+
+    }
+
+    startPrintAt := startPrintAt + i;
+  end;
+
+  procedure printExecutor(startPrintAt : word);
+  begin
+    var sFIO :String ;
+    sFIO := Trim (sGetTune ('USER.FIO'));
+    var ps1 : byte;
+    ps1 := pos (' ',sFIO);
+    if (ps1 <> 0 ){
+      var sfam : String;
+      //sFAM := substr (sFIO,1,ps1-1);
+      sFAM := substr (sFIO,1,ps1-1) + ' ' + Substr (trim (substr (sFIO,ps1+1,255)),1,1) + '.';
+
+      sFIO := trim (substr (sFIO,ps1+1,255));
+      ps1 := pos (' ',sFIO);
+
+      if (ps1 <> 0) {
+        sFAM := sFAM + ' ' + Substr (trim (substr (sFIO,ps1+1,255)),1,1) + '.';
+      } else {
+      }
+
+      sFIO := sFAM;
+    }
+
+
+    //xlSetCellStringValue('/ '+ sFIO + ' /', 15, 9, 15, 9);
+
+    var tel : string;
+
+    if (getFirst persons where (( sGetTune ('USER.FIO') == persons.FIO (noindex) )) = tsOK) {
+      if (getFirst COMMUNICATIONS where ((  persons.nrec == COMMUNICATIONS.person and
+                                            comp('000000000000022Bh') == COMMUNICATIONS.comtype
+                                            )) = tsOK){
+        tel := COMMUNICATIONS.ADDR;
+      }
+    }
+    xlSetCellStringValue(sFIO + ',' + tel , startPrintAt, 2, startPrintAt, 2);
+    xlSetFontSize (8 , startPrintAt, 2, startPrintAt, 2);
+    //xlRunMacro('CopyRow(ROW7)');
+
+  end;
+
+  function trimFirst0 (st : String):string;
+  begin
+    if st = '' then {
+      result := '';
+      exit
+    };
+    if substr (st,1,1) = '0' then
+      result := trimFirst0 (substr (st,2,255))
+    else
+      result := st;
+  end;
+
+
+  procedure doPrint;
+  begin
+    storeDSK;
+
+    var extraChar : string;
+    extraChar := '''';
+
+    //    message('Нажали на кнопку');
     pathUserOut := GetDefaultUserPath;
     NameExcel   := pathUserOut;
     wPeriod:=word(trim(NextNumStr(sPeriod)))-1;
 
+    xlCreateExcelWithTemplate(sPath,true);
+
+    if (xlIsExcelValid) {
+      //xlOpenWorkBook(trim(sPath));
+      //xlSetActiveWorkBookByName(trim(sPath));
+      //xlSaveAsWorkBookByName(trim(sPath), NameExcel+'.xls');
+    }
+
+    /*
     xlCreateExcel('',true);
-      if (xlIsExcelValid)
-      {
-         xlOpenWorkBook(trim(sPath));
-         xlSetActiveWorkBookByName(trim(sPath));
-         xlSaveAsWorkBookByName(trim(sPath), NameExcel+'.xls');
+    if (xlIsExcelValid)
+    {
+    xlOpenWorkBook(trim(sPath));
+    xlSetActiveWorkBookByName(trim(sPath));
+    xlSaveAsWorkBookByName(trim(sPath), NameExcel+'.xls');
 
-      }
+    }
+    */
 
 
-      xlSetActiveSheet(1); //Титул_1
+    xlSetActiveSheet(1); //Титул_1
 
-      xlSetCellStringValue(month(fpperiod.dbeg), 1, 1, 1, 1); //
-      xlSetCellStringValue(year(fpperiod.dbeg), 1, 2, 1, 2); //	
-      var tt:word;
-      tt:=0;
-      _LOOP  fpSpAxtf 
-      {
-        if(isValid(tnfpstbud)) //chek year
-        {
-          inc(tt);
-          xlSetCellStringValue(fpSpAxtf.code, 1+tt, 1, 1+tt, 1); //
-          xlSetCellStringValue(fpstbud.Name, 1+tt, 2, 1+tt, 2); //
-          xlSetCellStringValue(fpstbud.LevelCode, 1+tt, 40, 1+tt, 40); //
-          xlSetCellStringValue(kated.name, 1+tt, 27, 1+tt, 27);
-          ExcelPrint(cPlan,150,1+tt,2);
-          ExcelPrint(cFact,151,1+tt,14);                            
-        }
-        else{}
-      }
+    xlSetCellStringValue(month(fpperiod.dbeg), 1, 1, 1, 1); //
+    xlSetCellStringValue(year(fpperiod.dbeg), 1, 2, 1, 2); //
 
-      tt:=0;
-      _loop TabPersons{
-        xlSetCellStringValue(TabPersons.name, 1+tt, 41, 1+tt, 41);
-        xlSetCellStringValue(TabPersons.work, 1+tt, 42, 1+tt, 42);
+    xlSetCellStringValue(if (Check = 0,'руб.','тыс.руб.'), 1, 3, 1, 3); //
+    xlSetCellStringValue(year(fpperiod.dbeg), 1, 4, 1, 4); //
+    xlSetCellStringValue(LoCase (datetostr(fpperiod.dbeg, 'month YYYY')), 1, 5, 1, 5); //
+    var tt:word;
+    tt:=0;
+    var extCl : byte;
+
+    _LOOP  fpSpAxtf    {
+      if(isValid(tnfpstbud))       { //chek year
         inc(tt);
+        xlSetCellStringValue(fpSpAxtf.code, 1+tt, 1, 1+tt, 1); //
+
+        if ( fpSpAxtf.coTable = coFPSTBUD ) {
+          extCl := GetStBudExtraParameters( coFPSTBUD , fpSpAxtf.CMEAN );
+        } else {
+          extCl := 0;
+        }
+        xlSetCellNumberValue(extCl     , 1+tt, 41, 1+tt, 41);
+
+        xlSetCellStringValue(PadCh ('',' ', 2 * getCurrentLevelNumber) + fpstbud.Name, 1+tt, 2, 1+tt, 2); //
+        xlSetCellStringValue(extraChar + trimFirst0(fpstbud.LevelCode), 1+tt, 40, 1+tt, 40); //
+        xlSetCellStringValue(kated.name, 1+tt, 27, 1+tt, 27);
+        ExcelPrint(cPlan,150,1+tt,2);
+        ExcelPrint(cFact,151,1+tt,14);
       }
-      xlSetCellStringValue(tt, 1, 43, 1, 43);
+      else{}
+    }
 
 
-      xlRunMacro('GalFpUser_AfterReport');
-      xlKillExcel;
 
-     SaveMyDsk(sPath,'dsksPath');
-     SaveMyDsk(sPersons,  'szmn_rep_9_1_spers');
-  PutCommand(cmClose);
+    /*
+    _loop TabPersons{
+      xlSetCellStringValue(TabPersons.name, 1+tt, 41, 1+tt, 41);
+      xlSetCellStringValue(TabPersons.work, 1+tt, 42, 1+tt, 42);
+      inc(tt);
+    }
+    xlSetCellStringValue(tt, 1, 43, 1, 43);
+    */
+
+
+    xlRunMacro('GalFpUser_AfterReport');
+
+    xlSetActiveSheetByName('Otchet'); //?????_1
+
+    tt := tt + 10;
+
+    printSigners (tt );
+
+    tt := tt + 4;
+    printExecutor (tt);
+
+    xlKillExcel;
+
+    //SaveMyDsk(sPath,'dsksPath');
+    //SaveMyDsk(sPersons,  'szmn_rep_9_1_spers');
+    //PutCommand(cmClose);
+
+  end;
+
+  procedure HandleApply;
+  begin
+    doPrint;
+  end;
+
+Handleevent
+cmApply:
+{
+  HandleApply;
+
 }
 cmPick:
   case curField of
     #sPlan     :  RunInterface('F_FpBudget::Budget', word(cgiPick), word(0), word(0), comp(0), cPlan, 0, 0);
+    #sPlanDop  :  RunInterface('F_FpBudget::Budget', word(cgiPick), word(0), word(0), comp(0), cPlanDop, 0, 0);
     #sFact     :  RunInterface('F_FpBudget::Budget', word(cgiPick), word(0), word(0), comp(0), cFact , 0, 0);
     #sTForm    :  RunInterface('F_FpBudget::getTForm', cgiPick, 0, cTForm);
     #sPeriod   :  RunInterface('F_FpCatalog::getPeriod', cgiPick, comp(0), comp(0), cPeriod, cgSetFPTuneDefault);
-    #sPersons  :  RunInterface('SelectPersons', sPersons);
+!    #sPersons  :  RunInterface('SelectPersons', sPersons);
+
+    #sPodpGrp    : {
+      podpisanty.SelectPodpis;
+      RescanPanel (scKatH01);
+    }
 
     #sPath     :
    {
@@ -243,7 +611,7 @@ cmPick:
         Set sPath := sTmp;
     }
 
-  end;  
+  end;
 !-------------------------------------------------------------------------------
 cmDelOnProtect:
   case curField of
@@ -255,15 +623,7 @@ cmDelOnProtect:
 
 cmInit:
 {
- cPlan:=0;
- cFact:=0;
- cTForm:=0;
- cPeriod:=0;     
- sPath:='C:\8.1.XLS';
-
- if (not ReadMyDsk(sPath,'dsksPath',isError))  sPath := '';
- //if (not ReadMyDsk(sPersons,'szmn_rep_9_1_spers',isError))  sPersons := '';
-
+  handleInit;
 }
 
 end;

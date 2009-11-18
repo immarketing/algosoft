@@ -38,7 +38,7 @@ end;
 // Наименование отчета в списке
 function GetReportName: String;
 begin
-  GetReportName := 'Форма 7.9 и 7.9.1 (by AlGo)';
+  GetReportName := '--- Форма 7.9 и 7.9.1 (by AlGo)';
 end;
 !-------------------------------------------------------------------------------
 // Наименования групп, в которые входит отчет
@@ -71,7 +71,7 @@ begin
   case Ind of
 !    1 : VisibleInModule := 'B_Finans';
 !    2 : VisibleInModule := 'MenuZarp';
-    1 : VisibleInModule := 'SFP';
+!    1 : VisibleInModule := 'SFP';
   end;
 end;
 !-------------------------------------------------------------------------------
