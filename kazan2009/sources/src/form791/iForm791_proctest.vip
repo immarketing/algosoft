@@ -148,23 +148,6 @@
    f791_printed_ord2.cRec == subp3.cNode
    ))
         ;
-  /*
-  procedure doGroupData(datSheet, repSheet : String; lastNRec, lastCNode : comp; curNRec, curCNode : comp; lastPrintedAt: word);
-  begin
-    xlSetActiveSheetByName(repSheet);
-
-    // ActiveSheetGroupData - макрос
-    while forGrouping.getLast f791_stack_grp = tsOK do {
-      xlRunMacro('ActiveSheetGroupData('+String ( forGrouping.f791_stack_grp.printedAt + 1)+','+ String ( lastPrintedAt - 1) +')');
-      if (forGrouping.f791_stack_grp.cNode = curCNode) {
-        // достигли того же уровня
-        break;
-      }
-      forGrouping.delete current f791_stack_grp;
-    }
-    xlSetActiveSheetByName(datSheet);
-  end;
-  */
 
   procedure doGroupData2 (datSheet, repSheet : String);
   begin
