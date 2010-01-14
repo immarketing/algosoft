@@ -33,7 +33,7 @@
 // раскомментировать конструкцию VipInterface (Implements для Атлантиса 5.1)
 
 #ifdef Atl51
-VipInterface UserReport_szmn_form791_  Implements IUserReport
+VipInterface UserReport_szmn_form791  Implements IUserReport
   Licensed(Free)
 ;
 #else
@@ -44,7 +44,7 @@ VipInterface UserReport_szmn_form791_  Implements IUserReport
 Пример пользовательского отчета #1
 #end
 
-Interface UserReport_szmn_form791_;
+Interface UserReport_szmn_form791;
 
 create view;
 
@@ -52,13 +52,13 @@ create view;
 // Запуск отчета на выполнение при выборе его из списка отчетов
 procedure Run;
 begin
-  RunInterface('szmn_bud_Form791_' );
+  RunInterface('szmn_bud_Form791' );
 end;
 !-------------------------------------------------------------------------------
 // Наименование отчета в списке
 function GetReportName: String;
 begin
-  GetReportName := 'Форма 7.9.1_';
+  GetReportName := 'Форма 7.9.1';
 end;
 !-------------------------------------------------------------------------------
 function GetGroupName (Level : Word) : String;
@@ -89,10 +89,10 @@ form791showdebug menu
   - 'Показать отладочную информацию', cmShowDebug791, 'Отладочная информация' ;
 }
 
-vipInterface szmn_bud_Form791_ licensed(free);
+vipInterface szmn_bud_Form791 licensed(free);
 
-Interface szmn_bud_Form791_
-  '-= СЗМН Бюджет. Форма 7.9.1._ v20091208 =- ' (,hcNoContext,) EscClose, Cyan;
+Interface szmn_bud_Form791
+  '-= СЗМН Бюджет. Форма 7.9.1. v20010114 =- ' (,hcNoContext,) EscClose, Cyan;
   //show at  (0,0,70,10)
   show at  (0,0,100,30)
   ;

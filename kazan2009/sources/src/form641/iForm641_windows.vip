@@ -150,6 +150,8 @@ Window wnInfoWindow 'gg' ('gg', hcNoContext);
 
     f641_printed.SaldoType '.SaldoType':[10],protect;
 
+    f641_printed.AgregHandling '.AgregHandling':[10],protect;
+
     /*
     f641_printed.nRec '.nRec':[10],protect;
     f641_printed.crec '.crec':[10],protect;

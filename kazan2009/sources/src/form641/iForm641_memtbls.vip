@@ -26,8 +26,9 @@ table struct f641_printed
   SumKorrStr    : array [1..12] of String,  // корректировка - строковое представление
 
   Sumojid       : double,
-  SaldoType     : byte,     
-  SumBDSGod     : double
+  SaldoType     : byte,
+  SumBDSGod     : double,
+  AgregHandling : byte
 )
 with index
 (

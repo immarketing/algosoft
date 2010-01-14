@@ -319,6 +319,63 @@
     result := DoubleToStr (v,   '\d,666666666667^899999999999');
   end;
 
+  procedure doPrintExtraSum (const periodNum : byte);
+  begin
+    var extraSm : word;
+    extraSm := 0;
+
+    var extraFrm : String;
+    extraFrm := '=СУММ(0';
+
+    _LOOP  fpSpAxtf  {
+      if(isValid(tnfpstbud)) { //chek year
+        if (getFirst f641_printed where (( fpSpAxtf.nRec==f641_printed.cRec)) = tsOK ) {
+        };
+        if (f641_printed.AgregHandling = 5){
+          // тут должна быть сумма
+          extraSm := f641_printed.printedAtRow;
+        }
+
+      }
+    }
+
+    if (extraSm <> 0) {
+      _LOOP  fpSpAxtf  {
+        if(isValid(tnfpstbud)) { //chek year
+          if (getFirst f641_printed where (( fpSpAxtf.nRec==f641_printed.cRec)) = tsOK ) {
+          };
+          if (f641_printed.AgregHandling = 6){
+            // тут надо сложить
+            extraFrm := extraFrm + ';R[' + (f641_printed.printedAtRow - extraSm) + ']C';
+          }
+          if (f641_printed.AgregHandling = 7){
+            // тут надо отнять
+            extraFrm := extraFrm + ';-R[' + (f641_printed.printedAtRow - extraSm) + ']C';
+          }
+        }
+      }
+
+      extraFrm := extraFrm + ')';
+
+      var i : byte;
+
+      for (i := 1; i<=12; inc(i)) {
+        if (i > periodNum) {
+          xlSetCellFormula( extraFrm,
+                            extraSm,
+                            3 + (i-1)*3 + 2,
+                            extraSm,
+                            3 + (i-1)*3 + 3
+                            );
+        }
+      }
+
+    }
+
+
+
+  end;
+
   procedure doPrintReport;
   begin
 
@@ -393,10 +450,16 @@
 
         var extCl : byte;
         extCl := 0;
+
         if ( fpSpAxtf.coTable = coFPSTBUD ) {
           extCl := GetStBudExtraParameters( coFPSTBUD , fpSpAxtf.CMEAN, extClName2 );
         }
 
+        var extCl1 : byte;
+        extCl1 := 0;
+        if ( fpSpAxtf.coTable = coFPSTBUD ) {
+          extCl1 := GetStBudExtraParameters( coFPSTBUD , fpSpAxtf.CMEAN, extClName1 );
+        }
 
         //xlSetCellStringValue(/*fpSpAxtf.levelCode*/fpSpAxtf.code, 1+tt, 1, 1+tt, 1); //
         /*
@@ -412,7 +475,8 @@
                                 f641_printed.prior  := fpstbud.prior,
                                 f641_printed.SaldoType := extCl,
                                 //f641_printed.extPar := extCl,
-                                f641_printed.isLeaf := fpSpAxtf.isLeaf
+                                f641_printed.isLeaf := fpSpAxtf.isLeaf ,
+                                f641_printed.AgregHandling := extCl1
 
                                 ;
 
@@ -435,6 +499,7 @@
 
     var extraSum : double;
     extraSum := 0;
+
 
     /*
     _LOOP  fpSpAxtf  {
@@ -841,6 +906,8 @@
         }
       }
     }
+
+    doPrintExtraSum (periodNum);
 
     var firstDel : byte;
 

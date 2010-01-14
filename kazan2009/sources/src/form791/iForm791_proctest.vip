@@ -209,6 +209,7 @@
       }
       if (fSum > '') {
         //xlSetCellFormula('=‘ã¬¬('+fSum+')',forGrouping.f791_printed_ord2.printedAtRow,3,forGrouping.f791_printed_ord2.printedAtRow,7);
+        xlSetCellFormula('=‘ã¬¬('+fSum+')',forGrouping.f791_printed_ord2.printedAtRow,5,forGrouping.f791_printed_ord2.printedAtRow,6);
       }
     }
 
