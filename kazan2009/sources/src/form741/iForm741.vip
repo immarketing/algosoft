@@ -1,7 +1,7 @@
-// \\su01-kaz\GALEBD\exe\Xls\F_FPBUDGET 
+// \\su01-kaz\GALEBD\exe\Xls\F_FPBUDGET
 
-!#include galnet.ccm 
-!end;   
+!#include galnet.ccm
+!end;
 !#include uAlgor.vih
 !#include oAlgSetup.vih
 
@@ -105,15 +105,26 @@ form741showdebug menu
   - 'Показать отладочную информацию - 4', cmShowDebug4, 'Отладочная информация' ;
 }
 
+/*
+TPPDocs_HotKeys Menu
+  {
+  - 'ШМЗ - Формирование ПС по КС', cmExecute( RunInterface('M_TPP::CreatePSByK'));
+  - 'ШМЗ - Формирование ПС по КС 1', cmExecute( RunInterface(M_TPP::CreatePSByK));
+  - 'ШМЗ - Формирование ПС по КС 2', cmRunInterface(M_TPP::CreatePSByK);
+
+  }
+  */
+
+
 objInterface iTest;
  property pName : string[50] read;
 
  index iByPName = pName;
- 
+
   procedure MakeItSimple ;
-  
+
   procedure SetPredicat(s : String);
- 
+
 end;
 
 // ------------------- ╨хрышчрЎш  ------------------
@@ -126,21 +137,21 @@ public:
 end;
 
 interface cTest1;
-  create view 
+  create view
   var prdk : String
   as
   select * from KatMC where (( 0==KatMC.nrec and (KatMC.Name like prdk) ));
-  
+
   property pName  : string[50] absolute KatMC.name read;
-  
+
   index iByPName auto;
-  
-  
+
+
   procedure iTest.MakeItSimple ;
   begin
     //Message ('MakeItSimple');
   end;
-  
+
   procedure iTest.SetPredicat(s : String);
   begin
     set prdk := s;
@@ -151,7 +162,7 @@ end.
 
 /*
 alter interface cTest1;
-end;  
+end;
 */
 
 
@@ -160,7 +171,7 @@ vipInterface szmn_bud_Form741 licensed(free);
 //#_VIPINTERFVERS_(szmn_bud_Form714_);
 
 Interface szmn_bud_Form741
-//Interface #_VERSIONEDNAME_(szmn_bud_Form714_) 
+//Interface #_VERSIONEDNAME_(szmn_bud_Form714_)
 //#_INTERFVERS_(szmn_bud_Form714_)
   '-= СЗМН Бюджет. Форма 7.4.1. =- ' (,hcNoContext,) EscClose, Cyan;
   show at  (0,0,70,10)
@@ -169,62 +180,62 @@ Interface szmn_bud_Form741
 
 #include iForm741_memtbls.vip
 
-create view 
+create view
 var
   paramSopr   : comp;
   pcSopr      : comp;
-  
+
   cPeriod     : comp;
   cFltrCO     : comp;
-  
+
   coMarker    : longint;
   coPodpis    : longint;
-  
+
   wKODGRKAU   : word;
   cPodpGrp    : comp;
 
   sPath :string;
-  
+
   cStatus     : comp;
   pTest       : iTest(cTest1) new;
   //pTest       : iTest noauto; //(cTest1) new initByName ('Test');
-  
+
   podpisanty  : SZMN_COMMON::IPodpis (vPodpis) new;// (  ) new;
-  
-as 
-select 
+
+as
+select
   if(cPeriod=0   ,'Выберите период',fpPeriod.Name)   (FieldName = sPeriod),
-  if(GetMarkerCount(coMarker)=0   ,'Выберите центр ответственности', 
-    if (GetMarkerCount(coMarker)=1 , fltrfpco.Name , 
+  if(GetMarkerCount(coMarker)=0   ,'Выберите центр ответственности',
+    if (GetMarkerCount(coMarker)=1 , fltrfpco.Name ,
     'ОАО СЗМН. Выбрано [' + GetMarkerCount(coMarker) + '] ЦО'
     ))   (FieldName = sFltrCO),
   if(cStatus=0   ,'Выберите статус', katNotes.Name)   (FieldName = sStatus),
   //if(cPodpGrp=0   ,'Выберите подписантов', spKAU.name)   (FieldName = sPodpGrp),
   podpisanty.DialogFieldString  (FieldName = sPodpGrp) ,
-  * 
+  *
   from  KatMC km,
-        f714_datas, 
+        f714_datas,
         f714_datas f714_datas_empty,
         f714_stbud, // f714_stbud
         f714_stbud fsb,
         f714_sb_iter,
         fpco fltrfpco,
-        spKAU , 
+        spKAU ,
         spKAU spKAUPodp (SPKAU07),
         katNotes,
         f714_datas f714_datasSorted(f714_NppSort),
         f714_stbud f714_stbudSorted (f714_sb_scode),
         pTest,
         podpisanty
-where (( 
+where ((
    0 == km.nrec and
    cFltrCO == fltrfpco.nRec and
    cPeriod   == fpPeriod.nrec and
    //wKODGRKAU == spKAU.KODGRKAU (noindex) and
-   cPodpGrp == spKAU.nrec and 
-   wKODGRKAU == spKAUPodp.KODGRKAU and 
-   cPodpGrp == spKAUPodp.cNode (noindex) and 
-   
+   cPodpGrp == spKAU.nrec and
+   wKODGRKAU == spKAUPodp.KODGRKAU and
+   cPodpGrp == spKAUPodp.cNode (noindex) and
+
    0 == f714_datas_empty.groupLevel and
    /*
    '' == f714_datas_empty.OrgName and
@@ -232,12 +243,12 @@ where ((
    '' == f714_datas_empty.AppDogName and
    */
    cStatus == katNotes.nRec
-   
+
  ));
- 
-#include iForm741_windows.vip 
-#include iForm741_proc.vip 
-   
+
+#include iForm741_windows.vip
+#include iForm741_proc.vip
+
 
   handleEvent
     cmPick: {
@@ -253,7 +264,7 @@ where ((
           { Exit; }
           Set sPath := sTmp;
         }
-        
+
         #sPeriod   :  {
           var cp : comp;
           cp := cPeriod;
@@ -272,35 +283,35 @@ where ((
         }
         #sFltrCO  :  {
           //RunInterface('F_FPCATALOG::GetCO', word(cgiPickMult + cgiNotEdit + cgiNotClear ), comp(0), comp(0), cFltrCO);
-          
+
           var qwer : F_FpCatalog::vExtFpCO new;
-          
+
           if  (qwer.RunViewCO(word(cgiPickMult + cgiNotEdit + cgiNotClear ), comp(0), cFltrCO) =0) then {/*set cFltrCO := 0; */
             RescanPanel (brplan_src);
             //exit;
-            
+
           };
-          
+
           var MarkVal: longInt;
-          
+
           DoneMarker(coMarker,'');
           set coMarker := InitMarker(qwer.GetMarkerName,8,50,10);
-          
+
           if ( GetMarkerCount(coMarker)=1 ) then {
             GetMarker (coMarker,0,cFltrCO);
             set cFltrCO := cFltrCO;
           }
-          
+
           RescanPanel (brplan_src);
-          
+
         }
         #sPodpGrp: {
           podpisanty.SelectPodpis;
-          
+
           /*
 
           var qwer : F_GetAn::GetKau new;
-          
+
           if  (qwer.GetCodeKau(word(cgiPick + cgiNotEdit + cgiNotClear ), wKODGRKAU, cPodpGrp) =0) then {
             //set cPodpGrp := 0;
             RescanPanel (brplan_src);
@@ -309,13 +320,13 @@ where ((
 
           DoneMarker(coPodpis,'');
           set coPodpis := InitMarker(qwer.GetMarkerName(wKODGRKAU),8,50,10);
-          
+
           if (getfirst spKAU = tsOK){};
           */
           RescanPanel (brplan_src);
         }
         #sStatus: {
-          if (RunInterface (  'L_DOGOVOR::GETSOMKATNOTES', 
+          if (RunInterface (  'L_DOGOVOR::GETSOMKATNOTES',
                               822, // 822 - фин. обязательства предприятия
                               0,
                               0, // выбирать все
@@ -323,88 +334,93 @@ where ((
                               cStatus
                               ) <> cmCancel) {};
           RescanPanel (brplan_src) ;
-          
+
         }
       end;
-      
+
     }
-    
+
     cmShowDebug2: {
       //Message (s);
     }
-    
+
     cmShowDebug3: {
       pTest.SetPredicat ('%');
     }
     cmShowDebug4: {
       pTest.SetPredicat ('1%');
     }
-    
-    
+
+
     cmShowDebug: {
       //message ('ShowDebug');
       runwindow (wnInfoWindow741);
     }
-    
-    
+
+
     cmHotKeys : {
       //message ('cmMenu');
-      
+
       var mn : longint ;
+
       mn := LoadMenu('form741showdebug') ;
+
+      //mn := LoadMenu('TPPDocs_HotKeys') ;
+
       var i : integer;
+
       i := RunLoadMenu (mn);
       if (i <> 0 and i <> cmCancel) {
         Putcommand(i)
       };
-      
+
       //AddMenuItem (mn, 'Отладка',cmShowDebug);
     }
-    
+
     cmInit: {
-      cPeriod:=0; 
-      
-      pTest.MakeItSimple (); // := iTest (new ( cTest1,InitByName ('InitByName') ) );    
-      
+      cPeriod:=0;
+
+      pTest.MakeItSimple (); // := iTest (new ( cTest1,InitByName ('InitByName') ) );
+
       if (getfirst pTest = tsOK ) {};
-      
+
       var qwer : F_FpCatalog::vExtFpCO new;
-      
+
       set coMarker := InitMarker(qwer.GetMarkerName,8,50,10);
-      
+
       //set wKODGRKAU := 10035;
       set wKODGRKAU := 50005;
-      
+
       var s : String;
       s := '';
       s := TranslatePath ('%FORM741_PODP_KODAN%');
       if (s <> '') {
         wKODGRKAU := word (s);
       }
-      
-      podpisanty.setprefix('szmn_bud_Form741'); 
+
+      podpisanty.setprefix('szmn_bud_Form741');
       podpisanty.reinit;
-      
+
       ReadDsk;
-      
+
       if ( GetMarkerCount(coMarker)=1 ) then {
         GetMarker (coMarker,0,cFltrCO);
         set cFltrCO := cFltrCO;
       }
-      
+
       var qwer1 : F_GetAn::GetKau new;
       //DoneMarker(coPodpis,'');
       set coPodpis := InitMarker(qwer1.GetMarkerName(wKODGRKAU),8,50,10);
-      
-      
+
+
       RescanPanel (brplan_src);
-      
+
       //TargetBudGroup := comp('000000000000000Ah');
       //if paramSopr = 0 then pcSopr := 281474976710687 else pcSopr := paramSopr ;//281474976710659;//281474976710659; // для отладки
     };
     cmDone: {
       DoneMarker(coMarker,'');
-      
+
     } ;
     cmdelete : {
       //Message ('CmDelete');
@@ -420,8 +436,9 @@ where ((
           DoneMarker(coMarker,qwer.GetMarkerName);
           set coMarker := InitMarker(qwer.GetMarkerName,8,50,10);
           set cFltrCO := 0;
-          
+
         }
+        /*
         #sPodpGrp : {
           var qwer : F_GetAn::GetKau new;
           ClearMarker (coPodpis);
@@ -429,8 +446,12 @@ where ((
           set coPodpis := InitMarker(qwer.GetMarkerName(wKODGRKAU),8,50,10);
           set cPodpGrp := 0;
         }
+        */
         #sStatus  : {
           cStatus := 0;
+        }
+        #sPodpGrp  : {
+          set podpisanty.cPodpGroup := 0;
         }
       end;
       RescanPanel (brplan_src);
@@ -440,29 +461,29 @@ where ((
         Message ('Необходимо указать период получения отчета!');
         exit;
       }
-      
+
       StartNewVisual (vtRotateVisual , vfScreenBottom + vfTimer  + vfThread  , 'Подготовка данных отчета', 100);
       savedsk;
-      
+
       PrepareData;
-      
+
       SetVisualHeader ('Печать отчета');
-      
+
       printReport;
-      
+
       StopVisual('',0);
-      
+
     }//handleOK;
     /*
     cmCmd03 : {
       var ar : array [1..2] of string;
       ar[1] := 100;
       ar[2] := 200;
-      
+
       SaveMyDsk ('ar', ar);
     }
     */
   end;
-  
+
 
 End.  // interface

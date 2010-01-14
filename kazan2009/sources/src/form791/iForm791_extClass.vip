@@ -31,7 +31,7 @@ from
 // 2 - строка - выносится в подвал
 
 // coFPSTBUD
-function GetStBudExtraParameters (wt : word; cr : comp) : byte;
+function GetStBudExtraParameters (wt : word; cr : comp; pextclName : String) : byte;
 begin
   result := 0;
   set extClass.wTable := wt;
@@ -44,7 +44,7 @@ begin
               f791_2extcl.val := extClass.ExClassSeg.Value,
               f791_2extcl.cRec := cr,
               f791_2extcl.wTable := wt;
-      if (extClass.ExClassName.Name <> extClName /*'Характеристики статьи для форм 7.9.1 и 7.9'*/) {continue};
+      if (extClass.ExClassName.Name <> pextclName /*'Характеристики статьи для форм 7.9.1 и 7.9'*/) {continue};
       extClass._loop ExClassSeg {
         insert f791_2extcl
            set  f791_2extcl.name := extClass.ExClassName.Name,
@@ -55,7 +55,11 @@ begin
         if (extClass.ExClassSeg.Value = excCode1 /*'Разделитель'*/) {result := 1; exit};
         if (extClass.ExClassSeg.Value = excCode2 /*'Вынос в подвал'*/) {result := 2; exit};
         if (extClass.ExClassSeg.Value = excCode3 /*'Итого'*/) {result := 3; exit};
-        if (extClass.ExClassSeg.Value = excCode4 /*'Итого'*/) {result := 4; exit};
+        if (extClass.ExClassSeg.Value = excCode4 /*'Агрегат'*/) {result := 4; exit};
+
+        if (extClass.ExClassSeg.Value = excCode5 /*'Сумма'*/)   {result := 5; exit};
+        if (extClass.ExClassSeg.Value = excCode6 /*'Сложить'*/) {result := 6; exit};
+        if (extClass.ExClassSeg.Value = excCode7 /*'Вычесть'*/) {result := 7; exit};
       }
     }
   }

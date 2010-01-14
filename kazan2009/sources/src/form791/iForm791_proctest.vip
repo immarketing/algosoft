@@ -9,7 +9,12 @@
     if (excCode1 = '') {set excCode1 := 'Разделитель'};
     if (excCode2 = '') {set excCode2 := 'Вынос в подвал'};
     if (excCode3 = '') {set excCode3 := 'Итого'};
-    if (excCode4 = '') {set excCode4 := 'Аггрегат'};
+    if (excCode4 = '') {set excCode4 := 'Агрегат'};
+
+    if (extClName1 = '') {set extClName1 := 'Дополнительная обработка статьи'};
+    if (excCode5 = '') {set excCode5 := 'Сумма'};
+    if (excCode6 = '') {set excCode6 := 'Сложить'};
+    if (excCode7 = '') {set excCode7 := 'Вычесть'};
 
     if (sPath='') set sPath := translatepath('%startpath%Xls\F_FPBUDGET\SZMN_Budjet\tmpl_7_9_1.xls');
   end;
@@ -34,6 +39,11 @@
     SaveMyDsk(excCode2,    'iForm791_excCode2');
     SaveMyDsk(excCode3,    'iForm791_excCode3');
     SaveMyDsk(excCode4,    'iForm791_excCode4');
+
+    SaveMyDsk(extClName1,    'iForm791_extClName1');
+    SaveMyDsk(excCode5,    'iForm791_excCode5');
+    SaveMyDsk(excCode6,    'iForm791_excCode6');
+    SaveMyDsk(excCode7,    'iForm791_excCode7');
 
     SaveMyDsk (cPodpGrp,'iForm791_cPodpGrp' );
 
@@ -62,6 +72,10 @@
     ReadMyDsk (excCode3,    'iForm791_excCode3', dc);
     ReadMyDsk (excCode4,    'iForm791_excCode4', dc);
 
+    ReadMyDsk (extClName1,    'iForm791_extClName1', dc);
+    ReadMyDsk (excCode5,    'iForm791_excCode5', dc);
+    ReadMyDsk (excCode6,    'iForm791_excCode6', dc);
+    ReadMyDsk (excCode7,    'iForm791_excCode7', dc);
     //if (extClName = '') {set extClName := 'Характеристики статьи для форм 7.9.1 и 7.9'}
 
     ReadMyDsk (Check,    'iForm791_Check', dc);
@@ -211,11 +225,40 @@
         fSum := fSum + ';R[' + tsts + ']C';
       }
       if (fSum > '') {
-        xlSetCellFormula('=Сумм('+fSum+')',forGrouping.f791_printed_ord2.printedAtRow,3,forGrouping.f791_printed_ord2.printedAtRow,7);
+        //xlSetCellFormula('=Сумм('+fSum+')',forGrouping.f791_printed_ord2.printedAtRow,3,forGrouping.f791_printed_ord2.printedAtRow,7);
       }
-
-
     }
+
+    var extraSm : word;
+    extraSm := 0;
+
+    var extraFrm : String;
+    extraFrm := '';
+
+    _loop f791_printed {
+      if (f791_printed.extPar1 = 5){
+        // тут должна быть сумма
+        extraSm := f791_printed.printedAtRow;
+      }
+    }
+
+    if (extraSm = 0){
+      exit;
+    }
+
+    _loop f791_printed {
+      if (f791_printed.extPar1 = 6){
+        // тут надо сложить
+        extraFrm := extraFrm + ';R[' + (f791_printed.printedAtRow - extraSm) + ']C';
+      }
+      if (f791_printed.extPar1 = 7){
+        // тут надо отнять
+        extraFrm := extraFrm + ';-R[' + (f791_printed.printedAtRow - extraSm) + ']C';
+      }
+    }
+
+    xlSetCellFormula('=Сумм('+extraFrm+')',extraSm,5,extraSm,5);
+
     xlSetActiveSheetByName(datSheet);
   end;
 
@@ -324,8 +367,10 @@
         // итоги
         xlRunMacro('CopyRow(ROW13)');
       } else if ( f791_printed.extPar = 4/* f791_printed.isLeaf = 0 */) {
+        // агрегат
         xlRunMacro('CopyRow(ROW12)');
       } else {
+        // простая строка
         xlRunMacro('CopyRow(ROW11)');
       }
       update current f791_printed set f791_printed.printedatrow79 := repGetPrintRow - 1;
@@ -342,6 +387,36 @@
     xlSetActiveSheetByName(dataSheetName);
     printSigners2;
     xlSetActiveSheetByName(report79Sheet);
+
+    var extraSm : word;
+    extraSm := 0;
+
+    var extraFrm : String;
+    extraFrm := '';
+
+    _loop f791_printed {
+      if (f791_printed.extPar1 = 5){
+        // тут должна быть сумма
+        extraSm := f791_printed.printedatrow79;
+      }
+    }
+
+    if (extraSm = 0){
+      exit;
+    }
+
+    _loop f791_printed {
+      if (f791_printed.extPar1 = 6){
+        // тут надо сложить
+        extraFrm := extraFrm + ';R[' + (f791_printed.printedatrow79 - extraSm) + ']C';
+      }
+      if (f791_printed.extPar1 = 7){
+        // тут надо отнять
+        extraFrm := extraFrm + ';-R[' + (f791_printed.printedatrow79 - extraSm) + ']C';
+      }
+    }
+
+    xlSetCellFormula('=Сумм('+ extraFrm +')',extraSm,5,extraSm,5);
 
     xlRunMacro('AfterPrint');
 
@@ -499,15 +574,18 @@
       }
 
       var extCl : byte;
-
       extCl := 0;
+
+      var extCl1 : byte;
+      extCl1 := 0;
 
       var extraChar : string;
 
       extraChar := '''';
 
       if ( fpSpAxtf.coTable = coFPSTBUD ) {
-        extCl := GetStBudExtraParameters( coFPSTBUD , fpSpAxtf.CMEAN );
+        extCl  := GetStBudExtraParameters( coFPSTBUD , fpSpAxtf.CMEAN, extClName );
+        extCl1 := GetStBudExtraParameters( coFPSTBUD , fpSpAxtf.CMEAN, extClName1 );
       }
 
       if ( extCl = 1 /* fpSpAxtf.cNode = 0h */)then {
@@ -516,14 +594,21 @@
         //xlSetCellStringValue(fpSpAxtf.levelcode, 8, 1, 8, 1); //
         xlSetCellStringValue(fpSpAxtf.name, 8, 2, 8, 2); //
         xlRunMacro('CopyRow(ROW0)');
-      } else if (  extCl = 4 /* агрегат /* fpSpAxtf.isLeaf = 0 */ )then {
+      } else if (  (extCl = 3)  or (extCl = 4)  /* агрегат /* fpSpAxtf.isLeaf = 0 */ )then {
+        var r2print : word;
+        if (extCl = 4) {
+          r2print := 10;
+        } else {
+          r2print := 48;
+        }
+
         // Группа не верхнего уровня
-        xlSetCellStringValue(extraChar + trimFirst0(fpstbud.levelcode), 10, 1, 10, 1);
+        xlSetCellStringValue(extraChar + trimFirst0(fpstbud.levelcode), r2print, 1, r2print, 1);
         //xlSetCellStringValue(fpSpAxtf.levelcode, 10, 1, 10, 1); //
-        xlSetCellStringValue(PadCh ('',' ', 2 * getCurrentLevelNumber) + fpSpAxtf.name, 10, 2, 10, 2); //
-        ExcelPrint2(cPlan1,150,10,3, arValues[1]); // План 1
-        ExcelPrint2(cPlan3,150,10,4, arValues[3]); // План 3
-        ExcelPrint2(cPlan2,150,10,4, arValues[2]); // План 2
+        xlSetCellStringValue(PadCh ('',' ', 2 * getCurrentLevelNumber) + fpSpAxtf.name, r2print, 2, r2print, 2); //
+        ExcelPrint2(cPlan1,150,r2print,3, arValues[1]); // План 1
+        ExcelPrint2(cPlan3,150,r2print,4, arValues[3]); // План 3
+        ExcelPrint2(cPlan2,150,r2print,4, arValues[2]); // План 2
 
         if (extCl = 2) {
           // - в подвал
@@ -534,10 +619,14 @@
         }
 
         arValues[3] := arValues[3] - if ( (arValues[1]- arValues[2]) < 0 ,arValues[1],arValues[2]) ;
-        xlSetCellNumberValue(if (arValues[3]<0,0,arValues[3]) , 10, 6 , 10, 6 );
+        xlSetCellNumberValue(if (arValues[3]<0,0,arValues[3]) , r2print, 6 , r2print, 6 );
 
         if (extCl <> 2) {
-          xlRunMacro('CopyRow(ROW2)');
+          if (extCl = 4) {
+            xlRunMacro('CopyRow(ROW2)');
+          } else {
+            xlRunMacro('CopyRow(ROW791ITOGO)');
+          }
         };
       } else {
         // Лист - простая строка
@@ -570,6 +659,7 @@
                                 f791_printed.code   := extraChar + trimFirst0(fpstbud.levelcode),
                                 f791_printed.name   := PadCh ('',' ', 2 * getCurrentLevelNumber) + fpSpAxtf.name,
                                 f791_printed.extPar := extCl,
+                                f791_printed.extPar1:= extCl1,
                                 f791_printed.isLeaf := fpSpAxtf.isLeaf
 
                                 ;

@@ -37,10 +37,14 @@ var
  isError: boolean;
  sPersons: string;
 
- extClName   : String;
- excCode1    : String; // разделитель
- excCode2    : String; // итого
- excCode3    : String; // аггрегат
+ extClName     : String;
+ extClNamePZap : String;
+ excCode1      : String; // разделитель
+ excCode2      : String; // итого
+ excCode3      : String; // Агрегат
+ excCode4      : String;
+ excCode5      : String;
+ excCode6      : String;
 
  podpisanty  : SZMN_COMMON::IPodpis (vPodpis) new;// (  ) new;
 
@@ -119,6 +123,32 @@ begin
         }
         else{}
       }
+end;
+
+procedure ExcelPrint2(CopyBud:comp; FP:word; Nstr:word; Nstol:word);
+begin
+
+  xlSetCellNumberValue(0 , Nstr, Nstol , Nstr, Nstol );
+
+  Set cCopyBud:=CopyBud;
+  Set cFP:= FP;
+  //      _LOOP  fpSpAxtf
+  _LOOP  fpV
+  {
+    if (getFirst fpP <> tsOK) {exit};
+    if ( fpPeriod.dBeg = fpP.dBeg ) and (fpPeriod.dEnd = fpP.dEnd)
+    //if((month(fpP.dbeg)=month(fpP.dEnd)) and (year(fpP.dbeg)=year(fpperiod.dbeg)))// and (fpvalues.chashan = 0))) //chek year
+    {
+      if(Check=0)
+      	  {
+      	    xlSetCellNumberValue(fpv.summa     , Nstr, Nstol , Nstr, Nstol );
+      	  }
+      	  else
+      	  {
+      	    xlSetCellNumberValue(fpv.summa/1000, Nstr, Nstol , Nstr, Nstol );
+      	  }
+    }
+  }
 end;
 
 //определяет первый день текущего квартала
@@ -209,12 +239,30 @@ end; // Screen
       {Font = {BackColor = if (excCode2='',    ColorNeed,0)}};
     excCode3  ('',,) : NoProtect,noPickButton,
       {Font = {BackColor = if (excCode3='',    ColorNeed,0)}};
+
+
+    extClNamePZap  ('',,) : NoProtect,noPickButton,
+      {Font = {BackColor = if (extClNamePZap='',    ColorNeed,0)}};
+    excCode4  ('',,) : NoProtect,noPickButton,
+      {Font = {BackColor = if (excCode4='',    ColorNeed,0)}};
+
+    excCode5  ('',,) : NoProtect,noPickButton,
+      {Font = {BackColor = if (excCode5='',    ColorNeed,0)}};
+    excCode6  ('',,) : NoProtect,noPickButton,
+      {Font = {BackColor = if (excCode6='',    ColorNeed,0)}};
   <<
 
-         Название классификатора .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-     Код аналитики [РАЗДЕЛИТЕЛЬ] .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-           Код аналитики [ИТОГО] .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-        Код аналитики [АГГРЕГАТ] .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+                 Название классификатора .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+             Код аналитики [РАЗДЕЛИТЕЛЬ] .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+                   Код аналитики [ИТОГО] .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+                 Код аналитики [Агрегат] .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+
+Название классификатора (поясн. записка) .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+             Код аналитики [Не печатать] .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+        Код аналитики [Начальное сальдо] .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+         Код аналитики [Конечное сальдо] .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
   >>
   end; // Screen sCheckdop 'Дополнительно'
 end; // Screen
@@ -244,15 +292,8 @@ end; // Screen
     ))
   ;
 
-  //   'Характеристики статьи для форм 7.9.1 и 7.9'
-  //   'Разделитель'
-  //   'Вынос в подвал'
-  // 0 - никаких особых признаков нет
-  // 1 - строка - разделитель
-  // 2 - строка - выносится в подвал
-
   // coFPSTBUD
-  function GetStBudExtraParameters (wt : word; cr : comp) : byte;
+  function GetStBudExtraParameters (wt : word; cr : comp; pextclName : String) : byte;
   begin
     result := 0;
     set extClass.wTable := wt;
@@ -260,11 +301,15 @@ end; // Screen
 
     extClass._loop ExClassVal {
       extClass._loop ExClassName {
-        if (extClass.ExClassName.Name <> extClName /*'Характеристики статьи для форм 7.9.1 и 7.9'*/) {continue};
+        if (extClass.ExClassName.Name <> pextclName /*'Характеристики статьи для форм 7.9.1 и 7.9'*/) {continue};
         extClass._loop ExClassSeg {
           if (extClass.ExClassSeg.Value = excCode1 /*'Разделитель'*/) {result := 1; exit};
-          if (extClass.ExClassSeg.Value = excCode2 /*'Вынос в подвал'*/) {result := 2; exit};
-          if (extClass.ExClassSeg.Value = excCode3 /*'Итого'*/) {result := 3; exit};
+          if (extClass.ExClassSeg.Value = excCode2 /*'Итого'*/) {result := 2; exit};
+          if (extClass.ExClassSeg.Value = excCode3 /*'Агрегат'*/) {result := 3; exit};
+          if (extClass.ExClassSeg.Value = excCode4 /*'Не печатать'*/) {result := 4; exit};
+
+          if (extClass.ExClassSeg.Value = excCode5 /*'Начальное сальдо'*/) {result := 5; exit};
+          if (extClass.ExClassSeg.Value = excCode6 /*'Конечное сальдо'*/) {result := 6; exit};
         }
       }
     }
@@ -276,7 +321,12 @@ end; // Screen
     if (extClName = '') {set extClName := 'Характеристики для форм 7.9.1 и 7.9'};
     if (excCode1 = '') {set excCode1 := 'Разделитель'};
     if (excCode2 = '') {set excCode2 := 'Итого'};
-    if (excCode3 = '') {set excCode3 := 'Аггрегат'};
+    if (excCode3 = '') {set excCode3 := 'Агрегат'};
+    if (excCode4 = '') {set excCode4 := 'Не печатать'};
+    if (excCode5 = '') {set excCode5 := 'Начальное сальдо'};
+    if (excCode6 = '') {set excCode6 := 'Конечное сальдо'};
+
+    if (extClNamePZap = '') {set extClNamePZap := 'Характеристики для формы "ПОЯСНИТЕЛЬНАЯ ЗАПИСКА"'};
   end;
 
   procedure CheckDefValues;
@@ -304,9 +354,16 @@ end; // Screen
     ReadMyDsk (Check,    'szmn_bud_Form91.Check', dc);
 
     ReadMyDsk (extClName,   'szmn_bud_Form91.extClName', dc);
+    ReadMyDsk (extClNamePZap,   'szmn_bud_Form91.extClNamePZap', dc);
+
     ReadMyDsk (excCode1,    'szmn_bud_Form91.excCode1', dc);
     ReadMyDsk (excCode2,    'szmn_bud_Form91.excCode2', dc);
     ReadMyDsk (excCode3,    'szmn_bud_Form91.excCode3', dc);
+    ReadMyDsk (excCode4,    'szmn_bud_Form91.excCode4', dc);
+    ReadMyDsk (excCode5,    'szmn_bud_Form91.excCode5', dc);
+    ReadMyDsk (excCode6,    'szmn_bud_Form91.excCode6', dc);
+
+
     CheckExtAttr;
 
     CheckDefValues;
@@ -330,15 +387,20 @@ end; // Screen
 
     SaveMyDsk (Check,    'szmn_bud_Form91.Check' );
 
-    SaveMyDsk (extClName,'szmn_bud_Form91.extClName' );
-    SaveMyDsk (excCode1, 'szmn_bud_Form91.excCode1' );
+    //SaveMyDsk (extClName,'szmn_bud_Form91.extClName' );
+    //SaveMyDsk (excCode1, 'szmn_bud_Form91.excCode1' );
 
     CheckExtAttr;
 
     SaveMyDsk(extClName,   'szmn_bud_Form91.extClName');
+    SaveMyDsk(extClNamePZap,   'szmn_bud_Form91.extClNamePZap');
+
     SaveMyDsk(excCode1,    'szmn_bud_Form91.excCode1');
     SaveMyDsk(excCode2,    'szmn_bud_Form91.excCode2');
     SaveMyDsk(excCode3,    'szmn_bud_Form91.excCode3');
+    SaveMyDsk(excCode4,    'szmn_bud_Form91.excCode4');
+    SaveMyDsk(excCode5,    'szmn_bud_Form91.excCode5');
+    SaveMyDsk(excCode6,    'szmn_bud_Form91.excCode6');
 
 
   end;
@@ -428,6 +490,25 @@ end; // Screen
     startPrintAt := startPrintAt + i;
   end;
 
+  procedure printSigners2 (var startPrintAt : word);
+  begin
+    //
+    var i : word;
+    i := 0;
+    if not podpisanty.isSelected then exit;
+    _loop podpisanty {
+      var ar : array [1..2] of string;
+      ar[1] := podpisanty.dolj;
+      ar[2] := podpisanty.fio;
+
+      xlSetCellStringValue(ar[1] , startPrintAt , 2,  startPrintAt , 2); // ??N? - ????
+      xlSetCellStringValue(ar[2] , startPrintAt + i, 5,  startPrintAt + i, 5); // ??N? - ????
+      xlRunMacro('CopyRow(ROWPODPIS)');
+      //inc (i);
+    }
+    //startPrintAt := startPrintAt + i;
+  end;
+
   procedure printExecutor(startPrintAt : word);
   begin
     var sFIO :String ;
@@ -468,6 +549,47 @@ end; // Screen
 
   end;
 
+  procedure printExecutor2(startPrintAt : word);
+  begin
+    var sFIO :String ;
+    sFIO := Trim (sGetTune ('USER.FIO'));
+    var ps1 : byte;
+    ps1 := pos (' ',sFIO);
+    if (ps1 <> 0 ){
+      var sfam : String;
+      //sFAM := substr (sFIO,1,ps1-1);
+      sFAM := substr (sFIO,1,ps1-1) + ' ' + Substr (trim (substr (sFIO,ps1+1,255)),1,1) + '.';
+
+      sFIO := trim (substr (sFIO,ps1+1,255));
+      ps1 := pos (' ',sFIO);
+
+      if (ps1 <> 0) {
+        sFAM := sFAM + ' ' + Substr (trim (substr (sFIO,ps1+1,255)),1,1) + '.';
+      } else {
+      }
+
+      sFIO := sFAM;
+    }
+
+
+    //xlSetCellStringValue('/ '+ sFIO + ' /', 15, 9, 15, 9);
+
+    var tel : string;
+
+    if (getFirst persons where (( sGetTune ('USER.FIO') == persons.FIO (noindex) )) = tsOK) {
+      if (getFirst COMMUNICATIONS where ((  persons.nrec == COMMUNICATIONS.person and
+                                            comp('000000000000022Bh') == COMMUNICATIONS.comtype
+                                            )) = tsOK){
+        tel := COMMUNICATIONS.ADDR;
+      }
+    }
+    xlSetCellStringValue(sFIO + ',' + tel , startPrintAt, 2, startPrintAt, 2);
+    //xlSetFontSize (8 , startPrintAt, 2, startPrintAt, 2);
+    xlRunMacro('CopyRow(ROWEXEC)');
+
+  end;
+
+
   function trimFirst0 (st : String):string;
   begin
     if st = '' then {
@@ -480,6 +602,7 @@ end; // Screen
       result := st;
   end;
 
+  procedure DoPrintPZap; forward;
 
   procedure doPrint;
   begin
@@ -531,7 +654,7 @@ end; // Screen
         xlSetCellStringValue(fpSpAxtf.code, 1+tt, 1, 1+tt, 1); //
 
         if ( fpSpAxtf.coTable = coFPSTBUD ) {
-          extCl := GetStBudExtraParameters( coFPSTBUD , fpSpAxtf.CMEAN );
+          extCl := GetStBudExtraParameters( coFPSTBUD , fpSpAxtf.CMEAN ,extClName );
         } else {
           extCl := 0;
         }
@@ -569,11 +692,97 @@ end; // Screen
     tt := tt + 4;
     printExecutor (tt);
 
+    DoPrintPZap;
+
+    xlSetActiveSheetByName('Otchet'); //?????_1
+
+    xlRunMacro('HideSheet(pZapData)');
+    xlRunMacro('HideSheet(Sheet1)');
+    //xlRunMacro('HideSheet(пояснительная)');
+
+
     xlKillExcel;
 
     //SaveMyDsk(sPath,'dsksPath');
     //SaveMyDsk(sPersons,  'szmn_rep_9_1_spers');
     //PutCommand(cmClose);
+
+  end;
+
+  procedure DoPrintPZap;
+  begin
+    //
+    var dataSheetName : string;
+    dataSheetName  := 'pZapData';
+
+    var reportSheetName : string;
+    reportSheetName  := 'pZap';
+
+    xlRunMacro('setDataSheetName('+dataSheetName+')');
+    xlRunMacro('setReportSheetName('+reportSheetName+')');
+    xlRunMacro('setRowToFill('+String (9)+')');
+
+    xlSetActiveSheetByName(dataSheetName);
+
+    //xlSetCellStringValue(sPeriod, 3, 3, 3, 3); //
+
+    if(Check=0) {
+      xlSetCellStringValue('руб.', 3, 4, 3, 4); //
+    } else {
+      xlSetCellStringValue('тыс.руб.', 3, 4, 3, 4); //
+    }
+    // русский
+    xlSetCellStringValue(LoCase (datetostr(fpperiod.dbeg, 'month YYYY')), 3, 3, 3, 3); //
+    xlSetCellStringValue(LoCase (datetostr(fpperiod.dbeg, 'mon YYYY')), 3, 5, 3, 5); //
+    xlSetCellStringValue(LoCase (datetostr(fpperiod.dbeg, 'mon')), 3, 6, 3, 6); //
+
+    var extCl : byte;
+    var prntRow : byte;
+    var prntRowStr : String;
+
+    var extraChar : string;
+    extraChar := '''';
+
+    _LOOP  fpSpAxtf    {
+      if(isValid(tnfpstbud))       { //chek year
+        //
+        if ( fpSpAxtf.coTable = coFPSTBUD ) {
+          extCl := GetStBudExtraParameters( coFPSTBUD , fpSpAxtf.CMEAN, extClNamePZap );
+          if (extCl = 0 ){
+            extCl := GetStBudExtraParameters( coFPSTBUD , fpSpAxtf.CMEAN, extClName );
+          }
+        } else {
+          extCl := 0;
+        }
+        case extCl of
+          0: { prntRow := 16; prntRowStr := 'ROWORDINAL'; }
+          1: { prntRow := 6; prntRowStr := 'ROWDELIM'; }
+          2: { prntRow := 11; prntRowStr := 'ROWITOG'; }
+          3: { prntRow := 13; prntRowStr := 'ROWAGREG'; }
+          4: continue;
+        end;
+
+        //xlSetCellStringValue(fpSpAxtf.code, 1+tt, 1, 1+tt, 1); //
+        //xlSetCellNumberValue(extCl     , 1+tt, 41, 1+tt, 41);
+
+        xlSetCellStringValue(PadCh ('',' ', 2 * getCurrentLevelNumber) + fpstbud.Name, prntRow, 2, prntRow, 2); //
+
+        if ( extCl <> 1) {
+          xlSetCellStringValue(extraChar + trimFirst0(fpstbud.LevelCode), prntRow, 1, prntRow, 1 ); //
+          //xlSetCellStringValue(kated.name, 1+tt, 27, 1+tt, 27);
+          ExcelPrint2(cPlan,150,prntRow,3);
+          ExcelPrint2(cPlanDop,150,prntRow,4);
+          ExcelPrint2(cFact,151,prntRow,5);
+        };
+        xlRunMacro('CopyRow(' + prntRowStr + ')');
+      }
+      else{}
+    }
+    xlRunMacro('ROWEMPTY');
+    printSigners2 (25);
+
+    printExecutor2(28);
+
 
   end;
 
@@ -619,6 +828,9 @@ cmDelOnProtect:
     #sTForm    : Set cTForm:=0;
     #sPlan    : Set cPlan:=0;
     #sFact     : Set cFact:=0;
+    #sPodpGrp  : {
+      set podpisanty.cPodpGroup := 0;
+    }
   end;
 
 cmInit:

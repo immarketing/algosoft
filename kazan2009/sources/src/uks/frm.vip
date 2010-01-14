@@ -1,4 +1,4 @@
-vipInterface form_6_15 licensed(free);
+vipInterface form_6_15_2 licensed(free);
 
 #include temp_tbl.vpp
 
@@ -6,8 +6,8 @@ interface form_6_15_2 'Отчет по плану строительства' ('', , sci1EscTree), escclo
 show at (,,,)
 
 var
-  scale, 
-  price_mode, 
+  scale,
+  price_mode,
   rep_type: word; // тип отчета (0 - ТПиР, 1 - КР)
   tmp, unit: string;
   make_rep: boolean;
@@ -15,40 +15,42 @@ var
   tcPlan, tcHier, tcVar, tcPer: comp;
   tcVar2 : comp;
 
+  cTopRec : comp;
+
 create view v01
-var cUksTree, 
+var cUksTree,
     cPlanVar,   // Вариант плана
     cPlanVar2,  // Вариант плана для сравнения ("утвержденный план")
-    cNode: comp; 
+    cNode: comp;
     rep_mode: word;     // Режим получения отчета (0 - план 1 - план/факт)
     xlt_file: string;
 as select *
-from 
-  uksTree, 
+from
+  uksTree,
   planVar,            // Варианты планов строительства
-  planVar planVar2, 
-  katVarPl, 
-  katVarPl katVarPl2, 
-  plStroy, 
+  planVar planVar2,
+  katVarPl,
+  katVarPl katVarPl2,
+  plStroy,
   spPlan,
   spPlan spPlan2,
-  kated, 
-  kated kated2, 
-  katstroy, 
-  katstroy katstroy2, 
-  katstroy prg_tbl, 
+  kated,
+  kated kated2,
+  katstroy,
+  katstroy katstroy2,
+  katstroy prg_tbl,
   katstroy plan_tree,
-  planValue, 
+  planValue,
   planValue planValue2,
-  fpPeriod, 
-  fpTper, 
-  fpPeriod fpPeriod2, 
-  fpTper   fpTper2, 
-  plan_tbl2, 
+  fpPeriod,
+  fpTper,
+  fpPeriod fpPeriod2,
+  fpTper   fpTper2,
+  plan_tbl2,
   obj_tbl (obj_tbl02),
-  fpPeriod plPeriod, 
+  fpPeriod plPeriod,
   fpPeriod repPeriod (fpPeriod08),
-  
+
   // algo
   myspplan0, myplanValue0
 where ((
@@ -56,14 +58,15 @@ where ((
 
   and cPlanVar                == planVar.Nrec
   and planVar.cName           == katVarPl.Nrec
-  
+
   and cPlanVar2               == planVar2.Nrec
   and planVar2.cName          == katVarPl2.Nrec
-  
+
   and uksTree.cDataSource     == plStroy.Nrec
 
   and plStroy.cPeriod         == plPeriod.Nrec
-  and comp(0064000000000017h) == repPeriod.cTper
+  //and comp(0064000000000017h) == repPeriod.cTper
+  and cTopRec                 == repPeriod.cTper
 
   and cPlanVar                == spPlan.cPlanVar
   and cNode                   == spPlan.cNode
@@ -72,7 +75,7 @@ where ((
   //and comp('013100000000094Eh') == spplan.nRec (noindex) // только для тестирования!!!
 
   and spPlan.cObject          == katStroy.Nrec
-  and katStroy.cEd            == katEd.Nrec 
+  and katStroy.cEd            == katEd.Nrec
 
   //and comp('0131000000166C21h') == planvalue.NRec // только для тестирования!!!
   and word(cgiSpPlan)         == planValue.iMode (noindex)
@@ -82,23 +85,23 @@ where ((
 //  and iArticle                == planValue.iArticle
   and planValue.cPeriod       /== fpPeriod.Nrec
   and fpPeriod.cTper          == fpTper.Nrec
-  
+
   // by algo
   and cPlanVar2               == spPlan2.cPlanVar
   and cNode                   == spPlan2.cNode
   and word(2101)              == spplan2.wTable
   and word(0)                 == spplan2.wKau
   //and comp('0131000000000E85h') == spplan2.nRec (noindex) // только для тестирования!!!
-  
+
   //and comp('0131000000166C21h') == planvalue2.NRec // только для тестирования !!
   and word(cgiSpPlan)         == planValue2.iMode (noindex)
   and spPlan2.Nrec            == planValue2.cRec (noindex)
   and planValue2.cPeriod      /== fpPeriod2.Nrec
   and fpPeriod2.cTper         == fpTper2.Nrec
-  
+
   and spPlan2.cObject         == katStroy2.Nrec
-  and katStroy2.cEd           == katEd2.Nrec 
-  
+  and katStroy2.cEd           == katEd2.Nrec
+
 ))
 and (repPeriod.dBeg >= plPeriod.dBeg)
 and (repPeriod.dEnd <= plPeriod.dEnd)
@@ -111,7 +114,7 @@ window wRepInfo;
   table obj_tbl;
   Fields
     obj_tbl.obj 'plan_tbl2.obj':[10],protect;
-    
+
     obj_tbl.code		'code':[10],protect;
     obj_tbl.vol		'vol':[10],protect;
     obj_tbl.obj		'obj':[10],protect;
@@ -120,25 +123,25 @@ window wRepInfo;
     obj_tbl.abbr		'abbr':[10],protect;
     obj_tbl.unit		'unit':[10],protect;
   end;
-  
+
   BROWSE  brplan_tbl2;
   show at( ,6 , ,10);
   table plan_tbl2;
   Fields
     plan_tbl2.obj 'plan_tbl2.obj':[10],protect;
-    
+
     plan_tbl2.col		'plan_tbl2.col':[10],protect;
     plan_tbl2.per		'plan_tbl2.per':[10],protect;
-    
+
     plan_tbl2.base_val	'plan_tbl2.base_val':[10],protect;
     plan_tbl2.plan_val	'plan_tbl2.plan_val':[10],protect;
     plan_tbl2.fact_val	'plan_tbl2.fact_val':[10],protect;
-    
+
     plan_tbl2.base_val2	'plan_tbl2.base_val2':[10],protect;
     plan_tbl2.plan_val2	'plan_tbl2.plan_val2':[10],protect;
     plan_tbl2.fact_val2	'plan_tbl2.fact_val2':[10],protect;
   end;
-  
+
 
   BROWSE  brplan_myspplan;
   show at( ,11 , ,20);
@@ -146,9 +149,9 @@ window wRepInfo;
   Fields
     myspplan0.stage 'stage': [10],protect;
     myspplan0.cSpPlan 'cSpPlan': [10],protect;
-    
+
   end;
-  
+
   BROWSE  brplan_myplanValue;
   show at( ,21 , ,29);
   table myplanValue0;
@@ -160,7 +163,7 @@ window wRepInfo;
     myplanValue0.val 'val':[10],protect;
     myplanValue0.col_no_n 'col_no_n':[10],protect;
     myplanValue0.plValNRec 'plValNRec':[10],protect;
-    
+
   end;
 end;
 
@@ -172,10 +175,10 @@ screen scr01;
 show at (,,64,19)
 fields
      uksTree.name: protect, pickbutton;
-     
+
      katVarPl.name: protect, pickbutton;
      katVarPl2.name: protect, pickbutton;
-     
+
      rep_type: [list
                  0 'ТПиР',
                  1 'КР'], protect;
@@ -197,7 +200,7 @@ buttons
   .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
   `Вариант`.@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
   `Вариант`
-`типа план`.@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ 
+`типа план`.@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
  `Программа:`.@@@@@@@@@@@@@@@@@  Режим отчета: (.) План            `
                                                (.) План-Факт       `
@@ -224,12 +227,14 @@ procedure pickPlan;
   fcVar  := cPlanVar;
   if (runInterface('L_UksPlans::GetPlan',
                     word(cgiPick + cgiNotEdit), fcPlan, fcHier, fcVar) <> cmCancel) {
-    
+
     //Message ('' + string(fcPlan,20,0) + ''#13'' + string(fcHier,20,0) +''#13'' + string(fcVar,20,0) );
-    
+
     set cUksTree := fcHier;
     set cPlanVar := fcVar;
-    
+
+    if (getFirst uksTree = tsOK) {};
+
     if (year(cur_date) = year(plPeriod.dBeg)) {
      _loop repPeriod {
         if (month(cur_date) = month(repPeriod.dBeg)) break;
@@ -240,6 +245,7 @@ procedure pickPlan;
     //if (getFirst uksTree <> tsOK) {};
     //if (getFirst plStroy <> tsOK) {};
   }
+
 }
 !--------------------------------------------------------------------------
 ! Выбор варианта плана
@@ -248,9 +254,9 @@ procedure pickPlanVar;
 {
   var fcVar : comp;
   fcVar  := cPlanVar;
-  
+
   //Message ('' + string(plStroy.Nrec,20,0) + ''#13'' + string(plStroy.cCO,20,0) +''#13'' + string(plStroy.cPeriod,20,0) );
-  
+
   if runInterface('L_UksPlans::GetVarForPlan', cgiPick,
                   plStroy.Nrec, plStroy.cCO, plStroy.cPeriod, fcVar) <> cmCancel
     set cPlanVar  := fcVar;
@@ -283,16 +289,41 @@ procedure set_state;
   }
 }
 !--------------------------------------------------------------------------
-handleevent // window
-cmInit: {
+
+procedure handleInit;
+begin
   pickPlan;
   cNode := 0;
   rep_mode := 1;
   rep_type := 0;
   price_mode := cgTotal;
   scale := 1;
-  xlt_file := translatepath('%StartPath%XLS\User_Reports\form615_.xlt')
+  xlt_file := translatepath('%StartPath%XLS\User_Reports\form615_.xlt') ;
+  cTopRec := comp(translatepath('%PERIOD.CTOPREC%'));
+  if (cTopRec = 0 ){
+    cTopRec := comp('0064000000000017h');
+  }
 //  set_state;
+end;
+
+procedure pickPeriod;
+begin
+  tcPer := repPeriod.Nrec;
+  if (runInterface( 'F_FpCatalog::getPeriod',
+                    word(cgiPick),
+                    cTopRec,
+                    //,comp('0064000000000017h'),
+                    comp(0),
+                    tcPer,
+                    word(0)
+                    ) = cmDefault)
+  if (getFirst repPeriod where ((tcPer == repPeriod.Nrec)) <> tsOk) {}
+  //runwindowmodal(period_win);
+end;
+
+handleevent // window
+cmInit: {
+  handleInit;
 }
 cmOk: {
   make_rep := true;
@@ -306,11 +337,9 @@ cmPick: {
   #katVarPl.name: pickPlanVar;
   #katVarPl2.name: pickPlanVar2;
   #repPeriod.name: {
-    tcPer := repPeriod.Nrec;
-    if (runInterface('F_FpCatalog::getPeriod', word(cgiPick), comp(0064000000000017h),
-                      comp(0), tcPer, word(0)) = cmDefault)
-      if (getFirst repPeriod where ((tcPer == repPeriod.Nrec)) <> tsOk) {}
-//runwindowmodal(period_win);
+    pickPeriod;
+
+
   }
   #xlt_file: {
     tmp := getfilename('*.xlt', 'Выберите файл шаблона отчета');
@@ -320,6 +349,8 @@ cmPick: {
     }
   }
   end; //case
+  RescanPanel ( scr01 );
+
 }
 cmExprFieldChanged: set_state;
 cmCancel: {}

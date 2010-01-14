@@ -1,0 +1,141 @@
+
+#include Getkau.vih
+
+
+#include extclass.vih
+
+
+#ifdef  ComponentVersion
+#component "SZMN_COMMON"
+#endif //ComponentVersion
+
+interface vExtClass;
+  create view extClass
+  var
+    wTable  : word;
+    cRec    : comp;
+    sPrefix : string;
+
+    sExtClassCode : word;
+    sExtClassName : String;
+
+    isCCodeSet    : boolean;
+    isCNameSet    : boolean;
+
+    wTbl          : word;
+    cRec          : comp;
+
+  as select *
+  from
+  X$Files,
+  ExClassName,
+    ExClassVal,
+    ExClassSeg,
+    synonym ExClassSeg ExClassSeg1,
+    synonym ExClassVal ExClassVal1
+    where
+    ((
+    wTable                == ExClassVal.wTable   and
+    cRec                  == ExClassVal.cRec     and
+    ExClassVal.ClassCode  /== ExClassName.ClassCode and 
+    ExClassVal.cClassSeg  == ExClassSeg.NRec     and
+    ExClassVal.wTable     == ExClassName.wTable  and
+    ExClassSeg.ClassCode  /== ExClassName.ClassCode
+    ))
+  bounds byCName = sExtClassName == ExClassName.NAME (noindex)
+  bounds byCCode = sExtClassCode == ExClassName.CLASSCODE (noindex)
+  ;
+
+  procedure SetPrefix(prefix : String);
+  begin
+    //Message ('Setting prefix '#13 + prefix);
+    sPrefix := prefix;
+  end;
+
+  procedure savedsk;
+  begin
+    //SaveMyDsk (cPodpGrp,sPrefix+'.cPodpGrp' );
+  end;
+
+  procedure ReadDsk;
+  begin
+    var dc : boolean;
+    dc := true;
+    //ReadMyDsk (cPodpGrp,sPrefix+'.cPodpGrp', dc)
+  end;
+
+  procedure ReInit;
+  begin
+    ReadDsk;
+  end;
+
+  procedure setCCode (res : String);
+  begin
+    isCCodeSet := true;
+    sExtClassCode := res;
+  end;
+
+  procedure setCName (res : String);
+  begin
+    isCNameSet := true;
+    sExtClassName := res;
+  end;
+
+  function GetStBudExtraParameters (wt : word; cr : comp) : byte;
+  begin
+    result := 0;
+    set extClass.wTable := wt;
+    set extClass.cRec   := cr;
+
+    extClass._loop ExClassVal {
+      extClass._loop ExClassName {
+        /*
+        insert f791_2extcl
+           set  f791_2extcl.name := extClass.ExClassName.Name,
+                f791_2extcl.val := extClass.ExClassSeg.Value,
+                f791_2extcl.cRec := cr,
+                f791_2extcl.wTable := wt */
+        if (extClass.ExClassName.Name <> extClName /*'Характеристики статьи для форм 7.9.1 и 7.9'*/) {continue};
+        extClass._loop ExClassSeg {
+          /*
+          insert f791_2extcl
+             set  f791_2extcl.name := extClass.ExClassName.Name,
+                  f791_2extcl.val := extClass.ExClassSeg.Value,
+                  f791_2extcl.cRec := cr,
+                  f791_2extcl.wTable := wt
+                  ; */
+          if (extClass.ExClassSeg.Value = excCode1 /*'Разделитель'*/) {result := 1; exit};
+          if (extClass.ExClassSeg.Value = excCode2 /*'Вынос в подвал'*/) {result := 2; exit};
+          if (extClass.ExClassSeg.Value = excCode3 /*'Итого'*/) {result := 3; exit};
+          if (extClass.ExClassSeg.Value = excCode4 /*'Итого'*/) {result := 4; exit};
+        }
+      }
+    }
+
+  end;
+
+  property ExtClassName : string[100] read sExtClassName write setCName(result);
+  property ExtClassCode : string[100] read sExtClassCode write setCCode(result);
+
+
+  property wTable       : word read wTbl write wTbl;
+  property cRecord      : comp read cRec write cRec;
+
+  /*
+  constructor Init;
+  begin
+    set wKODGRKAU := 50005;
+    ReInit;
+  end;
+
+  property IPodpis.dolj : string[100] read getDolj;
+  property IPodpis.fio : string[100] read getFIO;
+  property IPodpis.levelcode : string[100] absolute spKAUPodp.LEVELCODE read;
+  property IPodpis.wKODGRKAU : word absolute vwKODGRKAU read  write ;
+  property IPodpis.DialogFieldString : string[100] read getDialogFieldString;
+
+
+  index IPodpis.iByLevelCode auto;
+  */
+
+end.

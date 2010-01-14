@@ -1,8 +1,8 @@
 #include userreport.vih  // описание интерфейса пользовательских отчетов
 
-vipInterface UserReport_6_15 implements iUserReport;
+vipInterface UserReport_8_15_5 implements iUserReport;
 
-interface UserReport_6_15;
+interface UserReport_8_15_5;
 
 create view;
 
@@ -10,13 +10,13 @@ create view;
 // Запуск отчета на выполнение при выборе его из списка отчетов
 procedure run;
 begin
-  runInterface(form_6_15_2);
+  runInterface(form_8_15_5);
 end;
 !-------------------------------------------------------------------------------
 // Наименование отчета в списке
 function getReportName: string;
 begin
-  getReportName := 'Форма 6.15';
+  getReportName := 'Форма 8.15 (v5)';
 end;
 !-------------------------------------------------------------------------------
 // Наименования групп, в которые входит отчет

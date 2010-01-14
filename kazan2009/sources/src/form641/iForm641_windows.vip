@@ -7,10 +7,17 @@ Fields
     {Font = {BackColor = if (cTForm=0,    ColorNeed,0)}};
   sPeriod ('',,) : Protect,PickButton,
     {Font = {BackColor = if (cPeriod=0,   ColorNeed,0)}};
+
+  sPeriodToPlan ('',,) : Protect,PickButton,
+    {Font = {BackColor = if (cPeriod=0,   ColorNeed,0)}};
+
   sPlan1  ('',,) : Protect,PickButton,
     {Font = {BackColor = if (cPlan1=0,    ColorNeed,0)}};
+!  sPlanOtd('',,) : Protect,PickButton,
+!    {Font = {BackColor = if (cPlanOtd=0,    ColorNeed,0)}};
   sPlan2  ('',,) : Protect,PickButton,
     {Font = {BackColor = if (cPlan2=0,    ColorNeed,0)}};
+
   sFact   ('',,) : Protect,PickButton,
     {Font = {BackColor = if (cFact =0,    ColorNeed,0)}};
   sPlan3  ('',,) : Protect,PickButton,
@@ -29,13 +36,16 @@ cmCancel;
 <<
 
  Типовая форма бюджета .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
- Месяц                 .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+ Месяц "ожид. факт"    .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+ Месяц "планирования"  .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
 
                            Варианты бюджета
 
  План                                           .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+! План потребности по заявкам отделов            .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
  План с учетом доп.потребности                  .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
  Факт                                           .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
  Ожидаемый факт                                 .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
@@ -72,18 +82,54 @@ end; // Screen
       {Font = {BackColor = if (cReg3=0,    ColorNeed,0)}};
     cReg4  ('',,) : NoProtect,noPickButton,
       {Font = {BackColor = if (cReg4=0,    ColorNeed,0)}};
+
+    extClName1  ('',,) : NoProtect,noPickButton,
+      {Font = {BackColor = if (extClName1='',    ColorNeed,0)}};
+    excCode5  ('',,) : NoProtect,noPickButton,
+      {Font = {BackColor = if (excCode5 ='',    ColorNeed,0)}};
+    excCode6  ('',,) : NoProtect,noPickButton,
+      {Font = {BackColor = if (excCode6 ='',    ColorNeed,0)}};
+    excCode7  ('',,) : NoProtect,noPickButton,
+      {Font = {BackColor = if (excCode7 ='',    ColorNeed,0)}};
+
+    extClName2  ('',,) : NoProtect,noPickButton,
+      {Font = {BackColor = if (extClName2='',    ColorNeed,0)}};
+    excCode8  ('',,) : NoProtect,noPickButton,
+      {Font = {BackColor = if (excCode8 ='',    ColorNeed,0)}};
+    excCode9  ('',,) : NoProtect,noPickButton,
+      {Font = {BackColor = if (excCode9 ='',    ColorNeed,0)}};
+    excCode10  ('',,) : NoProtect,noPickButton,
+      {Font = {BackColor = if (excCode10 ='',    ColorNeed,0)}};
+    excCode11  ('',,) : NoProtect,noPickButton,
+      {Font = {BackColor = if (excCode11 ='',    ColorNeed,0)}};
+    excCode12  ('',,) : NoProtect,noPickButton,
+      {Font = {BackColor = if (excCode12 ='',    ColorNeed,0)}};
   <<
 
          Название классификатора .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
      Код аналитики [Разделитель] .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
   Код аналитики [Вынос в подвал] .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
            Код аналитики [Итого] .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-        Код аналитики [Аггрегат] .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+         Код аналитики [Агрегат] .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
             Код Регистра учета 1 .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
             Код Регистра учета 2 .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
             Код Регистра учета 3 .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
             Код Регистра учета 4 .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+         Название классификатора
+[Дополнительная обработка статьи].@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+           Код аналитики [Сумма] .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+         Код аналитики [Сложить] .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+         Код аналитики [Вычесть] .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+         Название классификатора
+                  [Расчет сальдо].@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+  Код аналитики [Сальдо периода] .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+Код  [Увеличение сальдо периода] .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+Код  [Уменьшение сальдо периода] .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+Код аналитики [Начальное сальдо] .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+ Код аналитики [Конечное сальдо] .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
   >>
   end; // screen  sCheckdop 'Дополнительно';
 end;
@@ -95,21 +141,27 @@ Window wnInfoWindow 'gg' ('gg', hcNoContext);
     Show at(,1,,);
     Table f641_printed;
   Fields
-    f641_printed.nRec '.nRec':[10],protect;
     f641_printed.name '.name':[10],protect;
+
+    f641_printed.Sumojid '.Sumojid':[10],protect;
+    f641_printed.SumBDSGod '.SumBDSGod':[10],protect;
+
+    f641_printed.printedAtRow '.printedAtRow':[10],protect;
+
+    f641_printed.SaldoType '.SaldoType':[10],protect;
+
+    /*
+    f641_printed.nRec '.nRec':[10],protect;
     f641_printed.crec '.crec':[10],protect;
     f641_printed.cnode '.cnode':[10],protect;
-    f641_printed.printedAtRow '.printedAtRow':[10],protect;
     f641_printed.groupFrom '.groupFrom':[10],protect;
     f641_printed.groupTo '.groupTo':[10],protect;
     f641_printed.rowsToGroup '.rowsToGroup':[10],protect;
     f641_printed.rowsToGroup '.rowsToGroup':[10],protect;
 
-    /*
     f641_printed.SumKorr[1] 'SumKorr[1]':[10],protect;
     f641_printed.SumKorr[2] 'SumKorr[2]':[10],protect;
     f641_printed.SumKorr[3] 'SumKorr[3]':[10],protect;
-    f641_printed.SumKorr[4] 'SumKorr[4]':[10],protect;
     f641_printed.SumKorr[5] 'SumKorr[5]':[10],protect;
     f641_printed.SumKorr[6] 'SumKorr[6]':[10],protect;
     f641_printed.SumKorr[7] 'SumKorr[7]':[10],protect;
@@ -117,8 +169,9 @@ Window wnInfoWindow 'gg' ('gg', hcNoContext);
     f641_printed.SumKorr[9] 'SumKorr[9]':[10],protect;
     f641_printed.SumKorr[10] 'SumKorr[10]':[10],protect;
     f641_printed.SumKorr[11] 'SumKorr[11]':[10],protect;
-    */
+    f641_printed.SumKorr[4] 'SumKorr[4]':[10],protect;
     f641_printed.SumKorr[12] 'SumKorr[12]':[10],protect;
+    */
 
     /*
     f641_printed.SumKorrStr[1] 'SumKorrStr[1]':[10],protect;
@@ -132,7 +185,6 @@ Window wnInfoWindow 'gg' ('gg', hcNoContext);
     f641_printed.SumKorrStr[9] 'SumKorrStr[9]':[10],protect;
     f641_printed.SumKorrStr[10] 'SumKorrStr[10]':[10],protect;
     f641_printed.SumKorrStr[11] 'SumKorrStr[11]':[10],protect;
-    */
     f641_printed.SumKorrStr[12] 'SumKorrStr[12]':[10],protect;
 
     f641_printed.sumvar1[1] 'sumvar1[1]':[10],protect;
@@ -162,8 +214,6 @@ Window wnInfoWindow 'gg' ('gg', hcNoContext);
     f641_printed.sumvar2[12] 'sumvar2[12]':[10],protect;
 
     f641_printed.sumvar4[10] 'sumvar4[10]':[10],protect;
-
-    /*
 
     f641_printed.sumvar3[1] 'sumvar3[1]':[10],protect;
     f641_printed.sumvar3[2] 'sumvar3[2]':[10],protect;

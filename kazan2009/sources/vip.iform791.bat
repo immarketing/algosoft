@@ -9,10 +9,10 @@ if exist AtlantIs.res del AtlantIs.res
 
 rem set ApiExePath=D:\GALAKTIKA\GAL810\exe
 
-rem set tempDateStr1=%DATE%
-rem date 01.01.2007
+ set tempDateStr1=%DATE%
+ date 01.01.2007
 %ApiExePath%\vip.exe iform791.prj %1
-rem date %tempDateStr1%
+ date %tempDateStr1%
 
 if exist AtlantIs.res del AtlantIs.res
 

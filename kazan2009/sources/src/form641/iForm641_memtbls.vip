@@ -18,12 +18,15 @@ table struct f641_printed
   sumvar1       : array [1..12] of double,  // Plan - план
   sumvar2       : array [1..12] of double,  // DopPlan - план с доп. потребностями
   sumvar3       : array [1..12] of double,  // Fact - факт
-  sumvar4       : array [1..12] of double,  // OjidPlan - ожидаемый план
+  sumvar4       : array [1..12] of double,  // OjidPlan - ожидаемый факт
+
+  sumvarOtd     : array [1..12] of double,  // PlanOtd - план по заявкам отделов
 
   SumKorr       : array [1..12] of double,  // корректировка
   SumKorrStr    : array [1..12] of String,  // корректировка - строковое представление
 
   Sumojid       : double,
+  SaldoType     : byte,     
   SumBDSGod     : double
 )
 with index

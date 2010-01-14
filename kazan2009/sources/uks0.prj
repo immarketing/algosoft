@@ -23,11 +23,11 @@ end;
 
 !#include UksValue.inc
 
-#make 'src\uks\frm.vip'
+#make 'src\uks0\frm.vip'
 
 #component "F_UserReport"
 
-#make 'src\uks\user.vip'
+#make 'src\uks0\user.vip'
 
 
 

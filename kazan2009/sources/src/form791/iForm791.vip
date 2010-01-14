@@ -33,7 +33,7 @@
 // раскомментировать конструкцию VipInterface (Implements для Атлантиса 5.1)
 
 #ifdef Atl51
-VipInterface UserReport_szmn_form791  Implements IUserReport
+VipInterface UserReport_szmn_form791_  Implements IUserReport
   Licensed(Free)
 ;
 #else
@@ -44,7 +44,7 @@ VipInterface UserReport_szmn_form791  Implements IUserReport
 Пример пользовательского отчета #1
 #end
 
-Interface UserReport_szmn_form791;
+Interface UserReport_szmn_form791_;
 
 create view;
 
@@ -52,13 +52,13 @@ create view;
 // Запуск отчета на выполнение при выборе его из списка отчетов
 procedure Run;
 begin
-  RunInterface('szmn_bud_Form791' );
+  RunInterface('szmn_bud_Form791_' );
 end;
 !-------------------------------------------------------------------------------
 // Наименование отчета в списке
 function GetReportName: String;
 begin
-  GetReportName := 'Форма 7.9.1';
+  GetReportName := 'Форма 7.9.1_';
 end;
 !-------------------------------------------------------------------------------
 function GetGroupName (Level : Word) : String;
@@ -89,10 +89,10 @@ form791showdebug menu
   - 'Показать отладочную информацию', cmShowDebug791, 'Отладочная информация' ;
 }
 
-vipInterface szmn_bud_Form791 licensed(free);
+vipInterface szmn_bud_Form791_ licensed(free);
 
-Interface szmn_bud_Form791
-  '-= СЗМН Бюджет. Форма 7.9.1. v20091118 =- ' (,hcNoContext,) EscClose, Cyan;
+Interface szmn_bud_Form791_
+  '-= СЗМН Бюджет. Форма 7.9.1._ v20091208 =- ' (,hcNoContext,) EscClose, Cyan;
   //show at  (0,0,70,10)
   show at  (0,0,100,30)
   ;
@@ -134,6 +134,11 @@ var
   excCode2    : String;
   excCode3    : String;
   excCode4    : String;
+
+  extClName1  : String;
+  excCode5    : String;
+  excCode6    : String;
+  excCode7    : String;
 
 As select
   if(cPeriod=0   ,'выберите значение',fpPeriod.Name)  (FieldName = sPeriod)
@@ -279,6 +284,13 @@ cmDelOnProtect:
     #sPlan1    : Set cPlan1:=0;
     #sPlan2    : Set cPlan2:=0;
     #sPlan3    : Set cPlan3:=0;
+
+    #sPodpGrp  : {
+      set podpisanty.cPodpGroup := 0;
+    }
+    #sPodpGrp2  : {
+      set podpisanty2.cPodpGroup := 0;
+    }
   end;
 
 cmInit:

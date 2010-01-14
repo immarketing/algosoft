@@ -1,3 +1,84 @@
+
+  procedure CheckDefValues;
+  begin
+    if (xlt_file = '') then
+      xlt_file := translatepath('%StartPath%XLS\User_Reports\form815_.xlt');
+
+    if (sootvCode = '') then
+      sootvCode := '54';
+
+    if (analitWKAU = 0) then
+      analitWKAU := 50007;
+
+    /*
+    if (extClName = '') {set extClName := 'Характеристики для форм 7.9.1 и 7.9'};
+
+    if (excCode1 = '') {set excCode1 := 'Разделитель'};
+    if (excCode2 = '') {set excCode2 := 'Вынос в подвал'};
+    if (excCode3 = '') {set excCode3 := 'Итого'};
+    if (excCode4 = '') {set excCode4 := 'Агрегат'};
+
+    if (extClName1 = '') {set extClName1 := 'Дополнительная обработка статьи'};
+    if (excCode5 = '') {set excCode5 := 'Сумма'};
+    if (excCode6 = '') {set excCode6 := 'Сложить'};
+    if (excCode7 = '') {set excCode7 := 'Вычесть'};
+
+    if (sPath='') set sPath := translatepath('%startpath%Xls\F_FPBUDGET\SZMN_Budjet\tmpl_7_9_1.xls');
+    */
+  end;
+
+  Procedure StoreDSK();
+  begin
+    CheckDefValues;
+
+    SaveMyDsk(cUksTree,   'UKS.cUksTree');
+    SaveMyDsk(cPlanVar,   'UKS.cPlanVar');
+    SaveMyDsk(cPlanVarFact,   'UKS.cPlanVarFact');
+    SaveMyDsk(cPlanVarUPlan,  'UKS.cPlanVarUPlan');
+
+    SaveMyDsk(rep_type,   'UKS.rep_type');
+
+    SaveMyDsk(rep_mode,   'UKS.rep_mode');
+    SaveMyDsk(tcPer,   'UKS.tcPer');
+    SaveMyDsk(price_mode,   'UKS.price_mode');
+    SaveMyDsk(scale,   'UKS.scale');
+
+    SaveMyDsk(xlt_file,   'UKS.xlt_file');
+    SaveMyDsk(sootvCode,'UKS.sootvCode');
+
+    SaveMyDsk(analitWKAU,'UKS.analitWKAU');
+
+
+  end;
+
+  procedure ReadDSK;
+  begin
+    var dc : boolean;
+
+    dc := true;
+
+    ReadMyDsk (cUksTree,   'UKS.cUksTree', dc);
+    ReadMyDsk (cPlanVar,   'UKS.cPlanVar', dc);
+    ReadMyDsk (cPlanVarFact,   'UKS.cPlanVarFact', dc);
+    ReadMyDsk (cPlanVarUPlan,  'UKS.cPlanVarUPlan', dc);
+
+    ReadMyDsk (rep_type,   'UKS.rep_type', dc);
+
+    ReadMyDsk (rep_mode,   'UKS.rep_mode', dc);
+    ReadMyDsk (tcPer,   'UKS.tcPer', dc);
+    ReadMyDsk (price_mode,   'UKS.price_mode', dc);
+    ReadMyDsk (scale,   'UKS.scale', dc);
+
+    ReadMyDsk (xlt_file,'UKS.xlt_file', dc);
+
+    ReadMyDsk (sootvCode,'UKS.sootvCode', dc);
+    ReadMyDsk (analitWKAU,'UKS.analitWKAU', dc);
+
+
+    CheckDefValues;
+  end;
+
+
 /* Определение уровня иерархии объекта строительства */
 function get_vol(obj_link: comp): word;
 var
@@ -27,6 +108,10 @@ begin
     if (result > 3) result := 0; // расшифровка статей не нужна
     if ((rep_mode = 1) and (result = 1)) result := 0; // остаток для факта не нужен
   }
+end;
+
+procedure getCodeBySootv();
+begin
 end;
 
 /* Определение кода новой записи в obj_tbl */
@@ -64,31 +149,23 @@ begin
 end;
 
 /* Запись данных во временную таблицу */
-procedure write_tbl(
-                      volume: word;
-                      obj_link,
-                      node_link: comp;
-                      obj_name,
-                      obj_abbr,
-                      pwr_unit: string;
-                      value: double
-                      );
+procedure write_tbl(  volume: word;    // уровень
+                      obj_link,        // объект
+                      node_link: comp; // "старший" объект
+                      obj_name,        // наим. объекта
+                      obj_abbr,        // аббр. объекта
+                      pwr_unit: string;// ед изм мощности
+                      value: double;   // значение из плана
+                      PassNo : byte // Номер прохода. За 1 проход пишутся данные "план", за 2 - факт
+                    );
 var
   col_no, per_no, i: word;
   new_val: double;
 begin
   col_no := get_col(planvalue.iArticle);
-
-  //update current myplanValue0 set myplanValue0.col_no_n := col_no;
-
-  if (comp('01310000000199D9h') = planvalue.NRec ) {
-    //Message ('! col_no == ' + col_no );
-  }
-
-
   if (col_no > 0) and (fptper.edizm = 2) {
     per_no := month(fpPeriod.dBeg) - 1;
-    if (rep_mode = 1) {
+    if (rep_mode = 1) {  // для отчета ПЛАН-ФАКТ
       per_no := 12;
       if (fpPeriod.Nrec = repPeriod.Nrec) per_no := 0;     // тек. месяц
       if (month(repPeriod.dBeg) > month(fpPeriod.dBeg)) {
@@ -101,221 +178,82 @@ begin
     if (col_no < 5) new_val := new_val / koef;
     if (getfirst obj_tbl where ((obj_link == obj)) <> tsOk) {
       tmp := get_code(node_link, volume);
-      insert obj_tbl set code = tmp, obj = obj_link, node = node_link, vol = volume,
-        name = obj_name, abbr = obj_abbr, unit = locase(pwr_unit);
+      insert obj_tbl
+         set code = tmp,
+             obj = obj_link,
+             node = node_link,
+             vol = volume,
+             name = obj_name,
+             abbr = obj_abbr,
+             unit = locase(pwr_unit);
     }
-    if (getfirst plan_tbl2 where ((obj_link == obj and col_no == col and per_no == per)) <> tsOk)
-      insert plan_tbl2 set obj = obj_link, col = col_no, per = per_no;
+    if (getfirst plan_tbl where ((obj_link == obj and col_no == col and per_no == per)) <> tsOk)
+      insert plan_tbl set obj = obj_link, col = col_no, per = per_no;
 
-    if (planValue.iRegister = word(cgPlan+cgUse))
-      update current plan_tbl2 set plan_tbl2.plan_val = plan_tbl2.plan_val + new_val;
-
-    if (planValue.iRegister = word(cgFact+cgUse))
-      update current plan_tbl2 set plan_tbl2.fact_val = plan_tbl2.fact_val + new_val;
-
-    if (rep_mode = 1) for (i := per_no + 1; i < 3; i := i + 1) {
-      if (getfirst plan_tbl2 where ((obj_link == obj and col_no == col and i == per)) <> tsOk)
-        insert plan_tbl2 set obj = obj_link, col = col_no, per = i;
+    if (rep_mode = 0) OR ((rep_mode = 1) and (PassNo = 1))
       if (planValue.iRegister = word(cgPlan+cgUse))
-        update current plan_tbl2 set plan_tbl2.plan_val = plan_tbl2.plan_val + new_val;
-      if (planValue.iRegister = word(cgFact+cgUse))
-        update current plan_tbl2 set plan_tbl2.fact_val = plan_tbl2.fact_val + new_val;
+        update current plan_tbl set plan_tbl.plan_val = plan_tbl.plan_val + new_val;
+
+    if (rep_mode = 0) OR ((rep_mode = 1) and (PassNo = 2))
+      if (planValue.iRegister = word(cgFact+cgUse)) {
+        //Message ( ' planValue.iRegister == ' + planValue.iRegister);
+        update current plan_tbl set plan_tbl.fact_val = plan_tbl.fact_val + new_val;
+      }
+
+    if (rep_mode = 1) for (i := per_no + 1; i < 3; i := i + 1) { // для отчета ПЛАН-ФАКТ
+      if (getfirst plan_tbl where ((obj_link == obj and col_no == col and i == per)) <> tsOk)
+        insert plan_tbl set obj = obj_link, col = col_no, per = i;
+      if (PassNo = 1)
+        if (planValue.iRegister = word(cgPlan+cgUse))
+          update current plan_tbl set plan_tbl.plan_val = plan_tbl.plan_val + new_val;
+      if (PassNo = 2)
+        if (planValue.iRegister = word(cgFact+cgUse))
+          update current plan_tbl set plan_tbl.fact_val = plan_tbl.fact_val + new_val;
     }
   }
 end;
-
-/* Запись данных во временную таблицу - 2 (Для утвержденного плана) */
-procedure write_tbl2(
-                      volume: word;
-                      obj_link,
-                      node_link: comp;
-                      obj_name,
-                      obj_abbr,
-                      pwr_unit: string;
-                      value: double
-                      );
-var
-  col_no, per_no, i: word;
-  new_val: double;
-begin
-  col_no := get_col(planvalue2.iArticle); // номер колонки - не знаю, зачем. Если = 0, то вообще ничего не работает далее
-
-  //update current myplanValue0 set myplanValue0.col_no_n := col_no;
-
-  if (comp('013100000015ECE3h') = planvalue2.NRec ) {
-    //Message ('col_no == ' + col_no );
-  }
-
-
-  if (col_no > 0) and
-     (fptper2.edizm = 2) { // Если единица измерения месяц
-
-    per_no := month(fpPeriod2.dBeg) - 1;
-    if (rep_mode = 1) {
-      per_no := 12;
-      if (fpPeriod2.Nrec = repPeriod.Nrec) per_no := 0;     // тек. месяц
-      if (month(repPeriod.dBeg) > month(fpPeriod2.dBeg)) {
-        per_no := 2;                                       // тек. год
-        if (fpPeriod2.cNode = repPeriod.cNode) per_no := 1; // тек. квартал
-      }
-    }
-
-    if (per_no > 11) exit; // Период > 11 - это видимо какая то ошибка
-
-    new_val := value;
-
-    if (col_no < 5) new_val := new_val / koef; // че за хрень это номер колонки
-
-    if (getfirst obj_tbl where ((obj_link == obj)) <> tsOk) { // уже есть такая запись в табличке
-      tmp := get_code(node_link, volume);
-      insert obj_tbl set  code = tmp,
-                          obj = obj_link,
-                          node = node_link,
-                          vol = volume,
-                          name = obj_name,
-                          abbr = obj_abbr,
-                          unit = locase(pwr_unit);
-    }
-
-    if (getfirst plan_tbl2 where ((obj_link == obj and col_no == col and per_no == per)) <> tsOk)
-      insert plan_tbl2 set obj = obj_link, col = col_no, per = per_no;
-
-    // Далее - запись значений в циферные поля
-    if (planvalue2.iRegister = word(cgPlan+cgUse)) {
-      /*
-      if (comp('0131000000166C21h') = planvalue2.NRec ) {
-        Message ('word(cgPlan+cgUse)');
-      }
-      */
-
-      update current plan_tbl2 set plan_tbl2.plan_val2 = plan_tbl2.plan_val2 + new_val;
-    }
-
-    if (planvalue2.iRegister = word(cgFact+cgUse)) {
-      /*
-      if (comp('0131000000166C21h') = planvalue2.NRec ) {
-        Message ('word(cgFact+cgUse)');
-      }
-      */
-
-      update current plan_tbl2 set plan_tbl2.fact_val2 = plan_tbl2.fact_val2 + new_val;
-    }
-
-    if (rep_mode = 1) for (i := per_no + 1; i < 3; i := i + 1) {
-
-      if (getfirst plan_tbl2 where ((obj_link == obj and col_no == col and i == per)) <> tsOk) {
-        insert plan_tbl2 set obj = obj_link, col = col_no, per = i;
-      }
-
-      if (planvalue2.iRegister = word(cgPlan+cgUse)) {
-        /*
-        if (comp('0131000000166C21h') = planvalue2.NRec ) {
-          Message ('2 - word(cgPlan+cgUse)');
-        }
-        */
-        update current plan_tbl2 set plan_tbl2.plan_val2 = plan_tbl2.plan_val2 + new_val;
-      }
-
-      if (planvalue2.iRegister = word(cgFact+cgUse)) {
-        /*
-        if (comp('0131000000166C21h') = planvalue2.NRec ) {
-          Message ('2 - word(cgFact+cgUse)');
-        }
-        */
-
-        update current plan_tbl2 set plan_tbl2.fact_val2 = plan_tbl2.fact_val2 + new_val;
-      }
-    }
-  }
-end;
-
 
 /* Просмотр спецификации плана */
-procedure calc_plan;
+// собственно, формирование отчета
+procedure calc_plan (
+                      PassNo : byte // Номер прохода. За 1 проход пишутся данные "план", за 2 - факт
+                      );
 var
   volume: word;
   up_rec: comp;
 begin
-  delete all plan_tbl2;
-  delete all obj_tbl;
+  if ( PassNo = 1 ) {
+    delete all plan_tbl;
+    delete all obj_tbl;
+  }
 
   startnewvisual(vtRotateVisual, vfTimer+vfBreak, '', 0);
   setvisualtitle('Обработка спецификации плана');
- _loop spplan { // цикл по спецификации плана
-    // algo
-    /*
-    insert myspplan0 set myspplan0.stage := 1,  myspplan0.cSpPlan := spplan.nrec;
-    */
-    //algo
+ _loop spplan {
     if (not nextvisual) break;
     setvisualheader('Обрабатываю объект ''' + katstroy.code + '''...');
     up_rec := katstroy.cstroy;
-    volume := get_vol(katstroy.nrec);         // уровень вложенности объекта строительства
-    if (volume > 0) do {
+    volume := get_vol(katstroy.nrec);  // определение "уровня" объекта
+    if (volume > 0) do { // если объект - "наш"
       if (getfirst prg_tbl where ((up_rec == prg_tbl.nrec)) <> tsOk) break;
       volume := volume - 1;
 //      if (volume < 4)
      _loop planvalue
-        /*
-        insert myplanValue0
-           set myplanValue0.stage := 1,
-               myplanValue0.cSpPlan := planvalue.crec,
-               myplanValue0.iPrice := planvalue.iPrice ,
-               myplanValue0.iArticle := planvalue.iArticle,
-               myplanValue0.val  := planvalue.fValue,
-               myplanValue0.plValNRec:= planvalue.nrec
-               ;
-        */
         if (planvalue.iPrice = price_mode + 1) or
            (planvalue.iArticle = 1) { // Мощность
-          write_tbl(volume, prg_tbl.nrec, prg_tbl.cstroy, prg_tbl.name, prg_tbl.abbr, kated.abbr,
-                    planvalue.fValue);
+          write_tbl( volume,
+                     prg_tbl.nrec,
+                     prg_tbl.cstroy,
+                     prg_tbl.name,
+                     prg_tbl.abbr,
+                     kated.abbr,
+                     planvalue.fValue,
+                     PassNo
+                     );
         }
       up_rec := prg_tbl.cstroy;
     } while (volume > 1);
   }
-
-  /*
-  _loop spplan2 { // цикл по спецификации плана второго плана
-    // algo
-    insert myspplan0 set myspplan0.stage := 2,  myspplan0.cSpPlan := spplan2.nrec;
-    //algo
-    if (not nextvisual) break;
-    setvisualheader('Обрабатываю объект (стадия 2) ''' + katstroy2.code + '''...');
-    up_rec := katstroy2.cstroy;
-    volume := get_vol(katstroy2.nrec);         // уровень вложенности объекта строительства
-
-    if (volume > 0) do {
-      if (getfirst prg_tbl where ((up_rec == prg_tbl.nrec)) <> tsOk) break;
-      volume := volume - 1;
-     _loop planvalue2 {
-
-        insert myplanValue0
-           set myplanValue0.stage := 2,
-               myplanValue0.cSpPlan := planvalue2.crec,
-               myplanValue0.iPrice := planvalue2.iPrice ,
-               myplanValue0.iArticle := planvalue2.iArticle,
-               myplanValue0.val  := planvalue2.fValue,
-               myplanValue0.plValNRec:= planvalue2.nrec
-               ;
-
-        //if ( comp('0131000000166C21h') = planvalue2.NRec ) {Message ('!!!! ' + planvalue2.fValue )};
-        if (planvalue2.iPrice = price_mode + 1) or
-           (planvalue2.iArticle = 1) { // Мощность
-          write_tbl2(  volume,
-                      prg_tbl.nrec,
-                      prg_tbl.cstroy,
-                      prg_tbl.name,
-                      prg_tbl.abbr,
-                      kated2.abbr,
-                      planvalue2.fValue
-                      );
-        }
-      }
-      up_rec := prg_tbl.cstroy;
-    } while (volume > 1);
-  }
-  */
   stopvisual('', 0);
 end;
 
@@ -401,7 +339,7 @@ begin
     for (i := 1; i < 7; i := i + 1) {
       x := 6 * i;
       xlSetCellFormula('=RC[-1]-RC[-2]', row_no, x, row_no, x);
-      xlSetCellFormula('=ЕСЛИ(RC[-3]<>0;RC[-2]/RC[-3];0)', row_no, x + 1, row_no, x + 1);
+      xlSetCellFormula('=ЕСЛИ(RC[-3]<>0;RC[-2]/RC[-3]*100;0)', row_no, x + 1, row_no, x + 1);
       x := x - 3;
       if (x > 14) xlSetCellFormula('=RC[1]-RC[-1]', row_no, x, row_no, x);
     }
@@ -431,20 +369,21 @@ begin
         for (i := 0; i < 12; i := i + 1) {
           x := i div 3 + i;
           x :=  x * 4 + 9;
-          xlSetCellFormula('=ЕСЛИ(R[-1]C > 0;R[-2]C/R[-1]C; 0)', row_no, x, row_no, x);
-          xlSetCellFormula('=ЕСЛИ(R[-1]C > 0;R[-2]C/R[-1]C; 0)', row_no, x + 1, row_no, x + 1);
+          xlSetCellFormula('=ЕСЛИ(R[-1]C > 0;R[-2]C/R[-1]C*100; 0)', row_no, x, row_no, x);
+          xlSetCellFormula('=ЕСЛИ(R[-1]C > 0;R[-2]C/R[-1]C*100; 0)', row_no, x + 1, row_no, x + 1);
         }
       else
         for (i := 0; i < 6; i := i + 1) {
           x := 4 + 6 * i;
-          xlSetCellFormula('=ЕСЛИ(R[-1]C > 0;R[-2]C/R[-1]C; 0)', row_no, x, row_no, x);
-          xlSetCellFormula('=ЕСЛИ(R[-1]C > 0;R[-2]C/R[-1]C; 0)', row_no, x + 1, row_no, x + 1);
+          xlSetCellFormula('=ЕСЛИ(R[-1]C > 0;R[-2]C/R[-1]C*100; 0)', row_no, x, row_no, x);
+          xlSetCellFormula('=ЕСЛИ(R[-1]C > 0;R[-2]C/R[-1]C*100; 0)', row_no, x + 1, row_no, x + 1);
         }
     }
   end;
   xlSetCellStringValue(tmp, row_no, 3, row_no, 3);
 end;
 
+// вывод данных в EXCEL
 procedure xl_fill;
 var
   x, y: longint;
@@ -477,10 +416,10 @@ begin
     if (obj_tbl.vol = 2) continue; // Пропускаем папки с годами
     y := y + 1;
     add_string(y, xlObject);
-   _loop plan_tbl2 {
-      col_no := plan_tbl2.col;
+   _loop plan_tbl {
+      col_no := plan_tbl.col;
       if (col_no = 5) {
-        if (vol > 1) { // Пропускаем мощность для первого уровня
+        if (obj_tbl.vol > 1) { // Пропускаем мощность для первого уровня
           col_no := 3; // Мощность пишем в ввод
           if not power_string {
             y := y + 1;
@@ -491,21 +430,17 @@ begin
         else continue;
       }
       if (rep_mode = 0) {
-        x := plan_tbl2.per div 3 + plan_tbl2.per;
+        x := plan_tbl.per div 3 + plan_tbl.per;
         x := x * 4 + col_no + 7;
-        xlSetCellNumberValue(plan_tbl2.plan_val, y, x, y, x);
+        xlSetCellNumberValue(plan_tbl.plan_val, y, x, y, x);
       }
       else {
-        x := 4 + (col_no - 2) * 6 + plan_tbl2.per * 12;
-
-
-        if (x > 14) xlSetCellNumberValue(plan_tbl2.base_val, y, x - 2, y, x - 2);
-        xlSetCellNumberValue(plan_tbl2.plan_val, y, x, y, x);
-        xlSetCellNumberValue(plan_tbl2.fact_val, y, x + 1, y, x + 1);
-
-        if (x > 14) xlSetCellNumberValue(plan_tbl2.plan_val2 , y, x-2, y, x-2);  // algo
+        x := 4 + (col_no - 2) * 6 + plan_tbl.per * 12;
+        if (x > 14) xlSetCellNumberValue(plan_tbl.base_val, y, x - 2, y, x - 2);
+        xlSetCellNumberValue(plan_tbl.plan_val, y, x, y, x);
+        xlSetCellNumberValue(plan_tbl.fact_val, y, x + 1, y, x + 1);
       }
-    } // loop plan_tbl2
+    } // loop plan_tbl
   } while (getnext obj_tbl = tsOk);
     if power_string {
       y := y + 1;
@@ -513,4 +448,41 @@ begin
       power_string := false;
     }
   xl_done;
+end;
+
+procedure CorrectSootv;
+begin
+  if (getFirst FPKATIMP where ((sootvCode == FPKATIMP.Code)) <> tsOK) {
+    // нет каталога соответствий
+    exit;
+  }
+
+  var sootvNRec : comp;
+
+  sootvNRec := FPKATIMP.nRec; // каталог соответствий
+
+
+
+  //var qwer : F_GetAn::GetKau new;
+
+  _loop obj_tbl {
+    if ( getFirst FPIMPREL where ((
+          sootvNRec == FPIMPREL.CMAIN and
+          word (40) == FPIMPREL.IMPKODAN and
+          obj_tbl.obj == FPIMPREL.CIMPMEAN
+         )) = tsOK) {
+      //
+      /*
+      if(GetAnyKau(0, pW1, CANDOC[1]), GivenAnName(1), ''),
+      if(GetAnyKau(0, pw2, CANDOC[2]), GivenAnName(1), ''),
+      */
+      //message ('11=='+sootvNRec);
+      update current obj_tbl
+         set obj_tbl.sootAn := FPIMPREL.KODAN,
+             obj_tbl.sootAnNRec := FPIMPREL.CMEAN,
+             obj_tbl.sootAnCode := if ( GetAnyKau(0, FPIMPREL.KODAN, FPIMPREL.CMEAN), GivenAnName(1) , '???'),
+             obj_tbl.sootAnName := if ( GetAnyKau(0, FPIMPREL.KODAN, FPIMPREL.CMEAN), GivenAnName(2) , '??? ???');
+    }
+  }
+
 end;

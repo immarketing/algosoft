@@ -1,4 +1,4 @@
-tabbedSheet tabbed   
+tabbedSheet tabbed
   //
   Screen scKatH01 'Установка фильтров' ;
 !  Table KatH;
@@ -13,49 +13,49 @@ tabbedSheet tabbed
       {Font = {BackColor = if (cPlan2=0,    ColorNeed,0)}};
     sPlan3  ('',,) : Protect,PickButton,
       {Font = {BackColor = if (cPlan3=0,    ColorNeed,0)}};
-    sPodpGrp ('Выбор сотрудников для подписи',,) : protect,pickbutton, 
+    sPodpGrp ('Выбор сотрудников для подписи',,) : protect,pickbutton,
       {Font = {BackColor = if ( not podpisanty.iSSelected ,    ColorNeed,0)}};
-    sPodpGrp2 ('Выбор сотрудников для подписи',,) : protect,pickbutton, 
+    sPodpGrp2 ('Выбор сотрудников для подписи',,) : protect,pickbutton,
       {Font = {BackColor = if ( not podpisanty2.iSSelected ,    ColorNeed,0)}};
     sPath ('',,) : Protect,PickButton,
       {Font = {BackColor = if (sPath='',    ColorNeed,0)}};
     Check ('') :NoProtect;
-    
-  	
+
+
   buttons
   cmTest;
   cmCancel;
 !  cmApply;
 !  cmWindow;
   <<
-  
+
    Типовая форма бюджета .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
    Месяц                 .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-  
-  
+
+
                              Варианты бюджета
-  
+
    План                                 .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
    План потребности по заявкам отделов  .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
    План с учетом доппотребностей        .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
    Cотрудники для подписи 7.9.1         .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
    Cотрудники для подписи 7.9           .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-  
-  
+
+
    Путь к шаблону        .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-  
+
       `Печатать в`
-       (.) руб`          
+       (.) руб`
        (.) тыс.руб`
-  
-  <. Отчет 7.9 и 7.9.1 .>  <.  Отмена  .>  
-  
-!            <.Сформировать.>    
+
+  <. Отчет 7.9 и 7.9.1 .>  <.  Отмена  .>
+
+!            <.Сформировать.>
   >>
   end; // Screen
   screen  sCheckdop 'Дополнительно';
   Fields
-  
+
     extClName  ('',,) : NoProtect,noPickButton,
       {Font = {BackColor = if (extClName='',    ColorNeed,0)}};
     excCode1  ('',,) : NoProtect,noPickButton,
@@ -64,14 +64,30 @@ tabbedSheet tabbed
       {Font = {BackColor = if (excCode2='',    ColorNeed,0)}};
     excCode3  ('',,) : NoProtect,noPickButton,
       {Font = {BackColor = if (excCode3='',    ColorNeed,0)}};
-  
+    excCode4  ('',,) : NoProtect,noPickButton,
+      {Font = {BackColor = if (excCode4='',    ColorNeed,0)}};
+
+    extClName1  ('',,) : NoProtect,noPickButton,
+      {Font = {BackColor = if (extClName1='',    ColorNeed,0)}};
+    excCode5  ('',,) : NoProtect,noPickButton,
+      {Font = {BackColor = if (excCode5 ='',    ColorNeed,0)}};
+    excCode6  ('',,) : NoProtect,noPickButton,
+      {Font = {BackColor = if (excCode6 ='',    ColorNeed,0)}};
+    excCode7  ('',,) : NoProtect,noPickButton,
+      {Font = {BackColor = if (excCode7 ='',    ColorNeed,0)}};
   <<
-  
+
          Название классификатора .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
      Код аналитики [Разделитель] .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
   Код аналитики [Вынос в подвал] .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
            Код аналитики [Итого] .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-           
+         Код аналитики [Агрегат] .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+         Название классификатора
+[Дополнительная обработка статьи].@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+           Код аналитики [Сумма] .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+         Код аналитики [Сложить] .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+         Код аналитики [Вычесть] .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
   >>
   end; // screen  sCheckdop 'Дополнительно';
 end;
@@ -82,23 +98,26 @@ Window wnInfoWindow 'gg' ('gg', hcNoContext);
     Show at(,1,,5);
     Table f791_printed;
   Fields
-    f791_printed.nRec 'f791_printed.nRec':[10],protect;
-    f791_printed.name 'f791_printed.name':[10],protect;
-    f791_printed.crec 'f791_printed.crec':[10],protect;
-    f791_printed.cnode 'f791_printed.cnode':[10],protect;
-    f791_printed.printedAtRow 'f791_printed.printedAtRow':[10],protect;
-    f791_printed.groupFrom 'f791_printed.groupFrom':[10],protect;
-    f791_printed.groupTo 'f791_printed.groupTo':[10],protect;
-    f791_printed.rowsToGroup 'f791_printed.rowsToGroup':[10],protect;
-    f791_printed.rowsToGroup 'f791_printed.rowsToGroup':[10],protect;
+    f791_printed.nRec '.nRec':[10],protect;
+    f791_printed.name '.name':[10],protect;
+    f791_printed.crec '.crec':[10],protect;
+    f791_printed.cnode '.cnode':[10],protect;
+    f791_printed.printedAtRow '.printedAtRow':[10],protect;
+    f791_printed.groupFrom '.groupFrom':[10],protect;
+    f791_printed.groupTo '.groupTo':[10],protect;
+    f791_printed.rowsToGroup '.rowsToGroup':[10],protect;
+    f791_printed.rowsToGroup '.rowsToGroup':[10],protect;
+    f791_printed.extPar '.extPar':[10],protect;
+    f791_printed.extPar1 '.extPar1':[10],protect;
   End; // Browse
+
   Browse brStack '' ('',  hcNoContext);
     Show at(,6,,10);
     Table f791_stack;
   Fields
     f791_stack.nrec 'f791_stack.nrec':[10],protect;
   End; // Browse
-  
+
   /*
   Browse brpodpisanty '' ('',  hcNoContext);
     Show at(,11,,13);

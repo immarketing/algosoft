@@ -15,17 +15,18 @@ ObjInterface IPodpis;
   property levelcode : string[100] read;
   property wKODGRKAU : word read write;
   property DialogFieldString : string[100] read;
-  
+  property cPodpGroup : comp read write;
+
   index iByLevelCode = levelcode;
- 
-  
+
+
   procedure SetPrefix(prefix : String);
   procedure ReInit;
-  
+
   procedure SelectPodpis;
-  
+
   function  IsSelected: boolean;
-  
+
   //constructor init;
 end;
 

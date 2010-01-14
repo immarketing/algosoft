@@ -22,50 +22,50 @@ end;
 */
 
 interface vPodpis;
-  create view 
-  var 
+  create view
+  var
     sPrefix : string;
     vwKODGRKAU  : word;
     cPodpGrp    : comp;
-    
-  as 
-  select * 
-    from 
+
+  as
+  select *
+    from
          spKAU spKAUPodp (SPKAU07),
          spKAU
    where ((
-     root == spKAUPodp.nRec and 
-     vwKODGRKAU == spKAUPodp.KODGRKAU and 
-     cPodpGrp   == spKAUPodp.cNode (noindex) 
-     and cPodpGrp   == spKAU.nrec 
+     root == spKAUPodp.nRec and
+     vwKODGRKAU == spKAUPodp.KODGRKAU and
+     cPodpGrp   == spKAUPodp.cNode (noindex)
+     and cPodpGrp   == spKAU.nrec
    ))
    ;
-  
-  
+
+
   function getDolj : String;
   begin
     var lsname : string;
-    
+
     lsname := spKAUPodp.name;
     var b : byte;
-    
+
     b := pos ('|', lsname);
-    
+
     var ar : array [1..2] of string;
     ar[1] := substr (lsname, 1, b-1);
     ar[2] := substr (lsname, b+1, 255);
     result := ar[1];
   end;
-  
+
   function getFIO : String ;
   begin
     var lsname : string;
-    
+
     lsname := spKAUPodp.name;
     var b : byte;
-    
+
     b := pos ('|', lsname);
-    
+
     var ar : array [1..2] of string;
     ar[1] := substr (lsname, 1, b-1);
     ar[2] := substr (lsname, b+1, 255);
@@ -77,12 +77,12 @@ interface vPodpis;
     //Message ('Setting prefix '#13 + prefix);
     sPrefix := prefix;
   end;
-  
+
   function  IsSelected: boolean;
   begin
     result := cPodpGrp <> 0;
   end;
-  
+
   function getDialogFieldString : String;
   begin
     if (cPodpGrp = 0) then {
@@ -91,19 +91,19 @@ interface vPodpis;
       result := spKAU.Name;
     }
   end;
-  
+
   procedure savedsk;
   begin
     SaveMyDsk (cPodpGrp,sPrefix+'.cPodpGrp' );
   end;
-  
+
   procedure ReadDsk;
   begin
     var dc : boolean;
     dc := true;
     ReadMyDsk (cPodpGrp,sPrefix+'.cPodpGrp', dc)
   end;
-  
+
   procedure ReInit;
   begin
     set wKODGRKAU := 50005;
@@ -116,16 +116,16 @@ interface vPodpis;
 
     if (getfirst spKAUPodp = tsOk) {};
     if (getfirst spKAU = tsOk) {};
-    
-    
+
+
     ReadDsk;
   end;
-  
-  
+
+
   procedure SelectPodpis;
   begin
     var qwer : F_GetAn::GetKau new;
-    
+
     if  (qwer.GetCodeKau(word(cgiPick + cgiNotEdit + cgiNotClear ), wKODGRKAU, cPodpGrp) =0) then {
       //set cPodpGrp := 0;
       //RescanPanel (brplan_src);
@@ -134,12 +134,12 @@ interface vPodpis;
 
     //DoneMarker(coPodpis,'');
     //set coPodpis := InitMarker(qwer.GetMarkerName(wKODGRKAU),8,50,10);
-    
+
     if (getfirst spKAU = tsOK){};
     //RescanPanel (brplan_src);
     savedsk;
   end;
-  
+
   /*
   constructor Init;
   begin
@@ -148,13 +148,20 @@ interface vPodpis;
   end;
   */
 
+  procedure SetCPodpGrp (rst : comp);
+  begin
+    set cPodpGrp := rst;
+    SaveDSK;
+  end;
+
   property IPodpis.dolj : string[100] read getDolj;
   property IPodpis.fio : string[100] read getFIO;
   property IPodpis.levelcode : string[100] absolute spKAUPodp.LEVELCODE read;
   property IPodpis.wKODGRKAU : word absolute vwKODGRKAU read  write ;
   property IPodpis.DialogFieldString : string[100] read getDialogFieldString;
-  
-  
+  property IPodpis.cPodpGroup : comp read cPodpGrp write SetCPodpGrp(Result);
+
+
   index IPodpis.iByLevelCode auto;
 
 end.
