@@ -319,6 +319,47 @@
     result := DoubleToStr (v,   '\d,666666666667^899999999999');
   end;
 
+  create view forGrouping
+  as
+  select *
+    from
+          f641_printed f641_printed_ord2 ,
+          f641_printed subp3
+   where ((
+   f641_printed_ord2.cRec == subp3.cNode
+   ))
+        ;
+  Procedure doGroupPrintedData(const periodNum : word);
+  begin
+    forGrouping._loop f641_printed_ord2{
+      var fSum : string;
+      fSum := '';
+
+      forGrouping._loop subp3{
+        var tsts : string;
+        var raz : integer;
+
+        raz  := forGrouping.subp3.printedAtRow - forGrouping.f641_printed_ord2.printedAtRow ;
+        tsts := ''+ raz;
+
+        fSum := fSum + ';R[' + tsts + ']C';
+      }
+      if (fSum > '') {
+        //xlSetCellFormula('=‘ã¬¬('+fSum+')',forGrouping.f791_printed_ord2.printedAtRow,3,forGrouping.f791_printed_ord2.printedAtRow,7);
+        for (i := 1; i<=12; inc(i)) {
+          if (i >= periodNum) {
+            xlSetCellFormula( '=‘ã¬¬('+fSum+')',
+                              forGrouping.f641_printed_ord2.printedAtRow,
+                              3 + (i-1)*3 + 2,
+                              forGrouping.f641_printed_ord2.printedAtRow,
+                              3 + (i-1)*3 + 3
+                              );
+          }
+        }
+      }
+    }
+  end
+
   procedure doPrintExtraSum (const periodNum : byte);
   begin
     var extraSm : word;
@@ -908,6 +949,7 @@
     }
 
     doPrintExtraSum (periodNum);
+    doGroupPrintedData (periodNum);
 
     var firstDel : byte;
 

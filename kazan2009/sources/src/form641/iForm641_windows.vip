@@ -143,6 +143,9 @@ Window wnInfoWindow 'gg' ('gg', hcNoContext);
   Fields
     f641_printed.name '.name':[10],protect;
 
+    f641_printed.crec '.crec':[10],protect;
+    f641_printed.cNode '.cNode':[10],protect;
+
     f641_printed.Sumojid '.Sumojid':[10],protect;
     f641_printed.SumBDSGod '.SumBDSGod':[10],protect;
 
