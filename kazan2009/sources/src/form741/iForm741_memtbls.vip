@@ -1,5 +1,4 @@
 
-
 table struct f714_datas
 (
   nRec        : comp "",
@@ -20,7 +19,10 @@ table struct f714_datas
   sum         : double,
   sumAr       : array [1..31] of double,
   AKTOFPnRec  : comp,
-  groupLevel  : byte
+  groupLevel  : byte,
+  sootvCode   : String[20],
+  sootvName   : String,
+  cAnSootv    : comp
 )
 with index
 (
@@ -30,7 +32,19 @@ with index
   f714_ON_DN_SDN_SB = OrgName + DogName + AppDogName + cStBud,
   f714_NppSort = NppSort,
   f714_groupLevel = groupLevel + cOrg + cDog + cAppDog + cStBud
+)
+;
 
+table struct f714_stbud_an
+(
+  nRec        : comp "",
+  cStBud      : comp,
+  sAnCode     : String [20]
+)
+with index
+(
+  f714_sba_nrec   = NREC(Unique, Surrogate),
+  f714_sba_sbanc  = cStBud + sAnCode(Unique)
 )
 ;
 
@@ -50,7 +64,7 @@ table struct f714_stbud
 )
 with index
 (
-  f714_sb_nrec   = NREC(Unique),
+  f714_sb_nrec   = NREC(Unique, Surrogate),
   f714_sb_lvl    = lvl + nrec,
   f714_sb_cNode  = cnode + SortCode,
   f714_sb_lcode   = levelcode,
@@ -64,7 +78,7 @@ table struct f714_sb_iter
   cRec        : comp, // ссылка на статью
   cnode       : comp, // ссылка на вышестоящую статью
   level       : byte,
-  prStart     : byte, // признак старта: 1 -  старт 2 - финиш 
+  prStart     : byte, // признак старта: 1 -  старт 2 - финиш
   printedAtRow: word, // строка выведена на этой строке отчета
   SubRowsPrinted: word // напечатано столько подстрок
 )
@@ -74,7 +88,7 @@ with index
   f714_sbi_lvl    = level,
   f714_sbi_rsi    = crec + prStart,
   f714_sbi_rsi2   = cnode + prStart
-  
+
 )
 ;
-  
+

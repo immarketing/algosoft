@@ -1,10 +1,10 @@
-
-  screen  brplan_src;
+tabbedSheet tabbed
+  screen  brplan_src 'Основные';
   show at( , , ,);
   fields
     //pcSopr      : noprotect;
     //cTBL_SOOTV  : noprotect;
-  
+
   sPeriod ('',,) : Protect,PickButton,{Font = {BackColor = if (cPeriod=0,   ColorNeed,0)}};
   sFltrCO ('',,) : Protect,PickButton,{Font = {BackColor = if (GetMarkerCount(coMarker)=0,   ColorNeed,0)}};
 !  wKODGRKAU  : Protect,noPickButton,{Font = {BackColor = if (cPeriod=0,   ColorNeed,0)}};
@@ -12,28 +12,47 @@
   sStatus ('',,) : Protect,PickButton,{Font = {BackColor = if (cStatus=0,   ColorNeed,0)}};
     sPath ('',,) : Protect,PickButton,
       {Font = {BackColor = if (sPath='',    ColorNeed,0)}};
-  
+
   buttons
           cmOk,,, 'OGON';
 !          cmCancel,,, 'F***K OUT';
 !          cmCmd03,,, 'F***K IN';
   <<
-`               Период:` .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ 
-`Центр ответственности:` .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ 
-!`  Код КАУ подписантов:` .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ 
-`           Подписанты:` .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ 
-`               Статуc:` .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ 
-  
-`       Путь к шаблону:` .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ 
+`               Период:` .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+`Центр ответственности:` .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+!`  Код КАУ подписантов:` .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+`           Подписанты:` .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+`               Статуc:` .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
- <. Получить отчет .>    
+`       Путь к шаблону:` .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+ <. Получить отчет .>
 ! <.   2   .>  <. 3 .>
   >>
   end;
+  screen  sCheckdop 'Дополнительные параметры';
+  Fields
+
+    cWorkingTSootv  ('',,) : NoProtect,noPickButton,
+      {Font = {BackColor = if (cWorkingTSootv=0,    ColorNeed,0)}};
+    wAnCode1  ('',,) : NoProtect,noPickButton,
+      {Font = {BackColor = if (wAnCode1=0,    ColorNeed,0)}};
+    wAnCode2  ('',,) : NoProtect,noPickButton,
+      {Font = {BackColor = if (wAnCode2=0,    ColorNeed,0)}};
+
+  <<
+
+           NRec каталога соответствий .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+ Код аналитики-источника соответствия .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+ Код аналитики-приемника соответствия .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+  >>
+  end; // screen  sCheckdop 'Дополнительно';
+end;
+
 
 Window wnInfoWindow741 '-= Отладочная информация интерфейса 741 =-' ('', hcNoContext);
   Show at(,,,29);
-  
+
   BROWSE  brplan_f714_pTest;
   show at( , , , 6 );
   table pTest;
@@ -69,9 +88,10 @@ BROWSE  brplan_f714_datasSorted;
     //f714_datasSorted.SortCode 'SortCode' : [10], protect;
   end;
   */
-  
-  
-  
+
+
+
+  /*
   BROWSE  brplan_f714_sb_iter;
   show at( , 7, ,13);
   table f714_sb_iter;
@@ -85,8 +105,8 @@ BROWSE  brplan_f714_datasSorted;
     //f714_sb_iter.isLeaf 'isLeaf' : [10], protect;
     //f714_sb_iter.SortCode 'SortCode' : [10], protect;
   end;
+  */
 
-  /*
   BROWSE  brplan_f714_stbud;
   show at( , 7, ,13);
   table f714_stbud;
@@ -100,13 +120,15 @@ BROWSE  brplan_f714_datasSorted;
     f714_stbud.isLeaf 'isLeaf' : [10], protect;
     f714_stbud.SortCode 'SortCode' : [10], protect;
   end;
-  */
 
   BROWSE  brplan_f714_datas;
   show at( , 14, , );
   table f714_datas;
   Fields
     f714_datas.nrec         'f714_datas.nrec':[10],protect;
+    f714_datas.sootvCode    'sootvCode' : [10], protect;
+    f714_datas.sootvName    'sootvName' : [10], protect;
+    f714_datas.cAnSootv     'cAnSootv' : [10], protect;
     f714_datas.Npp         '' : [10], protect;
     f714_datas.NppSort     '' : [10], protect;
     f714_datas.cOrg        '' : [10], protect;
@@ -123,7 +145,7 @@ BROWSE  brplan_f714_datasSorted;
     f714_datas.sum         '' : [10], protect;
     f714_datas.StBudName   'StBudName' : [10], protect;
     f714_datas.AKTOFPnRec   'AKTOFPnRec' : [10], protect;
-    
+
   end;
-  
-end; 
+
+end;

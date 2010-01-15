@@ -168,15 +168,15 @@ end;
 */
 
 
-vipInterface szmn_bud_Form741 licensed(free);
+vipInterface szmn_bud_Form741_ licensed(free);
 //vipInterface #(_VERSIONEDNAME_(szmn_bud_Form714_)) licensed(free);
 //#_VIPINTERFVERS_(szmn_bud_Form714_);
 
-Interface szmn_bud_Form741
+Interface szmn_bud_Form741_
 //Interface #_VERSIONEDNAME_(szmn_bud_Form714_)
 //#_INTERFVERS_(szmn_bud_Form714_)
-  '-= СЗМН Бюджет. Форма 7.4.1. =- ' (,hcNoContext,) EscClose, Cyan;
-  show at  (0,0,70,10)
+  '-= СЗМН Бюджет. Форма 7.4.1. v.2010 =- ' (,hcNoContext,) EscClose, Cyan;
+  show at  ( 0 , 0 , 90 , 10 )
   //show at  (0,0,100,30)
   ;
 
@@ -203,6 +203,11 @@ var
   //pTest       : iTest noauto; //(cTest1) new initByName ('Test');
 
   podpisanty  : SZMN_COMMON::IPodpis (vPodpis) new;// (  ) new;
+
+  cWorkingTSootv : comp;
+
+  wAnCode1       : word; // аналитика источника соответствия
+  wAnCode2       : word; // аналитика приемника соответствия
 
 as
 select
@@ -341,7 +346,7 @@ where ((
       end;
 
     }
-
+    /*
     cmShowDebug2: {
       //Message (s);
     }
@@ -352,6 +357,7 @@ where ((
     cmShowDebug4: {
       pTest.SetPredicat ('1%');
     }
+    */
 
 
     cmShowDebug: {
