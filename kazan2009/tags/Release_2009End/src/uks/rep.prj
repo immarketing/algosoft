@@ -1,0 +1,14 @@
+#define ComponentVersion
+#define Atl51
+#define GAL8_1
+
+#component "F_UserReport"
+#version form_6_15 8.10.0.1 'Форма 6.15, 6.16, 8.15, 8.16';
+
+#include uks.inc
+
+const
+#include excel.inc
+end
+
+#make 'd:\work\kaz\uks\frm.vip'
