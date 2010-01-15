@@ -110,11 +110,11 @@ end;
 */
 
 
-vipInterface szmn_bud_Form641_ licensed(free);
+vipInterface szmn_bud_Form641 licensed(free);
 //vipInterface #(_VERSIONEDNAME_(szmn_bud_Form714_)) licensed(free);
 //#_VIPINTERFVERS_(szmn_bud_Form714_);
 
-Interface szmn_bud_Form641_
+Interface szmn_bud_Form641
 //Interface #_VERSIONEDNAME_(szmn_bud_Form714_)
 //#_INTERFVERS_(szmn_bud_Form714_)
   '-= ëáåç ÅÓ§¶•‚. îÆ‡¨† 6.4.1. v.20100114 =- ' (,hcNoContext,) EscClose, Cyan;
