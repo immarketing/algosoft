@@ -39,12 +39,14 @@ table struct f714_stbud_an
 (
   nRec        : comp "",
   cStBud      : comp,
-  sAnCode     : String [20]
+  cAn         : comp,
+  sAnCode     : String [20],
+  sAnName     : String
 )
 with index
 (
   f714_sba_nrec   = NREC(Unique, Surrogate),
-  f714_sba_sbanc  = cStBud + sAnCode(Unique)
+  f714_sba_sbanc  = cStBud + cAn(Unique)
 )
 ;
 
@@ -57,10 +59,13 @@ table struct f714_stbud
   code        : String,
   cNode       : comp,
   lvl         : word,
-  isLeaf      : byte,
+  isLeaf      : byte, // "лист" бюджетной структуры
+  isExtraLeaf : byte, // "лист" структуры с учетом уровня "аналитики"
   SortCode    : String,
   maxLn       : byte,
-  codeLen     : byte
+  codeLen     : byte,
+  cAn         : comp
+
 )
 with index
 (
