@@ -53,12 +53,17 @@ end;
 Window wnInfoWindow741 '-= Отладочная информация интерфейса 741 =-' ('', hcNoContext);
   Show at(,,,29);
 
-  BROWSE  brplan_f714_pTest;
-  show at( , , , 6 );
-  table pTest;
+tabbedSheet tabbed
+
+  BROWSE  brplan_f714_pTest 'f714_stbud_an';
+  show at( , , , );
+  table f714_stbud_an;
   Fields
     //f714_stbudSorted.nrec 'f714_stbud.nrec':[10],protect;
-    pTest.pName        'pName' : [10], protect;
+    f714_stbud_an.cStBud        'cStBud' : [10], protect;
+    f714_stbud_an.cAn        'cAn' : [10], protect;
+    f714_stbud_an.sAnCode        'sAnCode' : [10], protect;
+    f714_stbud_an.sAnName        'sAnName' : [10], protect;
   end;
 
   /*
@@ -90,25 +95,27 @@ BROWSE  brplan_f714_datasSorted;
   */
 
 
-
-  /*
-  BROWSE  brplan_f714_sb_iter;
-  show at( , 7, ,13);
+  BROWSE  brplan_f714_sb_iter 'f714_sb_iter';
+  //show at( , 7, ,13);
   table f714_sb_iter;
   Fields
     f714_sb_iter.nrec 'nrec':[10],protect;
     f714_sb_iter.crec        'crec' : [10], protect;
     //f714_sb_iter.levelcode   'levelcode' : [10], protect;
     //f714_sb_iter.code        'code' : [10], protect;
-    //f714_sb_iter.cNode       'cNode' : [10], protect;
-    //f714_sb_iter.lvl       'lvl' : [10], protect;
-    //f714_sb_iter.isLeaf 'isLeaf' : [10], protect;
-    //f714_sb_iter.SortCode 'SortCode' : [10], protect;
-  end;
-  */
+    f714_sb_iter.cNode       'cNode' : [10], protect;
+    f714_sb_iter.level       'level' : [10], protect;
+    f714_sb_iter.cAn       'cAn' : [10], protect;
+    f714_sb_iter.prStart       'prStart' : [10], protect;
+    f714_sb_iter.printedAtRow       'printedAtRow' : [10], protect;
 
-  BROWSE  brplan_f714_stbud;
-  show at( , 7, ,13);
+    f714_sb_iter.isExtraLeaf       'isExtraLeaf' : [10], protect;
+
+    f714_sb_iter.SubRowsPrinted       'SubRowsPrinted' : [10], protect;
+  end;
+
+  BROWSE  brplan_f714_stbud 'f714_stbud';
+  //show at( , 7, ,13);
   table f714_stbud;
   Fields
     f714_stbud.nrec 'f714_stbud.nrec':[10],protect;
@@ -118,34 +125,36 @@ BROWSE  brplan_f714_datasSorted;
     f714_stbud.cNode       'cNode' : [10], protect;
     f714_stbud.lvl       'lvl' : [10], protect;
     f714_stbud.isLeaf 'isLeaf' : [10], protect;
+    f714_stbud.isExtraLeaf 'isExtraLeaf' : [10], protect;
     f714_stbud.SortCode 'SortCode' : [10], protect;
   end;
 
-  BROWSE  brplan_f714_datas;
-  show at( , 14, , );
+  BROWSE  brplan_f714_datas 'f714_datas';
+  //show at( , 14, , );
   table f714_datas;
   Fields
     f714_datas.nrec         'f714_datas.nrec':[10],protect;
     f714_datas.sootvCode    'sootvCode' : [10], protect;
     f714_datas.sootvName    'sootvName' : [10], protect;
     f714_datas.cAnSootv     'cAnSootv' : [10], protect;
-    f714_datas.Npp         '' : [10], protect;
-    f714_datas.NppSort     '' : [10], protect;
-    f714_datas.cOrg        '' : [10], protect;
-    f714_datas.OrgName     '' : [10], protect;
+    f714_datas.Npp         'Npp' : [10], protect;
+    f714_datas.NppSort     'NppSort' : [10], protect;
+    f714_datas.cOrg        'cOrg' : [10], protect;
+    f714_datas.OrgName     'OrgName' : [10], protect;
     f714_datas.OrgINN      '' : [10], protect;
     f714_datas.cDog        '' : [10], protect;
-    f714_datas.DogName     '' : [10], protect;
+    f714_datas.DogName     'DogName' : [10], protect;
     f714_datas.DogPred     '' : [10], protect;
     f714_datas.cAppDog     '' : [10], protect;
     f714_datas.AppDogName  '' : [10], protect;
     f714_datas.plDate      '' : [10], protect;
     f714_datas.plDay       '' : [10], protect;
-    f714_datas.cStBud      '' : [10], protect;
-    f714_datas.sum         '' : [10], protect;
+    f714_datas.cStBud      'cStBud' : [10], protect;
+    f714_datas.sum         'sum' : [10], protect;
     f714_datas.StBudName   'StBudName' : [10], protect;
     f714_datas.AKTOFPnRec   'AKTOFPnRec' : [10], protect;
 
   end;
 
+end; // tabbed
 end;

@@ -27,7 +27,7 @@ table struct f714_datas
 with index
 (
   f714_ds_nrec = NREC(Unique, Surrogate),
-  f714_OrgName = cStBud + OrgName,
+  f714_OrgName = cStBud + cAnSootv + OrgName,
   f714_ON_DN_SDN = OrgName + DogName + AppDogName,
   f714_ON_DN_SDN_SB = OrgName + DogName + AppDogName + cStBud,
   f714_NppSort = NppSort,
@@ -73,7 +73,8 @@ with index
   f714_sb_lvl    = lvl + nrec,
   f714_sb_cNode  = cnode + SortCode,
   f714_sb_lcode   = levelcode,
-  f714_sb_scode   = cnode + SortCode
+  f714_sb_scode   = cnode + SortCode,
+  f714_sb_el_can   = isExtraLeaf + cAn
 )
 ;
 
@@ -82,6 +83,9 @@ table struct f714_sb_iter
   nRec        : comp "",
   cRec        : comp, // ссылка на статью
   cnode       : comp, // ссылка на вышестоящую статью
+  cAn         : comp, // ссылка на аналитику
+  isExtraLeaf : byte, // "лист" структуры с учетом уровня "аналитики"
+
   level       : byte,
   prStart     : byte, // признак старта: 1 -  старт 2 - финиш
   printedAtRow: word, // строка выведена на этой строке отчета

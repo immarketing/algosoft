@@ -233,7 +233,8 @@ select
         f714_datas f714_datasSorted(f714_NppSort),
         f714_stbud f714_stbudSorted (f714_sb_scode),
         pTest,
-        podpisanty
+        podpisanty,
+        f714_stbud_an
 where ((
    0 == km.nrec and
    cFltrCO == fltrfpco.nRec and

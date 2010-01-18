@@ -101,6 +101,8 @@
          set crec := f714_stbud.nRec,
              level := curLev,
              prStart := 1,
+             f714_sb_iter.cAn := f714_stbud.cAn,
+             f714_sb_iter.isExtraLeaf := f714_stbud.isExtraLeaf,
              f714_sb_iter.cNode := f714_stbud.cnode
              ;
     }
@@ -115,6 +117,8 @@
          set crec := f714_stbud.nRec,
              level := curLev,
              prStart := 2,
+             f714_sb_iter.cAn := f714_stbud.cAn,
+             f714_sb_iter.isExtraLeaf := f714_stbud.isExtraLeaf,
              f714_sb_iter.cNode := f714_stbud.cnode
              ;
     }
@@ -140,7 +144,8 @@
     if (getfirst f714_stbud where ((curNode == nRec)) <> tsOK )  {exit}; // статьи нет, делать нечего
 
     if (f714_sb_iter.prStart = 1  ){ // это начало этой статьи
-      if (f714_stbud.isLeaf = 1) {
+      //if (f714_stbud.isLeaf = 1) {
+      if (f714_stbud.isExtraLeaf = 1) {
         xlSetCellStringValue('', 7, 1, 7, 6); // узел -  лист
         xlSetCellStringValue('' , 7, 7, 7, 7); // узел - лист
         xlSetCellStringValue('', 7, 8, 7, 38); // узел -  лист
@@ -150,7 +155,14 @@
       } else {
         xlSetCellStringValue('' , 4, 1, 4, 6); // узел - не лист
         xlSetCellStringValue('' , 4, 8, 4, 38); // узел - не лист
-        xlSetCellStringValue(f714_stbud.LevelCode + '   '+ f714_stbud.Name , 4, 1, 4, 1); // узел - не лист
+        if (SubStr ( f714_stbud.LevelCode, length(f714_stbud.LevelCode),1 ) ='-') {
+        }
+        xlSetCellStringValue( f714_stbud.LevelCode
+                              + if (SubStr ( f714_stbud.LevelCode, length(f714_stbud.LevelCode),1 ) ='-',
+                                   '' + '00 ',
+                                   ''
+                                   )
+                              + '   '+ f714_stbud.Name , 4, 1, 4, 1); // узел - не лист
         xlRunMacro('CopyRow1');
       };
       update current f714_sb_iter set printedAtRow := repGetPrintRow -1;
@@ -160,7 +172,8 @@
     rcnt := 0;
 
     if (f714_sb_iter.prStart = 1  ){ // это начало этой статьи
-      _loop f714_datas  (f714_OrgName) where (( curNode == f714_datas.cStBud )){ // печать строк данных отчета
+      _loop f714_datas  (f714_OrgName) where (( /*curNode*/ f714_stbud.cNode == f714_datas.cStBud
+                                                and f714_sb_iter.cAn == f714_datas.cAnSootv )){ // печать строк данных отчета
         xlSetCellStringValue('', 5, 1, 5, 6 );
         xlSetCellStringValue(f714_datas.OrgINN, 5, 2, 5, 2);
         xlSetCellStringValue(f714_datas.OrgName, 5, 3, 5, 3);
@@ -194,7 +207,8 @@
         gStartedAt := r_s_i.printedAtRow;
       }
 
-      if (f714_stbud.isLeaf = 1) {
+      //if (f714_stbud.isLeaf = 1) {
+      if (f714_stbud.isExtraLeaf = 1) {
         xlSetCellStringValue('', 7, 1, 7, 3); // узел -  лист
         xlSetCellFormula('=СУММ(RC[1]:RC[31])',7,7,7,7);
         xlSetCellStringValue('', 7, 8, 7, 38); // узел -  лист
@@ -484,6 +498,7 @@
     var lr : longint;
     var cn : comp;
 
+
     // Копируются все статьи бюджета с иерархией "вверх"
     _loop f714_datas (f714_NppSort) {
       cn := f714_datas.cStBud;
@@ -531,6 +546,14 @@
                           codeLen                  := Length (f714_stbud_an.sAnCode)
                           ;
     }
+
+    _loop f714_stbud where (( 1 == f714_stbud.isExtraLeaf (noindex) )) {
+      if (getFirst  f714_stbud superStBud where (( f714_stbud.cNode == superStBud.nRec )) = tsOK) {
+        update current f714_stbud set f714_stbud.code := superStBud.code + f714_stbud.code,
+                                      f714_stbud.levelcode := superStBud.levelcode + f714_stbud.levelcode;
+      }
+    }
+
     var b : byte;
     update f714_stbud where (( 0 == f714_stbud.cNode  )) set  f714_stbud.lvl := 1,
                                                               //f714_stbud.SortCode := f714_stbud.LevelCode ,
@@ -665,6 +688,14 @@
 
   procedure BuildAnHier;
   begin
+    update f714_datas
+     where (( comp(0) == f714_datas.cAnSootv (noindex) ))
+     set f714_datas.sootvCode := '00',
+          //f714_datas.levelcode := '00',
+          f714_datas.sootvName := '<не указано>'
+     ;
+
+
     insert f714_stbud_an (
       cStBud,
       cAn,
@@ -672,7 +703,8 @@
       sAnName
     ) select cStBud,cAnSootv,sootvCode,sootvName
         from f714_datas
-      ignore_errors (tsDuplicateKey)
+      ignore_errors (tsDuplicateKey) ;
+
   end;
 
   procedure PrepareData;
