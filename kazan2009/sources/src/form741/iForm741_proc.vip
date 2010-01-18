@@ -243,7 +243,14 @@
         xlSetCellStringValue('', 6, 1, 6, 6); // узел - не лист
         xlSetCellStringValue('', 6, 8, 6, 38); // узел - не лист
 
-        xlSetCellStringValue('Итого ['+ f714_stbud.LevelCode + '   '+ f714_stbud.Name +']', 6, 1, 6, 1); // узел - не лист
+        xlSetCellStringValue( 'Итого ['+
+                              f714_stbud.LevelCode +
+                              + if (SubStr ( f714_stbud.LevelCode, length(f714_stbud.LevelCode),1 ) ='-',
+                                   '' + '00 ',
+                                   ''
+                                   ) +
+                              '   '+
+                              f714_stbud.Name +']', 6, 1, 6, 1); // узел - не лист
 
         xlRunMacro('CopyRow3');
 
@@ -514,7 +521,8 @@
                              )
         select  FPSTBUD.nRec,
                 FPSTBUD.name,
-                trimFirst0 (FPSTBUD.levelcode),
+                //trimFirst0 (FPSTBUD.levelcode),
+                trimFirst0 (FPSTBUD.abbr),
                 FPSTBUD.code,
                 FPSTBUD.cNode,
                 FPSTBUD.isLeaf,
@@ -549,8 +557,10 @@
 
     _loop f714_stbud where (( 1 == f714_stbud.isExtraLeaf (noindex) )) {
       if (getFirst  f714_stbud superStBud where (( f714_stbud.cNode == superStBud.nRec )) = tsOK) {
-        update current f714_stbud set f714_stbud.code := superStBud.code + f714_stbud.code,
-                                      f714_stbud.levelcode := superStBud.levelcode + f714_stbud.levelcode;
+        if (SubStr(superStBud.levelcode, length(superStBud.levelcode),1) = '-'){
+          update current f714_stbud set f714_stbud.code := superStBud.code + f714_stbud.code,
+                                        f714_stbud.levelcode := superStBud.levelcode + f714_stbud.levelcode;
+        }
       }
     }
 
@@ -712,6 +722,7 @@
     delete all f714_datas;
     delete all f714_stbud;
     delete all f714_sb_iter;
+    delete all f714_stbud_an;
 
     var dstrt,dfin : date;
 
