@@ -39,12 +39,18 @@ tabbedSheet tabbed
       {Font = {BackColor = if (wAnCode1=0,    ColorNeed,0)}};
     wAnCode2  ('',,) : NoProtect,noPickButton,
       {Font = {BackColor = if (wAnCode2=0,    ColorNeed,0)}};
+    cDefaultAn  ('',,) : NoProtect,noPickButton,
+      {Font = {BackColor = if (cDefaultAn=0,    ColorNeed,0)}};
+
 
   <<
 
            NRec каталога соответствий .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
  Код аналитики-источника соответствия .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
  Код аналитики-приемника соответствия .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+ NREC значения аналитики соответствия
+                         по умолчанию .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
   >>
   end; // screen  sCheckdop 'Дополнительно';
 end;

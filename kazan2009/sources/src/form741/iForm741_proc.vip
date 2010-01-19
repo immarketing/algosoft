@@ -698,12 +698,16 @@
 
   procedure BuildAnHier;
   begin
+    /*
     update f714_datas
      where (( comp(0) == f714_datas.cAnSootv (noindex) ))
-     set f714_datas.sootvCode := '00',
+     set
+          f714_datas.cAnSootv := cDefaultAn
+          //f714_datas.sootvCode := '00',
           //f714_datas.levelcode := '00',
-          f714_datas.sootvName := '<не указано>'
+          //f714_datas.sootvName := '<не указано>'
      ;
+     */
 
 
     insert f714_stbud_an (
@@ -747,6 +751,9 @@
     wA1 := wAnCode1;
     wA2 := wAnCode2;
 
+    var cda : comp;
+    cda := cDefaultAn;
+
     insert f714_datas
               ( Npp,
                 NppSort,
@@ -784,13 +791,14 @@
             KatOrg.NAME,
             FPSTBUD.Name,
             AKTOFP.nRec,
-            SPKAUPR2.code,
-            SPKAUPR2.NAME,
-            FPIMPRELpr2.CMEAN
+            if (IsValidAll(tnSPKAUPR2), SPKAUPR2.code , DEFSPKAU.code),
+            if (IsValidAll(tnSPKAUPR2),SPKAUPR2.NAME, DEFSPKAU.NAME ),
+            if (IsValidAll(tnSPKAUPR2),FPIMPRELpr2.CMEAN,cda )
       from AKTOFP,FPSPATTR,FPSTBUD, Dogovor, Dogovor SubDogovor, KatOrg, Persons,
            FPKATIMP FPKATIMPPR2,
            FPIMPREL FPIMPRELPR2,
-           SPKAU SPKAUPR2
+           SPKAU SPKAUPR2,
+           SPKAU DEFSPKAU
            //, AttrDog
       where ((
       dstrt <<= AKTOFP.DDoc (noindex) and
@@ -804,6 +812,7 @@
       AKTOFP.cOrg == KatOrg.nrec and
       AKTOFP.CCURATOR == Persons.nrec and
       AKTOFP.nRec == FPSPATTR.crec (noindex) and
+      1 == FPSPATTR.wCode and
       FPSPATTR.CMEAN == FPSTBUD.nrec and
 
       // соответствия аналитик
@@ -814,7 +823,9 @@
       AKTOFP.cOrg == FPIMPRELpr2.CIMPMEAN and
 
       wA2 == FPIMPRELpr2.KODAN (noindex) and
-      FPIMPRELpr2.CMEAN == SPKAUPR2.NREC
+      FPIMPRELpr2.CMEAN == SPKAUPR2.NREC and
+
+      cda == DEFSPKAU.nrec
       //and cAn2 == FPIMPRELpr2.CMEAN (noindex)
 
       )) and
@@ -861,6 +872,9 @@
     if wAnCode2 = 0 then {
       set wAnCode2 := 50008;
     }
+    if cDefaultAn = 0 then {
+      set cDefaultAn := comp('01310000000005A1h');
+    }
   end;
 
   procedure savedsk;
@@ -878,6 +892,8 @@
 
     SaveMyDsk (wAnCode1,'iForm741.wAnCode1' );
     SaveMyDsk (wAnCode2,'iForm741.wAnCode2' );
+
+    SaveMyDsk (cDefaultAn,'iForm741.cDefaultAn' );
 
     if (sPath = '') then {
       sPath := translatepath('%startpath%Xls\F_FPBUDGET\SZMN_Budjet\tmpl_7_4_1.xls');
@@ -905,6 +921,9 @@
 
     ReadMyDsk (wAnCode1,'iForm741.wAnCode1' , dc);
     ReadMyDsk (wAnCode2,'iForm741.wAnCode2', dc);
+
+    ReadMyDsk (cDefaultAn,'iForm741.cDefaultAn', dc);
+
 
     if (sPath = '') then {
       sPath := translatepath('%startpath%Xls\F_FPBUDGET\SZMN_Budjet\tmpl_7_4_1.xls');

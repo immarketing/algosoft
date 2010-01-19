@@ -34,7 +34,7 @@
 // раскомментировать конструкцию VipInterface (Implements для Атлантиса 5.1)
 
 #ifdef Atl51
-VipInterface UserReport_szmn_form741  Implements IUserReport
+VipInterface UserReport_szmn_form741_2010  Implements IUserReport
   Licensed(Free)
 ;
 #else
@@ -45,7 +45,7 @@ VipInterface UserReport_szmn_form741  Implements IUserReport
 Пример пользовательского отчета #1
 #end
 
-Interface UserReport_szmn_form741;
+Interface UserReport_szmn_form741_2010;
 
 create view;
 
@@ -55,13 +55,13 @@ procedure Run;
 begin
   //RunInterface('szmn_bud_Form714_20091012');
   //RunInterface(#_INTERFVERSSTRINGQUOTED_(szmn_bud_Form714_));
-  RunInterface('szmn_bud_Form741' );
+  RunInterface('szmn_bud_Form741_2010' );
 end;
 !-------------------------------------------------------------------------------
 // Наименование отчета в списке
 function GetReportName: String;
 begin
-  GetReportName := 'Форма 7.4.1';
+  GetReportName := 'Форма 7.4.1 (вариант 2010 года)';
 end;
 !-------------------------------------------------------------------------------
 // Наименования групп, в которые входит отчет
@@ -168,11 +168,11 @@ end;
 */
 
 
-vipInterface szmn_bud_Form741_ licensed(free);
+vipInterface szmn_bud_Form741_2010 licensed(free);
 //vipInterface #(_VERSIONEDNAME_(szmn_bud_Form714_)) licensed(free);
 //#_VIPINTERFVERS_(szmn_bud_Form714_);
 
-Interface szmn_bud_Form741_
+Interface szmn_bud_Form741_2010
 //Interface #_VERSIONEDNAME_(szmn_bud_Form714_)
 //#_INTERFVERS_(szmn_bud_Form714_)
   '-= СЗМН Бюджет. Форма 7.4.1. v.2010 =- ' (,hcNoContext,) EscClose, Cyan;
@@ -208,6 +208,8 @@ var
 
   wAnCode1       : word; // аналитика источника соответствия
   wAnCode2       : word; // аналитика приемника соответствия
+
+  cDefaultAn     : comp; // значение аналитики соответствия по умолчанию
 
 as
 select
