@@ -117,7 +117,7 @@ vipInterface szmn_bud_Form641 licensed(free);
 Interface szmn_bud_Form641
 //Interface #_VERSIONEDNAME_(szmn_bud_Form714_)
 //#_INTERFVERS_(szmn_bud_Form714_)
-  '-= СЗМН Бюджет. Форма 6.4.1. v.20100114 =- ' (,hcNoContext,) EscClose, Cyan;
+  '-= СЗМН Бюджет. Форма 6.4.1. v.20100120 =- ' (,hcNoContext,) EscClose, Cyan;
   show at (5,2,110,32)
   //show at  (0,0,100,30)
   ;
@@ -171,6 +171,13 @@ var
   excCode10  : String;
   excCode11  : String;
   excCode12  : String;
+
+  extClName3  : String;
+  excCode13  : String;
+  excCode14  : String;
+  excCode15  : String;
+
+  extClName4  : String;
 
   cReg1       : word;
   cReg2       : word;

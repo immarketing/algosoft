@@ -11,6 +11,8 @@ table struct f641_printed
   groupTo       : word,
   rowsToGroup   : word,
   extPar        : byte,
+  extPar3       : byte,
+  extPar4       : byte,
   isLeaf        : byte,
   printedatrow79: word,
   prior         : word,

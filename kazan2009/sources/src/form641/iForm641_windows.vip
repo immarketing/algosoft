@@ -104,6 +104,20 @@ end; // Screen
       {Font = {BackColor = if (excCode11 ='',    ColorNeed,0)}};
     excCode12  ('',,) : NoProtect,noPickButton,
       {Font = {BackColor = if (excCode12 ='',    ColorNeed,0)}};
+
+    extClName3  ('',,) : NoProtect,noPickButton,
+      {Font = {BackColor = if (extClName3='',    ColorNeed,0)}};
+
+    extClName4  ('',,) : NoProtect,noPickButton,
+      {Font = {BackColor = if (extClName4='',    ColorNeed,0)}};
+    /*
+    excCode13  ('',,) : NoProtect,noPickButton,
+      {Font = {BackColor = if (excCode13 ='',    ColorNeed,0)}};
+    excCode14  ('',,) : NoProtect,noPickButton,
+      {Font = {BackColor = if (excCode14 ='',    ColorNeed,0)}};
+    excCode15  ('',,) : NoProtect,noPickButton,
+      {Font = {BackColor = if (excCode15 ='',    ColorNeed,0)}};
+      */
   <<
 
          Название классификатора .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -130,6 +144,12 @@ end; // Screen
 Код  [Уменьшение сальдо периода] .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 Код аналитики [Начальное сальдо] .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
  Код аналитики [Конечное сальдо] .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+ Название классификатора [Дополнительная обработка
+                статьи для 6.4.1].@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+ Название классификатора [Дополнительная обработка
+     статьи для 6.4.1 (сумма №2)].@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
   >>
   end; // screen  sCheckdop 'Дополнительно';
 end;
@@ -154,6 +174,10 @@ Window wnInfoWindow 'gg' ('gg', hcNoContext);
     f641_printed.SaldoType '.SaldoType':[10],protect;
 
     f641_printed.AgregHandling '.AgregHandling':[10],protect;
+
+    f641_printed.extPar '.extPar':[10],protect;
+    f641_printed.extPar3 '.extPar3':[10],protect;
+    f641_printed.extPar4 '.extPar4':[10],protect;
 
     /*
     f641_printed.nRec '.nRec':[10],protect;
