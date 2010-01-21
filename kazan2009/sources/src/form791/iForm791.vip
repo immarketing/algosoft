@@ -89,9 +89,9 @@ form791showdebug menu
   - 'Показать отладочную информацию', cmShowDebug791, 'Отладочная информация' ;
 }
 
-vipInterface szmn_bud_Form791 licensed(free);
+vipInterface szmn_bud_Form791_ licensed(free);
 
-Interface szmn_bud_Form791
+Interface szmn_bud_Form791_
   '-= СЗМН Бюджет. Форма 7.9.1. v20010114 =- ' (,hcNoContext,) EscClose, Cyan;
   //show at  (0,0,70,10)
   show at  (0,0,100,30)
@@ -162,7 +162,7 @@ From
  ,fpvalues
  ,Synonym fpBudVar fpBV
  ,Synonym fpValues fpV
- ,Synonym fpValues fpV2
+ //,Synonym fpValues fpV2
  ,f791_printed
  ,f791_stack
  ,spKAU
@@ -198,9 +198,11 @@ and cCopyBud       == fpBV.nrec
 and fpBV.nrec      == fpV.cBudVar // вариант бюджета
 and word(cFP)      == fpV.KodReg //план факт резерв
 and comp(cStBud)   == fpV.cStBud // статья бюджета
+and cPeriod        == fpV.cPeriod // ссылка на период
 and fpV.cPeriod    == fpP.nrec   // ссылка на период
 
 and comp(cStBud)   == fpStBud.nrec
+
 and fpStBud.ced    == kated.nrec//еденицы измерения
 and fpSpAxtf.cSloj == HashAn.cSloj
 and comp(0)        == HashAn.cBlock //не уверен что всегда 0 из за этого может быть косяк

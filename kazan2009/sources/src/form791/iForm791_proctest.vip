@@ -135,7 +135,7 @@
   select *
     from  f791_stack f791_stack_grp(f714_stk_nrec_desc),
           f791_printed f791_printed_ord (f714_ptd_nrec),
-          (select min (printedAtRow), max(printedAtRow) from f791_printed pt where ((f791_printed_ord.cRec == pt.cnode ))   ) subrowmm,
+          //(select min (printedAtRow), max(printedAtRow) from f791_printed pt where ((f791_printed_ord.cRec == pt.cnode ))   ) subrowmm,
           f791_printed subprntd (f791_ptd_node_prrow),
           f791_printed f791_printed_ord2 (f791_ptd_rowsToGroup),
           f791_printed subp2 (f791_ptd_node_prrow),
@@ -153,6 +153,7 @@
   begin
     // Коммерческие расходы
     xlSetActiveSheetByName(repSheet);
+    /* без учета группировки по уровням
     forGrouping._loop f791_printed_ord {
       if (forGrouping.getfirst subprntd = tsOK){
         //var b : boolean
@@ -191,12 +192,23 @@
     } while wasEdit;
 
     update f791_printed set f791_printed.rowsToGroup := f791_printed.groupTo - f791_printed.groupFrom + 1;
+    */
+
+    var extraSm : word;
+    extraSm := 0;
+
+    var extraFrm : String;
+    extraFrm := '';
 
     forGrouping._loop f791_printed_ord2{
+      /* без учета группировки по уровням
       xlRunMacro('ActiveSheetGroupData('+String ( forGrouping.f791_printed_ord2.groupFrom)+','+ String ( forGrouping.f791_printed_ord2.groupTo) +')');
+
+      */
 
       var fSum : string;
       fSum := '';
+
 
       forGrouping._loop subp3{
         var tsts : string;
@@ -211,37 +223,30 @@
         //xlSetCellFormula('=Сумм('+fSum+')',forGrouping.f791_printed_ord2.printedAtRow,3,forGrouping.f791_printed_ord2.printedAtRow,7);
         xlSetCellFormula('=Сумм('+fSum+')',forGrouping.f791_printed_ord2.printedAtRow,5,forGrouping.f791_printed_ord2.printedAtRow,6);
       }
-    }
 
-    var extraSm : word;
-    extraSm := 0;
-
-    var extraFrm : String;
-    extraFrm := '';
-
-    _loop f791_printed {
-      if (f791_printed.extPar1 = 5){
+      if (forGrouping. f791_printed_ord2.extPar1 = 5){
         // тут должна быть сумма
         extraSm := f791_printed.printedAtRow;
       }
-    }
-
-    if (extraSm = 0){
-      exit;
-    }
-
-    _loop f791_printed {
-      if (f791_printed.extPar1 = 6){
+      if (forGrouping. f791_printed_ord2.extPar1 = 6){
         // тут надо сложить
         extraFrm := extraFrm + ';R[' + (f791_printed.printedAtRow - extraSm) + ']C';
       }
-      if (f791_printed.extPar1 = 7){
+      if (forGrouping. f791_printed_ord2.extPar1 = 7){
         // тут надо отнять
         extraFrm := extraFrm + ';-R[' + (f791_printed.printedAtRow - extraSm) + ']C';
       }
     }
 
-    xlSetCellFormula('=Сумм('+extraFrm+')',extraSm,5,extraSm,5);
+    /*
+    _loop f791_printed {
+    }
+    */
+
+    if (extraSm <> 0){
+      xlSetCellFormula('=Сумм('+extraFrm+')',extraSm,5,extraSm,5);
+      //exit;
+    }
 
     xlSetActiveSheetByName(datSheet);
   end;
@@ -343,6 +348,13 @@
     xlRunMacro('setReportSheetName('+report79Sheet+')');
     xlRunMacro('setRowToFill('+String (13)+')');
 
+    var extraSm : word;
+    extraSm := 0;
+
+    var extraFrm : String;
+    extraFrm := '';
+
+
     _loop f791_printed {
       xlSetActiveSheetByName(dataSheetName);
       if (f791_printed.extPar = 1){
@@ -367,29 +379,10 @@
         xlSetCellFormula('=СУММ(RC[-2]:RC[-1])', f791_printed.printedatrow79,5,f791_printed.printedatrow79,5);
       }
 
-    }
-    xlSetActiveSheetByName(dataSheetName);
-    printSigners2;
-    xlSetActiveSheetByName(report79Sheet);
-
-    var extraSm : word;
-    extraSm := 0;
-
-    var extraFrm : String;
-    extraFrm := '';
-
-    _loop f791_printed {
       if (f791_printed.extPar1 = 5){
         // тут должна быть сумма
         extraSm := f791_printed.printedatrow79;
       }
-    }
-
-    if (extraSm = 0){
-      exit;
-    }
-
-    _loop f791_printed {
       if (f791_printed.extPar1 = 6){
         // тут надо сложить
         extraFrm := extraFrm + ';R[' + (f791_printed.printedatrow79 - extraSm) + ']C';
@@ -399,11 +392,15 @@
         extraFrm := extraFrm + ';-R[' + (f791_printed.printedatrow79 - extraSm) + ']C';
       }
     }
+    xlSetActiveSheetByName(dataSheetName);
+    printSigners2;
+    xlSetActiveSheetByName(report79Sheet);
 
-    xlSetCellFormula('=Сумм('+ extraFrm +')',extraSm,5,extraSm,5);
+    if (extraSm <> 0){
+      xlSetCellFormula('=Сумм('+ extraFrm +')',extraSm,5,extraSm,5);
+    }
 
     xlRunMacro('AfterPrint');
-
   end;
 
   create view lvlnmb
@@ -450,6 +447,8 @@
   begin
     StoreDSK;
 
+    var tms : array [1..7] of time;
+
     delete all f791_printed;
     delete all f791_stack;
     delete all f791_podval;
@@ -462,6 +461,8 @@
     //sPath := translatepath('%startpath%Xls\F_FPBUDGET\SZMN_Budjet\tmpl_7_4_1.xls');
 
     //sMacroses := translatepath('%curpath%\agmacroses.vba');
+
+    tms[1] := Cur_Time;
 
     xlCreateExcelWithTemplate(sPath,true);
 
@@ -653,10 +654,13 @@
       };
     }
 
+    tms[2] := Cur_Time;  // 8 минут
+
     doGroupData2(dataSheetName, reportSheetName);
 
-    xlRunMacro('CopyRow(ROW8)');
+    tms[3] := Cur_Time;
 
+    xlRunMacro('CopyRow(ROW8)');
 
     printPodval (dataSheetName);
 
@@ -668,11 +672,23 @@
 
     xlRunMacro('AfterPrint');
 
+    tms[4] := Cur_Time;
+
     printReport79(dataSheetName, reportSheetName, reportSheetName79);
+    tms[5] := Cur_Time; // 12 минут
 
     xlRunMacro('AfterReportPrint');
 
     xlKillExcel;
+    tms[6] := Cur_Time;
+    message ( tms[1] + ''#13'' +
+              tms[2] + ''#13'' +
+              tms[3] + ''#13'' +
+              tms[4] + ''#13'' +
+              tms[5] + ''#13'' +
+              tms[6] + ''#13''
+              )
+              ;
 
 
   end;

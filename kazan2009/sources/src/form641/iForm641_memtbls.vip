@@ -13,6 +13,8 @@ table struct f641_printed
   extPar        : byte,
   extPar3       : byte,
   extPar4       : byte,
+  extPar0       : array [1..2] of byte,
+  //extPar6       : byte,
   isLeaf        : byte,
   printedatrow79: word,
   prior         : word,

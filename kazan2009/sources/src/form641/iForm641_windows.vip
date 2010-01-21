@@ -118,6 +118,10 @@ end; // Screen
     excCode15  ('',,) : NoProtect,noPickButton,
       {Font = {BackColor = if (excCode15 ='',    ColorNeed,0)}};
       */
+    extClName5  ('',,) : NoProtect,noPickButton,
+      {Font = {BackColor = if (extClName5='',    ColorNeed,0)}};
+    extClName6  ('',,) : NoProtect,noPickButton,
+      {Font = {BackColor = if (extClName6='',    ColorNeed,0)}};
   <<
 
          Название классификатора .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -150,6 +154,10 @@ end; // Screen
 
  Название классификатора [Дополнительная обработка
      статьи для 6.4.1 (сумма №2)].@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+ Название классификатора [Дополнительная обработка
+     статьи для 6.4.1 (сумма №3)].@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+ Название классификатора [Дополнительная обработка
+     статьи для 6.4.1 (сумма №4)].@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
   >>
   end; // screen  sCheckdop 'Дополнительно';
 end;
@@ -178,6 +186,8 @@ Window wnInfoWindow 'gg' ('gg', hcNoContext);
     f641_printed.extPar '.extPar':[10],protect;
     f641_printed.extPar3 '.extPar3':[10],protect;
     f641_printed.extPar4 '.extPar4':[10],protect;
+    f641_printed.extPar0[1] '.extPar0[1]':[10],protect;
+    f641_printed.extPar0[2] '.extPar0[2]':[10],protect;
 
     /*
     f641_printed.nRec '.nRec':[10],protect;
