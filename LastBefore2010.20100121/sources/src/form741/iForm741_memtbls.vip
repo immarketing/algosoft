@@ -1,0 +1,103 @@
+
+table struct f714_datas
+(
+  nRec        : comp "",
+  Npp         : String ,
+  NppSort     : String,
+  cOrg        : comp,
+  OrgName     : string, // организация
+  OrgINN      : String,
+  cDog        : comp,
+  DogName     : String, // договор
+  DogPred     : String,
+  cAppDog     : String,
+  AppDogName  : String, // доп. договор
+  plDate      : date,
+  plDay       : byte,
+  cStBud      : comp,
+  StBudName   : string,
+  sum         : double,
+  sumAr       : array [1..31] of double,
+  AKTOFPnRec  : comp,
+  groupLevel  : byte,
+  sootvCode   : String[20],
+  sootvName   : String,
+  cAnSootv    : comp
+)
+with index
+(
+  f714_ds_nrec = NREC(Unique, Surrogate),
+  f714_OrgName = cStBud + cAnSootv + OrgName,
+  f714_ON_DN_SDN = OrgName + DogName + AppDogName,
+  f714_ON_DN_SDN_SB = OrgName + DogName + AppDogName + cStBud,
+  f714_NppSort = NppSort,
+  f714_groupLevel = groupLevel + cOrg + cDog + cAppDog + cStBud
+)
+;
+
+table struct f714_stbud_an
+(
+  nRec        : comp "",
+  cStBud      : comp,
+  cAn         : comp,
+  sAnCode     : String [20],
+  sAnName     : String
+)
+with index
+(
+  f714_sba_nrec   = NREC(Unique, Surrogate),
+  f714_sba_sbanc  = cStBud + cAn(Unique)
+)
+;
+
+table struct f714_stbud
+(
+  nRec        : comp "",
+  //cCO         : comp "",
+  name        : String,
+  levelcode   : String,
+  code        : String,
+  cNode       : comp,
+  lvl         : word,
+  isLeaf      : byte, // "лист" бюджетной структуры
+  isExtraLeaf : byte, // "лист" структуры с учетом уровня "аналитики"
+  SortCode    : String,
+  maxLn       : byte,
+  codeLen     : byte,
+  cAn         : comp
+
+)
+with index
+(
+  f714_sb_nrec   = NREC(Unique, Surrogate),
+  f714_sb_lvl    = lvl + nrec,
+  f714_sb_cNode  = cnode + SortCode,
+  f714_sb_lcode   = levelcode,
+  f714_sb_scode   = cnode + SortCode,
+  f714_sb_el_can   = isExtraLeaf + cAn
+)
+;
+
+table struct f714_sb_iter
+(
+  nRec        : comp "",
+  cRec        : comp, // ссылка на статью
+  cnode       : comp, // ссылка на вышестоящую статью
+  cAn         : comp, // ссылка на аналитику
+  isExtraLeaf : byte, // "лист" структуры с учетом уровня "аналитики"
+
+  level       : byte,
+  prStart     : byte, // признак старта: 1 -  старт 2 - финиш
+  printedAtRow: word, // строка выведена на этой строке отчета
+  SubRowsPrinted: word // напечатано столько подстрок
+)
+with index
+(
+  f714_sbi_nrec   = NREC(Unique, Surrogate),
+  f714_sbi_lvl    = level,
+  f714_sbi_rsi    = crec + prStart,
+  f714_sbi_rsi2   = cnode + prStart
+
+)
+;
+

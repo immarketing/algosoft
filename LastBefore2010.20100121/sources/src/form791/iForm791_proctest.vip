@@ -1,0 +1,678 @@
+#include iForm791_extClass.vip
+
+  // 0FFFFFFFFFFFFFFFFh
+
+  procedure CheckDefValues;
+  begin
+    if (extClName = '') {set extClName := 'Характеристики для форм 7.9.1 и 7.9'};
+
+    if (excCode1 = '') {set excCode1 := 'Разделитель'};
+    if (excCode2 = '') {set excCode2 := 'Вынос в подвал'};
+    if (excCode3 = '') {set excCode3 := 'Итого'};
+    if (excCode4 = '') {set excCode4 := 'Агрегат'};
+
+    if (extClName1 = '') {set extClName1 := 'Дополнительная обработка статьи'};
+    if (excCode5 = '') {set excCode5 := 'Сумма'};
+    if (excCode6 = '') {set excCode6 := 'Сложить'};
+    if (excCode7 = '') {set excCode7 := 'Вычесть'};
+
+    if (sPath='') set sPath := translatepath('%startpath%Xls\F_FPBUDGET\SZMN_Budjet\tmpl_7_9_1.xls');
+  end;
+
+  Procedure StoreDSK();
+  begin
+    CheckDefValues;
+
+    SaveMyDsk(sPersons,  '7dsksPath7');
+    SaveMyDsk(sPath,     'iForm791_sPath');
+
+    //if (sPath='') set sPath := translatepath('%startpath%Xls\F_FPBUDGET\SZMN_Budjet\tmpl_7_9_1.xls');
+
+    SaveMyDsk(cTForm,    '7dsksPath2');
+    SaveMyDsk(cPeriod,   '7dsksPath3');
+    SaveMyDsk(cPlan1,    '7dsksPath4');
+    SaveMyDsk(cPlan2,    '7dsksPath5');
+    SaveMyDsk(cPlan3,    '7dsksPath6');
+
+    SaveMyDsk(extClName,    'iForm791_extClName');
+    SaveMyDsk(excCode1,    'iForm791_excCode1');
+    SaveMyDsk(excCode2,    'iForm791_excCode2');
+    SaveMyDsk(excCode3,    'iForm791_excCode3');
+    SaveMyDsk(excCode4,    'iForm791_excCode4');
+
+    SaveMyDsk(extClName1,    'iForm791_extClName1');
+    SaveMyDsk(excCode5,    'iForm791_excCode5');
+    SaveMyDsk(excCode6,    'iForm791_excCode6');
+    SaveMyDsk(excCode7,    'iForm791_excCode7');
+
+    SaveMyDsk (cPodpGrp,'iForm791_cPodpGrp' );
+
+    SaveMyDsk (Check,    'iForm791_Check' );
+  end;
+
+  procedure ReadDSK;
+  begin
+    var dc : boolean;
+
+    dc := true;
+
+    //if (not ReadMyDsk(sPath  ,'7dsksPath7',isError))  sPersons := 'выберите значение';
+    if (not ReadMyDsk(sPath  ,'iForm791_sPath',isError))  sPath := '';
+    if (not ReadMyDsk(cPlan1 ,'7dsksPath4',isError))  cPlan1:=0;
+    if (not ReadMyDsk(cPlan2 ,'7dsksPath5',isError))  cPlan2:=0;
+    if (not ReadMyDsk(cPlan3 ,'7dsksPath6',isError))  cPlan3:=0;
+    if (not ReadMyDsk(cTForm ,'7dsksPath2',isError))  cTForm:=0;
+    if (not ReadMyDsk(cPeriod,'7dsksPath3',isError))  cPeriod:=0;
+
+    ReadMyDsk (cPodpGrp,'iForm791_cPodpGrp', dc);
+
+    ReadMyDsk (extClName,    'iForm791_extClName', dc);
+    ReadMyDsk (excCode1,    'iForm791_excCode1', dc);
+    ReadMyDsk (excCode2,    'iForm791_excCode2', dc);
+    ReadMyDsk (excCode3,    'iForm791_excCode3', dc);
+    ReadMyDsk (excCode4,    'iForm791_excCode4', dc);
+
+    ReadMyDsk (extClName1,    'iForm791_extClName1', dc);
+    ReadMyDsk (excCode5,    'iForm791_excCode5', dc);
+    ReadMyDsk (excCode6,    'iForm791_excCode6', dc);
+    ReadMyDsk (excCode7,    'iForm791_excCode7', dc);
+    //if (extClName = '') {set extClName := 'Характеристики статьи для форм 7.9.1 и 7.9'}
+
+    ReadMyDsk (Check,    'iForm791_Check', dc);
+
+    CheckDefValues;
+  end;
+
+  function trimFirst0 (st : String):string;
+  begin
+    if st = '' then {
+      result := '';
+      exit
+    };
+    if substr (st,1,1) = '0' then
+      result := trimFirst0 (substr (st,2,255))
+    else
+      result := st;
+  end;
+
+  function repGetPrintRow: word;
+  begin
+    xlRunMacro('getRowToFill(1,1)');
+    xlGetCellValue(1, 1, result);
+  end;
+
+  procedure ExcelPrint2(CopyBud:comp; FP:word; Nstr:word; Nstol:word; var vl : double);
+  begin
+    xlSetCellNumberValue(0 , Nstr, Nstol , Nstr, Nstol );
+    vl      := 0;
+
+    Set cCopyBud:=CopyBud;
+    Set cFP := FP;
+
+    _LOOP  fpV {
+      if (getFirst fpP <> tsOK) {exit};
+      if ( fpPeriod.dBeg = fpP.dBeg ) and (fpPeriod.dEnd = fpP.dEnd)
+      //if ( fpV.cPeriod = cPeriod )
+      //if((month(fpP.dbeg)=month(fpP.dEnd)) and (month(fpP.dbeg)=month(fpperiod.dbeg)) and (year(fpP.dbeg)=year(fpperiod.dbeg)))// and (fpvalues.chashan = 0))) //chek year
+      {
+        if(Check=0)
+        {
+          xlSetCellNumberValue(fpv.summa     , Nstr, Nstol , Nstr, Nstol );
+          vl := fpv.summa;
+        }
+        else
+        {
+          xlSetCellNumberValue(fpv.summa/1000, Nstr, Nstol , Nstr, Nstol );
+          vl := fpv.summa/1000;
+        }
+      }
+      else{}
+    }
+  end;
+
+  create view forGrouping
+  as
+  select *
+    from  f791_stack f791_stack_grp(f714_stk_nrec_desc),
+          f791_printed f791_printed_ord (f714_ptd_nrec),
+          (select min (printedAtRow), max(printedAtRow) from f791_printed pt where ((f791_printed_ord.cRec == pt.cnode ))   ) subrowmm,
+          f791_printed subprntd (f791_ptd_node_prrow),
+          f791_printed f791_printed_ord2 (f791_ptd_rowsToGroup),
+          f791_printed subp2 (f791_ptd_node_prrow),
+          f791_printed subp3
+   where ((
+   f791_printed_ord.cRec == subprntd.cNode and
+   0 << f791_printed_ord2.groupFrom (noindex) and
+   f791_printed_ord.cRec == subp2.cNode and
+   (f791_printed_ord.groupTo < subp2.groupTo) and
+   f791_printed_ord2.cRec == subp3.cNode
+   ))
+        ;
+
+  procedure doGroupData2 (datSheet, repSheet : String);
+  begin
+    // Коммерческие расходы
+    xlSetActiveSheetByName(repSheet);
+    forGrouping._loop f791_printed_ord {
+      if (forGrouping.getfirst subprntd = tsOK){
+        //var b : boolean
+        //b := false;
+        //if (forGrouping.f791_printed_ord.name = 'Коммерческие расходы') {
+        //  b := true;
+        //}
+        var fr,lr : word;
+        fr := forGrouping.subprntd.printedAtRow;
+        lr := fr;
+        if (forGrouping.getlast subprntd = tsOK){
+          lr := forGrouping.subprntd.printedAtRow;
+        }
+        //if (b) {
+          //Message ('b == ' + fr +''#13+'lr=='+ lr);
+        //}
+        forGrouping.update current f791_printed_ord set f791_printed_ord.groupFrom := fr,
+                                                        f791_printed_ord.groupTo := lr,
+                                                        f791_printed_ord.rowsToGroup := lr - fr + 1
+                                                        ;
+
+
+
+      }
+    }
+
+    var wasEdit : boolean;
+    do {
+      wasEdit := false;
+      forGrouping._loop f791_printed_ord {
+        if forGrouping.getLast subp2 = tsOK {
+          forGrouping.update current f791_printed_ord set f791_printed_ord.groupTo := subp2.groupTo;
+          wasEdit := true;
+        }
+      }
+    } while wasEdit;
+
+    update f791_printed set f791_printed.rowsToGroup := f791_printed.groupTo - f791_printed.groupFrom + 1;
+
+    forGrouping._loop f791_printed_ord2{
+      xlRunMacro('ActiveSheetGroupData('+String ( forGrouping.f791_printed_ord2.groupFrom)+','+ String ( forGrouping.f791_printed_ord2.groupTo) +')');
+
+      var fSum : string;
+      fSum := '';
+
+      forGrouping._loop subp3{
+        var tsts : string;
+        var raz : integer;
+
+        raz  := forGrouping.subp3.printedAtRow - forGrouping.f791_printed_ord2.printedAtRow ;
+        tsts := ''+ raz;
+
+        fSum := fSum + ';R[' + tsts + ']C';
+      }
+      if (fSum > '') {
+        //xlSetCellFormula('=Сумм('+fSum+')',forGrouping.f791_printed_ord2.printedAtRow,3,forGrouping.f791_printed_ord2.printedAtRow,7);
+        xlSetCellFormula('=Сумм('+fSum+')',forGrouping.f791_printed_ord2.printedAtRow,5,forGrouping.f791_printed_ord2.printedAtRow,6);
+      }
+    }
+
+    var extraSm : word;
+    extraSm := 0;
+
+    var extraFrm : String;
+    extraFrm := '';
+
+    _loop f791_printed {
+      if (f791_printed.extPar1 = 5){
+        // тут должна быть сумма
+        extraSm := f791_printed.printedAtRow;
+      }
+    }
+
+    if (extraSm = 0){
+      exit;
+    }
+
+    _loop f791_printed {
+      if (f791_printed.extPar1 = 6){
+        // тут надо сложить
+        extraFrm := extraFrm + ';R[' + (f791_printed.printedAtRow - extraSm) + ']C';
+      }
+      if (f791_printed.extPar1 = 7){
+        // тут надо отнять
+        extraFrm := extraFrm + ';-R[' + (f791_printed.printedAtRow - extraSm) + ']C';
+      }
+    }
+
+    xlSetCellFormula('=Сумм('+extraFrm+')',extraSm,5,extraSm,5);
+
+    xlSetActiveSheetByName(datSheet);
+  end;
+
+  procedure printSigners;
+  begin
+    if not podpisanty.isSelected then exit;
+
+    _loop podpisanty {
+      var ar : array [1..2] of string;
+      ar[1] := podpisanty.dolj;
+      ar[2] := podpisanty.fio;
+
+      xlSetCellStringValue(ar[1] , 14, 2, 14, 2); // ??N? - ????
+      xlSetCellStringValue(ar[2] , 14, 7, 14, 7); // ??N? - ????
+      xlRunMacro('CopyRow(ROW3)');
+
+    }
+  end;
+
+  procedure printSigners2;
+  begin
+    if not podpisanty2.isSelected then exit;
+
+    _loop podpisanty2 {
+      var ar : array [1..2] of string;
+      ar[1] := podpisanty2.dolj;
+      ar[2] := podpisanty2.fio;
+
+      xlSetCellStringValue(ar[1] , 44, 1, 44, 1); // ??N? - ????
+      xlSetCellStringValue(ar[2] , 44, 5, 44, 5); // ??N? - ????
+      xlRunMacro('CopyRow(ROW14)');
+
+    }
+  end;
+
+  procedure printExecutor;
+  begin
+    var sFIO :String ;
+    sFIO := Trim (sGetTune ('USER.FIO'));
+    var ps1 : byte;
+    ps1 := pos (' ',sFIO);
+    if (ps1 <> 0 ){
+      var sfam : String;
+      //sFAM := substr (sFIO,1,ps1-1);
+      sFAM := substr (sFIO,1,ps1-1) + ' ' + Substr (trim (substr (sFIO,ps1+1,255)),1,1) + '.';
+
+      sFIO := trim (substr (sFIO,ps1+1,255));
+      ps1 := pos (' ',sFIO);
+
+      if (ps1 <> 0) {
+        sFAM := sFAM + ' ' + Substr (trim (substr (sFIO,ps1+1,255)),1,1) + '.';
+      } else {
+      }
+
+      sFIO := sFAM;
+    }
+
+
+    //xlSetCellStringValue('/ '+ sFIO + ' /', 15, 9, 15, 9);
+
+    var tel : string;
+
+    if (getFirst persons where (( sGetTune ('USER.FIO') == persons.FIO (noindex) )) = tsOK) {
+      if (getFirst COMMUNICATIONS where ((  persons.nrec == COMMUNICATIONS.person and
+                                            comp('000000000000022Bh') == COMMUNICATIONS.comtype
+                                            )) = tsOK){
+        tel := COMMUNICATIONS.ADDR;
+      }
+    }
+    xlSetCellStringValue(sFIO + ',' + tel , 26, 2, 29, 2);
+    xlRunMacro('CopyRow(ROW7)');
+
+  end;
+
+
+  procedure printPodval(sn : String);
+  begin
+    xlSetActiveSheetByName(sn);
+
+    if getfirst f791_podval = tsOK {
+      xlRunMacro('CopyRow(ROW4)');
+    }
+    _loop f791_podval(f791_pdv_code) {
+      //xlSetCellStringValue(f791_podval.code + '. ' + f791_podval.name, 20, 2, 20, 2); //
+      xlSetCellStringValue(f791_podval.name, 20, 2, 20, 2); //
+      xlSetCellNumberValue(f791_podval.summa , 20, 3, 20, 3); //
+      xlRunMacro('CopyRow(ROW5)');
+    }
+
+    if getLast f791_podval = tsOK {
+      xlRunMacro('CopyRow(ROW6)');
+    }
+  end;
+
+  procedure printReport79 (dataSheetName, report791Sheet, report79Sheet : String);
+  begin
+    xlSetActiveSheetByName(dataSheetName);
+    xlRunMacro('setReportSheetName('+report79Sheet+')');
+    xlRunMacro('setRowToFill('+String (13)+')');
+
+    _loop f791_printed {
+      xlSetActiveSheetByName(dataSheetName);
+      if (f791_printed.extPar = 1){
+        xlRunMacro('CopyRow(ROW10)'); // Разделитель
+      } else if (f791_printed.extPar = 3){
+        // итоги
+        xlRunMacro('CopyRow(ROW13)');
+      } else if ( f791_printed.extPar = 4/* f791_printed.isLeaf = 0 */) {
+        // агрегат
+        xlRunMacro('CopyRow(ROW12)');
+      } else {
+        // простая строка
+        xlRunMacro('CopyRow(ROW11)');
+      }
+      update current f791_printed set f791_printed.printedatrow79 := repGetPrintRow - 1;
+
+      xlSetActiveSheetByName(report79Sheet);
+
+      xlSetCellFormula('=' + report791Sheet + '!R[-2]C', f791_printed.printedatrow79,1,f791_printed.printedatrow79,2);
+      if ( f791_printed.extPar <> 1 ){
+        xlSetCellFormula('=' + report791Sheet + '!R[-2]C[2]', f791_printed.printedatrow79,3,f791_printed.printedatrow79,4);
+        xlSetCellFormula('=СУММ(RC[-2]:RC[-1])', f791_printed.printedatrow79,5,f791_printed.printedatrow79,5);
+      }
+
+    }
+    xlSetActiveSheetByName(dataSheetName);
+    printSigners2;
+    xlSetActiveSheetByName(report79Sheet);
+
+    var extraSm : word;
+    extraSm := 0;
+
+    var extraFrm : String;
+    extraFrm := '';
+
+    _loop f791_printed {
+      if (f791_printed.extPar1 = 5){
+        // тут должна быть сумма
+        extraSm := f791_printed.printedatrow79;
+      }
+    }
+
+    if (extraSm = 0){
+      exit;
+    }
+
+    _loop f791_printed {
+      if (f791_printed.extPar1 = 6){
+        // тут надо сложить
+        extraFrm := extraFrm + ';R[' + (f791_printed.printedatrow79 - extraSm) + ']C';
+      }
+      if (f791_printed.extPar1 = 7){
+        // тут надо отнять
+        extraFrm := extraFrm + ';-R[' + (f791_printed.printedatrow79 - extraSm) + ']C';
+      }
+    }
+
+    xlSetCellFormula('=Сумм('+ extraFrm +')',extraSm,5,extraSm,5);
+
+    xlRunMacro('AfterPrint');
+
+  end;
+
+  create view lvlnmb
+  var
+    cPos : comp
+  as
+  select *
+    from fpSpAxtf spAx
+   where ((
+   cPos == spAx.nrec
+   ))
+   ;
+
+  function getCurrentLevelNumber : word;
+  begin
+
+    result := 0;
+
+    set lvlnmb.cPos := fpSpAxtf.nRec;
+    do {
+      if (lvlnmb.getfirst spAx = tsOK) {
+        if (lvlnmb.spAx.cNode = 0) {
+          exit;
+        } else {
+          inc (result);
+          set lvlnmb.cPos := lvlnmb.spAx.cNode;
+        }
+      } else {
+        exit;
+      }
+    } while true;
+  end;
+
+
+
+  procedure doPrintReport791; forward;
+
+  procedure doHandleTest;
+  begin
+    doPrintReport791;
+  end;
+
+  procedure doPrintReport791;
+  begin
+    StoreDSK;
+
+    delete all f791_printed;
+    delete all f791_stack;
+    delete all f791_podval;
+    delete all f791_2extcl;
+
+    //var sPath : String;
+    var sMacroses : String;
+
+    //sPath := translatepath('%curpath%\tmpl_7_9_1.xls');
+    //sPath := translatepath('%startpath%Xls\F_FPBUDGET\SZMN_Budjet\tmpl_7_4_1.xls');
+
+    //sMacroses := translatepath('%curpath%\agmacroses.vba');
+
+    xlCreateExcelWithTemplate(sPath,true);
+
+    if (xlIsExcelValid) {
+       //xlOpenWorkBook(trim(sPath));
+       //xlSetActiveWorkBookByName(trim(sPath));
+       //xlSaveAsWorkBookByName(trim(sPath), NameExcel+'.xls');
+    }
+
+    var dataSheetName : string;
+    dataSheetName  := 'datas791';
+
+    var reportSheetName : string;
+    reportSheetName  := 'rep791';
+
+    var reportSheetName79 : string;
+    reportSheetName79:= 'rep79';
+
+    xlRunMacro('setDataSheetName('+dataSheetName+')');
+    xlRunMacro('setReportSheetName('+reportSheetName+')');
+    xlRunMacro('setRowToFill('+String (11)+')');
+
+    xlSetActiveSheetByName(dataSheetName);
+
+    //xlSetCellStringValue(month(fpperiod.dbeg), 1, 1, 1, 1); //
+    //xlSetCellStringValue(year(fpperiod.dbeg), 1, 2, 1, 2); //
+
+    xlSetCellStringValue(sPeriod, 4, 2, 4, 2); //
+    xlSetCellStringValue(LoCase ( DateToStr (fpPeriod.DEND,'Month')), 4, 4, 4, 4); //
+    xlSetCellStringValue(LoCase ( DateToStr (fpPeriod.DEND,'Mon') ), 4, 5, 4, 5); //
+
+    if(Check=0) {
+      xlSetCellStringValue('руб.', 4, 3, 4, 3); //
+    } else {
+      xlSetCellStringValue('тыс.руб.', 4, 3, 4, 3); //
+    }
+
+    //xlSetNumberFormat('@'        ,2 , 41, 65000, 46);
+
+
+    var tt:word;
+    tt:=0;
+
+    var lastnRec, lastCNode : comp;
+    var lastPrintedAt : word;
+
+    //var oldCNode : comp;
+
+    lastPrintedAt := repGetPrintRow - 1;
+    lastnRec      := 0FFFFFFFFFFFFFFFFh;
+
+    lastCNode     := 0FFFFFFFFFFFFFFFFh;
+
+    _LOOP fpSpAxtf {
+      inc(tt);
+
+      if ( fpSpAxtf.cNode <> lastCNode ){
+        // перескочили на другой уровень
+        if (getfirst f791_stack where ((fpSpAxtf.cNode == f791_stack.cNode)) <> tsOK ){
+          // уровень - новый. добавляем в стек
+          insert f791_stack set f791_stack.cRec := lastnRec ,
+                                f791_stack.cNode := lastCNode,
+                                f791_stack.printedAt := lastPrintedAt;
+
+        } else {
+          // уровень - прежний. группируем данные до предыдущей записи того же уровня
+          //doGroupData(dataSheetName, reportSheetName, lastnRec, lastCNode, fpSpAxtf.nRec, fpSpAxtf.cNode, lastPrintedAt);
+        }
+      } else {
+        // на том же уровне - ничего не делаем
+      }
+
+
+      if(fpSpAxtf.coTable = word(22217) )       // (isValid(tnfpstbud))
+      {
+        set cStBud  := fpSpAxtf.cMean;//
+        set cHashAn := comp(0);
+        //xlSetCellStringValue('1', 1+tt, 40, 1+tt, 40);
+      } else{
+        set cHashAn := Hashan.nrec;
+        //xlSetCellStringValue('2', 1+tt, 40, 1+tt, 40);
+      }
+
+      var
+        arValues : array [1..3] of double;
+
+
+      var delit : double;
+
+      if(Check=0)      {
+        delit := 1;
+      }      else      {
+        delit := 1000;
+      }
+
+      var extCl : byte;
+      extCl := 0;
+
+      var extCl1 : byte;
+      extCl1 := 0;
+
+      var extraChar : string;
+
+      extraChar := '''';
+
+      if ( fpSpAxtf.coTable = coFPSTBUD ) {
+        extCl  := GetStBudExtraParameters( coFPSTBUD , fpSpAxtf.CMEAN, extClName );
+        extCl1 := GetStBudExtraParameters( coFPSTBUD , fpSpAxtf.CMEAN, extClName1 );
+      }
+
+      if ( extCl = 1 /* fpSpAxtf.cNode = 0h */)then {
+        // самый верхний уровень группировки
+        xlSetCellStringValue(extraChar + trimFirst0(fpstbud.levelcode), 8, 1, 8, 1);
+        //xlSetCellStringValue(fpSpAxtf.levelcode, 8, 1, 8, 1); //
+        xlSetCellStringValue(fpSpAxtf.name, 8, 2, 8, 2); //
+        xlRunMacro('CopyRow(ROW0)');
+      } else if (  (extCl = 3)  or (extCl = 4)  /* агрегат /* fpSpAxtf.isLeaf = 0 */ )then {
+        var r2print : word;
+        if (extCl = 4) {
+          r2print := 10;
+        } else {
+          r2print := 48;
+        }
+
+        // Группа не верхнего уровня
+        xlSetCellStringValue(extraChar + trimFirst0(fpstbud.levelcode), r2print, 1, r2print, 1);
+        //xlSetCellStringValue(fpSpAxtf.levelcode, 10, 1, 10, 1); //
+        xlSetCellStringValue(PadCh ('',' ', 2 * getCurrentLevelNumber) + fpSpAxtf.name, r2print, 2, r2print, 2); //
+        ExcelPrint2(cPlan1,150,r2print,3, arValues[1]); // План 1
+        ExcelPrint2(cPlan3,150,r2print,4, arValues[3]); // План 3
+        ExcelPrint2(cPlan2,150,r2print,4, arValues[2]); // План 2
+
+        if (extCl = 2) {
+          // - в подвал
+          insert f791_podval set  f791_podval.name := PadCh ('',' ', 2 * getCurrentLevelNumber) + fpSpAxtf.name,
+                                  f791_podval.code := extraChar + trimFirst0(fpSpAxtf.levelcode),
+                                  f791_podval.summa:= arValues[2]
+                                  ;
+        }
+
+        arValues[3] := arValues[3] - if ( (arValues[1]- arValues[2]) < 0 ,arValues[1],arValues[2]) ;
+        xlSetCellNumberValue(if (arValues[3]<0,0,arValues[3]) , r2print, 6 , r2print, 6 );
+
+        if (extCl <> 2) {
+          if (extCl = 4) {
+            xlRunMacro('CopyRow(ROW2)');
+          } else {
+            xlRunMacro('CopyRow(ROW791ITOGO)');
+          }
+        };
+      } else {
+        // Лист - простая строка
+        xlSetCellStringValue(extraChar + trimFirst0(fpstbud.levelcode), 9, 1, 9, 1);
+        //xlSetCellStringValue(fpSpAxtf.levelcode, 9, 1, 9, 1); //
+        xlSetCellStringValue(PadCh ('',' ', 2 * getCurrentLevelNumber) + fpSpAxtf.name, 9, 2, 9, 2); //
+        ExcelPrint2(cPlan1,150,9,3, arValues[1]); // План 1
+        ExcelPrint2(cPlan3,150,9,4, arValues[3]); // План 3
+        ExcelPrint2(cPlan2,150,9,4, arValues[2]); // План 2
+
+        if (extCl = 2) {
+          // - в подвал
+          insert f791_podval set  f791_podval.name := PadCh ('',' ', 2 * getCurrentLevelNumber) + fpSpAxtf.name,
+                                  f791_podval.code := extraChar + trimFirst0(fpSpAxtf.levelcode),
+                                  //f791_podval.code := fpstbud.levelcode,
+                                  f791_podval.summa:= arValues[2];
+        }
+
+        arValues[3] := arValues[3] - if ( (arValues[1]- arValues[2]) < 0 ,arValues[1],arValues[2]) ;
+        xlSetCellNumberValue( if (arValues[3]<0,0,arValues[3]) , 9, 6 , 9, 6 );
+
+        if (extCl <> 2) {
+          xlRunMacro('CopyRow(ROW1)');
+        };
+      }
+      if (extCl <> 2) {
+        insert f791_printed set f791_printed.cRec := fpSpAxtf.nRec ,
+                                f791_printed.printedAtRow := repGetPrintRow - 1,
+                                f791_printed.cNode  := fpSpAxtf.cNode,
+                                f791_printed.code   := extraChar + trimFirst0(fpstbud.levelcode),
+                                f791_printed.name   := PadCh ('',' ', 2 * getCurrentLevelNumber) + fpSpAxtf.name,
+                                f791_printed.extPar := extCl,
+                                f791_printed.extPar1:= extCl1,
+                                f791_printed.isLeaf := fpSpAxtf.isLeaf
+
+                                ;
+        lastPrintedAt := repGetPrintRow - 1;
+        lastnRec := fpSpAxtf.nRec;
+        lastCNode := fpSpAxtf.cNode;
+      };
+    }
+
+    doGroupData2(dataSheetName, reportSheetName);
+
+    xlRunMacro('CopyRow(ROW8)');
+
+
+    printPodval (dataSheetName);
+
+    printSigners;
+
+    printExecutor;
+
+    xlSetActiveSheetByName(reportSheetName); //?????_1
+
+    xlRunMacro('AfterPrint');
+
+    printReport79(dataSheetName, reportSheetName, reportSheetName79);
+
+    xlRunMacro('AfterReportPrint');
+
+    xlKillExcel;
+
+
+  end;

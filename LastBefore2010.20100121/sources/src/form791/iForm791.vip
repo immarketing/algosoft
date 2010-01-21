@@ -1,0 +1,309 @@
+
+!#include galnet.ccm
+!end;
+!#include uAlgor.vih
+!#include oAlgSetup.vih
+
+!#include iXLSRepBuilder.VIH
+
+!#include alg_5998.vih
+
+
+!#component "L_DOGOVOR"
+
+!#include consts_alg1.inc
+!end;
+
+!#include alg1.vih
+
+!#include selDate.vip
+
+!#component "M_MNPLAN"
+
+!#include agdefines.inc
+
+#include FpExCO.Vih
+#include Getkau.vih
+
+#include UserReport.vih
+
+#include podpis.vih
+
+// Для попадания примера в список отчетов -
+// раскомментировать конструкцию VipInterface (Implements для Атлантиса 5.1)
+
+#ifdef Atl51
+VipInterface UserReport_szmn_form791  Implements IUserReport
+  Licensed(Free)
+;
+#else
+!VipInterface UserReport_szmn_form741 Implements IUserReport;
+#end
+
+#doc
+Пример пользовательского отчета #1
+#end
+
+Interface UserReport_szmn_form791;
+
+create view;
+
+!-------------------------------------------------------------------------------
+// Запуск отчета на выполнение при выборе его из списка отчетов
+procedure Run;
+begin
+  RunInterface('szmn_bud_Form791' );
+end;
+!-------------------------------------------------------------------------------
+// Наименование отчета в списке
+function GetReportName: String;
+begin
+  GetReportName := 'Форма 7.9.1';
+end;
+!-------------------------------------------------------------------------------
+function GetGroupName (Level : Word) : String;
+begin
+  GetGroupName := '';
+  case Level of
+    1 : GetGroupName := 'Отчеты по бюджетам';
+  end;
+end;
+!-------------------------------------------------------------------------------
+function GetPriority : Integer;
+begin
+  GetPriority := 0;
+end;
+!-------------------------------------------------------------------------------
+function VisibleInModule(Ind : Byte) : String;
+begin
+  VisibleInModule := '*';
+  case Ind of
+    1 : VisibleInModule := 'SFP';
+  end;
+end;
+!-------------------------------------------------------------------------------
+end.
+
+form791showdebug menu
+{
+  - 'Показать отладочную информацию', cmShowDebug791, 'Отладочная информация' ;
+}
+
+vipInterface szmn_bud_Form791 licensed(free);
+
+Interface szmn_bud_Form791
+  '-= СЗМН Бюджет. Форма 7.9.1. v20010114 =- ' (,hcNoContext,) EscClose, Cyan;
+  //show at  (0,0,70,10)
+  show at  (0,0,100,30)
+  ;
+
+#include iForm791_memtbls.vip
+
+create view BDR
+var
+ cPlan1,
+ cPlan2,
+ cPlan3,
+ cPeriod,
+ cTForm,
+ cCopyBud,
+ cFP,
+ cStBud,
+ cHashAn :comp;
+ sPath :string;
+ pathUserOut : string;
+ NameExcel   : string;
+ wPeriod,mp,i  : word;
+ isError: boolean;
+ Check:integer;
+ sPersons: string;
+
+
+  coPodpis    : longint;
+
+  wKODGRKAU   : word;
+  cPodpGrp    : comp;
+
+  //ppp         : SZMN_COMMON::vPodpis new;
+
+  podpisanty  : SZMN_COMMON::IPodpis (vPodpis) new;// (  ) new;
+  podpisanty2 : SZMN_COMMON::IPodpis (vPodpis) new;// (  ) new;
+
+  extClName   : String;
+  excCode1    : String;
+  excCode2    : String;
+  excCode3    : String;
+  excCode4    : String;
+
+  extClName1  : String;
+  excCode5    : String;
+  excCode6    : String;
+  excCode7    : String;
+
+As select
+  if(cPeriod=0   ,'выберите значение',fpPeriod.Name)  (FieldName = sPeriod)
+, if(cTForm=0    ,'выберите значение',fpTForm.Name)   (FieldName = sTForm)
+, if(cPlan1=0    ,'выберите значение',fpBudVar.Name)   (FieldName = sPlan1)
+, if(cPlan2=0    ,'выберите значение',fpBudVar1.Name)  (FieldName = sPlan2)
+, if(cPlan3=0    ,'выберите значение',fpBudVar2.Name)  (FieldName = sPlan3)
+, podpisanty.DialogFieldString  (FieldName = sPodpGrp)
+, podpisanty2.DialogFieldString  (FieldName = sPodpGrp2)
+
+//, if(fpSpAxtf.coTable  ,'выберите значение',fpBudVar2.Name)  (FieldName = sPlan3)
+, fpvalues.summa
+
+From
+  fpBudVar
+  ,fpPeriod
+ ,synonym  fpPeriod  fpP
+ ,synonym  fpBudVar  fpBudVar1
+ ,synonym  fpBudVar  fpBudVar2
+
+ ,fpvalues
+ ,Synonym fpBudVar fpBV
+ ,Synonym fpValues fpV
+ ,Synonym fpValues fpV2
+ ,f791_printed
+ ,f791_stack
+ ,spKAU
+ ,spKAU spKAUPodp (SPKAU07)
+ , podpisanty
+ , podpisanty2
+ , f791_podval
+ , f791_2extcl
+ where
+((
+
+cPeriod   == fpPeriod.nrec   and
+cTForm    == fpTForm.nrec    and
+cPlan1    == fpBudVar.nrec   and
+cPlan2    == fpBudVar1.nrec  and
+cPlan3     == fpBudVar2.nrec
+
+and fpBudVar.cBudget   == FpBudget.nrec
+
+//and wKODGRKAU == spKAU.KODGRKAU (noindex)
+and cPodpGrp == spKAU.nrec // Группа подписантов
+and wKODGRKAU == spKAUPodp.KODGRKAU
+and cPodpGrp == spKAUPodp.cNode (noindex)
+
+
+// лог таблица для знач1ений
+
+and fpTForm.nrec   == fpAxTF.cMain     //может быть несколько
+and fpAxTF.NRec    == fpSpAxtf.cMain
+// and fpSpAxtf.cMean == fpStBud.nrec
+
+and cCopyBud       == fpBV.nrec
+and fpBV.nrec      == fpV.cBudVar // вариант бюджета
+and word(cFP)      == fpV.KodReg //план факт резерв
+and comp(cStBud)   == fpV.cStBud // статья бюджета
+and fpV.cPeriod    == fpP.nrec   // ссылка на период
+
+and comp(cStBud)   == fpStBud.nrec
+and fpStBud.ced    == kated.nrec//еденицы измерения
+and fpSpAxtf.cSloj == HashAn.cSloj
+and comp(0)        == HashAn.cBlock //не уверен что всегда 0 из за этого может быть косяк
+and FPSPAXTF.CMEAN == HashAn.cAnalit[1]
+and comp(cHashAn)  == fpV.cHashAn (noindex)
+
+))
+;
+#include iForm791_windows.vip
+#include iForm791_proctest.vip
+#include iForm791_proc.vip
+
+Handleevent
+  cmHotKeys : {
+    var mn : longint ;
+    mn := LoadMenu('form791showdebug') ;
+    var i : integer;
+    i := RunLoadMenu (mn);
+    //message  ('i == ' + i);
+    if (i <> 0 and i <> cmCancel) {
+      Putcommand(i)
+    }
+  }
+
+  cmTest: {
+    doHandleTest;
+  }
+
+  cmShowDebug791: {
+    RunWindowModal( wnInfoWindow );
+  }
+  cmApply:
+  {
+    doPrintReport();
+
+  }
+cmPick:
+  case curField of
+    #sPlan1    :  RunInterface('F_FpBudget::Budget', word(cgiPick), word(0), word(0), comp(0), cPlan1, 0, 0);
+    #sPlan2    :  RunInterface('F_FpBudget::Budget', word(cgiPick), word(0), word(0), comp(0), cPlan2, 0, 0);
+    #sPlan3    :  RunInterface('F_FpBudget::Budget', word(cgiPick), word(0), word(0), comp(0), cPlan3, 0, 0);
+    #sTForm    :  RunInterface('F_FpBudget::getTForm', cgiPick, 0, cTForm);
+    #sPeriod   :  RunInterface('F_FpCatalog::getPeriod', cgiPick, comp(0), comp(0), cPeriod, cgSetFPTuneDefault);
+    //#sPersons  :  RunInterface('SelectPersons', sPersons);
+
+    #sPodpGrp    : {
+      podpisanty.SelectPodpis;
+      RescanPanel (scKatH01);
+
+      /*
+      var qwer : F_GetAn::GetKau new;
+
+      if  (qwer.GetCodeKau(word(cgiPickMult + cgiNotEdit + cgiNotClear ), wKODGRKAU, cPodpGrp) =0) then {set cPodpGrp := 0;exit;};
+
+      DoneMarker(coPodpis,'');
+      set coPodpis := InitMarker(qwer.GetMarkerName(wKODGRKAU),8,50,10);
+      //RescanPanel (brplan_src);
+      */
+
+    }
+    #sPodpGrp2   : {
+      podpisanty2.SelectPodpis;
+      RescanPanel (scKatH01);
+    }
+
+    #sPath     :
+   {
+        var sTmp : string;
+            sTmp := GetFileName('*.XLS', 'Выберите файл с шаблоном');
+        if (trim(sTmp) = '')
+         { Exit; }
+        Set sPath := sTmp;
+    }
+
+  end;
+!-------------------------------------------------------------------------------
+cmDelOnProtect:
+  case curField of
+    #sPeriod   : Set cPeriod:=0;
+    #sTForm    : Set cTForm:=0;
+    #sPlan1    : Set cPlan1:=0;
+    #sPlan2    : Set cPlan2:=0;
+    #sPlan3    : Set cPlan3:=0;
+
+    #sPodpGrp  : {
+      set podpisanty.cPodpGroup := 0;
+    }
+    #sPodpGrp2  : {
+      set podpisanty2.cPodpGroup := 0;
+    }
+  end;
+
+cmInit:
+{
+  podpisanty.setprefix('szmn_bud_Form791');
+  podpisanty.reinit;
+
+  podpisanty2.setprefix('szmn_bud_Form791_2');
+  podpisanty2.reinit;
+
+  ReadDsk;
+}
+
+end;
+
+End.  // interface

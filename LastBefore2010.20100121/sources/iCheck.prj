@@ -1,0 +1,23 @@
+const
+  //ColorNeed = 6;
+  
+#include excel.inc
+
+#include GLOCONST.INC
+
+#include fldcolor.inc
+
+end;
+
+
+#define ComponentVersion
+#define Atl51
+#define GAL8_1
+#define __UKS_PL2__
+
+
+
+#make "src\check\iCheck.vip"
+#make "src\check\*.frn"
+
+
