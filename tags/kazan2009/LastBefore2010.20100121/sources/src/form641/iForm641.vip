@@ -1,0 +1,379 @@
+// \\su01-kaz\GALEBD\exe\Xls\F_FPBUDGET
+
+!#include galnet.ccm
+!end;
+!#include uAlgor.vih
+!#include oAlgSetup.vih
+
+!#include iXLSRepBuilder.VIH
+
+!#include alg_5998.vih
+
+
+!#component "L_DOGOVOR"
+
+!#include consts_alg1.inc
+!end;
+
+!#include alg1.vih
+
+!#include selDate.vip
+
+!#component "M_MNPLAN"
+
+!#include agdefines.inc
+
+#include FpExCO.Vih
+#include Getkau.vih
+
+#include UserReport.vih
+
+#include podpis.vih
+
+// Для попадания примера в список отчетов -
+// раскомментировать конструкцию VipInterface (Implements для Атлантиса 5.1)
+
+#ifdef Atl51
+VipInterface UserReport_szmn_form641  Implements IUserReport
+  Licensed(Free)
+;
+#else
+!VipInterface UserReport_szmn_form741 Implements IUserReport;
+#end
+
+#doc
+Пример пользовательского отчета #1
+#end
+
+Interface UserReport_szmn_form641;
+
+create view;
+
+!-------------------------------------------------------------------------------
+// Запуск отчета на выполнение при выборе его из списка отчетов
+procedure Run;
+begin
+  //RunInterface('szmn_bud_Form714_20091012');
+  //RunInterface(#_INTERFVERSSTRINGQUOTED_(szmn_bud_Form714_));
+  RunInterface('szmn_bud_Form641' );
+end;
+!-------------------------------------------------------------------------------
+// Наименование отчета в списке
+function GetReportName: String;
+begin
+  GetReportName := 'Форма 6.4.1';
+end;
+!-------------------------------------------------------------------------------
+// Наименования групп, в которые входит отчет
+// Группа n+1 делается подчиненной группе n
+// В данном случае будет иерархия:
+// [+] Группа 1
+//     [+] Группа 2
+//         Отчет 1
+function GetGroupName (Level : Word) : String;
+begin
+  GetGroupName := '';
+  case Level of
+    1 : GetGroupName := 'Отчеты по бюджетам';
+  end;
+end;
+!-------------------------------------------------------------------------------
+// Приоритет отчета - сортировка внутри группы выполняется сначала
+// по приоритету, а затем по наименованию
+function GetPriority : Integer;
+begin
+  GetPriority := 0;
+end;
+!-------------------------------------------------------------------------------
+// ModuleID модулей, в которых будет виден отчет
+// '*' - отчет будет виден в любом модуле
+function VisibleInModule(Ind : Byte) : String;
+begin
+  VisibleInModule := '*';
+  case Ind of
+    1 : VisibleInModule := 'SFP';
+  end;
+end;
+!-------------------------------------------------------------------------------
+end.
+
+
+form641showdebug menu
+{
+  - 'Показать отладочную информацию', cmShowDebug, 'Отладочная информация' ;
+}
+
+
+/*
+alter interface cTest1;
+end;
+*/
+
+
+vipInterface szmn_bud_Form641 licensed(free);
+//vipInterface #(_VERSIONEDNAME_(szmn_bud_Form714_)) licensed(free);
+//#_VIPINTERFVERS_(szmn_bud_Form714_);
+
+Interface szmn_bud_Form641
+//Interface #_VERSIONEDNAME_(szmn_bud_Form714_)
+//#_INTERFVERS_(szmn_bud_Form714_)
+  '-= СЗМН Бюджет. Форма 6.4.1. v.20100120 =- ' (,hcNoContext,) EscClose, Cyan;
+  show at (5,2,110,32)
+  //show at  (0,0,100,30)
+  ;
+const
+  Plan = 1;
+  DopPlan = 2;
+  Fact = 3;
+  OjidPlan = 4;
+  PlanOtd = 5;
+end;
+#include iForm641_memtbls.vip
+
+//create view BDR
+create view
+var
+ cC,
+ cPlan1,
+ cPlan2,
+ cPlan3,
+ cPlanOtd,
+ cFact,
+ cPeriod,
+ //cPeriodToPlan, // период "планирования"
+ cTForm,
+ cCopyBud,
+ cFP :comp;
+ sPath :string;
+ pathUserOut : string;
+ NameExcel   : string;
+ wPeriod,mp,i  : word;
+ isError: boolean;
+ RadioB: byte;
+ Check: integer;
+  podpisanty  : SZMN_COMMON::IPodpis (vPodpis) new;// (  ) new;
+
+  extClName   : String;
+  excCode1    : String;
+  excCode2    : String;
+  excCode3    : String;
+  excCode4    : String;
+
+  extClName1  : String;
+  excCode5  : String;
+  excCode6  : String;
+  excCode7  : String;
+
+
+  extClName2  : String;
+  excCode8  : String;
+  excCode9  : String;
+  excCode10  : String;
+  excCode11  : String;
+  excCode12  : String;
+
+  extClName3  : String;
+  excCode13  : String;
+  excCode14  : String;
+  excCode15  : String;
+
+  extClName4  : String;
+
+  cReg1       : word;
+  cReg2       : word;
+  cReg3       : word;
+  cReg4       : word;
+
+  rowSaldoPer : word;
+  rowSaldoNach: word;
+  rowSaldoKon : word;
+
+As select
+  if(cPeriod=0   ,'выберите значение',fpPeriod.Name)  (FieldName = sPeriod)
+, if(cPeriod=0   ,'выберите значение',fpPeriodToPlan.Name)  (FieldName = sPeriodToPlan) //период "планирования"
+, if(cTForm=0    ,'выберите значение',fpTForm.Name)   (FieldName = sTForm)
+, if(cPlan1=0    ,'выберите значение',fpBudVar.Name)   (FieldName = sPlan1)  // План
+, if(cPlanOtd=0  ,'выберите значение',fpBudVarOtd.Name) (FieldName = sPlanOtd)  // План по заявкам отделов
+, if(cPlan2=0    ,'выберите значение',fpBudVar1.Name)  (FieldName = sPlan2)  // План с доп. потребностью
+, if(cFact=0     ,'выберите значение',fpBudVar2.Name)  (FieldName = sFact)   // Факт
+, if(cPlan3=0    ,'выберите значение',fpBudVar3.Name)  (FieldName = sPlan3)  // Для колонки ожидаемый год
+, fpvalues.summa
+, podpisanty.DialogFieldString  (FieldName = sPodpGrp)
+
+From
+  fpBudVar
+ ,synonym  fpPeriod  fpP
+ ,synonym  fpBudVar  fpBudVar1
+ ,synonym  fpBudVar  fpBudVarOtd
+ ,synonym  fpBudVar  fpBudVar2
+ ,synonym  fpBudVar  fpBudVar3
+ ,synonym  fpPeriod  fpPeriodToPlan  //период "планирования"
+
+ ,fpAxTF Axis1
+ ,fpAxTF Axis2
+ ,fpSpAxTF SpAxis1
+ ,fpSpAxTF SpAxis2
+ ,fpvalues
+ ,Synonym fpBudVar fpBV
+ ,Synonym fpValues fpV
+ , podpisanty
+ , f641_printed
+ where
+((
+  // иерархия оси1
+/*
+       Axis1.NRec    == SpAxis1.cMain
+  and  cParent1      == SpAxis1.cNode
+  and  SpAxis1.cSloj == GrAn.NRec
+  and  SpAxis1.KodGrKau  == KatKauAx1.KodGroup
+
+  // иерархия оси2
+  and  Axis2.NRec    == SpAxis2.cMain
+  and  cParent2      == SpAxis2.cNode
+  and  SpAxis2.KodGrKau  == KatKauAx2.KodGroup and
+*/
+
+cPeriod   == fpPeriod.nrec  and
+fpPeriod.nrec == fpPeriodToPlan.CPREV and
+cTForm    == fpTForm.nrec    and
+cPlan1    == fpBudVar.nrec   and
+cPlanOtd  == fpBudVarOtd.nrec   and
+cPlan2    == fpBudVar1.nrec  and
+cFact     == fpBudVar2.nrec  and
+cPlan3    == fpBudVar3.nrec
+
+
+and fpBudVar.cBudget   == FpBudget.nrec
+and fpTForm.nrec   == fpAxTF.cMain     //может быть несколько
+and fpAxTF.NRec    == fpSpAxtf.cMain
+and fpSpAxtf.cMean == fpStBud.nrec
+and cCopyBud       == fpBV.nrec
+and fpBV.nrec      == fpV.cBudVar
+and word(cFP)      == fpV.KodReg //план факт1
+and fpStBud.nrec   == fpV.cStBud
+and fpV.cPeriod    == fpP.nrec
+and fpStBud.ced    == kated.nrec
+))
+//order byPrior by fpstbud.prior
+
+;
+
+
+#include iForm641_windows.vip
+#include iForm641_proc.vip
+#include iForm641_proc_my.vip
+
+Handleevent
+  cmHotKeys : {
+    var mn : longint ;
+    mn := LoadMenu('form641showdebug') ;
+    var i : integer;
+    i := RunLoadMenu (mn);
+    //message  ('i == ' + i);
+    if (i <> 0 and i <> cmCancel) {
+      Putcommand(i)
+    }
+  }
+
+  cmShowDebug : {
+    RunWindowModal (wnInfoWindow );
+  }
+cmApply:
+{
+  StartNewVisual (vtRotateVisual , vfScreenBottom + vfTimer  + vfThread  , 'Подготовка данных отчета', 100);
+  StoreDSK;
+  SetVisualHeader ('Печать отчета');
+  doPrintReport ;
+  StopVisual('',0);
+  //PutCommand(cmClose);
+}
+cmPick:
+  case curField of
+//    #sPeriod : RunInterface('F_FpCatalog::getPeriod', cgiPick, comp(0), comp(0), cPeriod, cgSetFPTuneDefault) ;      //        if (RunInterface('getPeriod', cgiPick, GetCurFpTper, 0, PickedPer, cgSetFPTuneDefault) <> cmCancel)
+//    #sCO     :  RunInterface('F_FpCatalog::GetCO',word(cgiPick),comp(0),comp(0),cCO);
+
+/*    #sBudg,#sCO  : if( RunInterface('F_FpBudget::Budget', word(cgiPick), word(0), word(0), comp(0), cBudg, 0, 0)<> cmCancel)
+                   {
+                     if(getfirst FpBudget=tsok){
+                        SET cco:=FpBudget.CCO;
+                     }
+                   }
+*/
+//    #sBudg   :  RunInterface('F_FpCatalog::getvariant',word(cgiPick), comp(0), cBudg);
+    #sPlan1    :  RunInterface('F_FpBudget::Budget', word(cgiPick), word(0), word(0), comp(0), cPlan1, 0, 0);
+
+    #sPlanOtd  :  RunInterface('F_FpBudget::Budget', word(cgiPick), word(0), word(0), comp(0), cPlanOtd, 0, 0);
+
+    #sPlan2    :  RunInterface('F_FpBudget::Budget', word(cgiPick), word(0), word(0), comp(0), cPlan2, 0, 0);
+    #sPlan3    :  RunInterface('F_FpBudget::Budget', word(cgiPick), word(0), word(0), comp(0), cPlan3, 0, 0);
+    #sFact     :  RunInterface('F_FpBudget::Budget', word(cgiPick), word(0), word(0), comp(0), cFact , 0, 0);
+    #sTForm    :  RunInterface('F_FpBudget::getTForm', cgiPick, 0, cTForm);
+    #sPeriod   :  RunInterface('F_FpCatalog::getPeriod', cgiPick, comp(0), comp(0), cPeriod, cgSetFPTuneDefault);
+    #sPeriodToPlan: {
+      var tmp : comp;
+      tmp := fpPeriodToPlan.nRec;
+
+      RunInterface('F_FpCatalog::getPeriod', cgiPick, comp(0), comp(0), tmp, cgSetFPTuneDefault);
+
+      if (getFirst fpPeriod fpfpfp where (( tmp == fpfpfp.nRec)) =tsOK ) {
+        set cPeriod := fpfpfp.CPREV;
+        if (getFirst fpPeriod = tsOK ) {
+          if (getFirst fpPeriodToPlan = tsOK ) {
+          }
+        }
+      }
+      RescanPanel (scKatH01);
+    }
+
+    #sPodpGrp    : {
+      //Message ('Podp');
+      podpisanty.SelectPodpis;
+      RescanPanel (scKatH01);
+    }
+
+    #sPath     :
+   {
+        var sTmp : string;
+            sTmp := GetFileName('*.XLS', 'Выберите файл с шаблоном');
+        if (trim(sTmp) = '')
+         { Exit; }
+        Set sPath := sTmp;
+    }
+
+  end;
+!-------------------------------------------------------------------------------
+cmDelOnProtect:
+  case curField of
+    #sPeriod   : Set cPeriod:=0;
+    #sTForm    : Set cTForm:=0;
+    #sPlan1    : Set cPlan1:=0;
+    #sPlan2    : Set cPlan2:=0;
+    #sPlan3    : Set cPlan3:=0;
+    #sFact     : Set cFact:=0;
+    #sPodpGrp  : {
+      set podpisanty.cPodpGroup := 0;
+    }
+  end;
+
+cmInit:
+{
+
+  ReadDSK ();
+
+  podpisanty.setprefix('szmn_bud_Form641');
+  podpisanty.reinit;
+
+/*
+
+  if (not ReadMyDsk(wSetFilt1,'dskSetFilt1',isError))  wsetFilt1 := 0;
+  if (not ReadMyDsk(wSetFilt2,'dskSetFilt2',isError))  wsetFilt2 := 0;
+  if (not ReadMyDsk(d1,'dsk_d1',isError))  d1 := Add_day(Sub_day(Cur_date,day(cur_Date)),1);
+  if (not ReadMyDsk(d2,'dsk_d2',isError))  d2 := Add_day(Sub_day(Cur_date,day(cur_Date)),last_day(Cur_date));
+
+*/
+}
+
+end;
+
+
+End.  // interface

@@ -1,0 +1,166 @@
+tabbedSheet tabbed
+  screen  brplan_src 'Основные';
+  show at( , , ,);
+  fields
+    //pcSopr      : noprotect;
+    //cTBL_SOOTV  : noprotect;
+
+  sPeriod ('',,) : Protect,PickButton,{Font = {BackColor = if (cPeriod=0,   ColorNeed,0)}};
+  sFltrCO ('',,) : Protect,PickButton,{Font = {BackColor = if (GetMarkerCount(coMarker)=0,   ColorNeed,0)}};
+!  wKODGRKAU  : Protect,noPickButton,{Font = {BackColor = if (cPeriod=0,   ColorNeed,0)}};
+  sPodpGrp('',,) : Protect,PickButton,{Font = {BackColor = if (cPodpGrp=0,   ColorNeed,0)}};
+  sStatus ('',,) : Protect,PickButton,{Font = {BackColor = if (cStatus=0,   ColorNeed,0)}};
+    sPath ('',,) : Protect,PickButton,
+      {Font = {BackColor = if (sPath='',    ColorNeed,0)}};
+
+  buttons
+          cmOk,,, 'OGON';
+!          cmCancel,,, 'F***K OUT';
+!          cmCmd03,,, 'F***K IN';
+  <<
+`               Период:` .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+`Центр ответственности:` .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+!`  Код КАУ подписантов:` .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+`           Подписанты:` .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+`               Статуc:` .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+`       Путь к шаблону:` .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+ <. Получить отчет .>
+! <.   2   .>  <. 3 .>
+  >>
+  end;
+  screen  sCheckdop 'Дополнительные параметры';
+  Fields
+
+    cWorkingTSootv  ('',,) : NoProtect,noPickButton,
+      {Font = {BackColor = if (cWorkingTSootv=0,    ColorNeed,0)}};
+    wAnCode1  ('',,) : NoProtect,noPickButton,
+      {Font = {BackColor = if (wAnCode1=0,    ColorNeed,0)}};
+    wAnCode2  ('',,) : NoProtect,noPickButton,
+      {Font = {BackColor = if (wAnCode2=0,    ColorNeed,0)}};
+    cDefaultAn  ('',,) : NoProtect,noPickButton,
+      {Font = {BackColor = if (cDefaultAn=0,    ColorNeed,0)}};
+
+
+  <<
+
+           NRec каталога соответствий .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+ Код аналитики-источника соответствия .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+ Код аналитики-приемника соответствия .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+ NREC значения аналитики соответствия
+                         по умолчанию .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+  >>
+  end; // screen  sCheckdop 'Дополнительно';
+end;
+
+
+Window wnInfoWindow741 '-= Отладочная информация интерфейса 741 =-' ('', hcNoContext);
+  Show at(,,,29);
+
+tabbedSheet tabbed
+
+  BROWSE  brplan_f714_pTest 'f714_stbud_an';
+  show at( , , , );
+  table f714_stbud_an;
+  Fields
+    //f714_stbudSorted.nrec 'f714_stbud.nrec':[10],protect;
+    f714_stbud_an.cStBud        'cStBud' : [10], protect;
+    f714_stbud_an.cAn        'cAn' : [10], protect;
+    f714_stbud_an.sAnCode        'sAnCode' : [10], protect;
+    f714_stbud_an.sAnName        'sAnName' : [10], protect;
+  end;
+
+  /*
+
+BROWSE  brplan_f714_stbudSorted;
+  show at( , , , 6 );
+  table f714_stbudSorted;
+  Fields
+    //f714_stbudSorted.nrec 'f714_stbud.nrec':[10],protect;
+    f714_stbudSorted.name        'name' : [10], protect;
+    f714_stbudSorted.levelcode   'levelcode' : [10], protect;
+    f714_stbudSorted.code        'code' : [10], protect;
+    //f714_stbudSorted.cNode       'cNode' : [10], protect;
+    //f714_stbud.lvl       'lvl' : [10], protect;
+    //f714_stbud.isLeaf 'isLeaf' : [10], protect;
+    f714_stbudSorted.SortCode 'SortCode' : [250], protect;
+  end;
+
+BROWSE  brplan_f714_datasSorted;
+  show at( , , ,6);
+  table f714_datasSorted  ;
+  Fields
+    //f714_stbud.nrec 'f714_stbud.nrec':[10],protect;
+    f714_datasSorted.npp        'name' : [10], protect;
+    f714_datasSorted.NppSort   'levelcode' : [10], protect;
+    f714_datasSorted.StBudName        'code' : [10], protect;
+    //f714_datasSorted.SortCode 'SortCode' : [10], protect;
+  end;
+  */
+
+
+  BROWSE  brplan_f714_sb_iter 'f714_sb_iter';
+  //show at( , 7, ,13);
+  table f714_sb_iter;
+  Fields
+    f714_sb_iter.nrec 'nrec':[10],protect;
+    f714_sb_iter.crec        'crec' : [10], protect;
+    //f714_sb_iter.levelcode   'levelcode' : [10], protect;
+    //f714_sb_iter.code        'code' : [10], protect;
+    f714_sb_iter.cNode       'cNode' : [10], protect;
+    f714_sb_iter.level       'level' : [10], protect;
+    f714_sb_iter.cAn       'cAn' : [10], protect;
+    f714_sb_iter.prStart       'prStart' : [10], protect;
+    f714_sb_iter.printedAtRow       'printedAtRow' : [10], protect;
+
+    f714_sb_iter.isExtraLeaf       'isExtraLeaf' : [10], protect;
+
+    f714_sb_iter.SubRowsPrinted       'SubRowsPrinted' : [10], protect;
+  end;
+
+  BROWSE  brplan_f714_stbud 'f714_stbud';
+  //show at( , 7, ,13);
+  table f714_stbud;
+  Fields
+    f714_stbud.nrec 'f714_stbud.nrec':[10],protect;
+    f714_stbud.name        'name' : [10], protect;
+    f714_stbud.levelcode   'levelcode' : [10], protect;
+    f714_stbud.code        'code' : [10], protect;
+    f714_stbud.cNode       'cNode' : [10], protect;
+    f714_stbud.lvl       'lvl' : [10], protect;
+    f714_stbud.isLeaf 'isLeaf' : [10], protect;
+    f714_stbud.isExtraLeaf 'isExtraLeaf' : [10], protect;
+    f714_stbud.SortCode 'SortCode' : [10], protect;
+  end;
+
+  BROWSE  brplan_f714_datas 'f714_datas';
+  //show at( , 14, , );
+  table f714_datas;
+  Fields
+    f714_datas.nrec         'f714_datas.nrec':[10],protect;
+    f714_datas.sootvCode    'sootvCode' : [10], protect;
+    f714_datas.sootvName    'sootvName' : [10], protect;
+    f714_datas.cAnSootv     'cAnSootv' : [10], protect;
+    f714_datas.Npp         'Npp' : [10], protect;
+    f714_datas.NppSort     'NppSort' : [10], protect;
+    f714_datas.cOrg        'cOrg' : [10], protect;
+    f714_datas.OrgName     'OrgName' : [10], protect;
+    f714_datas.OrgINN      '' : [10], protect;
+    f714_datas.cDog        '' : [10], protect;
+    f714_datas.DogName     'DogName' : [10], protect;
+    f714_datas.DogPred     '' : [10], protect;
+    f714_datas.cAppDog     '' : [10], protect;
+    f714_datas.AppDogName  '' : [10], protect;
+    f714_datas.plDate      '' : [10], protect;
+    f714_datas.plDay       '' : [10], protect;
+    f714_datas.cStBud      'cStBud' : [10], protect;
+    f714_datas.sum         'sum' : [10], protect;
+    f714_datas.StBudName   'StBudName' : [10], protect;
+    f714_datas.AKTOFPnRec   'AKTOFPnRec' : [10], protect;
+
+  end;
+
+end; // tabbed
+end;

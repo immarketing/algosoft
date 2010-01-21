@@ -1,0 +1,12 @@
+Table struct TabPersons
+(
+   nrec         : comp //tNRec                 // NRec для ссылок
+  ,work         : string[100] "должность"
+  ,name         : string[100] "ФИО"
+ )
+
+with index
+(
+   TabPersons01 = nrec (Unique, Surrogate)
+  ,TabPersons02 = name+work
+);

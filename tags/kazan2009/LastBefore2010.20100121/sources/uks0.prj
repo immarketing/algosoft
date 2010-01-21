@@ -1,0 +1,34 @@
+const
+  //ColorNeed = 6;
+  
+#include excel.inc
+
+#include GLOCONST.INC
+
+#include fldcolor.inc
+
+end;
+
+
+#define ComponentVersion
+#define Atl51
+#define GAL8_1
+#define __UKS_PL2__
+
+
+#component "F_UserReport"
+#version form_6_15 8.10.0.2 'Форма 6.15, 6.16, 8.15, 8.16';
+
+#include uks.inc
+
+!#include UksValue.inc
+
+#make 'src\uks0\frm.vip'
+
+#component "F_UserReport"
+
+#make 'src\uks0\user.vip'
+
+
+
+
