@@ -94,56 +94,64 @@ end;
 Window wnInfoWindow 'gg' ('gg', hcNoContext);
   Show at(,,,29);
 
-  Browse brPrinted 'gg' ('gg', hcNoContext);
-    Show at(,1,,5);
-    Table f791_printed;
-  Fields
-    f791_printed.nRec '.nRec':[10],protect;
-    f791_printed.name '.name':[10],protect;
-    f791_printed.crec '.crec':[10],protect;
-    f791_printed.cnode '.cnode':[10],protect;
-    f791_printed.printedAtRow '.printedAtRow':[10],protect;
-    f791_printed.groupFrom '.groupFrom':[10],protect;
-    f791_printed.groupTo '.groupTo':[10],protect;
-    f791_printed.rowsToGroup '.rowsToGroup':[10],protect;
-    f791_printed.rowsToGroup '.rowsToGroup':[10],protect;
-    f791_printed.extPar '.extPar':[10],protect;
-    f791_printed.extPar1 '.extPar1':[10],protect;
-  End; // Browse
+  tabbedSheet tabbed
 
-  Browse brStack '' ('',  hcNoContext);
-    Show at(,6,,10);
-    Table f791_stack;
-  Fields
-    f791_stack.nrec 'f791_stack.nrec':[10],protect;
-  End; // Browse
+    Browse brPrinted 'f791_printed' ('f791_printed', hcNoContext);
+      //Show at(,1,,5);
+      Table f791_printed;
+    Fields
+      f791_printed.nRec '.nRec':[10],protect;
+      f791_printed.name '.name':[10],protect;
+      f791_printed.crec '.crec':[10],protect;
+      f791_printed.sum[1]  '.sum1':[10],protect;
+      f791_printed.sum[2]  '.sum2':[10],protect;
+      f791_printed.sum[3]  '.sum3':[10],protect;
+      f791_printed.cnode '.cnode':[10],protect;
+      f791_printed.printedAtRow '.printedAtRow':[10],protect;
+      f791_printed.groupFrom '.groupFrom':[10],protect;
+      f791_printed.groupTo '.groupTo':[10],protect;
+      f791_printed.rowsToGroup '.rowsToGroup':[10],protect;
+      //f791_printed.rowsToGroup '.rowsToGroup':[10],protect;
+      //f791_printed.extPar '.extPar':[10],protect;
+      //f791_printed.extPar1 '.extPar1':[10],protect;
+      f791_printed.isKAUGroup '.isKAUGroup':[10],protect;
+    End; // Browse
 
-  /*
-  Browse brpodpisanty '' ('',  hcNoContext);
-    Show at(,11,,13);
-    Table podpisanty;
-  Fields
-    podpisanty.dolj 'dolj':[10],protect;
-    podpisanty.fio 'fio':[10],protect;
-  End; // Browse
-  */
+    Browse brStack 'f791_stack' ('f791_stack',  hcNoContext);
+      //Show at(,6,,10);
+      Table f791_stack;
+    Fields
+      f791_stack.nrec 'f791_stack.nrec':[10],protect;
+    End; // Browse
 
-  Browse brf791_podval '' ('',  hcNoContext);
-    Show at(,11,,13);
-    Table f791_podval;
-  Fields
-    f791_podval.code 'code':[10],protect;
-    f791_podval.name 'name':[10],protect;
-    f791_podval.summa 'summa':[10],protect;
-  End; // Browse
+    /*
+    Browse brpodpisanty '' ('',  hcNoContext);
+      Show at(,11,,13);
+      Table podpisanty;
+    Fields
+      podpisanty.dolj 'dolj':[10],protect;
+      podpisanty.fio 'fio':[10],protect;
+    End; // Browse
+    */
 
-  Browse brf791_2extcl '' ('',  hcNoContext);
-    Show at(,14,,);
-    Table f791_2extcl;
-  Fields
-    f791_2extcl.wTable 'wTable':[10],protect;
-    f791_2extcl.crec 'crec':[10],protect;
-    f791_2extcl.name 'name':[10],protect;
-    f791_2extcl.val 'val':[10],protect;
-  End; // Browse
+    Browse brf791_podval 'f791_podval' ('f791_podval',  hcNoContext);
+      //Show at(,11,,13);
+      Table f791_podval;
+    Fields
+      f791_podval.code 'code':[10],protect;
+      f791_podval.name 'name':[10],protect;
+      f791_podval.summa 'summa':[10],protect;
+    End; // Browse
+
+    Browse brf791_2extcl 'f791_2extcl' ('f791_2extcl',  hcNoContext);
+      //Show at(,14,,);
+      Table f791_2extcl;
+    Fields
+      f791_2extcl.wTable 'wTable':[10],protect;
+      f791_2extcl.crec 'crec':[10],protect;
+      f791_2extcl.name 'name':[10],protect;
+      f791_2extcl.val 'val':[10],protect;
+    End; // Browse
+  end; // tabbedSheet tabbed
+
 End; // Window
