@@ -1,0 +1,106 @@
+
+
+tabbedSheet tabbed
+Screen scKatH01 'Установка фильтров' (,, sci13Esc);
+!  Table KatH;
+Fields
+  sTForm  ('',,) : Protect,PickButton,
+    {Font = {BackColor = if (cTForm=0,    ColorNeed,0)}};
+  sPeriod ('',,) : Protect,PickButton,
+    {Font = {BackColor = if (cPeriod=0,   ColorNeed,0)}};
+  sPlan   ('',,) : Protect,PickButton,
+    {Font = {BackColor = if (cPlan =0,    ColorNeed,0)}};
+  sPlanDop('',,) : Protect,PickButton,
+    {Font = {BackColor = if (cPlanDop =0,    ColorNeed,0)}};
+  sFact   ('',,) : Protect,PickButton,
+    {Font = {BackColor = if (cFact =0,    ColorNeed,0)}};
+
+!  sPersons ('Выбор сотрудников для подписи',,) : protect,pickbutton,
+!    {Font = {BackColor = if (sPersons='выберите значение',    ColorNeed,0)}};
+
+    sPodpGrp ('Выбор сотрудников для подписи',,) : protect,pickbutton,
+      {Font = {BackColor = if ( not podpisanty.iSSelected ,    ColorNeed,0)}};
+
+  sPath ('',,) : Protect,PickButton,
+    {Font = {BackColor = if (sPath='',    ColorNeed,0)}};
+  Check ('') :NoProtect;
+
+buttons
+cmApply;
+cmCancel;
+<<
+
+ Типовая форма бюджета .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+ Месяц                 .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+
+                           Варианты бюджета
+
+ План                          .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+ План с учетом доп. потр.      .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+ Факт                          .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+ Cотрудники для подписи        .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+
+ Путь к шаблону        .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+    `Печатать в`
+     (.) руб`
+     (.) тыс.руб`
+
+          <.Сформировать.>    <.  Отмена  .>
+>>
+end; // Screen
+  screen  sCheckdop 'Дополнительно';
+  Fields
+
+
+    extClName  ('',,) : NoProtect,noPickButton,
+      {Font = {BackColor = if (extClName='',    ColorNeed,0)}};
+    excCode1  ('',,) : NoProtect,noPickButton,
+      {Font = {BackColor = if (excCode1='',    ColorNeed,0)}};
+    excCode2 ('',,) : NoProtect,noPickButton,
+      {Font = {BackColor = if (excCode2='',    ColorNeed,0)}};
+    excCode3  ('',,) : NoProtect,noPickButton,
+      {Font = {BackColor = if (excCode3='',    ColorNeed,0)}};
+
+
+    extClNamePZap  ('',,) : NoProtect,noPickButton,
+      {Font = {BackColor = if (extClNamePZap='',    ColorNeed,0)}};
+    excCode4  ('',,) : NoProtect,noPickButton,
+      {Font = {BackColor = if (excCode4='',    ColorNeed,0)}};
+
+    excCode5  ('',,) : NoProtect,noPickButton,
+      {Font = {BackColor = if (excCode5='',    ColorNeed,0)}};
+    excCode6  ('',,) : NoProtect,noPickButton,
+      {Font = {BackColor = if (excCode6='',    ColorNeed,0)}};
+  <<
+
+                 Название классификатора .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+             Код аналитики [РАЗДЕЛИТЕЛЬ] .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+                   Код аналитики [ИТОГО] .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+                 Код аналитики [Агрегат] .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+
+Название классификатора (поясн. записка) .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+             Код аналитики [Не печатать] .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+        Код аналитики [Начальное сальдо] .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+         Код аналитики [Конечное сальдо] .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+  >>
+  end; // Screen sCheckdop 'Дополнительно'
+end; // Screen
+
+Window wnInfoWindow 'gg' ('gg', hcNoContext);
+  Show at(,,,29);
+
+  tabbedSheet tabbed
+    Browse brf91_printed 'f91_printed' ('f91_printed', hcNoContext);
+      //Show at(,1,,5);
+      Table f91_printed;
+    Fields
+      f91_printed.nRec '.nRec':[10],protect;
+    End; // Browse
+  end; // tabbedSheet tabbed
+
+End; // Window

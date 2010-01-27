@@ -58,7 +58,7 @@ end;
 // Наименование отчета в списке
 function GetReportName: String;
 begin
-  GetReportName := 'Форма 7.9.1 (вариант 2010 г.)';
+  GetReportName := 'Форма 7.9.1 (вариант 2010 года)';
 end;
 !-------------------------------------------------------------------------------
 function GetGroupName (Level : Word) : String;

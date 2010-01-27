@@ -12,120 +12,83 @@ form91showdebug menu
   - 'Показать отладочную информацию', cmShowDebug91, 'Отладочная информация' ;
 }
 
-VipInterface RepBDR5   Licensed(Free);
+VipInterface RepBDR5_2010   Licensed(Free);
 
 #doc
 Настройка фильтров для отчета График погашения обязательств
 #end
-Interface RepBDR5 'Установка фильтров' DoAccept, EscClose, Cyan;
-  show at (5,5,80,30);
-create view BDR
-var
- cC,
- cPlan,
- cPlanDop,
- cFact,
- cPeriod,
- cTForm,
- cCopyBud,
- cFP :comp;
- sPath :string;
- pathUserOut : string;
- NameExcel   : string;
- wPeriod,mp,i  : word;
- Check: integer;
- isError: boolean;
- sPersons: string;
+Interface RepBDR5_2010 'Установка фильтров' DoAccept, EscClose, Cyan;
+  show at (5,5,100,30);
+#include RepBDR5_91_memtbl.vpp
 
- extClName     : String;
- extClNamePZap : String;
- excCode1      : String; // разделитель
- excCode2      : String; // итого
- excCode3      : String; // Агрегат
- excCode4      : String;
- excCode5      : String;
- excCode6      : String;
-
- podpisanty  : SZMN_COMMON::IPodpis (vPodpis) new;// (  ) new;
-
-As select
-  if(cPeriod=0   ,'выберите значение',fpPeriod.Name)   (FieldName = sPeriod)
-, if(cTForm=0    ,'выберите значение',fpTForm.Name)    (FieldName = sTForm)
-, if(cPlan=0     ,'выберите значение',fpBudVar.SBUDSTAGE  + ' | ' + fpBudVar.Name)   (FieldName = sPlan)
-, if(cPlanDop=0     ,'выберите значение',fpBudVarDop.SBUDSTAGE  + ' | ' + fpBudVarDop.Name)   (FieldName = sPlanDop)
-, if(cFact=0     ,'выберите значение',fpBudVar1.SBUDSTAGE + ' | ' + fpBudVar1.Name)  (FieldName = sFact)
-, podpisanty.DialogFieldString  (FieldName = sPodpGrp)
-, fpvalues.summa
-From
-  fpBudVar
- ,synonym  fpPeriod  fpP
- , fpBudVar  fpBudVarDop
- ,synonym  fpBudVar  fpBudVar1
-
- ,fpAxTF Axis1
- ,fpAxTF Axis2
- ,fpSpAxTF SpAxis1
- ,fpSpAxTF SpAxis2
- ,fpvalues
- ,Synonym fpBudVar fpBV
- ,Synonym fpValues fpV
- , podpisanty
-
- where
-((
-  // иерархия оси1
-
-cPeriod   == fpPeriod.nrec  and
-cTForm         == fpTForm.nrec    and
-
-
-
-
-cPlan     == fpBudVar.nrec   and
-cPlanDop  == fpBudVarDop.nrec   and
-cFact     == fpBudVar1.nrec
-
-
-and fpBudVar.cBudget   == FpBudget.nrec
-
-// лог таблица для знач1ений
-
-and fpTForm.nrec   == fpAxTF.cMain     //может быть несколько
-and fpAxTF.NRec    == fpSpAxtf.cMain
-and fpSpAxtf.cMean == fpStBud.nrec
-and cCopyBud       == fpBV.nrec
-and fpBV.nrec      == fpV.cBudVar
-and word(cFP)      == fpV.KodReg //план факт1
-and fpStBud.nrec   == fpV.cStBud
-and fpV.cPeriod    == fpP.nrec
-and fpStBud.ced    == kated.nrec//еденицы измерения
-))
-;
-
+#include RepBDR5_91_createview.vpp
 //
-procedure ExcelPrint(CopyBud:comp; FP:word; Nstr:word; Nstol:word);
+
+#include RepBDR5_91_kaugroup.vpp
+
+procedure ExcelPrint(CopyBud:comp; FP:word; Nstr:word; Nstol:word;
+                       var vl : double
+);
 begin
-      Set cCopyBud:=CopyBud;
-      Set cFP:= FP;
-//      _LOOP  fpSpAxtf
-      _LOOP  fpV
-      {
-        if((month(fpP.dbeg)=month(fpP.dEnd)) and (year(fpP.dbeg)=year(fpperiod.dbeg)))// and (fpvalues.chashan = 0))) //chek year
+  Set cCopyBud:=CopyBud;
+  Set cFP:= FP;
+  //      _LOOP  fpSpAxtf
+  _LOOP  fpV  {
+    if((month(fpP.dbeg)=month(fpP.dEnd)) and (year(fpP.dbeg)=year(fpperiod.dbeg)))// and (fpvalues.chashan = 0))) //chek year
+    {
+      if(Check=0)
         {
-          if(Check=0)
-	  {
-	    xlSetCellNumberValue(fpv.summa     , Nstr, Nstol + month(fpP.dbeg), Nstr, Nstol + month(fpP.dbeg));
-	  }
-	  else
-	  {
-	    xlSetCellNumberValue(fpv.summa/1000, Nstr, Nstol + month(fpP.dbeg), Nstr, Nstol + month(fpP.dbeg));
-	  }
+          vl := fpv.summa;
+    	    xlSetCellNumberValue(vl     , Nstr, Nstol + month(fpP.dbeg), Nstr, Nstol + month(fpP.dbeg));
+      	} else {
+          vl := fpv.summa/1000;
+          xlSetCellNumberValue(vl , Nstr, Nstol + month(fpP.dbeg), Nstr, Nstol + month(fpP.dbeg));
         }
-        else{}
-      }
+    }
+    else{}
+  }
 end;
 
-procedure ExcelPrint2(CopyBud:comp; FP:word; Nstr:word; Nstol:word);
+procedure ExcelPrint_2010
+                     ( wTbl : word;
+                       CopyBud:comp;
+                       FP:word;
+                       Nstr:word;
+                       Nstol:word;
+                       var vl : double
+                       );
+begin
+  if (wTbl = 22217){ // статья бюджета
+    ExcelPrint (CopyBud,FP,Nstr,Nstol,vl);
+    exit;
+  }
+  // аналитика
+  xlSetCellNumberValue(0 , Nstr, Nstol , Nstr, Nstol );
+  vl      := 0;
+
+  if (getFirst superKauSpAxtf <> tsOK) { exit; };
+
+  set cStBud := superKauSpAxtf.cMEAN;
+  Set cCopyBud:=CopyBud;
+  Set cFP := FP;
+
+  if (getFirst HashAn = tsOK) {
+    if (getFirst fpV2 = tsOK) {
+      if(Check=0) {
+        xlSetCellNumberValue(fpv2.summa     , Nstr, Nstol , Nstr, Nstol );
+        vl := fpv2.summa;
+      } else {
+        xlSetCellNumberValue(fpv2.summa/1000, Nstr, Nstol , Nstr, Nstol );
+        vl := fpv2.summa/1000;
+      }
+    }
+  }
+end;
+
+
+procedure ExcelPrint2(CopyBud:comp; FP:word; Nstr:word; Nstol:word;
+                       var vl : double
+);
 begin
 
   xlSetCellNumberValue(0 , Nstr, Nstol , Nstr, Nstol );
@@ -133,20 +96,58 @@ begin
   Set cCopyBud:=CopyBud;
   Set cFP:= FP;
   //      _LOOP  fpSpAxtf
-  _LOOP  fpV
-  {
-    if (getFirst fpP <> tsOK) {exit};
+  _LOOP  fpV {
+    //if (getFirst fpP <> tsOK) {exit};
     if ( fpPeriod.dBeg = fpP.dBeg ) and (fpPeriod.dEnd = fpP.dEnd)
     //if((month(fpP.dbeg)=month(fpP.dEnd)) and (year(fpP.dbeg)=year(fpperiod.dbeg)))// and (fpvalues.chashan = 0))) //chek year
     {
       if(Check=0)
       	  {
-      	    xlSetCellNumberValue(fpv.summa     , Nstr, Nstol , Nstr, Nstol );
+            vl := fpv.summa;
+      	    xlSetCellNumberValue(vl     , Nstr, Nstol , Nstr, Nstol );
       	  }
       	  else
       	  {
-      	    xlSetCellNumberValue(fpv.summa/1000, Nstr, Nstol , Nstr, Nstol );
+            vl := fpv.summa/1000;
+      	    xlSetCellNumberValue(vl, Nstr, Nstol , Nstr, Nstol );
       	  }
+    }
+  }
+end;
+
+
+procedure ExcelPrint2_2010
+                     ( wTbl : word;
+                       CopyBud:comp;
+                       FP:word;
+                       Nstr:word;
+                       Nstol:word;
+                       var vl : double
+                       );
+begin
+  if (wTbl = 22217){ // статья бюджета
+    ExcelPrint2 (CopyBud,FP,Nstr,Nstol,vl);
+    exit;
+  }
+  // аналитика
+  xlSetCellNumberValue(0 , Nstr, Nstol , Nstr, Nstol );
+  vl      := 0;
+
+  if (getFirst superKauSpAxtf <> tsOK) { exit; };
+
+  set cStBud := superKauSpAxtf.cMEAN;
+  Set cCopyBud:=CopyBud;
+  Set cFP := FP;
+
+  if (getFirst HashAn = tsOK) {
+    if (getFirst fpV2 = tsOK) {
+      if(Check=0) {
+        xlSetCellNumberValue(fpv2.summa     , Nstr, Nstol , Nstr, Nstol );
+        vl := fpv2.summa;
+      } else {
+        xlSetCellNumberValue(fpv2.summa/1000, Nstr, Nstol , Nstr, Nstol );
+        vl := fpv2.summa/1000;
+      }
     }
   }
 end;
@@ -173,99 +174,8 @@ end;
 
 //пересмотр дат
 
+#include RepBDR5_91_windows.vpp
 
-
-
-tabbedSheet tabbed
-Screen scKatH01 'Установка фильтров' (,, sci13Esc);
-!  Table KatH;
-Fields
-  sTForm  ('',,) : Protect,PickButton,
-    {Font = {BackColor = if (cTForm=0,    ColorNeed,0)}};
-  sPeriod ('',,) : Protect,PickButton,
-    {Font = {BackColor = if (cPeriod=0,   ColorNeed,0)}};
-  sPlan   ('',,) : Protect,PickButton,
-    {Font = {BackColor = if (cPlan =0,    ColorNeed,0)}};
-  sPlanDop('',,) : Protect,PickButton,
-    {Font = {BackColor = if (cPlanDop =0,    ColorNeed,0)}};
-  sFact   ('',,) : Protect,PickButton,
-    {Font = {BackColor = if (cFact =0,    ColorNeed,0)}};
-
-!  sPersons ('Выбор сотрудников для подписи',,) : protect,pickbutton,
-!    {Font = {BackColor = if (sPersons='выберите значение',    ColorNeed,0)}};
-
-    sPodpGrp ('Выбор сотрудников для подписи',,) : protect,pickbutton,
-      {Font = {BackColor = if ( not podpisanty.iSSelected ,    ColorNeed,0)}};
-
-  sPath ('',,) : Protect,PickButton,
-    {Font = {BackColor = if (sPath='',    ColorNeed,0)}};
-  Check ('') :NoProtect;
-
-buttons
-cmApply;
-cmCancel;
-<<
-
- Типовая форма бюджета .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
- Месяц                 .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-
-
-                           Варианты бюджета
-
- План                          .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
- План с учетом доп. потр.      .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
- Факт                          .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
- Cотрудники для подписи        .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-
-
- Путь к шаблону        .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-
-    `Печатать в`
-     (.) руб`
-     (.) тыс.руб`
-
-          <.Сформировать.>    <.  Отмена  .>
->>
-end; // Screen
-  screen  sCheckdop 'Дополнительно';
-  Fields
-
-
-    extClName  ('',,) : NoProtect,noPickButton,
-      {Font = {BackColor = if (extClName='',    ColorNeed,0)}};
-    excCode1  ('',,) : NoProtect,noPickButton,
-      {Font = {BackColor = if (excCode1='',    ColorNeed,0)}};
-    excCode2 ('',,) : NoProtect,noPickButton,
-      {Font = {BackColor = if (excCode2='',    ColorNeed,0)}};
-    excCode3  ('',,) : NoProtect,noPickButton,
-      {Font = {BackColor = if (excCode3='',    ColorNeed,0)}};
-
-
-    extClNamePZap  ('',,) : NoProtect,noPickButton,
-      {Font = {BackColor = if (extClNamePZap='',    ColorNeed,0)}};
-    excCode4  ('',,) : NoProtect,noPickButton,
-      {Font = {BackColor = if (excCode4='',    ColorNeed,0)}};
-
-    excCode5  ('',,) : NoProtect,noPickButton,
-      {Font = {BackColor = if (excCode5='',    ColorNeed,0)}};
-    excCode6  ('',,) : NoProtect,noPickButton,
-      {Font = {BackColor = if (excCode6='',    ColorNeed,0)}};
-  <<
-
-                 Название классификатора .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-             Код аналитики [РАЗДЕЛИТЕЛЬ] .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-                   Код аналитики [ИТОГО] .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-                 Код аналитики [Агрегат] .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-
-
-Название классификатора (поясн. записка) .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-             Код аналитики [Не печатать] .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-
-        Код аналитики [Начальное сальдо] .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-         Код аналитики [Конечное сальдо] .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-  >>
-  end; // Screen sCheckdop 'Дополнительно'
-end; // Screen
   // для обработки внешней классификации по статьям бюджета
   create view extClass
   var
@@ -649,7 +559,7 @@ end; // Screen
     var extCl : byte;
 
     _LOOP  fpSpAxtf    {
-      if(isValid(tnfpstbud))       { //chek year
+      if(isValid(tnfpstbud) or (1=1))       { //chek year
         inc(tt);
         xlSetCellStringValue(fpSpAxtf.code, 1+tt, 1, 1+tt, 1); //
 
@@ -660,11 +570,31 @@ end; // Screen
         }
         xlSetCellNumberValue(extCl     , 1+tt, 41, 1+tt, 41);
 
-        xlSetCellStringValue(PadCh ('',' ', 2 * getCurrentLevelNumber) + fpstbud.Name, 1+tt, 2, 1+tt, 2); //
+        //xlSetCellStringValue(PadCh ('',' ', 2 * getCurrentLevelNumber) + fpstbud.Name, 1+tt, 2, 1+tt, 2); //
+        xlSetCellStringValue(PadCh ('',' ', 2 * getCurrentLevelNumber) + fpSpAxtf.name, 1+tt, 2, 1+tt, 2); //
+
         xlSetCellStringValue(extraChar + trimFirst0(fpstbud.LevelCode), 1+tt, 40, 1+tt, 40); //
         xlSetCellStringValue(kated.name, 1+tt, 27, 1+tt, 27);
-        ExcelPrint(cPlan,150,1+tt,2);
-        ExcelPrint(cFact,151,1+tt,14);
+        var pl, fc: double;
+        //ExcelPrint_2010(fpSpAxtf.coTable,cPlan,150,1+tt,2,vl);
+        ExcelPrint_2010(fpSpAxtf.coTable,cPlan,150,1+tt,3,pl);
+        ExcelPrint_2010(fpSpAxtf.coTable,cFact,151,1+tt,14, fc);
+
+        insert f91_printed set f91_printed.cRec := fpSpAxtf.nRec ,
+                                f91_printed.printedAtRow := 1+tt,
+                                f91_printed.cNode  := fpSpAxtf.cNode,
+                                f91_printed.code   := extraChar + trimFirst0(fpstbud.levelcode),
+                                f91_printed.name   := PadCh ('',' ', 2 * getCurrentLevelNumber) + fpSpAxtf.name,
+                                f91_printed.sum[1] := pl,
+                                f91_printed.sum[2] := fc,
+                                f91_printed.sum[3] := 0,
+                                f91_printed.extPar := extCl,
+                                //f91_printed.extPar1:= extCl1,
+                                f91_printed.isLeaf := fpSpAxtf.isLeaf,
+                                f91_printed.isKAUGroup := isKauGroup (fpSpAxtf.nRec)
+
+                                ;
+
       }
       else{}
     }
@@ -744,7 +674,7 @@ end; // Screen
     extraChar := '''';
 
     _LOOP  fpSpAxtf    {
-      if(isValid(tnfpstbud))       { //chek year
+      if(isValid(tnfpstbud) or (1=1))       { //chek year
         //
         if ( fpSpAxtf.coTable = coFPSTBUD ) {
           extCl := GetStBudExtraParameters( coFPSTBUD , fpSpAxtf.CMEAN, extClNamePZap );
@@ -765,14 +695,16 @@ end; // Screen
         //xlSetCellStringValue(fpSpAxtf.code, 1+tt, 1, 1+tt, 1); //
         //xlSetCellNumberValue(extCl     , 1+tt, 41, 1+tt, 41);
 
-        xlSetCellStringValue(PadCh ('',' ', 2 * getCurrentLevelNumber) + fpstbud.Name, prntRow, 2, prntRow, 2); //
+        //xlSetCellStringValue(PadCh ('',' ', 2 * getCurrentLevelNumber) + fpstbud.Name, prntRow, 2, prntRow, 2); //
+        xlSetCellStringValue(PadCh ('',' ', 2 * getCurrentLevelNumber) + fpSpAxtf.name, prntRow, 2, prntRow, 2); //
 
         if ( extCl <> 1) {
           xlSetCellStringValue(extraChar + trimFirst0(fpstbud.LevelCode), prntRow, 1, prntRow, 1 ); //
           //xlSetCellStringValue(kated.name, 1+tt, 27, 1+tt, 27);
-          ExcelPrint2(cPlan,150,prntRow,3);
-          ExcelPrint2(cPlanDop,150,prntRow,4);
-          ExcelPrint2(cFact,151,prntRow,5);
+          var vl : double;
+          ExcelPrint2_2010(fpSpAxtf.coTable,cPlan,150,prntRow,3,vl);
+          ExcelPrint2_2010(fpSpAxtf.coTable,cPlanDop,150,prntRow,4,vl);
+          ExcelPrint2_2010(fpSpAxtf.coTable,cFact,151,prntRow,5,vl);
         };
         xlRunMacro('CopyRow(' + prntRowStr + ')');
       }
@@ -836,6 +768,21 @@ cmDelOnProtect:
 cmInit:
 {
   handleInit;
+}
+
+cmHotKeys : {
+  var mn : longint ;
+  mn := LoadMenu('form91showdebug') ;
+  var i : integer;
+  i := RunLoadMenu (mn);
+  //message  ('i == ' + i);
+  if (i <> 0 and i <> cmCancel) {
+    Putcommand(i)
+  }
+}
+
+cmShowDebug91 : {
+  RunWindowModal( wnInfoWindow );
 }
 
 end;

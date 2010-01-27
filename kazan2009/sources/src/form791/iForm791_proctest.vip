@@ -297,6 +297,16 @@
                               3 ,
                               f791_printed.printedAtRow,
                               3 );
+        xlSetCellNumberValue( vSums[2] ,
+                              f791_printed.printedAtRow,
+                              4 ,
+                              f791_printed.printedAtRow,
+                              4 );
+        xlSetCellNumberValue( vSums[3] ,
+                              f791_printed.printedAtRow,
+                              6 ,
+                              f791_printed.printedAtRow,
+                              6 );
       }
     }
 
@@ -759,6 +769,7 @@
 
     xlKillExcel;
     tms[6] := Cur_Time;
+    /*
     message ( tms[1] + ''#13'' +
               tms[2] + ''#13'' +
               tms[3] + ''#13'' +
@@ -767,6 +778,6 @@
               tms[6] + ''#13''
               )
               ;
-
+    */
 
   end;
