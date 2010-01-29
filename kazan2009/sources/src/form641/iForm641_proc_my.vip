@@ -305,11 +305,11 @@
         //xlSetCellNumberValue(sm, Nstr, Nstol + month(fpP.dbeg), Nstr, Nstol + month(fpP.dbeg));
 
         case varnt of
-          Plan : update current f641_printed set sumvar1[month(fpP.dbeg)] := sm ;
-          DopPlan : update current f641_printed set sumvar2[month(fpP.dbeg)] := sm ;
-          Fact : update current f641_printed set sumvar3[month(fpP.dbeg)] := sm ;
-          OjidPlan : update current f641_printed set sumvar4[month(fpP.dbeg)] := sm ;
-          PlanOtd : update current f641_printed set sumvarOtd[month(fpP.dbeg)] := sm ;
+          Plan : update current f641_printed set f641_printed.sumvar1[month(fpP.dbeg)] := sm ;
+          DopPlan : update current f641_printed set f641_printed.sumvar2[month(fpP.dbeg)] := sm ;
+          Fact : update current f641_printed set f641_printed.sumvar3[month(fpP.dbeg)] := sm ;
+          OjidPlan : update current f641_printed set f641_printed.sumvar4[month(fpP.dbeg)] := sm ;
+          PlanOtd : update current f641_printed set f641_printed.sumvarOtd[month(fpP.dbeg)] := sm ;
         end
 
 
@@ -317,6 +317,42 @@
       else{}
     }
   end;
+
+  procedure ExcelPrint2_2010
+                       ( wTbl : word;
+                         CopyBud:comp;
+                         FP:word;
+                         Nstr:word;
+                         Nstol:word;
+                         varnt : byte
+                         );
+  begin
+    if (wTbl = 22217){ // статья бюджета
+      ExcelPrint2 (CopyBud,FP,Nstr,Nstol,varnt);
+      exit;
+    }
+    // аналитика
+    xlSetCellNumberValue(0 , Nstr, Nstol , Nstr, Nstol );
+    varnt    := 0;
+
+    Set cCopyBud:=CopyBud;
+    Set cFP := FP;
+
+    if (getFirst superfpSpAxtf = tsOK) {
+      if (getFirst HashAn = tsOK) {
+        if (getFirst fpV2 = tsOK) {
+          if(Check=0) {
+            xlSetCellNumberValue(fpv2.summa     , Nstr, Nstol , Nstr, Nstol );
+            varnt := fpv2.summa;
+          } else {
+            xlSetCellNumberValue(fpv2.summa/1000, Nstr, Nstol , Nstr, Nstol );
+            varnt := fpv2.summa/1000;
+          }
+        }
+      }
+    }
+  end;
+
 
   function CalcCurrentSumBDSGod (pNum : byte) : double;
   begin
