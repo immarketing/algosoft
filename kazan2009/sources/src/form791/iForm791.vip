@@ -92,7 +92,7 @@ form791showdebug menu
 vipInterface szmn_bud_Form791_2010 licensed(free);
 
 Interface szmn_bud_Form791_2010
-  '-= СЗМН Бюджет. Форма 7.9.1. Вариант 2010 года v20010127 =- ' (,hcNoContext,) EscClose, Cyan;
+  '-= СЗМН Бюджет. Форма 7.9.1. Вариант 2010 года v20010128 =- ' (,hcNoContext,) EscClose, Cyan;
   //show at  (0,0,70,10)
   show at  (0,0,100,30)
   ;

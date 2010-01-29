@@ -428,6 +428,7 @@
 
 
     _loop f791_printed {
+      NextVisual;
       xlSetActiveSheetByName(dataSheetName);
       if (f791_printed.extPar = 1){
         xlRunMacro('CopyRow(ROW10)'); // Разделитель
@@ -517,6 +518,8 @@
 
   procedure doPrintReport791;
   begin
+    StartNewVisual (vtRotateVisual, vfScreenBottom + vfThread + vfTimer, 'Формирование отчета' , 100);
+    SetVisualHeader ('Формирование отчета');
     StoreDSK;
 
     var tms : array [1..7] of time;
@@ -589,6 +592,7 @@
     lastCNode     := 0FFFFFFFFFFFFFFFFh;
 
     _LOOP fpSpAxtf {
+      NextVisual;
       inc(tt);
 
       if ( fpSpAxtf.cNode <> lastCNode ){
@@ -769,6 +773,7 @@
 
     xlKillExcel;
     tms[6] := Cur_Time;
+    StopVisual ('',0);
     /*
     message ( tms[1] + ''#13'' +
               tms[2] + ''#13'' +
@@ -777,7 +782,6 @@
               tms[5] + ''#13'' +
               tms[6] + ''#13''
               )
-              ;
-    */
+              ; */
 
   end;

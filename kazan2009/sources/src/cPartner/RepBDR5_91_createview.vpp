@@ -39,6 +39,7 @@ As select
 From
   fpBudVar
  ,synonym  fpPeriod  fpP
+ ,synonym  fpPeriod  fpP2
  , fpBudVar  fpBudVarDop
  ,synonym  fpBudVar  fpBudVar1
 
@@ -56,6 +57,9 @@ From
  ,Synonym fpValues fpV2
  , fpSpAxtf superKauSpAxtf
  , f91_printed
+ , f91_printed subp3
+ , fpzap_printed
+ , fpzap_printed sub_pzp
 
  where
 ((
@@ -79,16 +83,25 @@ and fpBudVar.cBudget   == FpBudget.nrec
 and fpTForm.nrec   == fpAxTF.cMain     //может быть несколько
 and fpAxTF.NRec    == fpSpAxtf.cMain
 
+//and (fpSpAxtf.nRec=comp('013100000001EBCBh')  or fpSpAxtf.cKauNode = comp('013100000001EBCBh')  )
+//and (fpSpAxtf.nRec=comp('01310000000202A1h') /* or fpSpAxtf.cKauNode = comp('013100000001EBCBh') */ )
+
+//and (fpSpAxtf.nRec=comp('013100000001EBCBh')  or fpSpAxtf.cNode = comp('013100000001EBCBh')  )
+
 and fpSpAxtf.cMean == fpStBud.nrec
+
+
 and cCopyBud       == fpBV.nrec
 and fpBV.nrec      == fpV.cBudVar
 and fpStBud.nrec   == fpV.cStBud
-and cPeriod        == fpV.cPeriod // ссылка на период
+//and cPeriod        == fpV.cPeriod // ссылка на период
+and date(01,01,1900)        <<= fpV.cPeriod  // ссылка на период
 and word(cFP)      == fpV.KodReg //план факт1
-and comp(0)        == fpV.cHashAn
+and comp(0)        == fpV.cHashAn (noindex)
 
 and fpV.cPeriod    == fpP.nrec
-and fpStBud.ced    == kated.nrec//еденицы измерения
+
+and fpStBud.ced    == kated.nrec//единицы измерения
 
 // для 2010 года
 and fpSpAxtf.cKauNode == superKauSpAxtf.nRec
@@ -99,8 +112,15 @@ and HashAn.nRec      == fpV2.cHashAn (noindex)
 and fpBV.nrec        == fpV2.cBudVar // вариант бюджета
 and word(cFP)        == fpV2.KodReg //план факт резерв
 and comp(cStBud)     == fpV2.cStBud // статья бюджета
-and cPeriod          == fpV2.cPeriod // ссылка на период
+//and cPeriod          == fpV2.cPeriod // ссылка на период
+and date(01,01,1900)  <<= fpV2.cPeriod // ссылка на период
+and fpV2.cPeriod     == fpP2.nrec
+
+and f91_printed.cRec == subp3.cNode
+//fpzap_printed sub_pzp
+and fpzap_printed.cRec == sub_pzp.cNode
 
 ))
+
 ;
 
