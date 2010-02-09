@@ -312,7 +312,6 @@
           PlanOtd : update current f641_printed set f641_printed.sumvarOtd[month(fpP.dbeg)] := sm ;
         end
 
-
       }
       else{}
     }
@@ -332,21 +331,33 @@
       exit;
     }
     // аналитика
-    xlSetCellNumberValue(0 , Nstr, Nstol , Nstr, Nstol );
-    varnt    := 0;
+    //xlSetCellNumberValue(0 , Nstr, Nstol , Nstr, Nstol );
 
     Set cCopyBud:=CopyBud;
     Set cFP := FP;
+    var sm : double;
+    sm := 0;
 
     if (getFirst superfpSpAxtf = tsOK) {
       if (getFirst HashAn = tsOK) {
-        if (getFirst fpV2 = tsOK) {
-          if(Check=0) {
-            xlSetCellNumberValue(fpv2.summa     , Nstr, Nstol , Nstr, Nstol );
-            varnt := fpv2.summa;
-          } else {
-            xlSetCellNumberValue(fpv2.summa/1000, Nstr, Nstol , Nstr, Nstol );
-            varnt := fpv2.summa/1000;
+        _loop fpV2 {
+          if (getFirst fpP2 <> tsOK)  {};
+          if((month(fpP2.dbeg)=month(fpP2.dEnd)) and (year(fpP2.dbeg)=year(fpperiod.dbeg) )) {
+            if(Check=0) {
+              //xlSetCellNumberValue(fpv2.summa     , Nstr, Nstol , Nstr, Nstol );
+              sm := fpv2.summa;
+            } else {
+              //xlSetCellNumberValue(fpv2.summa/1000, Nstr, Nstol , Nstr, Nstol );
+              sm := fpv2.summa/1000;
+            }
+            case varnt of
+              Plan : update current f641_printed set f641_printed.sumvar1[month(fpP2.dbeg)] := sm ;
+              DopPlan : update current f641_printed set f641_printed.sumvar2[month(fpP2.dbeg)] := sm ;
+              Fact : update current f641_printed set f641_printed.sumvar3[month(fpP2.dbeg)] := sm ;
+              OjidPlan : update current f641_printed set f641_printed.sumvar4[month(fpP2.dbeg)] := sm ;
+              PlanOtd : update current f641_printed set f641_printed.sumvarOtd[month(fpP2.dbeg)] := sm ;
+            end
+
           }
         }
       }
@@ -756,8 +767,22 @@
     var firstChar : String;
     firstChar := '''';
     //      SetOrder(tibyPrior);
+
+    var stepsTotal : byte;
+    stepstotal := 3;
     _LOOP  fpSpAxtf  {
-      if(isValid(tnfpstbud)) { //chek year
+      setVisualHeader (FormatStr_4 ( 'Загрузка данных | %d из %d | %d | %s',1,stepstotal, tt ,fpSpAxtf.Name));
+
+      if(fpSpAxtf.coTable = word(22217) )       // (isValid(tnfpstbud))
+      {
+        set cStBud  := fpSpAxtf.cMean;//
+      } else{
+        if (getFirst superKauSpAxtf = tsOK) {
+          set cStBud  := superKauSpAxtf.cMEAN;
+        }
+      }
+
+      if(isValid(tnfpstbud) or 1=1) { //chek year
         inc(tt);
 
         var extCl : byte;
@@ -818,10 +843,10 @@
 
                                 ;
 
-        ExcelPrint2(cPlan1,cReg1,1+tt,2,Plan);
-        ExcelPrint2(cPlan2,cReg2,1+tt,14,DopPlan);
-        ExcelPrint2(cFact,cReg3,1+tt,26,Fact);
-        ExcelPrint2(cPlan3,cReg4,1+tt,38,OjidPlan);
+        ExcelPrint2_2010(fpSpAxtf.coTable,cPlan1,cReg1,1+tt,2,Plan);
+        ExcelPrint2_2010(fpSpAxtf.coTable,cPlan2,cReg2,1+tt,14,DopPlan);
+        ExcelPrint2_2010(fpSpAxtf.coTable,cFact,cReg3,1+tt,26,Fact);
+        ExcelPrint2_2010(fpSpAxtf.coTable,cPlan3,cReg4,1+tt,38,OjidPlan);
 
         // ExcelPrint2(cPlanOtd,cReg1,1+tt,2, PlanOtd); не надо!
 
@@ -878,7 +903,10 @@
 
     tt:=0;
     _LOOP  fpSpAxtf  {
-      if(isValid(tnfpstbud)) { //chek year
+      //tt := tt +1;
+      setVisualHeader (FormatStr_4 ( 'Вывод в Excel | %d из %d | %d | %s',2,stepstotal, tt ,fpSpAxtf.Name));
+
+      if(isValid(tnfpstbud) or 1=1) { //chek year
         // вот тут мы ее закончили
         if (getFirst f641_printed where (( fpSpAxtf.nRec==f641_printed.cRec)) = tsOK ) {
         };
@@ -1095,8 +1123,11 @@
 
     fSaldoPer := '=СУММ(0';
 
+    tt := 0;
     _LOOP  fpSpAxtf  {
-      if(isValid(tnfpstbud)) {
+      tt := tt +1;
+      setVisualHeader (FormatStr_4 ( 'Расчет итогов | %d из %d | %d | %s',3,stepstotal, tt ,fpSpAxtf.Name));
+      if(isValid(tnfpstbud) or 1=1) {
         if (getFirst f641_printed where (( fpSpAxtf.nRec==f641_printed.cRec)) = tsOK ) {};
         if ( f641_printed.SaldoType = 9 ) {
           // +

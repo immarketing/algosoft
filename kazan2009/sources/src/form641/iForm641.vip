@@ -34,7 +34,7 @@
 // раскомментировать конструкцию VipInterface (Implements для Атлантиса 5.1)
 
 #ifdef Atl51
-VipInterface UserReport_szmn_form641  Implements IUserReport
+VipInterface UserReport_szmn_form641_2010  Implements IUserReport
   Licensed(Free)
 ;
 #else
@@ -45,7 +45,7 @@ VipInterface UserReport_szmn_form641  Implements IUserReport
 Пример пользовательского отчета #1
 #end
 
-Interface UserReport_szmn_form641;
+Interface UserReport_szmn_form641_2010;
 
 create view;
 
@@ -55,13 +55,13 @@ procedure Run;
 begin
   //RunInterface('szmn_bud_Form714_20091012');
   //RunInterface(#_INTERFVERSSTRINGQUOTED_(szmn_bud_Form714_));
-  RunInterface('szmn_bud_Form641' );
+  RunInterface('szmn_bud_Form641_2010' );
 end;
 !-------------------------------------------------------------------------------
 // Наименование отчета в списке
 function GetReportName: String;
 begin
-  GetReportName := 'Форма 6.4.1';
+  GetReportName := 'Форма 6.4.1. Вариант 2010 года';
 end;
 !-------------------------------------------------------------------------------
 // Наименования групп, в которые входит отчет
@@ -117,7 +117,7 @@ vipInterface szmn_bud_Form641_2010 licensed(free);
 Interface szmn_bud_Form641_2010
 //Interface #_VERSIONEDNAME_(szmn_bud_Form714_)
 //#_INTERFVERS_(szmn_bud_Form714_)
-  '-= СЗМН Бюджет. Форма 6.4.1. Вариант 2010 года v.20100129 =- ' (,hcNoContext,) EscClose, Cyan;
+  '-= СЗМН Бюджет. Форма 6.4.1. Вариант 2010 года v.20100209 =- ' (,hcNoContext,) EscClose, Cyan;
   show at (5,2,110,32)
   //show at  (0,0,100,30)
   ;
@@ -208,6 +208,7 @@ As select
 From
    fpBudVar
  , synonym  fpPeriod  fpP
+ , synonym  fpPeriod  fpP2
  , synonym  fpBudVar  fpBudVar1
  , synonym  fpBudVar  fpBudVarOtd
  , synonym  fpBudVar  fpBudVar2
@@ -279,10 +280,10 @@ and HashAn.nRec      == fpV2.cHashAn (noindex)
 and fpBV.nrec        == fpV2.cBudVar // вариант бюджета
 and word(cFP)        == fpV2.KodReg //план факт резерв
 and comp(cStBud)     == fpV2.cStBud // статья бюджета
-and cPeriod          == fpV2.cPeriod // ссылка на период
+and fpV2.cPeriod     == fpP2.nrec
+//and cPeriod          == fpV2.cPeriod // ссылка на период
 
 and f641_printed.cRec == subp3.cNode
-
 
 ))
 //order byPrior by fpstbud.prior

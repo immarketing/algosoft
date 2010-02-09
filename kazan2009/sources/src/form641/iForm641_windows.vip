@@ -164,157 +164,159 @@ end;
 
 Window wnInfoWindow 'gg' ('gg', hcNoContext);
   Show at(,,,29);
+  tabbedSheet tabbed
 
-  Browse brPrinted 'gg' ('gg', hcNoContext);
-    Show at(,1,,);
-    Table f641_printed;
-  Fields
-    f641_printed.name '.name':[10],protect;
+    Browse brPrinted 'gg' ('gg', hcNoContext);
+      Show at(,1,,);
+      Table f641_printed;
+    Fields
+      f641_printed.name '.name':[10],protect;
 
-    f641_printed.crec '.crec':[10],protect;
-    f641_printed.cNode '.cNode':[10],protect;
+      f641_printed.crec '.crec':[10],protect;
+      f641_printed.cNode '.cNode':[10],protect;
 
-    f641_printed.Sumojid '.Sumojid':[10],protect;
-    f641_printed.SumBDSGod '.SumBDSGod':[10],protect;
+      f641_printed.Sumojid '.Sumojid':[10],protect;
+      f641_printed.SumBDSGod '.SumBDSGod':[10],protect;
 
-    f641_printed.printedAtRow '.printedAtRow':[10],protect;
+      f641_printed.printedAtRow '.printedAtRow':[10],protect;
 
-    f641_printed.SaldoType '.SaldoType':[10],protect;
+      f641_printed.SaldoType '.SaldoType':[10],protect;
 
-    f641_printed.AgregHandling '.AgregHandling':[10],protect;
+      f641_printed.AgregHandling '.AgregHandling':[10],protect;
 
-    f641_printed.extPar '.extPar':[10],protect;
-    f641_printed.extPar3 '.extPar3':[10],protect;
-    f641_printed.extPar4 '.extPar4':[10],protect;
-    f641_printed.extPar0[1] '.extPar0[1]':[10],protect;
-    f641_printed.extPar0[2] '.extPar0[2]':[10],protect;
+      f641_printed.extPar '.extPar':[10],protect;
+      f641_printed.extPar3 '.extPar3':[10],protect;
+      f641_printed.extPar4 '.extPar4':[10],protect;
+      f641_printed.extPar0[1] '.extPar0[1]':[10],protect;
+      f641_printed.extPar0[2] '.extPar0[2]':[10],protect;
+
+      /*
+      f641_printed.nRec '.nRec':[10],protect;
+      f641_printed.crec '.crec':[10],protect;
+      f641_printed.cnode '.cnode':[10],protect;
+      f641_printed.groupFrom '.groupFrom':[10],protect;
+      f641_printed.groupTo '.groupTo':[10],protect;
+      f641_printed.rowsToGroup '.rowsToGroup':[10],protect;
+      f641_printed.rowsToGroup '.rowsToGroup':[10],protect;
+
+      f641_printed.SumKorr[1] 'SumKorr[1]':[10],protect;
+      f641_printed.SumKorr[2] 'SumKorr[2]':[10],protect;
+      f641_printed.SumKorr[3] 'SumKorr[3]':[10],protect;
+      f641_printed.SumKorr[5] 'SumKorr[5]':[10],protect;
+      f641_printed.SumKorr[6] 'SumKorr[6]':[10],protect;
+      f641_printed.SumKorr[7] 'SumKorr[7]':[10],protect;
+      f641_printed.SumKorr[8] 'SumKorr[8]':[10],protect;
+      f641_printed.SumKorr[9] 'SumKorr[9]':[10],protect;
+      f641_printed.SumKorr[10] 'SumKorr[10]':[10],protect;
+      f641_printed.SumKorr[11] 'SumKorr[11]':[10],protect;
+      f641_printed.SumKorr[4] 'SumKorr[4]':[10],protect;
+      f641_printed.SumKorr[12] 'SumKorr[12]':[10],protect;
+      */
+
+      /*
+      f641_printed.SumKorrStr[1] 'SumKorrStr[1]':[10],protect;
+      f641_printed.SumKorrStr[2] 'SumKorrStr[2]':[10],protect;
+      f641_printed.SumKorrStr[3] 'SumKorrStr[3]':[10],protect;
+      f641_printed.SumKorrStr[4] 'SumKorrStr[4]':[10],protect;
+      f641_printed.SumKorrStr[5] 'SumKorrStr[5]':[10],protect;
+      f641_printed.SumKorrStr[6] 'SumKorrStr[6]':[10],protect;
+      f641_printed.SumKorrStr[7] 'SumKorrStr[7]':[10],protect;
+      f641_printed.SumKorrStr[8] 'SumKorrStr[8]':[10],protect;
+      f641_printed.SumKorrStr[9] 'SumKorrStr[9]':[10],protect;
+      f641_printed.SumKorrStr[10] 'SumKorrStr[10]':[10],protect;
+      f641_printed.SumKorrStr[11] 'SumKorrStr[11]':[10],protect;
+      f641_printed.SumKorrStr[12] 'SumKorrStr[12]':[10],protect;
+
+      f641_printed.sumvar1[1] 'sumvar1[1]':[10],protect;
+      f641_printed.sumvar1[2] 'sumvar1[2]':[10],protect;
+      f641_printed.sumvar1[3] 'sumvar1[3]':[10],protect;
+      f641_printed.sumvar1[4] 'sumvar1[4]':[10],protect;
+      f641_printed.sumvar1[5] 'sumvar1[5]':[10],protect;
+      f641_printed.sumvar1[6] 'sumvar1[6]':[10],protect;
+      f641_printed.sumvar1[7] 'sumvar1[7]':[10],protect;
+      f641_printed.sumvar1[8] 'sumvar1[8]':[10],protect;
+      f641_printed.sumvar1[9] 'sumvar1[9]':[10],protect;
+      f641_printed.sumvar1[10] 'sumvar1[10]':[10],protect;
+      f641_printed.sumvar1[11] 'sumvar1[11]':[10],protect;
+      f641_printed.sumvar1[12] 'sumvar1[12]':[10],protect;
+
+      f641_printed.sumvar2[1] 'sumvar2[1]':[10],protect;
+      f641_printed.sumvar2[2] 'sumvar2[2]':[10],protect;
+      f641_printed.sumvar2[3] 'sumvar2[3]':[10],protect;
+      f641_printed.sumvar2[4] 'sumvar2[4]':[10],protect;
+      f641_printed.sumvar2[5] 'sumvar2[5]':[10],protect;
+      f641_printed.sumvar2[6] 'sumvar2[6]':[10],protect;
+      f641_printed.sumvar2[7] 'sumvar2[7]':[10],protect;
+      f641_printed.sumvar2[8] 'sumvar2[8]':[10],protect;
+      f641_printed.sumvar2[9] 'sumvar2[9]':[10],protect;
+      f641_printed.sumvar2[10] 'sumvar2[10]':[10],protect;
+      f641_printed.sumvar2[11] 'sumvar2[11]':[10],protect;
+      f641_printed.sumvar2[12] 'sumvar2[12]':[10],protect;
+
+      f641_printed.sumvar4[10] 'sumvar4[10]':[10],protect;
+
+      f641_printed.sumvar3[1] 'sumvar3[1]':[10],protect;
+      f641_printed.sumvar3[2] 'sumvar3[2]':[10],protect;
+      f641_printed.sumvar3[3] 'sumvar3[3]':[10],protect;
+      f641_printed.sumvar3[4] 'sumvar3[4]':[10],protect;
+      f641_printed.sumvar3[5] 'sumvar3[5]':[10],protect;
+      f641_printed.sumvar3[6] 'sumvar3[6]':[10],protect;
+      f641_printed.sumvar3[7] 'sumvar3[7]':[10],protect;
+      f641_printed.sumvar3[8] 'sumvar3[8]':[10],protect;
+      f641_printed.sumvar3[9] 'sumvar3[9]':[10],protect;
+      f641_printed.sumvar3[10] 'sumvar3[10]':[10],protect;
+      f641_printed.sumvar3[11] 'sumvar3[11]':[10],protect;
+      f641_printed.sumvar3[12] 'sumvar3[12]':[10],protect;
+
+      f641_printed.sumvar4[1] 'sumvar4[1]':[10],protect;
+      f641_printed.sumvar4[2] 'sumvar4[2]':[10],protect;
+      f641_printed.sumvar4[3] 'sumvar4[3]':[10],protect;
+      f641_printed.sumvar4[4] 'sumvar4[4]':[10],protect;
+      f641_printed.sumvar4[5] 'sumvar4[5]':[10],protect;
+      f641_printed.sumvar4[6] 'sumvar4[6]':[10],protect;
+      f641_printed.sumvar4[7] 'sumvar4[7]':[10],protect;
+      f641_printed.sumvar4[8] 'sumvar4[8]':[10],protect;
+      f641_printed.sumvar4[9] 'sumvar4[9]':[10],protect;
+      f641_printed.sumvar4[10] 'sumvar4[10]':[10],protect;
+      f641_printed.sumvar4[11] 'sumvar4[11]':[10],protect;
+      f641_printed.sumvar4[12] 'sumvar4[12]':[10],protect;
+      */
+    End; // Browse
 
     /*
-    f641_printed.nRec '.nRec':[10],protect;
-    f641_printed.crec '.crec':[10],protect;
-    f641_printed.cnode '.cnode':[10],protect;
-    f641_printed.groupFrom '.groupFrom':[10],protect;
-    f641_printed.groupTo '.groupTo':[10],protect;
-    f641_printed.rowsToGroup '.rowsToGroup':[10],protect;
-    f641_printed.rowsToGroup '.rowsToGroup':[10],protect;
+    Browse brStack '' ('',  hcNoContext);
+      Show at(,6,,10);
+      Table f791_stack;
+    Fields
+      f791_stack.nrec 'f791_stack.nrec':[10],protect;
+    End; // Browse
 
-    f641_printed.SumKorr[1] 'SumKorr[1]':[10],protect;
-    f641_printed.SumKorr[2] 'SumKorr[2]':[10],protect;
-    f641_printed.SumKorr[3] 'SumKorr[3]':[10],protect;
-    f641_printed.SumKorr[5] 'SumKorr[5]':[10],protect;
-    f641_printed.SumKorr[6] 'SumKorr[6]':[10],protect;
-    f641_printed.SumKorr[7] 'SumKorr[7]':[10],protect;
-    f641_printed.SumKorr[8] 'SumKorr[8]':[10],protect;
-    f641_printed.SumKorr[9] 'SumKorr[9]':[10],protect;
-    f641_printed.SumKorr[10] 'SumKorr[10]':[10],protect;
-    f641_printed.SumKorr[11] 'SumKorr[11]':[10],protect;
-    f641_printed.SumKorr[4] 'SumKorr[4]':[10],protect;
-    f641_printed.SumKorr[12] 'SumKorr[12]':[10],protect;
+    Browse brpodpisanty '' ('',  hcNoContext);
+      Show at(,11,,13);
+      Table podpisanty;
+    Fields
+      podpisanty.dolj 'dolj':[10],protect;
+      podpisanty.fio 'fio':[10],protect;
+    End; // Browse
+
+    Browse brf791_podval '' ('',  hcNoContext);
+      Show at(,11,,13);
+      Table f791_podval;
+    Fields
+      f791_podval.code 'code':[10],protect;
+      f791_podval.name 'name':[10],protect;
+      f791_podval.summa 'summa':[10],protect;
+    End; // Browse
+
+    Browse brf791_2extcl '' ('',  hcNoContext);
+      Show at(,14,,);
+      Table f791_2extcl;
+    Fields
+      f791_2extcl.wTable 'wTable':[10],protect;
+      f791_2extcl.crec 'crec':[10],protect;
+      f791_2extcl.name 'name':[10],protect;
+      f791_2extcl.val 'val':[10],protect;
+    End; // Browse
     */
-
-    /*
-    f641_printed.SumKorrStr[1] 'SumKorrStr[1]':[10],protect;
-    f641_printed.SumKorrStr[2] 'SumKorrStr[2]':[10],protect;
-    f641_printed.SumKorrStr[3] 'SumKorrStr[3]':[10],protect;
-    f641_printed.SumKorrStr[4] 'SumKorrStr[4]':[10],protect;
-    f641_printed.SumKorrStr[5] 'SumKorrStr[5]':[10],protect;
-    f641_printed.SumKorrStr[6] 'SumKorrStr[6]':[10],protect;
-    f641_printed.SumKorrStr[7] 'SumKorrStr[7]':[10],protect;
-    f641_printed.SumKorrStr[8] 'SumKorrStr[8]':[10],protect;
-    f641_printed.SumKorrStr[9] 'SumKorrStr[9]':[10],protect;
-    f641_printed.SumKorrStr[10] 'SumKorrStr[10]':[10],protect;
-    f641_printed.SumKorrStr[11] 'SumKorrStr[11]':[10],protect;
-    f641_printed.SumKorrStr[12] 'SumKorrStr[12]':[10],protect;
-
-    f641_printed.sumvar1[1] 'sumvar1[1]':[10],protect;
-    f641_printed.sumvar1[2] 'sumvar1[2]':[10],protect;
-    f641_printed.sumvar1[3] 'sumvar1[3]':[10],protect;
-    f641_printed.sumvar1[4] 'sumvar1[4]':[10],protect;
-    f641_printed.sumvar1[5] 'sumvar1[5]':[10],protect;
-    f641_printed.sumvar1[6] 'sumvar1[6]':[10],protect;
-    f641_printed.sumvar1[7] 'sumvar1[7]':[10],protect;
-    f641_printed.sumvar1[8] 'sumvar1[8]':[10],protect;
-    f641_printed.sumvar1[9] 'sumvar1[9]':[10],protect;
-    f641_printed.sumvar1[10] 'sumvar1[10]':[10],protect;
-    f641_printed.sumvar1[11] 'sumvar1[11]':[10],protect;
-    f641_printed.sumvar1[12] 'sumvar1[12]':[10],protect;
-
-    f641_printed.sumvar2[1] 'sumvar2[1]':[10],protect;
-    f641_printed.sumvar2[2] 'sumvar2[2]':[10],protect;
-    f641_printed.sumvar2[3] 'sumvar2[3]':[10],protect;
-    f641_printed.sumvar2[4] 'sumvar2[4]':[10],protect;
-    f641_printed.sumvar2[5] 'sumvar2[5]':[10],protect;
-    f641_printed.sumvar2[6] 'sumvar2[6]':[10],protect;
-    f641_printed.sumvar2[7] 'sumvar2[7]':[10],protect;
-    f641_printed.sumvar2[8] 'sumvar2[8]':[10],protect;
-    f641_printed.sumvar2[9] 'sumvar2[9]':[10],protect;
-    f641_printed.sumvar2[10] 'sumvar2[10]':[10],protect;
-    f641_printed.sumvar2[11] 'sumvar2[11]':[10],protect;
-    f641_printed.sumvar2[12] 'sumvar2[12]':[10],protect;
-
-    f641_printed.sumvar4[10] 'sumvar4[10]':[10],protect;
-
-    f641_printed.sumvar3[1] 'sumvar3[1]':[10],protect;
-    f641_printed.sumvar3[2] 'sumvar3[2]':[10],protect;
-    f641_printed.sumvar3[3] 'sumvar3[3]':[10],protect;
-    f641_printed.sumvar3[4] 'sumvar3[4]':[10],protect;
-    f641_printed.sumvar3[5] 'sumvar3[5]':[10],protect;
-    f641_printed.sumvar3[6] 'sumvar3[6]':[10],protect;
-    f641_printed.sumvar3[7] 'sumvar3[7]':[10],protect;
-    f641_printed.sumvar3[8] 'sumvar3[8]':[10],protect;
-    f641_printed.sumvar3[9] 'sumvar3[9]':[10],protect;
-    f641_printed.sumvar3[10] 'sumvar3[10]':[10],protect;
-    f641_printed.sumvar3[11] 'sumvar3[11]':[10],protect;
-    f641_printed.sumvar3[12] 'sumvar3[12]':[10],protect;
-
-    f641_printed.sumvar4[1] 'sumvar4[1]':[10],protect;
-    f641_printed.sumvar4[2] 'sumvar4[2]':[10],protect;
-    f641_printed.sumvar4[3] 'sumvar4[3]':[10],protect;
-    f641_printed.sumvar4[4] 'sumvar4[4]':[10],protect;
-    f641_printed.sumvar4[5] 'sumvar4[5]':[10],protect;
-    f641_printed.sumvar4[6] 'sumvar4[6]':[10],protect;
-    f641_printed.sumvar4[7] 'sumvar4[7]':[10],protect;
-    f641_printed.sumvar4[8] 'sumvar4[8]':[10],protect;
-    f641_printed.sumvar4[9] 'sumvar4[9]':[10],protect;
-    f641_printed.sumvar4[10] 'sumvar4[10]':[10],protect;
-    f641_printed.sumvar4[11] 'sumvar4[11]':[10],protect;
-    f641_printed.sumvar4[12] 'sumvar4[12]':[10],protect;
-    */
-  End; // Browse
-
-  /*
-  Browse brStack '' ('',  hcNoContext);
-    Show at(,6,,10);
-    Table f791_stack;
-  Fields
-    f791_stack.nrec 'f791_stack.nrec':[10],protect;
-  End; // Browse
-
-  Browse brpodpisanty '' ('',  hcNoContext);
-    Show at(,11,,13);
-    Table podpisanty;
-  Fields
-    podpisanty.dolj 'dolj':[10],protect;
-    podpisanty.fio 'fio':[10],protect;
-  End; // Browse
-
-  Browse brf791_podval '' ('',  hcNoContext);
-    Show at(,11,,13);
-    Table f791_podval;
-  Fields
-    f791_podval.code 'code':[10],protect;
-    f791_podval.name 'name':[10],protect;
-    f791_podval.summa 'summa':[10],protect;
-  End; // Browse
-
-  Browse brf791_2extcl '' ('',  hcNoContext);
-    Show at(,14,,);
-    Table f791_2extcl;
-  Fields
-    f791_2extcl.wTable 'wTable':[10],protect;
-    f791_2extcl.crec 'crec':[10],protect;
-    f791_2extcl.name 'name':[10],protect;
-    f791_2extcl.val 'val':[10],protect;
-  End; // Browse
-  */
+  End; // tabbed
 End; // Window
