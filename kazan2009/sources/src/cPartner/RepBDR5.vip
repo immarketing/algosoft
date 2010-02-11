@@ -179,6 +179,37 @@ begin
   }
 end;
 
+
+  procedure GetCurrentCodeName (var code : String ; var name : String);
+  begin
+    // Replace (,'_','-')
+    // fpStBud
+    // superKAUfpStBud
+
+    var cd, nm : String;
+
+    if(fpSpAxtf.coTable = word(22217) ) {
+      cd := fpStBud.abbr;
+      nm := fpSpAxtf.name;
+      //
+      if ( SubStr (cd, Length(cd),1 )= '_'  ) {
+        cd := cd + '00'
+      }
+
+      code := Replace (cd, '_', '-');
+      name := nm;
+    } else {
+      if (getFirst superKauSpAxtf = tsOK ) {};
+      if (getFirst superKAUfpStBud = tsOK ) {};
+      cd := superKAUfpStBud.abbr;
+      nm := fpSpAxtf.name;
+
+      //
+      code := Replace (cd + fpSpAxtf.levelcode,'_','-');
+      name := fpSpAxtf.name;
+    }
+  end;
+
 //определяет первый день текущего квартала
 
 function FirstKvartalDay(D:date):date;
@@ -529,6 +560,9 @@ end;
 
   function trimFirst0 (st : String):string;
   begin
+    result := st;
+    exit;
+
     if st = '' then {
       result := '';
       exit
@@ -799,19 +833,26 @@ end;
       NextVisual;
       if(isValid(tnfpstbud) or (1=1))       { //chek year
         inc(tt);
-        xlSetCellStringValue(fpSpAxtf.code, 1+tt, 1, 1+tt, 1); //
-
         if ( fpSpAxtf.coTable = coFPSTBUD ) {
           extCl := GetStBudExtraParameters( coFPSTBUD , fpSpAxtf.CMEAN ,extClName );
         } else {
           extCl := 0;
         }
+
+        var code2010, name2010 : String;
+        GetCurrentCodeName (code2010, name2010);
+
         xlSetCellNumberValue(extCl     , 1+tt, 41, 1+tt, 41);
 
-        //xlSetCellStringValue(PadCh ('',' ', 2 * getCurrentLevelNumber) + fpstbud.Name, 1+tt, 2, 1+tt, 2); //
-        xlSetCellStringValue(PadCh ('',' ', 2 * getCurrentLevelNumber) + fpSpAxtf.name, 1+tt, 2, 1+tt, 2); //
+        //xlSetCellStringValue(fpSpAxtf.code, 1+tt, 1, 1+tt, 1); //
+        xlSetCellStringValue(code2010, 1+tt, 1, 1+tt, 1); //
 
-        xlSetCellStringValue(extraChar + trimFirst0(fpstbud.LevelCode), 1+tt, 40, 1+tt, 40); //
+        //xlSetCellStringValue(PadCh ('',' ', 2 * getCurrentLevelNumber) + fpstbud.Name, 1+tt, 2, 1+tt, 2); //
+        //xlSetCellStringValue(PadCh ('',' ', 2 * getCurrentLevelNumber) + fpSpAxtf.name, 1+tt, 2, 1+tt, 2); //
+        xlSetCellStringValue(PadCh ('',' ', 2 * getCurrentLevelNumber) + name2010, 1+tt, 2, 1+tt, 2); //
+
+        //xlSetCellStringValue(extraChar + trimFirst0(fpstbud.LevelCode), 1+tt, 40, 1+tt, 40); //
+        xlSetCellStringValue(extraChar + code2010, 1+tt, 40, 1+tt, 40); //
         xlSetCellStringValue(kated.name, 1+tt, 27, 1+tt, 27);
         var pl, fc: rep91array;
         var i : byte;
@@ -826,8 +867,10 @@ end;
         insert f91_printed set f91_printed.cRec := fpSpAxtf.nRec ,
                                 f91_printed.printedAtRow := 1+tt,
                                 f91_printed.cNode  := fpSpAxtf.cNode,
-                                f91_printed.code   := extraChar + trimFirst0(fpstbud.levelcode),
-                                f91_printed.name   := PadCh ('',' ', 2 * getCurrentLevelNumber) + fpSpAxtf.name,
+                                //f91_printed.code   := extraChar + trimFirst0(fpstbud.levelcode),
+                                f91_printed.code   := name2010,
+                                //f91_printed.name   := PadCh ('',' ', 2 * getCurrentLevelNumber) + fpSpAxtf.name,
+                                f91_printed.name   := PadCh ('',' ', 2 * getCurrentLevelNumber) + name2010,
                                 /*
                                 f91_printed.sum1   := pl,
                                 f91_printed.sum[2] := fc,
@@ -943,14 +986,19 @@ end;
           4: continue;
         end;
 
+        var code2010, name2010 : String;
+        GetCurrentCodeName (code2010, name2010);
+
         //xlSetCellStringValue(fpSpAxtf.code, 1+tt, 1, 1+tt, 1); //
         //xlSetCellNumberValue(extCl     , 1+tt, 41, 1+tt, 41);
 
         //xlSetCellStringValue(PadCh ('',' ', 2 * getCurrentLevelNumber) + fpstbud.Name, prntRow, 2, prntRow, 2); //
-        xlSetCellStringValue(PadCh ('',' ', 2 * getCurrentLevelNumber) + fpSpAxtf.name, prntRow, 2, prntRow, 2); //
+        //xlSetCellStringValue(PadCh ('',' ', 2 * getCurrentLevelNumber) + fpSpAxtf.name, prntRow, 2, prntRow, 2); //
+        xlSetCellStringValue(PadCh ('',' ', 2 * getCurrentLevelNumber) + name2010, prntRow, 2, prntRow, 2); //
 
         if ( extCl <> 1) {
-          xlSetCellStringValue(extraChar + trimFirst0(fpstbud.LevelCode), prntRow, 1, prntRow, 1 ); //
+          //xlSetCellStringValue(extraChar + trimFirst0(fpstbud.LevelCode), prntRow, 1, prntRow, 1 ); //
+          xlSetCellStringValue(extraChar + code2010, prntRow, 1, prntRow, 1 ); //
           //xlSetCellStringValue(kated.name, 1+tt, 27, 1+tt, 27);
           var sms :array [1..3] of double;
           ExcelPrint2_2010(fpSpAxtf.coTable,cPlan,150,prntRow,3,sms[1]);
@@ -960,8 +1008,10 @@ end;
           insert fpzap_printed set fpzap_printed.cRec := fpSpAxtf.nRec ,
                                   fpzap_printed.printedAtRow := repGetPrintRow ,
                                   fpzap_printed.cNode  := fpSpAxtf.cNode,
-                                  fpzap_printed.code   := extraChar + trimFirst0(fpstbud.levelcode),
-                                  fpzap_printed.name   := PadCh ('',' ', 2 * getCurrentLevelNumber) + fpSpAxtf.name,
+                                  //fpzap_printed.code   := extraChar + trimFirst0(fpstbud.levelcode),
+                                  fpzap_printed.code   := code2010,
+                                  //fpzap_printed.name   := PadCh ('',' ', 2 * getCurrentLevelNumber) + fpSpAxtf.name,
+                                  fpzap_printed.name   := PadCh ('',' ', 2 * getCurrentLevelNumber) + name2010,
                                   fpzap_printed.sum[1] := sms[1],
                                   fpzap_printed.sum[2] := sms[2],
                                   fpzap_printed.sum[3] := sms[3],

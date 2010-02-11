@@ -179,6 +179,8 @@ From
 //  , f791_printed f791_printed_ord2
   , f791_printed subp3
 
+  , fpStBud superKAUfpStBud
+
  where
 ((
 
@@ -202,14 +204,25 @@ and fpTForm.nrec   == fpAxTF.cMain     //может быть несколько
 and fpAxTF.NRec    == fpSpAxtf.cMain (noindex)
 // and fpSpAxtf.cMean == fpStBud.nrec
 //and comp('01310000000439EBh') == fpSpAxtf.nRec
-//and (fpSpAxtf.nRec=comp('013100000001EBCBh') /* or fpSpAxtf.cKauNode = comp('013100000001EBCBh') */ )
+//0131000000051792h
+
+/*
+and ( fpSpAxtf.nRec=comp('0131000000051792h') or
+      fpSpAxtf.cKauNode = comp('0131000000051792h') or
+      fpSpAxtf.cNode = comp('0131000000051792h') or
+      fpSpAxtf.nRec=comp('0131000000051791h') or
+      fpSpAxtf.cNode = comp('0131000000051791h')
+      )
+      */
+//and (fpSpAxtf.nRec=comp('013100000001EBCBh') or fpSpAxtf.cKauNode = comp('013100000001EBCBh')  )
 
 and fpAxTF.NRec    == superfpSpAxtf.cMain  (noindex)
 and fpSpAxtf.cNode == superfpSpAxtf.nRec
 and superfpSpAxtf.cNode == superfpSpAxtf2.nRec
 and fpSpAxtf.cKauNode == superKauSpAxtf.nRec
+and superKauSpAxtf.cMean == superKAUfpStBud.nRec
 
-//and (fpSpAxtf.nRec=comp('01310000000439EBh') or fpSpAxtf.cNode = comp('01310000000439EBh'))
+//and (fpSpAxtf.nRec=comp('0131000000051792h') or fpSpAxtf.cNode = comp('0131000000051792h'))
 
 and cCopyBud       == fpBV.nrec
 and fpBV.nrec      == fpV.cBudVar // вариант бюджета

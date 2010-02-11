@@ -152,8 +152,42 @@
     CheckDefaultValues;
   end;
 
+  procedure GetCurrentCodeName (var code : String ; var name : String);
+  begin
+    // Replace (,'_','-')
+    // fpStBud
+    // superKAUfpStBud
+
+    var cd, nm : String;
+
+    if(fpSpAxtf.coTable = word(22217) ) {
+      cd := fpStBud.abbr;
+      nm := fpSpAxtf.name;
+      //
+      if ( SubStr (cd, Length(cd),1 )= '_'  ) {
+        cd := cd + '00'
+      }
+
+      code := Replace (cd, '_', '-');
+      name := nm;
+    } else {
+      if (getFirst superKauSpAxtf = tsOK ) {};
+      if (getFirst superKAUfpStBud = tsOK ) {};
+      cd := superKAUfpStBud.abbr;
+      nm := fpSpAxtf.name;
+
+      //
+      code := Replace (cd + fpSpAxtf.levelcode,'_','-');
+      name := fpSpAxtf.name;
+    }
+  end;
+
+
   function trimFirst0 (st : String):string;
   begin
+    result := st;
+    exit;
+
     if st = '' then {
       result := '';
       exit
@@ -782,6 +816,10 @@
         }
       }
 
+      var code2010, name2010 : String;
+      GetCurrentCodeName (code2010, name2010);
+
+
       if(isValid(tnfpstbud) or 1=1) { //chek year
         inc(tt);
 
@@ -830,8 +868,12 @@
         insert f641_printed set f641_printed.cRec := fpSpAxtf.nRec ,
                                 f641_printed.printedAtRow := repGetPrintRow - 1,
                                 f641_printed.cNode  := fpSpAxtf.cNode,
-                                f641_printed.code   := firstChar + trimFirst0 (fpstbud.levelcode),
-                                f641_printed.name   := fpSpAxtf.name,
+                                //f641_printed.code   := firstChar + trimFirst0 (fpstbud.levelcode),
+                                f641_printed.code   := code2010,
+
+                                //f641_printed.name   := fpSpAxtf.name,
+                                f641_printed.name   := name2010,
+
                                 f641_printed.prior  := fpstbud.prior,
                                 f641_printed.SaldoType := extCl,
                                 f641_printed.extPar3:= extCl3,
@@ -993,8 +1035,13 @@
         var sSum : String;
         sSum := '=0';
 
+        /*
         xlSetCellStringValue(firstChar + trimFirst0 (fpstbud.levelcode), dataRow, 1, dataRow, 1);
         xlSetCellStringValue(fpSpAxtf.name, dataRow, 2, dataRow, 2); //
+        */
+
+        xlSetCellStringValue(firstChar + f641_printed.code, dataRow, 1, dataRow, 1);
+        xlSetCellStringValue(f641_printed.name, dataRow, 2, dataRow, 2); //
 
         if ((extCl = 0) or (extCl = 3) or (extCl = 4)) {
           //xlSetCellNumberValue('''' + f641_printed.Sumojid , dataRow, 71 , dataRow, 71 );

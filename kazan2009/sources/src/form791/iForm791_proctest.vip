@@ -85,6 +85,9 @@
 
   function trimFirst0 (st : String):string;
   begin
+    result := st;
+    exit;
+
     if st = '' then {
       result := '';
       exit
@@ -507,7 +510,35 @@
     } while true;
   end;
 
+  procedure GetCurrentCodeName (var code : String ; var name : String);
+  begin
+    // Replace (,'_','-')
+    // fpStBud
+    // superKAUfpStBud
 
+    var cd, nm : String;
+
+    if(fpSpAxtf.coTable = word(22217) ) {
+      cd := fpStBud.abbr;
+      nm := fpSpAxtf.name;
+      //
+      if ( SubStr (cd, Length(cd),1 )= '_'  ) {
+        cd := cd + '00'
+      }
+
+      code := Replace (cd, '_', '-');
+      name := nm;
+    } else {
+      if (getFirst superKauSpAxtf = tsOK ) {};
+      if (getFirst superKAUfpStBud = tsOK ) {};
+      cd := superKAUfpStBud.abbr;
+      nm := fpSpAxtf.name;
+
+      //
+      code := Replace (cd + fpSpAxtf.levelcode,'_','-');
+      name := fpSpAxtf.name;
+    }
+  end;
 
   procedure doPrintReport791; forward;
 
@@ -630,6 +661,10 @@
         //xlSetCellStringValue('2', 1+tt, 40, 1+tt, 40);
       }
 
+      var code2010, name2010 : String;
+
+      GetCurrentCodeName (code2010, name2010);
+
       var
         arValues : array [1..3] of double;
 
@@ -663,7 +698,12 @@
 
       if ( extCl = 1 /* fpSpAxtf.cNode = 0h */)then {
         // самый верхний уровень группировки
-        xlSetCellStringValue(extraChar + trimFirst0(fpstbud.levelcode), 8, 1, 8, 1);
+
+        //xlSetCellStringValue(extraChar + trimFirst0(fpstbud.levelcode), 8, 1, 8, 1);
+        //xlSetCellStringValue(extraChar + trimFirst0(fpstbud.abbr), 8, 1, 8, 1);
+        xlSetCellStringValue(extraChar + trimFirst0(code2010), 8, 1, 8, 1);
+
+
         //xlSetCellStringValue(fpSpAxtf.levelcode, 8, 1, 8, 1); //
         xlSetCellStringValue(fpSpAxtf.name, 8, 2, 8, 2); //
         xlRunMacro('CopyRow(ROW0)');
@@ -676,7 +716,11 @@
         }
 
         // Группа не верхнего уровня
-        xlSetCellStringValue(extraChar + trimFirst0(fpstbud.levelcode), r2print, 1, r2print, 1);
+        //xlSetCellStringValue(extraChar + trimFirst0(fpstbud.levelcode), r2print, 1, r2print, 1);
+        //xlSetCellStringValue(extraChar + trimFirst0(fpstbud.abbr), r2print, 1, r2print, 1);
+        xlSetCellStringValue(extraChar + trimFirst0(code2010), r2print, 1, r2print, 1);
+
+
         //xlSetCellStringValue(fpSpAxtf.levelcode, 10, 1, 10, 1); //
         xlSetCellStringValue(PadCh ('',' ', 2 * getCurrentLevelNumber) + fpSpAxtf.name, r2print, 2, r2print, 2); //
         ExcelPrint3(fpSpAxtf.coTable,cPlan1,150,r2print,3, arValues[1]); // План 1
@@ -703,7 +747,11 @@
         };
       } else {
         // Лист - простая строка
-        xlSetCellStringValue(extraChar + trimFirst0(fpstbud.levelcode), 9, 1, 9, 1);
+        //xlSetCellStringValue(extraChar + trimFirst0(fpstbud.levelcode), 9, 1, 9, 1);
+        //xlSetCellStringValue(extraChar + trimFirst0(fpstbud.abbr), 9, 1, 9, 1);
+        xlSetCellStringValue(extraChar + trimFirst0(code2010), 9, 1, 9, 1);
+
+
         //xlSetCellStringValue(fpSpAxtf.levelcode, 9, 1, 9, 1); //
         xlSetCellStringValue(PadCh ('',' ', 2 * getCurrentLevelNumber) + fpSpAxtf.name, 9, 2, 9, 2); //
         ExcelPrint3(fpSpAxtf.coTable,cPlan1,150,9,3, arValues[1]); // План 1
@@ -729,7 +777,9 @@
         insert f791_printed set f791_printed.cRec := fpSpAxtf.nRec ,
                                 f791_printed.printedAtRow := repGetPrintRow - 1,
                                 f791_printed.cNode  := fpSpAxtf.cNode,
-                                f791_printed.code   := extraChar + trimFirst0(fpstbud.levelcode),
+                                //f791_printed.code   := extraChar + trimFirst0(fpstbud.levelcode),
+                                f791_printed.code   := extraChar + trimFirst0(code2010),
+
                                 f791_printed.name   := PadCh ('',' ', 2 * getCurrentLevelNumber) + fpSpAxtf.name,
                                 f791_printed.extPar := extCl,
                                 f791_printed.sum[1] := arValues[1],

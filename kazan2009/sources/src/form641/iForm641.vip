@@ -232,6 +232,9 @@ From
  , HashAn
  , Synonym fpValues fpV2
  , f641_printed subp3
+
+   , fpStBud superKAUfpStBud
+
  where
 ((
   // иерархия оси1
@@ -260,10 +263,21 @@ cPlan3    == fpBudVar3.nrec
 and fpBudVar.cBudget   == FpBudget.nrec
 and fpTForm.nrec   == fpAxTF.cMain     //может быть несколько
 and fpAxTF.NRec    == fpSpAxtf.cMain
+
+/*
+and ( fpSpAxtf.nRec=comp('0131000000051792h') or
+      fpSpAxtf.cKauNode = comp('0131000000051792h') or
+      fpSpAxtf.cNode = comp('0131000000051792h') or
+      fpSpAxtf.nRec=comp('0131000000051791h') or
+      fpSpAxtf.cNode = comp('0131000000051791h')
+      )
+      */
+
 and fpSpAxtf.cMean == fpStBud.nrec
 
 and fpSpAxtf.cNode == superfpSpAxtf.nRec
 and fpSpAxtf.cKauNode == superKauSpAxtf.nRec
+and superKauSpAxtf.cMean == superKAUfpStBud.nRec
 
 and cCopyBud       == fpBV.nrec
 and fpBV.nrec      == fpV.cBudVar
