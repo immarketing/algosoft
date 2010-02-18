@@ -140,6 +140,10 @@ var
   excCode6    : String;
   excCode7    : String;
 
+  isShowZeros : boolean;
+
+  coTableToSum : word;
+
 As select
   if(cPeriod=0   ,'выберите значение',fpPeriod.Name)  (FieldName = sPeriod)
 , if(cTForm=0    ,'выберите значение',fpTForm.Name)   (FieldName = sTForm)
@@ -214,6 +218,7 @@ and ( fpSpAxtf.nRec=comp('0131000000051792h') or
       fpSpAxtf.cNode = comp('0131000000051791h')
       )
       */
+
 //and (fpSpAxtf.nRec=comp('013100000001EBCBh') or fpSpAxtf.cKauNode = comp('013100000001EBCBh')  )
 
 and fpAxTF.NRec    == superfpSpAxtf.cMain  (noindex)
@@ -338,6 +343,10 @@ cmDelOnProtect:
 
 cmInit:
 {
+  set isShowZeros := true;
+
+  set coTableToSum := 22217;
+
   podpisanty.setprefix('szmn_bud_Form791');
   podpisanty.reinit;
 

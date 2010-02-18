@@ -117,7 +117,7 @@ vipInterface szmn_bud_Form641_2010 licensed(free);
 Interface szmn_bud_Form641_2010
 //Interface #_VERSIONEDNAME_(szmn_bud_Form714_)
 //#_INTERFVERS_(szmn_bud_Form714_)
-  '-= СЗМН Бюджет. Форма 6.4.1. Вариант 2010 года v.20100209 =- ' (,hcNoContext,) EscClose, Cyan;
+  '-= СЗМН Бюджет. Форма 6.4.1. Вариант 2010 года v.20100217 =- ' (,hcNoContext,) EscClose, Cyan;
   show at (5,2,110,32)
   //show at  (0,0,100,30)
   ;
@@ -192,6 +192,9 @@ var
   rowSaldoPer : word;
   rowSaldoNach: word;
   rowSaldoKon : word;
+
+  isShowZeros : boolean;
+
 
 As select
   if(cPeriod=0   ,'выберите значение',fpPeriod.Name)  (FieldName = sPeriod)
@@ -403,6 +406,7 @@ cmDelOnProtect:
 
 cmInit:
 {
+  set isShowZeros := true;
 
   ReadDSK ();
 

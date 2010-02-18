@@ -48,6 +48,9 @@
     SaveMyDsk (cPodpGrp,'iForm791_cPodpGrp' );
 
     SaveMyDsk (Check,    'iForm791_Check' );
+
+    SaveMyDsk (coTableToSum,    'iForm791.coTableToSum' );
+
   end;
 
   procedure ReadDSK;
@@ -79,6 +82,9 @@
     //if (extClName = '') {set extClName := 'Характеристики статьи для форм 7.9.1 и 7.9'}
 
     ReadMyDsk (Check,    'iForm791_Check', dc);
+
+    //ReadMyDsk (coTableToSum, 'iForm791.coTableToSum', dc);
+
 
     CheckDefValues;
   end;
@@ -259,6 +265,9 @@
 
 
       _loop subp3{
+        if (subp3.coTable <> coTableToSum) then {
+          continue;
+        }
         var tsts : string;
         var raz : integer;
 
@@ -510,6 +519,14 @@
     } while true;
   end;
 
+  create view forGetCode
+  var
+  cKAU : comp;
+  as select * from spkau where ((
+  cKAU == spkau.nRec
+  ))
+  ;
+
   procedure GetCurrentCodeName (var code : String ; var name : String);
   begin
     // Replace (,'_','-')
@@ -534,8 +551,13 @@
       cd := superKAUfpStBud.abbr;
       nm := fpSpAxtf.name;
 
+      set forGetCode.cKAU := fpSpAxtf.cMEAN;
+      if (forGetCode.getfirst spkau = tsOK) {
+        code := Replace (cd + forGetCode.spkau.levelcode,'_','-');
+      } else {
+        code := Replace (cd + fpSpAxtf.levelcode,'_','-');
+      }
       //
-      code := Replace (cd + fpSpAxtf.levelcode,'_','-');
       name := fpSpAxtf.name;
     }
   end;
@@ -668,7 +690,6 @@
       var
         arValues : array [1..3] of double;
 
-
       var delit : double;
 
       if(Check=0)      {
@@ -727,6 +748,12 @@
         ExcelPrint3(fpSpAxtf.coTable,cPlan3,150,r2print,4, arValues[3]); // План 3
         ExcelPrint3(fpSpAxtf.coTable,cPlan2,150,r2print,4, arValues[2]); // План 2
 
+        if ( abs (arValues[1]) < 0.0000001 and abs (arValues[2]) < 0.0000001 and abs (arValues[3]) < 0.0000001) then {
+          if (not isShowZeros and fpSpAxtf.isLeaf = 1) {
+            continue;
+          }
+        }
+
         if (extCl = 2) {
           // - в подвал
           insert f791_podval set  f791_podval.name := PadCh ('',' ', 2 * getCurrentLevelNumber) + fpSpAxtf.name,
@@ -767,6 +794,13 @@
         }
 
         arValues[3] := arValues[3] - if ( (arValues[1]- arValues[2]) < 0 ,arValues[1],arValues[2]) ;
+
+        if ( abs (arValues[1]) < 0.0000001 and abs (arValues[2]) < 0.0000001 and abs (arValues[3]) < 0.0000001) then {
+          if (not isShowZeros and fpSpAxtf.isLeaf = 1) {
+            continue;
+          }
+        }
+
         xlSetCellNumberValue( if (arValues[3]<0,0,arValues[3]) , 9, 6 , 9, 6 );
 
         if (extCl <> 2) {
@@ -787,6 +821,7 @@
                                 f791_printed.sum[3] := arValues[3],
                                 f791_printed.extPar1:= extCl1,
                                 f791_printed.isLeaf := fpSpAxtf.isLeaf,
+                                f791_printed.coTable := fpSpAxtf.coTable,
                                 f791_printed.isKAUGroup := isKauGroup (fpSpAxtf.nRec)
 
                                 ;

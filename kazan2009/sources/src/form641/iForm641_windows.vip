@@ -122,6 +122,8 @@ end; // Screen
       {Font = {BackColor = if (extClName5='',    ColorNeed,0)}};
     extClName6  ('',,) : NoProtect,noPickButton,
       {Font = {BackColor = if (extClName6='',    ColorNeed,0)}};
+
+    isShowZeros  ('',,) : NoProtect,noPickButton;
   <<
 
          Название классификатора .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -158,6 +160,8 @@ end; // Screen
      статьи для 6.4.1 (сумма №3)].@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
  Название классификатора [Дополнительная обработка
      статьи для 6.4.1 (сумма №4)].@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+                                 [.] Печатать нулевые`
   >>
   end; // screen  sCheckdop 'Дополнительно';
 end;

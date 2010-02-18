@@ -28,6 +28,10 @@ var
 
  podpisanty  : SZMN_COMMON::IPodpis (vPodpis) new;// (  ) new;
 
+  isShowZeros : boolean;   // печатать нулевые строки
+  coTableToSum : word;     // суммировать строки с coTable
+
+
 As select
   if(cPeriod=0   ,'выберите значение',fpPeriod.Name)   (FieldName = sPeriod)
 , if(cTForm=0    ,'выберите значение',fpTForm.Name)    (FieldName = sTForm)

@@ -32,7 +32,8 @@ table struct f641_printed
   Sumojid       : double,
   SaldoType     : byte,
   SumBDSGod     : double,
-  AgregHandling : byte
+  AgregHandling : byte,
+  coTable       : word
 )
 with index
 (

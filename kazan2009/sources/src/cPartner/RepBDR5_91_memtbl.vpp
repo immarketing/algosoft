@@ -14,7 +14,8 @@ table struct f91_printed
   isLeaf        : byte,
   sum1          : rep91array,//array [1..3] of double,
   sum2          : rep91array,//array [1..3] of double,
-  isKAUGroup    : byte
+  isKAUGroup    : byte,
+  coTable       : word
 )
 with index
 (
@@ -42,7 +43,8 @@ table struct fpzap_printed
   extPar1       : byte,
   isLeaf        : byte,
   sum           : array [1..3] of double,
-  isKAUGroup    : byte
+  isKAUGroup    : byte,
+  coTable       : word
 )
 with index
 (

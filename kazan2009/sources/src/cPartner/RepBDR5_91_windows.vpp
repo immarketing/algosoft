@@ -74,6 +74,10 @@ end; // Screen
       {Font = {BackColor = if (excCode5='',    ColorNeed,0)}};
     excCode6  ('',,) : NoProtect,noPickButton,
       {Font = {BackColor = if (excCode6='',    ColorNeed,0)}};
+
+    isShowZeros  ('',,) : NoProtect,noPickButton;
+
+    coTableToSum  ('',,) : NoProtect,noPickButton;
   <<
 
                  Название классификатора .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -87,6 +91,9 @@ end; // Screen
 
         Код аналитики [Начальное сальдо] .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
          Код аналитики [Конечное сальдо] .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+                                         [.] Печатать нулевые`
+           coTableToSum для суммировки   .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
   >>
   end; // Screen sCheckdop 'Дополнительно'
 end; // Screen

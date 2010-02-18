@@ -75,6 +75,10 @@ tabbedSheet tabbed
       {Font = {BackColor = if (excCode6 ='',    ColorNeed,0)}};
     excCode7  ('',,) : NoProtect,noPickButton,
       {Font = {BackColor = if (excCode7 ='',    ColorNeed,0)}};
+
+    isShowZeros  ('',,) : NoProtect,noPickButton;
+
+    coTableToSum  ('',,) : NoProtect,noPickButton;
   <<
 
          Название классификатора .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -88,6 +92,9 @@ tabbedSheet tabbed
            Код аналитики [Сумма] .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
          Код аналитики [Сложить] .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
          Код аналитики [Вычесть] .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+  [.] Печатать нулевые`
+   coTableToSum для суммировки   .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
   >>
   end; // screen  sCheckdop 'Дополнительно';
 end;
@@ -115,6 +122,7 @@ Window wnInfoWindow 'gg' ('gg', hcNoContext);
       //f791_printed.extPar '.extPar':[10],protect;
       //f791_printed.extPar1 '.extPar1':[10],protect;
       f791_printed.isKAUGroup '.isKAUGroup':[10],protect;
+      f791_printed.coTable     '.coTable':[10],protect;
     End; // Browse
 
     Browse brStack 'f791_stack' ('f791_stack',  hcNoContext);

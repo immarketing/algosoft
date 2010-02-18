@@ -146,10 +146,19 @@
     if (f714_sb_iter.prStart = 1  ){ // это начало этой статьи
       //if (f714_stbud.isLeaf = 1) {
       if (f714_stbud.isExtraLeaf = 1) {
+        if (getFirst super_f714_stbud = tsOK ) {};
         xlSetCellStringValue('', 7, 1, 7, 6); // узел -  лист
         xlSetCellStringValue('' , 7, 7, 7, 7); // узел - лист
         xlSetCellStringValue('', 7, 8, 7, 38); // узел -  лист
-        xlSetCellStringValue(f714_stbud.LevelCode , 7, 1, 7, 1); // узел - лист
+
+        //f714_stbud.LevelCode
+        xlSetCellStringValue(
+                              Replace (
+                              super_f714_stbud.LevelCode
+                              + if (SubStr ( super_f714_stbud.LevelCode, length(super_f714_stbud.LevelCode),1 ) ='_',
+                                   '' + f714_stbud.LevelCode,
+                                   ''
+                                   ) , '_', '-') , 7, 1, 7, 1); // узел - лист
         xlSetCellStringValue(f714_stbud.Name , 7, 3, 7, 3); // узел - лист
         xlRunMacro('CopyRow4');
       } else {
@@ -157,11 +166,12 @@
         xlSetCellStringValue('' , 4, 8, 4, 38); // узел - не лист
         if (SubStr ( f714_stbud.LevelCode, length(f714_stbud.LevelCode),1 ) ='-') {
         }
-        xlSetCellStringValue( f714_stbud.LevelCode
-                              + if (SubStr ( f714_stbud.LevelCode, length(f714_stbud.LevelCode),1 ) ='-',
+        xlSetCellStringValue( Replace (
+                              f714_stbud.LevelCode
+                              + if (SubStr ( f714_stbud.LevelCode, length(f714_stbud.LevelCode),1 ) ='_',
                                    '' + '00 ',
                                    ''
-                                   )
+                                   ) , '_', '-')
                               + '   '+ f714_stbud.Name , 4, 1, 4, 1); // узел - не лист
         xlRunMacro('CopyRow1');
       };
@@ -209,10 +219,18 @@
 
       //if (f714_stbud.isLeaf = 1) {
       if (f714_stbud.isExtraLeaf = 1) {
+        if (getFirst super_f714_stbud = tsOK ) {};
         xlSetCellStringValue('', 7, 1, 7, 3); // узел -  лист
         xlSetCellFormula('=СУММ(RC[1]:RC[31])',7,7,7,7);
         xlSetCellStringValue('', 7, 8, 7, 38); // узел -  лист
-        xlSetCellStringValue(f714_stbud.LevelCode , 7, 1, 7, 1); // узел - лист
+        //xlSetCellStringValue(f714_stbud.LevelCode , 7, 1, 7, 1); // узел - лист
+        xlSetCellStringValue(
+                              Replace (
+                              super_f714_stbud.LevelCode
+                              + if (SubStr ( super_f714_stbud.LevelCode, length(super_f714_stbud.LevelCode),1 ) ='_',
+                                   '' + f714_stbud.LevelCode,
+                                   ''
+                                   ) , '_', '-' ) , 7, 1, 7, 1); // узел - лист
         xlSetCellStringValue('Итого: ['+ f714_stbud.Name + ']' , 7, 3, 7, 3); // узел - лист
         xlRunMacro('CopyRow4');
 
@@ -244,11 +262,11 @@
         xlSetCellStringValue('', 6, 8, 6, 38); // узел - не лист
 
         xlSetCellStringValue( 'Итого ['+
-                              f714_stbud.LevelCode +
-                              + if (SubStr ( f714_stbud.LevelCode, length(f714_stbud.LevelCode),1 ) ='-',
+                              Replace (f714_stbud.LevelCode +
+                              + if (SubStr ( f714_stbud.LevelCode, length(f714_stbud.LevelCode),1 ) ='_',
                                    '' + '00 ',
                                    ''
-                                   ) +
+                                   ), '_', '-' ) +
                               '   '+
                               f714_stbud.Name +']', 6, 1, 6, 1); // узел - не лист
 
@@ -489,6 +507,9 @@
 
   function trimFirst0 (st : String):string;
   begin
+    result := st;
+    exit;
+
     if st = '' then {
       result := '';
       exit

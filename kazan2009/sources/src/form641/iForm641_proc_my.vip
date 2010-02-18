@@ -152,6 +152,14 @@
     CheckDefaultValues;
   end;
 
+  create view forGetCode
+  var
+  cKAU : comp;
+  as select * from spkau where ((
+  cKAU == spkau.nRec
+  ))
+  ;
+
   procedure GetCurrentCodeName (var code : String ; var name : String);
   begin
     // Replace (,'_','-')
@@ -176,8 +184,14 @@
       cd := superKAUfpStBud.abbr;
       nm := fpSpAxtf.name;
 
+      set forGetCode.cKAU := fpSpAxtf.cMEAN;
+      if (forGetCode.getfirst spkau = tsOK) {
+        code := Replace (cd + forGetCode.spkau.levelcode,'_','-');
+      } else {
+        code := Replace (cd + fpSpAxtf.levelcode,'_','-');
+      }
+
       //
-      code := Replace (cd + fpSpAxtf.levelcode,'_','-');
       name := fpSpAxtf.name;
     }
   end;
@@ -880,7 +894,8 @@
                                 f641_printed.extPar4:= extCl4,
                                 f641_printed.extPar0[1]:= extCl5,
                                 f641_printed.extPar0[2]:= extCl6,
-                                f641_printed.isLeaf := fpSpAxtf.isLeaf ,
+                                f641_printed.isLeaf    := fpSpAxtf.isLeaf ,
+                                f641_printed.coTable   := fpSpAxtf.coTable ,
                                 f641_printed.AgregHandling := extCl1
 
                                 ;
@@ -889,6 +904,29 @@
         ExcelPrint2_2010(fpSpAxtf.coTable,cPlan2,cReg2,1+tt,14,DopPlan);
         ExcelPrint2_2010(fpSpAxtf.coTable,cFact,cReg3,1+tt,26,Fact);
         ExcelPrint2_2010(fpSpAxtf.coTable,cPlan3,cReg4,1+tt,38,OjidPlan);
+
+        var wasNonZeros : boolean;
+        wasNonZeros := false
+        for (i := 1; i<=12; i := i +1) {
+          if ( abs ( f641_printed.sumvar1[i]) > 0.0000001 or
+               abs ( f641_printed.sumvar2[i]) > 0.0000001 or
+               abs ( f641_printed.sumvar3[i]) > 0.0000001 or
+               abs ( f641_printed.sumvar4[i]) > 0.0000001 or
+               abs ( f641_printed.sumvarOtd[i]) > 0.0000001
+                ) then {
+            wasNonZeros := true
+            break;
+          }
+        }
+
+        if ( not wasNonZeros) then {
+          if (not isShowZeros and fpSpAxtf.isLeaf = 1) {
+            delete current f641_printed;
+            //dec(tt);
+            //continue;
+          }
+        }
+
 
         // ExcelPrint2(cPlanOtd,cReg1,1+tt,2, PlanOtd); не надо!
 
@@ -950,7 +988,8 @@
 
       if(isValid(tnfpstbud) or 1=1) { //chek year
         // вот тут мы ее закончили
-        if (getFirst f641_printed where (( fpSpAxtf.nRec==f641_printed.cRec)) = tsOK ) {
+        if (getFirst f641_printed where (( fpSpAxtf.nRec==f641_printed.cRec)) <> tsOK ) {
+          continue;
         };
 
         inc(tt);
@@ -1175,7 +1214,9 @@
       tt := tt +1;
       setVisualHeader (FormatStr_4 ( 'Расчет итогов | %d из %d | %d | %s',3,stepstotal, tt ,fpSpAxtf.Name));
       if(isValid(tnfpstbud) or 1=1) {
-        if (getFirst f641_printed where (( fpSpAxtf.nRec==f641_printed.cRec)) = tsOK ) {};
+        if (getFirst f641_printed where (( fpSpAxtf.nRec==f641_printed.cRec)) <> tsOK ) {
+          continue;
+        };
         if ( f641_printed.SaldoType = 9 ) {
           // +
           fSaldoPer := fSaldoPer + ';R[-'+ (rowSaldoPer - f641_printed.printedAtRow) + ']C';

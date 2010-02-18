@@ -180,6 +180,14 @@ begin
 end;
 
 
+  create view forGetCode
+  var
+  cKAU : comp;
+  as select * from spkau where ((
+  cKAU == spkau.nRec
+  ))
+  ;
+
   procedure GetCurrentCodeName (var code : String ; var name : String);
   begin
     // Replace (,'_','-')
@@ -204,8 +212,13 @@ end;
       cd := superKAUfpStBud.abbr;
       nm := fpSpAxtf.name;
 
+      set forGetCode.cKAU := fpSpAxtf.cMEAN;
+      if (forGetCode.getfirst spkau = tsOK) {
+        code := Replace (cd + forGetCode.spkau.levelcode,'_','-');
+      } else {
+        code := Replace (cd + fpSpAxtf.levelcode,'_','-');
+      }
       //
-      code := Replace (cd + fpSpAxtf.levelcode,'_','-');
       name := fpSpAxtf.name;
     }
   end;
@@ -381,6 +394,9 @@ end;
     cFact:=0;
     cTForm:=0;
     cPeriod:=0;
+
+    isShowZeros := true;
+
     ReadDSK;
     if (sPath = '') then sPath:='C:\8.1.XLS';
 
@@ -864,6 +880,22 @@ end;
         //ExcelPrint_2010(fpSpAxtf.coTable,cPlan,150,1+tt,3,pl);
         ExcelPrint_2010(fpSpAxtf.coTable,cFact,151,1+tt,14, fc);
 
+        var wasNonZeros : boolean;
+        wasNonZeros := false
+        for (i := 1; i<=12; i := i +1) {
+          if ( abs (pl[i]) > 0.0000001 or abs (fc[i]) > 0.0000001 ) then {
+            wasNonZeros := true
+            break;
+          }
+        }
+
+        if ( not wasNonZeros) then {
+          if (not isShowZeros and fpSpAxtf.isLeaf = 1) {
+            dec(tt);
+            continue;
+          }
+        }
+
         insert f91_printed set f91_printed.cRec := fpSpAxtf.nRec ,
                                 f91_printed.printedAtRow := 1+tt,
                                 f91_printed.cNode  := fpSpAxtf.cNode,
@@ -879,6 +911,7 @@ end;
                                 f91_printed.extPar := extCl,
                                 //f91_printed.extPar1:= extCl1,
                                 f91_printed.isLeaf := fpSpAxtf.isLeaf,
+                                f91_printed.coTable := fpSpAxtf.coTable,
                                 f91_printed.isKAUGroup := isKauGroup (fpSpAxtf.nRec)
 
                                 ;
@@ -1005,6 +1038,12 @@ end;
           ExcelPrint2_2010(fpSpAxtf.coTable,cPlanDop,150,prntRow,4,sms[2]);
           ExcelPrint2_2010(fpSpAxtf.coTable,cFact,151,prntRow,5,sms[3]);
 
+          if ( abs (sms[1]) < 0.0000001 and abs (sms[2]) < 0.0000001 and abs (sms[3]) < 0.0000001) then {
+            if (not isShowZeros and fpSpAxtf.isLeaf = 1) {
+              continue;
+            }
+          }
+
           insert fpzap_printed set fpzap_printed.cRec := fpSpAxtf.nRec ,
                                   fpzap_printed.printedAtRow := repGetPrintRow ,
                                   fpzap_printed.cNode  := fpSpAxtf.cNode,
@@ -1018,6 +1057,7 @@ end;
                                   fpzap_printed.extPar := extCl,
                                   //fpzap_printed.extPar1:= extCl1,
                                   fpzap_printed.isLeaf := fpSpAxtf.isLeaf,
+                                  fpzap_printed.coTable := fpSpAxtf.coTable,
                                   fpzap_printed.isKAUGroup := isKauGroup (fpSpAxtf.nRec)
 
                                   ;

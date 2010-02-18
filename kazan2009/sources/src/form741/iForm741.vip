@@ -168,11 +168,11 @@ end;
 */
 
 
-vipInterface szmn_bud_Form741_2010 licensed(free);
+vipInterface szmn_bud_Form741_2010_ licensed(free);
 //vipInterface #(_VERSIONEDNAME_(szmn_bud_Form714_)) licensed(free);
 //#_VIPINTERFVERS_(szmn_bud_Form714_);
 
-Interface szmn_bud_Form741_2010
+Interface szmn_bud_Form741_2010_
 //Interface #_VERSIONEDNAME_(szmn_bud_Form714_)
 //#_INTERFVERS_(szmn_bud_Form714_)
   '-= ëáåç ÅÓ§¶•‚. îÆ‡¨† 7.4.1. v.2010 =- ' (,hcNoContext,) EscClose, Cyan;
@@ -227,6 +227,7 @@ select
         f714_datas f714_datas_empty,
         f714_stbud, // f714_stbud
         f714_stbud fsb,
+        f714_stbud super_f714_stbud,
         f714_sb_iter,
         fpco fltrfpco,
         spKAU ,
@@ -252,7 +253,8 @@ where ((
    '' == f714_datas_empty.DogName and
    '' == f714_datas_empty.AppDogName and
    */
-   cStatus == katNotes.nRec
+   cStatus == katNotes.nRec and
+   f714_stbud.cNode == super_f714_stbud.nRec
 
  ));
 
