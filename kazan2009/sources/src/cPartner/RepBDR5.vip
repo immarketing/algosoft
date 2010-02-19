@@ -598,7 +598,15 @@ end;
     var extraFrm : String;
     extraFrm := '';
 
+    var tt : word;
+
+    tt := 0;
+
     _loop f91_printed {
+      inc (tt);
+      setVisualHeader (FormatStr_4 ( 'Группировка данных формы 9.1 | %d из %d | %d | %s',2,4, tt ,fpSpAxtf.Name));
+      NextVisual;
+
       /* без учета группировки по уровням
       xlRunMacro('ActiveSheetGroupData('+String ( forGrouping.f791_printed_ord2.groupFrom)+','+ String ( forGrouping.f791_printed_ord2.groupTo) +')');
 
@@ -706,11 +714,18 @@ end;
     var extraFrm : String;
     extraFrm := '';
 
+    var tt : word;
+
+    tt := 0;
+
     _loop fpzap_printed {
+      inc(tt);
       /* без учета группировки по уровням
       xlRunMacro('ActiveSheetGroupData('+String ( forGrouping.f791_printed_ord2.groupFrom)+','+ String ( forGrouping.f791_printed_ord2.groupTo) +')');
 
       */
+      setVisualHeader (FormatStr_4 ( 'Группировка данных формы ПЗап | %d из %d | %d | %s',4,4, tt ,fpzap_printed.Name));
+      NextVisual;
 
       var vSums : array [1..3] of double;
 
@@ -845,6 +860,9 @@ end;
     tt:=0;
     var extCl : byte;
 
+    var stepsTotal : byte;
+    stepstotal := 4;
+
     _LOOP  fpSpAxtf    {
       NextVisual;
       if(isValid(tnfpstbud) or (1=1))       { //chek year
@@ -895,6 +913,7 @@ end;
             continue;
           }
         }
+        setVisualHeader (FormatStr_4 ( 'Выгрузка данных формы 9.1 | %d из %d | %d | %s',1,stepstotal, tt ,fpSpAxtf.Name));
 
         insert f91_printed set f91_printed.cRec := fpSpAxtf.nRec ,
                                 f91_printed.printedAtRow := 1+tt,
@@ -999,6 +1018,9 @@ end;
     var extraChar : string;
     extraChar := '''';
 
+    var tt : word;
+    tt := 0;
+
     _LOOP  fpSpAxtf    {
       NextVisual;
       if(isValid(tnfpstbud) or (1=1))       { //chek year
@@ -1043,6 +1065,10 @@ end;
               continue;
             }
           }
+
+          inc (tt);
+
+          setVisualHeader (FormatStr_4 ( 'Выгрузка данных формы ПЗап | %d из %d | %d | %s',3,4, tt ,fpSpAxtf.Name));
 
           insert fpzap_printed set fpzap_printed.cRec := fpSpAxtf.nRec ,
                                   fpzap_printed.printedAtRow := repGetPrintRow ,
