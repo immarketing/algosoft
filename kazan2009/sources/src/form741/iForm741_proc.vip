@@ -239,7 +239,7 @@
 
         update current f714_sb_iter set printedAtRow := repGetPrintRow -1;
 
-        if (rcnt > 0) {
+        if (rcnt > 0 and (f714_stbud.isLeafByDef = 1 or f714_stbud.isAnalit = 1) ) {
           repSetGroupStartRow(gStartedAt + 1);
           repSetGroupFinishRow(repGetPrintRow - 2 );
           GroupData;
@@ -278,7 +278,7 @@
         update current f714_sb_iter set printedAtRow := repGetPrintRow -1;
 
         //message (repGetPrintRow);
-        if (rcnt > 0 or true) {
+        if ((rcnt > 0 or 1 =1 )and (f714_stbud.isLeafByDef = 1 or f714_stbud.isAnalit = 1) ) {
           repSetGroupStartRow(gStartedAt + 1);
           repSetGroupFinishRow(repGetPrintRow - 2 );
           GroupData;
@@ -541,6 +541,8 @@
                             code,
                             cNode,
                             isLeaf,
+                            isLeafByDef,
+                            isStBud,
                             codeLen
                              )
         select  FPSTBUD.nRec,
@@ -550,6 +552,8 @@
                 FPSTBUD.code,
                 FPSTBUD.cNode,
                 FPSTBUD.isLeaf,
+                FPSTBUD.isLeaf,
+                1,
                 //0,
                 Length (FPSTBUD.levelcode)
           from FPSTBUD where (( cn == FPSTBUD.NRec )) ignore_errors  (tsDuplicateKey);
@@ -575,8 +579,10 @@
                           cAn                      := f714_stbud_an.cAn,
                           isLeaf                   := budLeaf,
                           isExtraLeaf              := 1,
+                          isAnalit                 := 1,
                           codeLen                  := Length (f714_stbud_an.sAnCode)
                           ;
+      update f714_stbud where (( f714_stbud_an.cStBud == nRec )) set f714_stbud.isLeafByDef := 1;
     }
 
     _loop f714_stbud where (( 1 == f714_stbud.isExtraLeaf (noindex) )) {

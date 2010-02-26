@@ -175,7 +175,7 @@ vipInterface szmn_bud_Form741_2010 licensed(free);
 Interface szmn_bud_Form741_2010
 //Interface #_VERSIONEDNAME_(szmn_bud_Form714_)
 //#_INTERFVERS_(szmn_bud_Form714_)
-  '-= СЗМН Бюджет. Форма 7.4.1. v.20100218 =- ' (,hcNoContext,) EscClose, Cyan;
+  '-= СЗМН Бюджет. Форма 7.4.1. v.20100226 =- ' (,hcNoContext,) EscClose, Cyan;
   show at  ( 0 , 0 , 90 , 10 )
   //show at  (0,0,100,30)
   ;

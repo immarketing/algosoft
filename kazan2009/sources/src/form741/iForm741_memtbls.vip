@@ -60,10 +60,13 @@ table struct f714_stbud
   cNode       : comp,
   lvl         : word,
   isLeaf      : byte, // "лист" бюджетной структуры
+  isLeafByDef : byte,
   isExtraLeaf : byte, // "лист" структуры с учетом уровня "аналитики"
   SortCode    : String,
   maxLn       : byte,
   codeLen     : byte,
+  isStBud     : byte,
+  isAnalit    : byte,
   cAn         : comp
 
 )

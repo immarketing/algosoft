@@ -131,7 +131,11 @@ BROWSE  brplan_f714_datasSorted;
     f714_stbud.cNode       'cNode' : [10], protect;
     f714_stbud.lvl       'lvl' : [10], protect;
     f714_stbud.isLeaf 'isLeaf' : [10], protect;
-    f714_stbud.isExtraLeaf 'isExtraLeaf' : [10], protect;
+    f714_stbud.isLeafByDef 'isLeafByDef' : [10], protect;
+
+    f714_stbud.isAnalit 'isAnalit' : [10], protect;
+
+    f714_stbud.isStBud 'isStBud' : [10], protect;
     f714_stbud.SortCode 'SortCode' : [10], protect;
   end;
 
