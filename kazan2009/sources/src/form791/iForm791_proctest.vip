@@ -196,12 +196,35 @@
    ))
         ;
   */
+  create view forGrouping
+  as
+  select *
+    from  f791_stack f791_stack_grp(f714_stk_nrec_desc),
+          f791_printed f791_printed_ord (f714_ptd_nrec),
+          //(select min (printedAtRow), max(printedAtRow) from f791_printed pt where ((f791_printed_ord.cRec == pt.cnode ))   ) subrowmm,
+          f791_printed subprntd (f791_ptd_node_prrow),
+          f791_printed f791_printed_ord2 (f791_ptd_rowsToGroup),
+          f791_printed subp2 (f791_ptd_node_prrow),
+          f791_printed subp3 ,
+          f791_printed prntd_mkgroup
+   where ((
+   f791_printed_ord.cRec == subprntd.cNode and
+   0 << f791_printed_ord2.groupFrom (noindex) and
+   f791_printed_ord.cRec == subp2.cNode and
+   (f791_printed_ord.groupTo < subp2.groupTo) and
+   f791_printed_ord2.cRec == subp3.cNode and
 
-  procedure doGroupData2 (datSheet, repSheet : String);
+   0                      == prntd_mkgroup.coTable and
+   1                      == prntd_mkgroup.isKAUGroup
+   ))
+        ;
+
+  procedure doGroupData2 (datSheet, repSheet, repSheet79 : String);
   begin
     // Коммерческие расходы
     xlSetActiveSheetByName(repSheet);
-    /* без учета группировки по уровням
+    //без учета группировки по уровням
+    /*
     forGrouping._loop f791_printed_ord {
       if (forGrouping.getfirst subprntd = tsOK){
         //var b : boolean
@@ -241,6 +264,66 @@
 
     update f791_printed set f791_printed.rowsToGroup := f791_printed.groupTo - f791_printed.groupFrom + 1;
     */
+    forGrouping._loop f791_printed_ord {
+      if (forGrouping.getfirst subprntd = tsOK){
+        //var b : boolean
+        //b := false;
+        //if (forGrouping.f791_printed_ord.name = 'Коммерческие расходы') {
+        //  b := true;
+        //}
+        var fr,lr : word;
+        var fr79,lr79 : word;
+
+        fr := forGrouping.subprntd.printedAtRow;
+        lr := fr;
+
+        fr79 := forGrouping.subprntd.printedAtRow79;
+        lr79 := fr79;
+
+        if (forGrouping.getlast subprntd = tsOK){
+          lr := forGrouping.subprntd.printedAtRow;
+          lr79 := forGrouping.subprntd.printedAtRow79;
+        }
+        //if (b) {
+          //Message ('b == ' + fr +''#13+'lr=='+ lr);
+        //}
+        forGrouping.update current f791_printed_ord set f791_printed_ord.groupFrom := fr,
+                                                        f791_printed_ord.groupTo := lr,
+                                                        f791_printed_ord.rowsToGroup := lr - fr + 1,
+                                                        f791_printed_ord.groupFrom79 := fr79,
+                                                        f791_printed_ord.groupTo79 := lr79,
+                                                        f791_printed_ord.rowsToGroup79 := lr79 - fr79 + 1
+                                                        ;
+
+
+
+      }
+    }
+
+    var wasEdit : boolean;
+    do {
+      wasEdit := false;
+      forGrouping._loop f791_printed_ord {
+        if forGrouping.getLast subp2 = tsOK {
+          forGrouping.update current f791_printed_ord
+                             set f791_printed_ord.groupTo := subp2.groupTo,
+                                 f791_printed_ord.groupTo79 := subp2.groupTo79
+                             ;
+          wasEdit := true;
+        }
+      }
+    } while wasEdit;
+
+    update f791_printed set f791_printed.rowsToGroup := f791_printed.groupTo - f791_printed.groupFrom + 1,
+                            f791_printed.rowsToGroup79 := f791_printed.groupTo79 - f791_printed.groupFrom79 + 1
+                            ;
+    update f791_printed where (( 1 == f791_printed.isKAUGroup))
+           set f791_printed.isMakeGroup := 1
+           ;
+    forGrouping._loop prntd_mkgroup {
+      update f791_printed where (( forGrouping.prntd_mkgroup.cnode == f791_printed.crec))
+             set f791_printed.isMakeGroup := 1;
+    }
 
     var extraSm : word;
     extraSm := 0;
@@ -251,8 +334,16 @@
     _loop f791_printed {
       /* без учета группировки по уровням
       xlRunMacro('ActiveSheetGroupData('+String ( forGrouping.f791_printed_ord2.groupFrom)+','+ String ( forGrouping.f791_printed_ord2.groupTo) +')');
-
       */
+      if (f791_printed.isMakeGroup = 1) and (f791_printed.groupFrom > 0) and (f791_printed.groupTo > 0) then {
+        xlSetActiveSheetByName(repSheet);
+        xlRunMacro('ActiveSheetGroupData('+String ( f791_printed.groupFrom)+','+ String ( f791_printed.groupTo) +')');
+
+        xlSetActiveSheetByName(repSheet79);
+        xlRunMacro('ActiveSheetGroupData('+String ( f791_printed.groupFrom79)+','+ String ( f791_printed.groupTo79) +')');
+
+        xlSetActiveSheetByName(repSheet);
+      };
 
       var vSums : array [1..3] of double;
 
@@ -314,11 +405,13 @@
                               4 ,
                               f791_printed.printedAtRow,
                               4 );
+        xlSetCellFormula('=Сумм('+fSum+')',f791_printed.printedAtRow,6,f791_printed.printedAtRow,6);
+        /*
         xlSetCellNumberValue( vSums[3] ,
                               f791_printed.printedAtRow,
                               6 ,
                               f791_printed.printedAtRow,
-                              6 );
+                              6 ); */
       }
     }
 
@@ -763,7 +856,7 @@
         }
 
         arValues[3] := arValues[3] - if ( (arValues[1]- arValues[2]) < 0 ,arValues[1],arValues[2]) ;
-        xlSetCellNumberValue(if (arValues[3]<0,0,arValues[3]) , r2print, 6 , r2print, 6 );
+        //xlSetCellNumberValue(if (arValues[3]<0,0,arValues[3]) , r2print, 6 , r2print, 6 );
 
         if (extCl <> 2) {
           if (extCl = 4) {
@@ -801,7 +894,7 @@
           }
         }
 
-        xlSetCellNumberValue( if (arValues[3]<0,0,arValues[3]) , 9, 6 , 9, 6 );
+        //xlSetCellNumberValue( if (arValues[3]<0,0,arValues[3]) , 9, 6 , 9, 6 );
 
         if (extCl <> 2) {
           xlRunMacro('CopyRow(ROW1)');
@@ -833,7 +926,7 @@
 
     tms[2] := Cur_Time;  // 8 минут
 
-    doGroupData2(dataSheetName, reportSheetName);
+    //doGroupData2(dataSheetName, reportSheetName);
 
     tms[3] := Cur_Time;
 
@@ -854,19 +947,23 @@
     printReport79(dataSheetName, reportSheetName, reportSheetName79);
     tms[5] := Cur_Time; // 12 минут
 
+    doGroupData2(dataSheetName, reportSheetName, reportSheetName79);
+
     xlRunMacro('AfterReportPrint');
 
     xlKillExcel;
     tms[6] := Cur_Time;
     StopVisual ('',0);
-    /*
-    message ( tms[1] + ''#13'' +
-              tms[2] + ''#13'' +
-              tms[3] + ''#13'' +
-              tms[4] + ''#13'' +
-              tms[5] + ''#13'' +
-              tms[6] + ''#13''
-              )
-              ; */
+
+    if (isShowTimeLabels) then {
+      message ( tms[1] + ''#13'' +
+                tms[2] + ''#13'' +
+                tms[3] + ''#13'' +
+                tms[4] + ''#13'' +
+                tms[5] + ''#13'' +
+                tms[6] + ''#13''
+                )
+                ;
+    };
 
   end;

@@ -92,7 +92,7 @@ form791showdebug menu
 vipInterface szmn_bud_Form791_2010 licensed(free);
 
 Interface szmn_bud_Form791_2010
-  '-= СЗМН Бюджет. Форма 7.9.1. Вариант 2010 года v20010218 =- ' (,hcNoContext,) EscClose, Cyan;
+  '-= СЗМН Бюджет. Форма 7.9.1. Вариант 2010 года v200103112 =- ' (,hcNoContext,) EscClose, Cyan;
   //show at  (0,0,70,10)
   show at  (0,0,100,30)
   ;
@@ -141,6 +141,8 @@ var
   excCode7    : String;
 
   isShowZeros : boolean;
+
+  isShowTimeLabels : boolean;
 
   coTableToSum : word;
 
@@ -211,10 +213,11 @@ and fpAxTF.NRec    == fpSpAxtf.cMain (noindex)
 //0131000000051792h
 
 /*
-and ( fpSpAxtf.nRec=comp('0131000000051792h') or
+and ( fpSpAxtf.nRec=comp('0131000000051790h') or
+      fpSpAxtf.nRec=comp('0131000000051792h') or
+      fpSpAxtf.nRec=comp('0131000000051791h') or
       fpSpAxtf.cKauNode = comp('0131000000051792h') or
       fpSpAxtf.cNode = comp('0131000000051792h') or
-      fpSpAxtf.nRec=comp('0131000000051791h') or
       fpSpAxtf.cNode = comp('0131000000051791h')
       )
       */
@@ -344,6 +347,8 @@ cmDelOnProtect:
 cmInit:
 {
   set isShowZeros := true;
+
+  set isShowTimeLabels := false;
 
   set coTableToSum := 22217;
 
