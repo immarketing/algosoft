@@ -345,6 +345,16 @@
         xlSetActiveSheetByName(repSheet);
       };
 
+      /*
+      if (f791_printed.isKAUGroup = 1)then {
+        xlSetCellFormula    ( '=0',
+                              f791_printed.printedAtRow,
+                              3 ,
+                              f791_printed.printedAtRow,
+                              3 );
+      }
+      */
+
       var vSums : array [1..3] of double;
 
       vSums[1] := 0;
@@ -356,7 +366,11 @@
 
 
       _loop subp3{
-        if (subp3.coTable <> coTableToSum) then {
+        vSums[1] := vSums[1] + subp3.sum[1];
+        vSums[2] := vSums[2] + subp3.sum[2];
+        vSums[3] := vSums[3] + subp3.sum[3];
+
+        if (subp3.coTable <> coTableToSum) and ( f791_printed.isKAUGroup <> 1 ) then {
           continue;
         }
         var tsts : string;
@@ -367,9 +381,6 @@
 
         fSum := fSum + ';R[' + tsts + ']C';
 
-        vSums[1] := vSums[1] + subp3.sum[1];
-        vSums[2] := vSums[2] + subp3.sum[2];
-        vSums[3] := vSums[3] + subp3.sum[3];
       }
       if (fSum > '') {
         //xlSetCellFormula('=‘ã¬¬('+fSum+')',forGrouping.f791_printed_ord2.printedAtRow,3,forGrouping.f791_printed_ord2.printedAtRow,7);

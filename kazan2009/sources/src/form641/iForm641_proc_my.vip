@@ -747,8 +747,13 @@
 
   end;
 
+#include iForm641_kaugroup.vip
+
   procedure doPrintReport;
   begin
+    var tms : array [1..10] of time;
+
+    tms[1] := Cur_Time;
 
     StoreDSK;
     var periodNum : byte;
@@ -768,6 +773,8 @@
     }
 
     xlCreateExcelWithTemplate(sPath,true);
+
+    xlRunMacro('REP_BegoreReportPrint');
 
     /*
     xlCreateExcel('',true);
@@ -819,7 +826,9 @@
     var stepsTotal : byte;
     stepstotal := 3;
     _LOOP  fpSpAxtf  {
-      setVisualHeader (FormatStr_4 ( 'Загрузка данных | %d из %d | %d | %s',1,stepstotal, tt ,fpSpAxtf.Name));
+      if (tt mod visualHeaderPause) = 0 then {
+        setVisualHeader (FormatStr_4 ( 'Загрузка данных | %d из %d | %d | %s',1,stepstotal, tt ,fpSpAxtf.Name));
+      };
 
       if(fpSpAxtf.coTable = word(22217) )       // (isValid(tnfpstbud))
       {
@@ -896,7 +905,8 @@
                                 f641_printed.extPar0[2]:= extCl6,
                                 f641_printed.isLeaf    := fpSpAxtf.isLeaf ,
                                 f641_printed.coTable   := fpSpAxtf.coTable ,
-                                f641_printed.AgregHandling := extCl1
+                                f641_printed.AgregHandling := extCl1,
+                                f641_printed.isKAUGroup := isKauGroup (fpSpAxtf.nRec)
 
                                 ;
 
@@ -984,7 +994,9 @@
     tt:=0;
     _LOOP  fpSpAxtf  {
       //tt := tt +1;
-      setVisualHeader (FormatStr_4 ( 'Вывод в Excel | %d из %d | %d | %s',2,stepstotal, tt ,fpSpAxtf.Name));
+      if (tt mod visualHeaderPause) = 0 then {
+        setVisualHeader (FormatStr_4 ( 'Вывод в Excel | %d из %d | %d | %s',2,stepstotal, tt ,fpSpAxtf.Name));
+      }
 
       if(isValid(tnfpstbud) or 1=1) { //chek year
         // вот тут мы ее закончили
@@ -1212,7 +1224,9 @@
     tt := 0;
     _LOOP  fpSpAxtf  {
       tt := tt +1;
-      setVisualHeader (FormatStr_4 ( 'Расчет итогов | %d из %d | %d | %s',3,stepstotal, tt ,fpSpAxtf.Name));
+      if (tt mod visualHeaderPause) = 0 then {
+        setVisualHeader (FormatStr_4 ( 'Расчет итогов | %d из %d | %d | %s',3,stepstotal, tt ,fpSpAxtf.Name));
+      }
       if(isValid(tnfpstbud) or 1=1) {
         if (getFirst f641_printed where (( fpSpAxtf.nRec==f641_printed.cRec)) <> tsOK ) {
           continue;
@@ -1366,6 +1380,14 @@
     }
 
     doPrintExtraSum (periodNum);
+
+    update f641_printed where (( 1 == f641_printed.isKAUGroup))
+           set f641_printed.isMakeGroup := 1
+           ;
+
+    updateIsMakeGroup;
+    calculateGroupBorders;
+    groupExcelDatas641(0);
     doGroupPrintedData (periodNum);
 
     doPrintExtraSum641(periodNum);
@@ -1378,8 +1400,27 @@
     MarkColumns(periodNum);
 
     xlRunMacro('AfterPrint(' + firstDel + ')');
+    xlRunMacro('REP_AfterReportPrint');
 
     xlKillExcel;
+
+    tms[10] := Cur_Time;
+
+    if (isShowTimeLabels) then {
+      message ( tms[1] + ''#13'' +
+                tms[2] + ''#13'' +
+                tms[3] + ''#13'' +
+                tms[4] + ''#13'' +
+                tms[5] + ''#13'' +
+                tms[6] + ''#13'' +
+                tms[7] + ''#13'' +
+                tms[8] + ''#13'' +
+                tms[9] + ''#13'' +
+                tms[10] + ''#13''
+                )
+                ;
+    };
+
   end;
 
 

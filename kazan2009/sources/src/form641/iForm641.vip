@@ -117,7 +117,7 @@ vipInterface szmn_bud_Form641_2010 licensed(free);
 Interface szmn_bud_Form641_2010
 //Interface #_VERSIONEDNAME_(szmn_bud_Form714_)
 //#_INTERFVERS_(szmn_bud_Form714_)
-  '-= СЗМН Бюджет. Форма 6.4.1. Вариант 2010 года v.20100217 =- ' (,hcNoContext,) EscClose, Cyan;
+  '-= СЗМН Бюджет. Форма 6.4.1. Вариант 2010 года v.20100317 =- ' (,hcNoContext,) EscClose, Cyan;
   show at (5,2,110,32)
   //show at  (0,0,100,30)
   ;
@@ -195,6 +195,12 @@ var
 
   isShowZeros : boolean;
 
+  isShowTimeLabels : boolean;
+
+  isDebugDatas     : boolean;
+
+  visualHeaderPause : word;
+
 
 As select
   if(cPeriod=0   ,'выберите значение',fpPeriod.Name)  (FieldName = sPeriod)
@@ -237,6 +243,8 @@ From
  , f641_printed subp3
 
    , fpStBud superKAUfpStBud
+   , f641_uniquenodes
+   , f641_groupft
 
  where
 ((
@@ -266,6 +274,21 @@ cPlan3    == fpBudVar3.nrec
 and fpBudVar.cBudget   == FpBudget.nrec
 and fpTForm.nrec   == fpAxTF.cMain     //может быть несколько
 and fpAxTF.NRec    == fpSpAxtf.cMain
+
+and (
+      not isDebugDatas or
+      (
+      isDebugDatas and
+      (
+      fpSpAxtf.nRec=comp('0131000000051790h') or
+      fpSpAxtf.nRec=comp('0131000000051792h') or
+      fpSpAxtf.nRec=comp('0131000000051791h') or
+      fpSpAxtf.cKauNode = comp('0131000000051792h') or
+      fpSpAxtf.cNode = comp('0131000000051792h') or
+      fpSpAxtf.cNode = comp('0131000000051791h')
+      )
+      )
+      )
 
 /*
 and ( fpSpAxtf.nRec=comp('0131000000051792h') or
@@ -412,6 +435,8 @@ cmInit:
 
   podpisanty.setprefix('szmn_bud_Form641');
   podpisanty.reinit;
+
+  set visualHeaderPause := 20;
 
 /*
 

@@ -77,6 +77,10 @@ end; // Screen
 
     isShowZeros  ('',,) : NoProtect,noPickButton;
 
+    isShowTimeLabels  ('',,) : NoProtect,noPickButton;
+
+    isDebugDatas  ('',,) : NoProtect,noPickButton;
+
     coTableToSum  ('',,) : NoProtect,noPickButton;
   <<
 
@@ -92,7 +96,8 @@ end; // Screen
         Код аналитики [Начальное сальдо] .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
          Код аналитики [Конечное сальдо] .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
-                                         [.] Печатать нулевые`
+ [.] Печатать нулевые`   [.] Показывать время исполнения` [.] Тестовый объем данных`
+
            coTableToSum для суммировки   .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
   >>
   end; // Screen sCheckdop 'Дополнительно'
@@ -124,7 +129,31 @@ Window wnInfoWindow 'gg' ('gg', hcNoContext);
       //f91_printed.extPar '.extPar':[10],protect;
       //f91_printed.extPar1 '.extPar1':[10],protect;
       f91_printed.isKAUGroup '.isKAUGroup':[10],protect;
+      f91_printed.isMakeGroup '.isMakeGroup':[10],protect;
     End; // Browse
+
+    Browse brf91_groupft 'f91_groupft' ('f91_groupft', hcNoContext);
+      //Show at(,1,,5);
+      Table f91_groupft;
+    Fields
+      f91_groupft.crec '.crec':[10],protect;
+      f91_groupft.Groupfrom '.Groupfrom':[10],protect;
+      f91_groupft.groupTo '.groupTo':[10],protect;
+
+      f91_groupft.GroupfromRec '.GroupfromRec':[10],protect;
+      f91_groupft.groupTorec '.groupTorec':[10],protect;
+
+      f91_groupft.isMakeGroup '.isMakeGroup':[10],protect;
+
+    End; // Browse
+
+    Browse brf91_uniquenodes 'f91_uniquenodes' ('f91_uniquenodes', hcNoContext);
+      //Show at(,1,,5);
+      Table f91_uniquenodes;
+    Fields
+      f91_uniquenodes.crec '.crec':[10],protect;
+    End; // Browse
+
     Browse brfpzap_printed 'fpzap_printed' ('fpzap_printed', hcNoContext);
       //Show at(,1,,5);
       Table fpzap_printed;

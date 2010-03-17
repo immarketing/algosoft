@@ -17,6 +17,8 @@ var
  isError: boolean;
  sPersons: string;
 
+ visualHeaderPause : word;
+
  extClName     : String;
  extClNamePZap : String;
  excCode1      : String; // разделитель
@@ -30,6 +32,9 @@ var
 
   isShowZeros : boolean;   // печатать нулевые строки
   coTableToSum : word;     // суммировать строки с coTable
+
+  isShowTimeLabels : boolean;
+  isDebugDatas     : boolean;
 
 
 As select
@@ -51,20 +56,23 @@ From
  ,fpAxTF Axis2
  ,fpSpAxTF SpAxis1
  ,fpSpAxTF SpAxis2
- ,fpvalues
+ , fpSpAxTF (accelerate, readonly)
+ ,fpvalues (accelerate, readonly)
  ,Synonym fpBudVar fpBV
- ,Synonym fpValues fpV
+ ,Synonym fpValues fpV (accelerate, readonly)
  , podpisanty
 
  // для 2010 года
- , HashAn
- ,Synonym fpValues fpV2
+ , HashAn (accelerate, readonly)
+ ,Synonym fpValues fpV2 (accelerate, readonly)
  , fpSpAxtf superKauSpAxtf
  , f91_printed
  , f91_printed subp3
  , fpzap_printed
  , fpzap_printed sub_pzp
-   , fpStBud superKAUfpStBud
+   , fpStBud superKAUfpStBud (accelerate, readonly)
+   , f91_uniquenodes
+   , f91_groupft
 
  where
 ((
@@ -87,6 +95,21 @@ and fpBudVar.cBudget   == FpBudget.nrec
 
 and fpTForm.nrec   == fpAxTF.cMain     //может быть несколько
 and fpAxTF.NRec    == fpSpAxtf.cMain
+
+and (
+      not isDebugDatas or
+      (
+      isDebugDatas and
+      (
+      fpSpAxtf.nRec=comp('0131000000051790h') or
+      fpSpAxtf.nRec=comp('0131000000051792h') or
+      fpSpAxtf.nRec=comp('0131000000051791h') or
+      fpSpAxtf.cKauNode = comp('0131000000051792h') or
+      fpSpAxtf.cNode = comp('0131000000051792h') or
+      fpSpAxtf.cNode = comp('0131000000051791h')
+      )
+      )
+      )
 /*
 and ( fpSpAxtf.nRec=comp('0131000000051792h') or
       fpSpAxtf.cKauNode = comp('0131000000051792h') or
