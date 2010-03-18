@@ -1,0 +1,28 @@
+create view forKauGroup
+var
+  cRec    : comp;
+as select *
+from
+  fpSpAxtf,
+  fpSpAxtf fpSpAxtfSub
+  where
+  ((
+  cRec                  == fpSpAxtf.nRec and
+  fpSpAxtf.nrec         == fpSpAxtfSub.cNode (noindex)
+  ))
+;
+
+function isKauGroup (const pRec : comp) : byte;
+begin
+  set forKauGroup.cRec := pRec;
+  set isKauGroup := 0;
+
+  if (forKauGroup.getFirst fpSpAxtf = tsOK ) {
+    if (forKauGroup.fpSpAxtf.coTable = 0) {
+      if (forKauGroup.getFirst fpSpAxtfSub = tsOK ) {
+        set isKauGroup := 1;
+      }
+    }
+  }
+end;
+
