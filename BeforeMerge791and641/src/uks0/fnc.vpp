@@ -1,0 +1,488 @@
+
+  procedure CheckDefValues;
+  begin
+    if (xlt_file = '') then
+      xlt_file := translatepath('%StartPath%XLS\User_Reports\form815_.xlt');
+
+    if (sootvCode = '') then
+      sootvCode := '54';
+
+    if (analitWKAU = 0) then
+      analitWKAU := 50007;
+
+    /*
+    if (extClName = '') {set extClName := 'Характеристики для форм 7.9.1 и 7.9'};
+
+    if (excCode1 = '') {set excCode1 := 'Разделитель'};
+    if (excCode2 = '') {set excCode2 := 'Вынос в подвал'};
+    if (excCode3 = '') {set excCode3 := 'Итого'};
+    if (excCode4 = '') {set excCode4 := 'Агрегат'};
+
+    if (extClName1 = '') {set extClName1 := 'Дополнительная обработка статьи'};
+    if (excCode5 = '') {set excCode5 := 'Сумма'};
+    if (excCode6 = '') {set excCode6 := 'Сложить'};
+    if (excCode7 = '') {set excCode7 := 'Вычесть'};
+
+    if (sPath='') set sPath := translatepath('%startpath%Xls\F_FPBUDGET\SZMN_Budjet\tmpl_7_9_1.xls');
+    */
+  end;
+
+  Procedure StoreDSK();
+  begin
+    CheckDefValues;
+
+    SaveMyDsk(cUksTree,   'UKS.cUksTree');
+    SaveMyDsk(cPlanVar,   'UKS.cPlanVar');
+    SaveMyDsk(cPlanVarFact,   'UKS.cPlanVarFact');
+    SaveMyDsk(cPlanVarUPlan,  'UKS.cPlanVarUPlan');
+
+    SaveMyDsk(rep_type,   'UKS.rep_type');
+
+    SaveMyDsk(rep_mode,   'UKS.rep_mode');
+    SaveMyDsk(tcPer,   'UKS.tcPer');
+    SaveMyDsk(price_mode,   'UKS.price_mode');
+    SaveMyDsk(scale,   'UKS.scale');
+
+    SaveMyDsk(xlt_file,   'UKS.xlt_file');
+    SaveMyDsk(sootvCode,'UKS.sootvCode');
+
+    SaveMyDsk(analitWKAU,'UKS.analitWKAU');
+
+
+  end;
+
+  procedure ReadDSK;
+  begin
+    var dc : boolean;
+
+    dc := true;
+
+    ReadMyDsk (cUksTree,   'UKS.cUksTree', dc);
+    ReadMyDsk (cPlanVar,   'UKS.cPlanVar', dc);
+    ReadMyDsk (cPlanVarFact,   'UKS.cPlanVarFact', dc);
+    ReadMyDsk (cPlanVarUPlan,  'UKS.cPlanVarUPlan', dc);
+
+    ReadMyDsk (rep_type,   'UKS.rep_type', dc);
+
+    ReadMyDsk (rep_mode,   'UKS.rep_mode', dc);
+    ReadMyDsk (tcPer,   'UKS.tcPer', dc);
+    ReadMyDsk (price_mode,   'UKS.price_mode', dc);
+    ReadMyDsk (scale,   'UKS.scale', dc);
+
+    ReadMyDsk (xlt_file,'UKS.xlt_file', dc);
+
+    ReadMyDsk (sootvCode,'UKS.sootvCode', dc);
+    ReadMyDsk (analitWKAU,'UKS.analitWKAU', dc);
+
+
+    CheckDefValues;
+  end;
+
+
+/* Определение уровня иерархии объекта строительства */
+function get_vol(obj_link: comp): word;
+var
+  up_rec: comp;
+begin
+  result := 0;
+  if (getfirst prg_tbl where ((obj_link == prg_tbl.nrec)) = tsOk) {
+    up_rec := prg_tbl.cstroy;
+    while (up_rec > 0) {
+      if (getfirst prg_tbl where ((up_rec == prg_tbl.nrec)) <> tsOk) break;
+      up_rec := prg_tbl.cstroy;
+      result := result + 1;
+    }
+    if (rep_type = 0) and (prg_tbl.code <> '03') result := 0; // не ТПиР
+    if (rep_type = 1) and (prg_tbl.code <> '02') result := 0; // не КР
+  }
+end;
+
+/* Определение номера колонки */
+function get_col(article: word): word;
+begin
+  if (article = 1) {
+    result := 5; // мощность
+  }
+  else {
+    result := article - 1;
+    if (result > 3) result := 0; // расшифровка статей не нужна
+    if ((rep_mode = 1) and (result = 1)) result := 0; // остаток для факта не нужен
+  }
+end;
+
+procedure getCodeBySootv();
+begin
+end;
+
+/* Определение кода новой записи в obj_tbl */
+function get_code(node_link: comp; volume: word): string;
+var
+  code_len, level: word;
+  up_link: comp;
+begin
+  result := '01';
+  level := volume;
+  up_link := node_link;
+  do {
+    code_len := level * 2;
+    if (getlast obj_tbl where ((up_link == obj_tbl.node)) = tsOk) {
+      result := substr(obj_tbl.code, 1, code_len - 2)
+                + lpadch(word(substr(obj_tbl.code, code_len - 1, 2)) + 1, '0', 2);
+      break;
+    }
+    else {
+      if (getfirst obj_tbl where ((up_link == obj_tbl.obj)) = tsOk) {
+        result := obj_tbl.code;
+        break;
+      }
+      else {
+        if (getfirst plan_tree where ((up_link == plan_tree.nrec)) = tsOk) {
+          up_link := plan_tree.cstroy;
+          level := level - 1;
+        }
+      }
+    }
+  } while (level > 1);
+  if (length(result) < volume * 2) do {
+    result := result + '01';
+  } while (length(result) < volume * 2);
+end;
+
+/* Запись данных во временную таблицу */
+procedure write_tbl(  volume: word;    // уровень
+                      obj_link,        // объект
+                      node_link: comp; // "старший" объект
+                      obj_name,        // наим. объекта
+                      obj_abbr,        // аббр. объекта
+                      pwr_unit: string;// ед изм мощности
+                      value: double;   // значение из плана
+                      PassNo : byte // Номер прохода. За 1 проход пишутся данные "план", за 2 - факт
+                    );
+var
+  col_no, per_no, i: word;
+  new_val: double;
+begin
+  col_no := get_col(planvalue.iArticle);
+  if (col_no > 0) and (fptper.edizm = 2) {
+    per_no := month(fpPeriod.dBeg) - 1;
+    if (rep_mode = 1) {  // для отчета ПЛАН-ФАКТ
+      per_no := 12;
+      if (fpPeriod.Nrec = repPeriod.Nrec) per_no := 0;     // тек. месяц
+      if (month(repPeriod.dBeg) > month(fpPeriod.dBeg)) {
+        per_no := 2;                                       // тек. год
+        if (fpPeriod.cNode = repPeriod.cNode) per_no := 1; // тек. квартал
+      }
+    }
+    if (per_no > 11) exit;
+    new_val := value;
+    if (col_no < 5) new_val := new_val / koef;
+    if (getfirst obj_tbl where ((obj_link == obj)) <> tsOk) {
+      tmp := get_code(node_link, volume);
+      insert obj_tbl
+         set code = tmp,
+             obj = obj_link,
+             node = node_link,
+             vol = volume,
+             name = obj_name,
+             abbr = obj_abbr,
+             unit = locase(pwr_unit);
+    }
+    if (getfirst plan_tbl where ((obj_link == obj and col_no == col and per_no == per)) <> tsOk)
+      insert plan_tbl set obj = obj_link, col = col_no, per = per_no;
+
+    if (rep_mode = 0) OR ((rep_mode = 1) and (PassNo = 1))
+      if (planValue.iRegister = word(cgPlan+cgUse))
+        update current plan_tbl set plan_tbl.plan_val = plan_tbl.plan_val + new_val;
+
+    if (rep_mode = 0) OR ((rep_mode = 1) and (PassNo = 2))
+      if (planValue.iRegister = word(cgFact+cgUse)) {
+        //Message ( ' planValue.iRegister == ' + planValue.iRegister);
+        update current plan_tbl set plan_tbl.fact_val = plan_tbl.fact_val + new_val;
+      }
+
+    if (rep_mode = 1) for (i := per_no + 1; i < 3; i := i + 1) { // для отчета ПЛАН-ФАКТ
+      if (getfirst plan_tbl where ((obj_link == obj and col_no == col and i == per)) <> tsOk)
+        insert plan_tbl set obj = obj_link, col = col_no, per = i;
+      if (PassNo = 1)
+        if (planValue.iRegister = word(cgPlan+cgUse))
+          update current plan_tbl set plan_tbl.plan_val = plan_tbl.plan_val + new_val;
+      if (PassNo = 2)
+        if (planValue.iRegister = word(cgFact+cgUse))
+          update current plan_tbl set plan_tbl.fact_val = plan_tbl.fact_val + new_val;
+    }
+  }
+end;
+
+/* Просмотр спецификации плана */
+// собственно, формирование отчета
+procedure calc_plan (
+                      PassNo : byte // Номер прохода. За 1 проход пишутся данные "план", за 2 - факт
+                      );
+var
+  volume: word;
+  up_rec: comp;
+begin
+  if ( PassNo = 1 ) {
+    delete all plan_tbl;
+    delete all obj_tbl;
+  }
+
+  startnewvisual(vtRotateVisual, vfTimer+vfBreak, '', 0);
+  setvisualtitle('Обработка спецификации плана');
+ _loop spplan {
+    if (not nextvisual) break;
+    setvisualheader('Обрабатываю объект ''' + katstroy.code + '''...');
+    up_rec := katstroy.cstroy;
+    volume := get_vol(katstroy.nrec);  // определение "уровня" объекта
+    if (volume > 0) do { // если объект - "наш"
+      if (getfirst prg_tbl where ((up_rec == prg_tbl.nrec)) <> tsOk) break;
+      volume := volume - 1;
+//      if (volume < 4)
+     _loop planvalue
+        if (planvalue.iPrice = price_mode + 1) or
+           (planvalue.iArticle = 1) { // Мощность
+          write_tbl( volume,
+                     prg_tbl.nrec,
+                     prg_tbl.cstroy,
+                     prg_tbl.name,
+                     prg_tbl.abbr,
+                     kated.abbr,
+                     planvalue.fValue,
+                     PassNo
+                     );
+        }
+      up_rec := prg_tbl.cstroy;
+    } while (volume > 1);
+  }
+  stopvisual('', 0);
+end;
+
+/* Работа с excel  */
+function xl_init(template_name: string): boolean;
+begin
+  result := true;
+  do {
+    result := xlCreateExcelWithTemplate((template_name), true);
+    result := xlIsExcelValid;
+    result := xlSetActiveSheet(1);
+    if (not result) break;
+  } while false;
+end;
+
+function xl_done: boolean;
+begin
+  result := xlKillExcel;
+end;
+
+function fill_head: boolean;
+begin
+  tmp := 'Приложение ' + string(6 + rep_mode * 2) + '.' + string(15 + rep_type) + '.';
+  result := xlSetCellStringValue(tmp, 1, 1, 1, 1);
+  if (rep_mode = 0) {
+    if (rep_type = 0) {
+      tmp := 'План техперевооружения и реконструкции (без учета импорта) ОАО "СЗМН" на ';
+      result := xlSetCellStringValue('ф. КП(ТПиР)-П(' + plPeriod.code + ')-2', 2, 1, 2, 1);
+      result := xlSetCellStringValue('План ТПиР - ИТОГО', 7, 2, 7, 2);
+    }
+    else {
+      tmp := 'План капитального ремонта (без учета импорта) ОАО "СЗМН" на ';
+      result := xlSetCellStringValue('ф. КП(КР)-П(' + plPeriod.code + ')-2', 2, 1, 2, 1);
+      result := xlSetCellStringValue('План КР - ИТОГО', 7, 2, 7, 2);
+    }
+    tmp := tmp + plPeriod.name;
+  }
+  else {
+    if (rep_type = 0) {
+      tmp := 'Отчет по плану техперевооружения и реконструкции (без учета импорта) ОАО "СЗМН" за ';
+      result := xlSetCellStringValue('ф. КП(ТПиР)-П(' + plPeriod.code + ')-2', 2, 1, 2, 1);
+      result := xlSetCellStringValue('ТПиР - ИТОГО', 7, 2, 7, 2);
+    }
+    else {
+      tmp := 'Отчет по плану капитального ремонта (без учета импорта) ОАО "СЗМН" за ';
+      result := xlSetCellStringValue('ф. КП(КР)-П(' + plPeriod.code + ')-2', 2, 1, 2, 1);
+      result := xlSetCellStringValue('КР - ИТОГО', 7, 2, 7, 2);
+    }
+    tmp := tmp + locase(repPeriod.name);
+  }
+  result := xlSetCellStringValue(tmp, 3, 7, 3, 7);
+  if (scale = 0) {
+    unit := 'руб.';
+  }
+  else unit := 'тыс.руб.';
+//  result := xlSetCellStringValue(unit, 7, 3, 7, 3);
+end;
+
+/* Заполнение формул в новой строке EXCEL */
+procedure fill_formula(row_no: word);
+var
+  i, x: word;
+begin
+  if (rep_mode = 0) {
+! за год
+    xlSetCellFormula('=RC[4]', row_no, 4, row_no, 4);
+    xlSetCellFormula('=СУММ(RC[16];RC[32];RC[48];RC[64])', row_no, 5, row_no, 5);
+    xlSetCellFormula('=СУММ(RC[16];RC[32];RC[48];RC[64])', row_no, 6, row_no, 6);
+    xlSetCellFormula('=RC[60]', row_no, 7, row_no, 7);
+! по кварталам
+    for (i := 0; i < 4; i := i + 1) {
+      x := 16 * i + 11;
+      xlSetCellFormula('=RC[-3]+RC[-2]-RC[-1]', row_no, x, row_no, x);
+      xlSetCellFormula('=RC[-3]+RC[-2]-RC[-1]', row_no, x + 4, row_no, x + 4);
+      xlSetCellFormula('=RC[-3]+RC[-2]-RC[-1]', row_no, x + 8, row_no, x + 8);
+      xlSetCellFormula('=RC[-12]', row_no, x + 9, row_no, x + 9);
+      xlSetCellFormula('=СУММ(RC[-12];RC[-8];RC[-4])', row_no, x + 10, row_no, x + 10);
+      xlSetCellFormula('=СУММ(RC[-12];RC[-8];RC[-4])', row_no, x + 11, row_no, x + 11);
+      xlSetCellFormula('=RC[-4]', row_no, x + 12, row_no, x + 12);
+    }
+  }
+  else
+    for (i := 1; i < 7; i := i + 1) {
+      x := 6 * i;
+      xlSetCellFormula('=RC[-1]-RC[-2]', row_no, x, row_no, x);
+      xlSetCellFormula('=ЕСЛИ(RC[-3]<>0;RC[-2]/RC[-3]*100;0)', row_no, x + 1, row_no, x + 1);
+      x := x - 3;
+      if (x > 14) xlSetCellFormula('=RC[1]-RC[-1]', row_no, x, row_no, x);
+    }
+end;
+
+/* Добавление новой строки в EXCEL */
+procedure add_string(row_no, type: word);
+var
+  i, x: word;
+begin
+  case type of
+    xlObject: {
+      tmp := unit;
+      if (obj_tbl.vol > 1) {
+        xlSetCellStringValue(obj_tbl.abbr, row_no, 1, row_no, 1);
+        xlSetCellStringValue(obj_tbl.name, row_no, 2, row_no, 2);
+        fill_formula(row_no);
+      }
+    }
+    xlPower: {
+      tmp := obj_tbl.unit;
+    }
+    xlTotal: {
+      tmp := unit + '/ ' + tmp;
+// Формула расчета удельной мощности
+      if (rep_mode = 0)
+        for (i := 0; i < 12; i := i + 1) {
+          x := i div 3 + i;
+          x :=  x * 4 + 9;
+          xlSetCellFormula('=ЕСЛИ(R[-1]C > 0;R[-2]C/R[-1]C*100; 0)', row_no, x, row_no, x);
+          xlSetCellFormula('=ЕСЛИ(R[-1]C > 0;R[-2]C/R[-1]C*100; 0)', row_no, x + 1, row_no, x + 1);
+        }
+      else
+        for (i := 0; i < 6; i := i + 1) {
+          x := 4 + 6 * i;
+          xlSetCellFormula('=ЕСЛИ(R[-1]C > 0;R[-2]C/R[-1]C*100; 0)', row_no, x, row_no, x);
+          xlSetCellFormula('=ЕСЛИ(R[-1]C > 0;R[-2]C/R[-1]C*100; 0)', row_no, x + 1, row_no, x + 1);
+        }
+    }
+  end;
+  xlSetCellStringValue(tmp, row_no, 3, row_no, 3);
+end;
+
+// вывод данных в EXCEL
+procedure xl_fill;
+var
+  x, y: longint;
+  col_no: word;
+  power_string: boolean;
+begin
+  if (getfirst obj_tbl <> tsOk) {
+    message('Нет данных для формирования отчета', mfWarning + OkButton);
+    exit;
+  }
+  if (not xl_init(xlt_file)) {
+    xl_done;
+    message('Не найден файл шаблона'+chr(13)+'"'+xlt_file+'"', mfWarning + OkButton);
+    exit;
+  }
+  if (not fill_head) {
+    message('Ошибка записи в excel-файл', mfWarning + OkButton);
+    exit;
+  }
+  pushbounds(tb_by_obj);
+  y := 6 + rep_mode;
+  power_string := false;
+  do {
+    if not nextvisual break;
+    if power_string {
+      y := y + 1;
+      add_string(y, xlTotal);
+      power_string := false;
+    }
+    if (obj_tbl.vol = 2) continue; // Пропускаем папки с годами
+    y := y + 1;
+    add_string(y, xlObject);
+   _loop plan_tbl {
+      col_no := plan_tbl.col;
+      if (col_no = 5) {
+        if (obj_tbl.vol > 1) { // Пропускаем мощность для первого уровня
+          col_no := 3; // Мощность пишем в ввод
+          if not power_string {
+            y := y + 1;
+            add_string(y, xlPower);
+            power_string := true;
+          }
+        }
+        else continue;
+      }
+      if (rep_mode = 0) {
+        x := plan_tbl.per div 3 + plan_tbl.per;
+        x := x * 4 + col_no + 7;
+        xlSetCellNumberValue(plan_tbl.plan_val, y, x, y, x);
+      }
+      else {
+        x := 4 + (col_no - 2) * 6 + plan_tbl.per * 12;
+        if (x > 14) xlSetCellNumberValue(plan_tbl.base_val, y, x - 2, y, x - 2);
+        xlSetCellNumberValue(plan_tbl.plan_val, y, x, y, x);
+        xlSetCellNumberValue(plan_tbl.fact_val, y, x + 1, y, x + 1);
+      }
+    } // loop plan_tbl
+  } while (getnext obj_tbl = tsOk);
+    if power_string {
+      y := y + 1;
+      add_string(y, xlTotal);
+      power_string := false;
+    }
+  xl_done;
+end;
+
+procedure CorrectSootv;
+begin
+  if (getFirst FPKATIMP where ((sootvCode == FPKATIMP.Code)) <> tsOK) {
+    // нет каталога соответствий
+    exit;
+  }
+
+  var sootvNRec : comp;
+
+  sootvNRec := FPKATIMP.nRec; // каталог соответствий
+
+
+
+  //var qwer : F_GetAn::GetKau new;
+
+  _loop obj_tbl {
+    if ( getFirst FPIMPREL where ((
+          sootvNRec == FPIMPREL.CMAIN and
+          word (40) == FPIMPREL.IMPKODAN and
+          obj_tbl.obj == FPIMPREL.CIMPMEAN
+         )) = tsOK) {
+      //
+      /*
+      if(GetAnyKau(0, pW1, CANDOC[1]), GivenAnName(1), ''),
+      if(GetAnyKau(0, pw2, CANDOC[2]), GivenAnName(1), ''),
+      */
+      //message ('11=='+sootvNRec);
+      update current obj_tbl
+         set obj_tbl.sootAn := FPIMPREL.KODAN,
+             obj_tbl.sootAnNRec := FPIMPREL.CMEAN,
+             obj_tbl.sootAnCode := if ( GetAnyKau(0, FPIMPREL.KODAN, FPIMPREL.CMEAN), GivenAnName(1) , '???'),
+             obj_tbl.sootAnName := if ( GetAnyKau(0, FPIMPREL.KODAN, FPIMPREL.CMEAN), GivenAnName(2) , '??? ???');
+    }
+  }
+
+end;

@@ -1,0 +1,1225 @@
+#include Tables.vih
+
+#include podpis.vih
+
+const
+
+#include GLOCONST.INC
+end;
+
+form91showdebug menu
+{
+  - 'Показать отладочную информацию', cmShowDebug91, 'Отладочная информация' ;
+}
+
+type
+  rep91array = array [1..12] of double;
+
+VipInterface RepBDR5_2010   Licensed(Free);
+
+#doc
+Настройка фильтров для отчета График погашения обязательств
+#end
+Interface RepBDR5_2010 'Установка фильтров' DoAccept, EscClose, Cyan;
+  show at (5,5,100,30);
+
+#include RepBDR5_91_memtbl.vpp
+
+#include RepBDR5_91_createview.vpp
+//
+
+#include RepBDR5_91_kaugroup.vpp
+
+function repGetPrintRow: word;
+begin
+  xlRunMacro('getRowToFill(3,2)');
+  xlGetCellValue(3, 2, result);
+end;
+
+procedure ExcelPrint(CopyBud:comp; FP:word; Nstr:word; Nstol:word;
+                       var vl : rep91array
+);
+begin
+  Set cCopyBud:=CopyBud;
+  Set cFP:= FP;
+  //set vl := 0;
+  //      _LOOP  fpSpAxtf
+  if (getfirst fpStBud <> tsOK) {exit};
+  _LOOP  fpV  {
+    if (getFirst fpP <> tsOK) {};
+    //if((month(fpP.dbeg)=month(fpP.dEnd)) and (year(fpP.dbeg)=year(fpperiod.dbeg)))// and (fpvalues.chashan = 0))) //chek year
+    if((month(fpP.dbeg)=month(fpP.dEnd)) /*and (month(fpP.dbeg)=month(fpperiod.dbeg)))*/ and (year(fpP.dbeg)=year(fpperiod.dbeg)))
+    {
+      if (month(fpP.dbeg) >12 or  month(fpP.dbeg) < 1) {
+        continue;
+      }
+      if(Check=0)
+        {
+          vl[month(fpP.dbeg)] := fpv.summa;
+    	    xlSetCellNumberValue(vl[month(fpP.dbeg)] , Nstr, Nstol + month(fpP.dbeg), Nstr, Nstol + month(fpP.dbeg));
+      	} else {
+          vl[month(fpP.dbeg)] := fpv.summa/1000;
+          xlSetCellNumberValue(vl[month(fpP.dbeg)] , Nstr, Nstol + month(fpP.dbeg), Nstr, Nstol + month(fpP.dbeg));
+        }
+    }
+    else{}
+  }
+end;
+
+procedure ExcelPrint_2010
+                     ( wTbl : word;
+                       CopyBud:comp;
+                       FP:word;
+                       Nstr:word;
+                       Nstol:word;
+                       var vl : rep91array
+                       );
+begin
+  if (wTbl = 22217){ // статья бюджета
+    ExcelPrint (CopyBud,FP,Nstr,Nstol,vl);
+    exit;
+  }
+  // аналитика
+  //xlSetCellNumberValue(0 , Nstr, Nstol , Nstr, Nstol );
+  //vl      := 0;
+
+  if (getFirst superKauSpAxtf <> tsOK) { exit; };
+
+  set cStBud := superKauSpAxtf.cMEAN;
+  Set cCopyBud:=CopyBud;
+  Set cFP := FP;
+
+  if (getFirst HashAn = tsOK) {
+    //if (getFirst fpV2 = tsOK) {
+    _loop fpV2 {
+      if (getFirst fpP2 <> tsOK) { continue };
+      if (month(fpP2.dbeg) >12 or  month(fpP2.dbeg) < 1) {
+        continue;
+      }
+      if((month(fpP2.dbeg)=month(fpP2.dEnd)) /*and (year(fpP2.dbeg)=year(fpperiod.dbeg))) */ and (year(fpP2.dbeg)=year(fpperiod.dbeg))) {// and (fpvalues.chashan = 0))) //chek year
+        if(Check=0) {
+          xlSetCellNumberValue(fpv2.summa     , Nstr, Nstol+ month(fpP2.dbeg) , Nstr, Nstol + month(fpP2.dbeg));
+          vl[month(fpP2.dbeg)] := fpv2.summa;
+        } else {
+          xlSetCellNumberValue(fpv2.summa/1000, Nstr, Nstol+ month(fpP2.dbeg) , Nstr, Nstol+ month(fpP2.dbeg) );
+          vl[month(fpP2.dbeg)] := fpv2.summa/1000;
+        }
+      }
+    }
+  }
+end;
+
+
+procedure ExcelPrint2(CopyBud:comp; FP:word; Nstr:word; Nstol:word;
+                       var vl : double
+);
+begin
+
+  xlSetCellNumberValue(0 , Nstr, Nstol , Nstr, Nstol );
+
+  Set cCopyBud:=CopyBud;
+  Set cFP:= FP;
+  //      _LOOP  fpSpAxtf
+  _LOOP  fpV {
+    //if (getFirst fpP <> tsOK) {exit};
+    if ( fpPeriod.dBeg = fpP.dBeg ) and (fpPeriod.dEnd = fpP.dEnd)
+    //if((month(fpP.dbeg)=month(fpP.dEnd)) and (year(fpP.dbeg)=year(fpperiod.dbeg)))// and (fpvalues.chashan = 0))) //chek year
+    {
+      if(Check=0)
+      	  {
+            vl := fpv.summa;
+      	    xlSetCellNumberValue(vl     , Nstr, Nstol , Nstr, Nstol );
+      	  }
+      	  else
+      	  {
+            vl := fpv.summa/1000;
+      	    xlSetCellNumberValue(vl, Nstr, Nstol , Nstr, Nstol );
+      	  }
+    }
+  }
+end;
+
+
+procedure ExcelPrint2_2010
+                     ( wTbl : word;
+                       CopyBud:comp;
+                       FP:word;
+                       Nstr:word;
+                       Nstol:word;
+                       var vl : double
+                       );
+begin
+  if (wTbl = 22217){ // статья бюджета
+    ExcelPrint2 (CopyBud,FP,Nstr,Nstol,vl);
+    exit;
+  }
+  // аналитика
+  xlSetCellNumberValue(0 , Nstr, Nstol , Nstr, Nstol );
+  vl      := 0;
+
+  if (getFirst superKauSpAxtf <> tsOK) { exit; };
+
+  set cStBud := superKauSpAxtf.cMEAN;
+  Set cCopyBud:=CopyBud;
+  Set cFP := FP;
+
+  if (getFirst HashAn = tsOK) {
+    if (getFirst fpV2 = tsOK) {
+      if (getFirst fpP2 <> tsOK) { continue };
+      //if((month(fpP2.dbeg)=month(fpP2.dEnd)) and (year(fpP2.dbeg)=year(fpperiod.dbeg))) and (year(fpP2.dbeg)=year(fpperiod.dbeg))) {
+      if ( fpPeriod.dBeg = fpP2.dBeg ) and (fpPeriod.dEnd = fpP2.dEnd) {
+        if(Check=0) {
+          xlSetCellNumberValue(fpv2.summa     , Nstr, Nstol , Nstr, Nstol );
+          vl := fpv2.summa;
+        } else {
+          xlSetCellNumberValue(fpv2.summa/1000, Nstr, Nstol , Nstr, Nstol );
+          vl := fpv2.summa/1000;
+        }
+      }
+    }
+  }
+end;
+
+
+  create view forGetCode
+  var
+  cKAU : comp;
+  as select * from spkau where ((
+  cKAU == spkau.nRec
+  ))
+  ;
+
+  procedure GetCurrentCodeName (var code : String ; var name : String);
+  begin
+    // Replace (,'_','-')
+    // fpStBud
+    // superKAUfpStBud
+
+    var cd, nm : String;
+
+    if(fpSpAxtf.coTable = word(22217) ) {
+      cd := fpStBud.abbr;
+      nm := fpSpAxtf.name;
+      //
+      if ( SubStr (cd, Length(cd),1 )= '_'  ) {
+        cd := cd + '00'
+      }
+
+      code := Replace (cd, '_', '-');
+      name := nm;
+    } else {
+      if (getFirst superKauSpAxtf = tsOK ) {};
+      if (getFirst superKAUfpStBud = tsOK ) {};
+      cd := superKAUfpStBud.abbr;
+      nm := fpSpAxtf.name;
+
+      set forGetCode.cKAU := fpSpAxtf.cMEAN;
+      if (forGetCode.getfirst spkau = tsOK) {
+        code := Replace (cd + forGetCode.spkau.levelcode,'_','-');
+      } else {
+        code := Replace (cd + fpSpAxtf.levelcode,'_','-');
+      }
+      //
+      name := fpSpAxtf.name;
+    }
+  end;
+
+//определяет первый день текущего квартала
+
+function FirstKvartalDay(D:date):date;
+var Kvartal: byte;
+begin
+	case Month(D) of
+		1..3  : Kvartal:=1;
+		4..6  : Kvartal:=2;
+		7..9  : Kvartal:=3;
+		10..12: Kvartal:=4;
+	end;
+	case Kvartal of
+		1: FirstKvartalDay:=To_Date(1,1,Year(D));
+		2: FirstKvartalDay:=To_Date(4,1,Year(D));
+		3: FirstKvartalDay:=To_Date(7,1,Year(D));
+		4: FirstKvartalDay:=To_Date(10,1,Year(D));
+	end;
+end;
+
+
+//пересмотр дат
+
+#include RepBDR5_91_windows.vpp
+
+  // для обработки внешней классификации по статьям бюджета
+  create view extClass
+  var
+    wTable  : word;
+    cRec    : comp;
+  as select *
+  from
+  //X$Files,
+  ExClassName,
+    ExClassVal,
+    ExClassSeg
+    /*
+    ,
+    synonym ExClassSeg ExClassSeg1,
+    synonym ExClassVal ExClassVal1
+    */
+    where
+    ((
+    wTable                == ExClassVal.wTable   and
+    cRec                  == ExClassVal.cRec     and
+    ExClassVal.cClassSeg  == ExClassSeg.NRec     and
+    ExClassVal.wTable     == ExClassName.wTable  and
+    ExClassSeg.ClassCode  == ExClassName.ClassCode
+    ))
+  ;
+
+  // coFPSTBUD
+  function GetStBudExtraParameters (wt : word; cr : comp; pextclName : String) : byte;
+  begin
+    result := 0;
+    set extClass.wTable := wt;
+    set extClass.cRec   := cr;
+
+    extClass._loop ExClassVal {
+      extClass._loop ExClassName {
+        if (extClass.ExClassName.Name <> pextclName /*'Характеристики статьи для форм 7.9.1 и 7.9'*/) {continue};
+        extClass._loop ExClassSeg {
+          if (extClass.ExClassSeg.Value = excCode1 /*'Разделитель'*/) {result := 1; exit};
+          if (extClass.ExClassSeg.Value = excCode2 /*'Итого'*/) {result := 2; exit};
+          if (extClass.ExClassSeg.Value = excCode3 /*'Агрегат'*/) {result := 3; exit};
+          if (extClass.ExClassSeg.Value = excCode4 /*'Не печатать'*/) {result := 4; exit};
+
+          if (extClass.ExClassSeg.Value = excCode5 /*'Начальное сальдо'*/) {result := 5; exit};
+          if (extClass.ExClassSeg.Value = excCode6 /*'Конечное сальдо'*/) {result := 6; exit};
+        }
+      }
+    }
+
+  end;
+
+  procedure CheckExtAttr ;
+  begin
+    if (extClName = '') {set extClName := 'Характеристики для форм 7.9.1 и 7.9'};
+    if (excCode1 = '') {set excCode1 := 'Разделитель'};
+    if (excCode2 = '') {set excCode2 := 'Итого'};
+    if (excCode3 = '') {set excCode3 := 'Агрегат'};
+    if (excCode4 = '') {set excCode4 := 'Не печатать'};
+    if (excCode5 = '') {set excCode5 := 'Начальное сальдо'};
+    if (excCode6 = '') {set excCode6 := 'Конечное сальдо'};
+
+    if (extClNamePZap = '') {set extClNamePZap := 'Характеристики для формы "ПОЯСНИТЕЛЬНАЯ ЗАПИСКА"'};
+  end;
+
+  procedure CheckDefValues;
+  begin
+    if (sPath='') set sPath := translatepath('%startpath%Xls\F_FPBUDGET\SZMN_Budjet\9.1.xls');
+  end;
+
+  procedure ReadDSK;
+  begin
+    var dc : boolean;
+
+    dc := true;
+
+    //if (not ReadMyDsk(sPath  ,'7dsksPath7',isError))  sPersons := 'o?iN???N ??a?N??N';
+    if (not ReadMyDsk(cTForm ,'szmn_bud_Form91.cTForm',isError))  cTForm := 0;
+    if (not ReadMyDsk(cPlan  ,'szmn_bud_Form91.cPlan',isError))  cPlan:=0;
+    if (not ReadMyDsk(cPlanDop  ,'szmn_bud_Form91.cPlanDop',isError))  cPlanDop:=0;
+
+    if (not ReadMyDsk(cFact  ,'szmn_bud_Form91.cFact',isError))  cFact:=0;
+    if (not ReadMyDsk(sPath  ,'szmn_bud_Form91.sPath',isError))  sPath:='';
+    if (not ReadMyDsk(cPeriod,'szmn_bud_Form91.cPeriod',isError))  cPeriod:=0;
+
+    //
+
+    ReadMyDsk (Check,    'szmn_bud_Form91.Check', dc);
+
+    ReadMyDsk (extClName,   'szmn_bud_Form91.extClName', dc);
+    ReadMyDsk (extClNamePZap,   'szmn_bud_Form91.extClNamePZap', dc);
+
+    ReadMyDsk (excCode1,    'szmn_bud_Form91.excCode1', dc);
+    ReadMyDsk (excCode2,    'szmn_bud_Form91.excCode2', dc);
+    ReadMyDsk (excCode3,    'szmn_bud_Form91.excCode3', dc);
+    ReadMyDsk (excCode4,    'szmn_bud_Form91.excCode4', dc);
+    ReadMyDsk (excCode5,    'szmn_bud_Form91.excCode5', dc);
+    ReadMyDsk (excCode6,    'szmn_bud_Form91.excCode6', dc);
+
+
+    CheckExtAttr;
+
+    CheckDefValues;
+
+  end;
+
+  procedure StoreDSK;
+  begin
+    CheckDefValues;
+    // szmn_bud_Form91
+
+    //if (sPath='') set sPath := translatepath('%startpath%Xls\F_FPBUDGET\SZMN_Budjet\tmpl_7_9_1.xls');
+
+    SaveMyDsk(cTForm,    'szmn_bud_Form91.cTForm');
+    SaveMyDsk(cPeriod,   'szmn_bud_Form91.cPeriod');
+    SaveMyDsk(cPlan,     'szmn_bud_Form91.cPlan');
+    SaveMyDsk(cPlanDop,     'szmn_bud_Form91.cPlanDop');
+    SaveMyDsk(cFact,     'szmn_bud_Form91.cFact');
+
+    SaveMyDsk(sPath,     'szmn_bud_Form91.sPath');
+
+    SaveMyDsk (Check,    'szmn_bud_Form91.Check' );
+
+    //SaveMyDsk (extClName,'szmn_bud_Form91.extClName' );
+    //SaveMyDsk (excCode1, 'szmn_bud_Form91.excCode1' );
+
+    CheckExtAttr;
+
+    SaveMyDsk(extClName,   'szmn_bud_Form91.extClName');
+    SaveMyDsk(extClNamePZap,   'szmn_bud_Form91.extClNamePZap');
+
+    SaveMyDsk(excCode1,    'szmn_bud_Form91.excCode1');
+    SaveMyDsk(excCode2,    'szmn_bud_Form91.excCode2');
+    SaveMyDsk(excCode3,    'szmn_bud_Form91.excCode3');
+    SaveMyDsk(excCode4,    'szmn_bud_Form91.excCode4');
+    SaveMyDsk(excCode5,    'szmn_bud_Form91.excCode5');
+    SaveMyDsk(excCode6,    'szmn_bud_Form91.excCode6');
+
+
+  end;
+
+
+  procedure handleInit;
+  begin
+    ReadDSK
+    cPlan:=0;
+    cFact:=0;
+    cTForm:=0;
+    cPeriod:=0;
+
+    visualHeaderPause := 20;
+
+    isShowZeros := true;
+
+    ReadDSK;
+    if (sPath = '') then sPath:='C:\8.1.XLS';
+
+    podpisanty.setprefix('szmn_bud_Form91');
+    podpisanty.reinit;
+
+
+    //if (not ReadMyDsk(sPath,'dsksPath',isError))  sPath := '';
+    //if (not ReadMyDsk(sPersons,'szmn_rep_9_1_spers',isError))  sPersons := '';
+
+  end;
+
+  create view lvlnmb
+  var
+    cPos : comp
+  as
+  select *
+    from fpSpAxtf spAx
+   where ((
+   cPos == spAx.nrec
+   ))
+   ;
+
+  function getCurrentLevelNumber : word;
+  begin
+
+    result := 0;
+
+    set lvlnmb.cPos := fpSpAxtf.nRec;
+    do {
+      if (lvlnmb.getfirst spAx = tsOK) {
+        if (lvlnmb.spAx.cNode = 0) {
+          exit;
+        } else {
+          inc (result);
+          set lvlnmb.cPos := lvlnmb.spAx.cNode;
+        }
+      } else {
+        exit;
+      }
+    } while true;
+  end;
+
+
+  procedure printSigners (var startPrintAt : word);
+  begin
+    //
+    var i : word;
+    i := 0;
+    if not podpisanty.isSelected then exit;
+    _loop podpisanty {
+      var ar : array [1..2] of string;
+      ar[1] := podpisanty.dolj;
+      ar[2] := podpisanty.fio;
+
+      xlSetCellStringValue(ar[1] , startPrintAt + i, 2,  startPrintAt + i, 2); // ??N? - ????
+      xlSetFontStyle (xlBold , startPrintAt + i, 2,  startPrintAt + i, 2);
+      xlAlignCells (xlRight,startPrintAt + i, 2,  startPrintAt + i, 2);
+
+      xlFrameCells ( xlBorderB,//xlEdgeBottom, //xlBorderB,
+                     2,
+                     xlContinuous,
+                     0 ,
+                     startPrintAt + i,
+                     3,
+                     startPrintAt + i,
+                     4);
+      xlSetCellStringValue(ar[2] , startPrintAt + i, 5,  startPrintAt + i, 5); // ??N? - ????
+      xlSetFontStyle (xlBold , startPrintAt + i, 5,  startPrintAt + i, 5);
+      //xlRunMacro('CopyRow(ROW3)');
+      inc (i);
+
+    }
+
+    startPrintAt := startPrintAt + i;
+  end;
+
+  procedure printSigners2 (var startPrintAt : word);
+  begin
+    //
+    var i : word;
+    i := 0;
+    if not podpisanty.isSelected then exit;
+    _loop podpisanty {
+      var ar : array [1..2] of string;
+      ar[1] := podpisanty.dolj;
+      ar[2] := podpisanty.fio;
+
+      xlSetCellStringValue(ar[1] , startPrintAt , 2,  startPrintAt , 2); // ??N? - ????
+      xlSetCellStringValue(ar[2] , startPrintAt + i, 5,  startPrintAt + i, 5); // ??N? - ????
+      xlRunMacro('CopyRow(ROWPODPIS)');
+      //inc (i);
+    }
+    //startPrintAt := startPrintAt + i;
+  end;
+
+  procedure printExecutor(startPrintAt : word);
+  begin
+    var sFIO :String ;
+    sFIO := Trim (sGetTune ('USER.FIO'));
+    var ps1 : byte;
+    ps1 := pos (' ',sFIO);
+    if (ps1 <> 0 ){
+      var sfam : String;
+      //sFAM := substr (sFIO,1,ps1-1);
+      sFAM := substr (sFIO,1,ps1-1) + ' ' + Substr (trim (substr (sFIO,ps1+1,255)),1,1) + '.';
+
+      sFIO := trim (substr (sFIO,ps1+1,255));
+      ps1 := pos (' ',sFIO);
+
+      if (ps1 <> 0) {
+        sFAM := sFAM + ' ' + Substr (trim (substr (sFIO,ps1+1,255)),1,1) + '.';
+      } else {
+      }
+
+      sFIO := sFAM;
+    }
+
+
+    //xlSetCellStringValue('/ '+ sFIO + ' /', 15, 9, 15, 9);
+
+    var tel : string;
+
+    if (getFirst persons where (( sGetTune ('USER.FIO') == persons.FIO (noindex) )) = tsOK) {
+      if (getFirst COMMUNICATIONS where ((  persons.nrec == COMMUNICATIONS.person and
+                                            comp('000000000000022Bh') == COMMUNICATIONS.comtype
+                                            )) = tsOK){
+        tel := COMMUNICATIONS.ADDR;
+      }
+    }
+    xlSetCellStringValue(sFIO + ',' + tel , startPrintAt, 2, startPrintAt, 2);
+    xlSetFontSize (8 , startPrintAt, 2, startPrintAt, 2);
+    //xlRunMacro('CopyRow(ROW7)');
+
+  end;
+
+  procedure printExecutor2(startPrintAt : word);
+  begin
+    var sFIO :String ;
+    sFIO := Trim (sGetTune ('USER.FIO'));
+    var ps1 : byte;
+    ps1 := pos (' ',sFIO);
+    if (ps1 <> 0 ){
+      var sfam : String;
+      //sFAM := substr (sFIO,1,ps1-1);
+      sFAM := substr (sFIO,1,ps1-1) + ' ' + Substr (trim (substr (sFIO,ps1+1,255)),1,1) + '.';
+
+      sFIO := trim (substr (sFIO,ps1+1,255));
+      ps1 := pos (' ',sFIO);
+
+      if (ps1 <> 0) {
+        sFAM := sFAM + ' ' + Substr (trim (substr (sFIO,ps1+1,255)),1,1) + '.';
+      } else {
+      }
+
+      sFIO := sFAM;
+    }
+
+
+    //xlSetCellStringValue('/ '+ sFIO + ' /', 15, 9, 15, 9);
+
+    var tel : string;
+
+    if (getFirst persons where (( sGetTune ('USER.FIO') == persons.FIO (noindex) )) = tsOK) {
+      if (getFirst COMMUNICATIONS where ((  persons.nrec == COMMUNICATIONS.person and
+                                            comp('000000000000022Bh') == COMMUNICATIONS.comtype
+                                            )) = tsOK){
+        tel := COMMUNICATIONS.ADDR;
+      }
+    }
+    xlSetCellStringValue(sFIO + ',' + tel , startPrintAt, 2, startPrintAt, 2);
+    //xlSetFontSize (8 , startPrintAt, 2, startPrintAt, 2);
+    xlRunMacro('CopyRow(ROWEXEC)');
+
+  end;
+
+
+  function trimFirst0 (st : String):string;
+  begin
+    result := st;
+    exit;
+
+    if st = '' then {
+      result := '';
+      exit
+    };
+    if substr (st,1,1) = '0' then
+      result := trimFirst0 (substr (st,2,255))
+    else
+      result := st;
+  end;
+
+  procedure DoGroupData;
+  begin
+    // группировка данных
+    var extraSm : word;
+    extraSm := 0;
+
+    var extraFrm : String;
+    extraFrm := '';
+
+    var tt : word;
+
+    tt := 0;
+
+    _loop f91_printed {
+      inc (tt);
+      if (tt mod visualHeaderPause) = 0 then {
+        setVisualHeader (FormatStr_4 ( 'Группировка данных формы 9.1 | %d из %d | %d | %s',2,4, tt ,fpSpAxtf.Name));
+      }
+      NextVisual;
+
+      /* без учета группировки по уровням
+      xlRunMacro('ActiveSheetGroupData('+String ( forGrouping.f791_printed_ord2.groupFrom)+','+ String ( forGrouping.f791_printed_ord2.groupTo) +')');
+
+      */
+
+      var vSums1  : rep91array; //array [1..3] of double;
+      var vSums2 : rep91array; //array [1..3] of double;
+
+      for (i := 1; i <=12; i := i +1){
+        vSums1[i] := 0;
+        vSums2[i] := 0;
+      }
+      /*
+      vSums[1] := 0;
+      vSums[2] := 0;
+      vSums[3] := 0;
+      */
+
+      var fSum : string;
+      fSum := '';
+
+
+      _loop subp3{
+        var tsts : string;
+        var raz : integer;
+        var i : byte;
+
+        raz  := subp3.printedAtRow - f91_printed.printedAtRow ;
+        tsts := ''+ raz;
+
+        fSum := fSum + ';R[' + tsts + ']C';
+
+        for (i := 1; i <=12; i := i +1){
+          vSums1[i] := vSums1[i] + subp3.sum1[i];
+          vSums2[i] := vSums2[i] + subp3.sum2[i];
+        }
+        //vSums[3] := vSums[3] + subp3.sum[3];
+      }
+      if (fSum > '') {
+        //xlSetCellFormula('=Сумм('+fSum+')',forGrouping.f791_printed_ord2.printedAtRow,3,forGrouping.f791_printed_ord2.printedAtRow,7);
+        /*
+        xlSetCellFormula( '=Сумм('+fSum+')',
+                          f91_printed.printedAtRow,
+                          5,
+                          f91_printed.printedAtRow,
+                          6
+                          ); */
+      }
+
+      if (f91_printed.extPar1 = 5){
+        // тут должна быть сумма
+        extraSm := f91_printed.printedAtRow;
+      }
+      if (f91_printed.extPar1 = 6){
+        // тут надо сложить
+        extraFrm := extraFrm + ';R[' + (f91_printed.printedAtRow - extraSm) + ']C';
+      }
+      if ( f91_printed.extPar1 = 7){
+        // тут надо отнять
+        extraFrm := extraFrm + ';-R[' + (f91_printed.printedAtRow - extraSm) + ']C';
+      }
+
+      if (f91_printed.isKAUGroup = 1) {
+        var i : byte;
+        for (i := 1; i <=12; i := i +1){
+          xlSetCellNumberValue( vSums1[i] ,
+                                f91_printed.printedAtRow,
+                                2 + i ,
+                                f91_printed.printedAtRow,
+                                2 + i );
+          xlSetCellNumberValue( vSums2[i] ,
+                                f91_printed.printedAtRow,
+                                14 + i ,
+                                f91_printed.printedAtRow,
+                                14 + i);
+        }
+        /*
+        xlSetCellNumberValue( vSums[3] ,
+                              f91_printed.printedAtRow,
+                              6 ,
+                              f91_printed.printedAtRow,
+                              6 );
+        */
+      }
+    }
+
+    /*
+    _loop f791_printed {
+    }
+    */
+
+    if (extraSm <> 0){
+      //xlSetCellFormula('=Сумм('+extraFrm+')',extraSm,5,extraSm,5);
+      //exit;
+    }
+
+  end;
+
+  procedure DoGroupDataPZap;
+  begin
+    // группировка данных
+    var extraSm : word;
+    extraSm := 0;
+
+    var extraFrm : String;
+    extraFrm := '';
+
+    var tt : word;
+
+    tt := 0;
+
+    _loop fpzap_printed {
+      inc(tt);
+      /* без учета группировки по уровням
+      xlRunMacro('ActiveSheetGroupData('+String ( forGrouping.f791_printed_ord2.groupFrom)+','+ String ( forGrouping.f791_printed_ord2.groupTo) +')');
+
+      */
+      if (tt mod visualHeaderPause) = 0 then {
+        setVisualHeader (FormatStr_4 ( 'Группировка данных формы ПЗап | %d из %d | %d | %s',4,4, tt ,fpzap_printed.Name));
+      }
+      NextVisual;
+
+      var vSums : array [1..3] of double;
+
+      vSums[1] := 0;
+      vSums[2] := 0;
+      vSums[3] := 0;
+
+      var fSum : string;
+      fSum := '';
+
+
+      _loop sub_pzp{
+        var tsts : string;
+        var raz : integer;
+
+        raz  := sub_pzp.printedAtRow - fpzap_printed.printedAtRow ;
+        tsts := ''+ raz;
+
+        fSum := fSum + ';R[' + tsts + ']C';
+
+        vSums[1] := vSums[1] + sub_pzp.sum[1];
+        vSums[2] := vSums[2] + sub_pzp.sum[2];
+        vSums[3] := vSums[3] + sub_pzp.sum[3];
+      }
+      if (fSum > '') {
+        //xlSetCellFormula('=Сумм('+fSum+')',forGrouping.f791_printed_ord2.printedAtRow,3,forGrouping.f791_printed_ord2.printedAtRow,7);
+        /*
+        xlSetCellFormula( '=Сумм('+fSum+')',
+                          fpzap_printed.printedAtRow,
+                          5,
+                          fpzap_printed.printedAtRow,
+                          6
+                          );
+                          */
+      }
+      /*
+      if (fpzap_printed.extPar1 = 5){
+        // тут должна быть сумма
+        extraSm := fpzap_printed.printedAtRow;
+      }
+      if (fpzap_printed.extPar1 = 6){
+        // тут надо сложить
+        extraFrm := extraFrm + ';R[' + (fpzap_printed.printedAtRow - extraSm) + ']C';
+      }
+      if ( fpzap_printed.extPar1 = 7){
+        // тут надо отнять
+        extraFrm := extraFrm + ';-R[' + (fpzap_printed.printedAtRow - extraSm) + ']C';
+      }
+      */
+
+      if (fpzap_printed.isKAUGroup = 1) {
+        xlSetCellNumberValue( vSums[1] ,
+                              fpzap_printed.printedAtRow,
+                              3 ,
+                              fpzap_printed.printedAtRow,
+                              3 );
+        xlSetCellNumberValue( vSums[2] ,
+                              fpzap_printed.printedAtRow,
+                              4 ,
+                              fpzap_printed.printedAtRow,
+                              4 );
+
+        xlSetCellNumberValue( vSums[3] ,
+                              fpzap_printed.printedAtRow,
+                              5 ,
+                              fpzap_printed.printedAtRow,
+                              5 );
+      }
+    }
+
+    /*
+    _loop f791_printed {
+    }
+    */
+
+    if (extraSm <> 0){
+      //xlSetCellFormula('=Сумм('+extraFrm+')',extraSm,5,extraSm,5);
+      //exit;
+    }
+
+  end;
+
+  procedure DoPrintPZap; forward;
+
+  procedure doPrint;
+  begin
+    StartNewVisual (vtRotateVisual,vfScreenBottom + vfThread + vfTimer, 'Формирование отчета', 100 );
+
+    SetVisualHeader ('Формирование отчета');
+
+    var tms : array [1..10] of time;
+    tms[1] := Cur_Time;
+
+    delete all f91_printed;
+    delete all fpzap_printed;
+
+    storeDSK;
+
+    var extraChar : string;
+    extraChar := '''';
+
+    //    message('Нажали на кнопку');
+    pathUserOut := GetDefaultUserPath;
+    NameExcel   := pathUserOut;
+    wPeriod:=word(trim(NextNumStr(sPeriod)))-1;
+
+    xlCreateExcelWithTemplate(sPath,true);
+
+    if (xlIsExcelValid) {
+      //xlOpenWorkBook(trim(sPath));
+      //xlSetActiveWorkBookByName(trim(sPath));
+      //xlSaveAsWorkBookByName(trim(sPath), NameExcel+'.xls');
+    }
+
+    /*
+    xlCreateExcel('',true);
+    if (xlIsExcelValid)
+    {
+    xlOpenWorkBook(trim(sPath));
+    xlSetActiveWorkBookByName(trim(sPath));
+    xlSaveAsWorkBookByName(trim(sPath), NameExcel+'.xls');
+
+    }
+    */
+
+
+    xlSetActiveSheet(1); //Титул_1
+    xlRunMacro('REP_BegoreReportPrint');
+
+
+    xlSetCellStringValue(month(fpperiod.dbeg), 1, 1, 1, 1); //
+    xlSetCellStringValue(year(fpperiod.dbeg), 1, 2, 1, 2); //
+
+    xlSetCellStringValue(if (Check = 0,'руб.','тыс.руб.'), 1, 3, 1, 3); //
+    xlSetCellStringValue(year(fpperiod.dbeg), 1, 4, 1, 4); //
+    xlSetCellStringValue(LoCase (datetostr(fpperiod.dbeg, 'month YYYY')), 1, 5, 1, 5); //
+    var tt:word;
+    tt:=0;
+    var extCl : byte;
+
+    var stepsTotal : byte;
+    stepstotal := 4;
+
+    _LOOP  fpSpAxtf    {
+      NextVisual;
+      if(isValid(tnfpstbud) or (1=1))       { //chek year
+        inc(tt);
+        if ( fpSpAxtf.coTable = coFPSTBUD ) {
+          extCl := GetStBudExtraParameters( coFPSTBUD , fpSpAxtf.CMEAN ,extClName );
+        } else {
+          extCl := 0;
+        }
+
+        var code2010, name2010 : String;
+        GetCurrentCodeName (code2010, name2010);
+
+        xlSetCellNumberValue(extCl     , 1+tt, 41, 1+tt, 41);
+
+        //xlSetCellStringValue(fpSpAxtf.code, 1+tt, 1, 1+tt, 1); //
+        xlSetCellStringValue(code2010, 1+tt, 1, 1+tt, 1); //
+
+        //xlSetCellStringValue(PadCh ('',' ', 2 * getCurrentLevelNumber) + fpstbud.Name, 1+tt, 2, 1+tt, 2); //
+        //xlSetCellStringValue(PadCh ('',' ', 2 * getCurrentLevelNumber) + fpSpAxtf.name, 1+tt, 2, 1+tt, 2); //
+        xlSetCellStringValue(PadCh ('',' ', 2 * getCurrentLevelNumber) + name2010, 1+tt, 2, 1+tt, 2); //
+
+        //xlSetCellStringValue(extraChar + trimFirst0(fpstbud.LevelCode), 1+tt, 40, 1+tt, 40); //
+        xlSetCellStringValue(extraChar + code2010, 1+tt, 40, 1+tt, 40); //
+        xlSetCellStringValue(kated.name, 1+tt, 27, 1+tt, 27);
+        var pl, fc: rep91array;
+        var i : byte;
+        for (i := 1; i<=12; i := i +1) {
+          pl[i] := 0;
+          fc[i] := 0;
+        }
+        ExcelPrint_2010(fpSpAxtf.coTable,cPlan,150,1+tt,2,pl);
+        //ExcelPrint_2010(fpSpAxtf.coTable,cPlan,150,1+tt,3,pl);
+        ExcelPrint_2010(fpSpAxtf.coTable,cFact,151,1+tt,14, fc);
+
+        var wasNonZeros : boolean;
+        wasNonZeros := false
+        for (i := 1; i<=12; i := i +1) {
+          if ( abs (pl[i]) > 0.0000001 or abs (fc[i]) > 0.0000001 ) then {
+            wasNonZeros := true
+            break;
+          }
+        }
+
+        if ( not wasNonZeros) then {
+          if (not isShowZeros and fpSpAxtf.isLeaf = 1) {
+            dec(tt);
+            continue;
+          }
+        }
+
+        if (tt mod visualHeaderPause) = 0 then {
+          setVisualHeader (FormatStr_4 ( 'Выгрузка данных формы 9.1 | %d из %d | %d | %s',1,stepstotal, tt ,fpSpAxtf.Name));
+        }
+
+        insert f91_printed set f91_printed.cRec := fpSpAxtf.nRec ,
+                                f91_printed.printedAtRow := 1+tt,
+                                f91_printed.cNode  := fpSpAxtf.cNode,
+                                //f91_printed.code   := extraChar + trimFirst0(fpstbud.levelcode),
+                                f91_printed.code   := name2010,
+                                //f91_printed.name   := PadCh ('',' ', 2 * getCurrentLevelNumber) + fpSpAxtf.name,
+                                f91_printed.name   := PadCh ('',' ', 2 * getCurrentLevelNumber) + name2010,
+                                /*
+                                f91_printed.sum1   := pl,
+                                f91_printed.sum[2] := fc,
+                                f91_printed.sum[3] := 0,
+                                */
+                                f91_printed.extPar := extCl,
+                                //f91_printed.extPar1:= extCl1,
+                                f91_printed.isLeaf := fpSpAxtf.isLeaf,
+                                f91_printed.coTable := fpSpAxtf.coTable,
+                                f91_printed.isKAUGroup := isKauGroup (fpSpAxtf.nRec)
+
+                                ;
+        var j : byte;
+        for (j := 1; j<=12; j := j +1) {
+          update current f91_printed set f91_printed.sum1[j] := pl[j], f91_printed.sum2[j] := fc[j];
+        }
+      }
+      else{}
+    }
+
+    update f91_printed where (( 1 == f91_printed.isKAUGroup))
+           set f91_printed.isMakeGroup := 1
+           ;
+
+    updateIsMakeGroup;
+
+    calculateGroupBorders;
+
+    doGroupData;
+
+    /*
+    _loop TabPersons{
+      xlSetCellStringValue(TabPersons.name, 1+tt, 41, 1+tt, 41);
+      xlSetCellStringValue(TabPersons.work, 1+tt, 42, 1+tt, 42);
+      inc(tt);
+    }
+    xlSetCellStringValue(tt, 1, 43, 1, 43);
+    */
+
+
+    xlRunMacro('GalFpUser_AfterReport');
+
+    xlSetActiveSheetByName('Otchet'); //?????_1
+
+    groupExcelDatas91(5);
+
+    tt := tt + 10;
+
+    printSigners (tt );
+
+    tt := tt + 4;
+    printExecutor (tt);
+
+    tms[6] := Cur_Time;
+    DoPrintPZap;
+
+    xlSetActiveSheetByName('Otchet'); //?????_1
+
+    xlRunMacro('HideSheet(pZapData)');
+    xlRunMacro('HideSheet(Sheet1)');
+    xlRunMacro('REP_AfterReportPrint');
+    //xlRunMacro('HideSheet(пояснительная)');
+
+    xlKillExcel;
+
+    StopVisual('',0);
+
+    //SaveMyDsk(sPath,'dsksPath');
+    //SaveMyDsk(sPersons,  'szmn_rep_9_1_spers');
+    //PutCommand(cmClose);
+    tms[10] := Cur_Time;
+    if (isShowTimeLabels) then {
+      message ( tms[1] + ''#13'' +
+                tms[2] + ''#13'' +
+                tms[3] + ''#13'' +
+                tms[4] + ''#13'' +
+                tms[5] + ''#13'' +
+                tms[6] + ''#13'' +
+                tms[7] + ''#13'' +
+                tms[8] + ''#13'' +
+                tms[9] + ''#13'' +
+                tms[10] + ''#13''
+                )
+                ;
+    } ;
+
+  end;
+
+  procedure DoPrintPZap;
+  begin
+    //
+    var dataSheetName : string;
+    dataSheetName  := 'pZapData';
+
+    var reportSheetName : string;
+    reportSheetName  := 'pZap';
+
+    xlRunMacro('setDataSheetName('+dataSheetName+')');
+    xlRunMacro('setReportSheetName('+reportSheetName+')');
+    xlRunMacro('setRowToFill('+String (9)+')');
+
+    xlSetActiveSheetByName(dataSheetName);
+
+    //xlSetCellStringValue(sPeriod, 3, 3, 3, 3); //
+
+    if(Check=0) {
+      xlSetCellStringValue('руб.', 3, 4, 3, 4); //
+    } else {
+      xlSetCellStringValue('тыс.руб.', 3, 4, 3, 4); //
+    }
+    // русский
+    xlSetCellStringValue(LoCase (datetostr(fpperiod.dbeg, 'month YYYY')), 3, 3, 3, 3); //
+    xlSetCellStringValue(LoCase (datetostr(fpperiod.dbeg, 'mon YYYY')), 3, 5, 3, 5); //
+    xlSetCellStringValue(LoCase (datetostr(fpperiod.dbeg, 'mon')), 3, 6, 3, 6); //
+
+    var extCl : byte;
+    var prntRow : byte;
+    var prntRowStr : String;
+
+    var extraChar : string;
+    extraChar := '''';
+
+    var tt : word;
+    tt := 0;
+
+    _LOOP  fpSpAxtf    {
+      NextVisual;
+      if(isValid(tnfpstbud) or (1=1))       { //chek year
+        //
+        if ( fpSpAxtf.coTable = coFPSTBUD ) {
+          extCl := GetStBudExtraParameters( coFPSTBUD , fpSpAxtf.CMEAN, extClNamePZap );
+          if (extCl = 0 ){
+            extCl := GetStBudExtraParameters( coFPSTBUD , fpSpAxtf.CMEAN, extClName );
+          }
+        } else {
+          extCl := 0;
+        }
+        case extCl of
+          0: { prntRow := 16; prntRowStr := 'ROWORDINAL'; }
+          1: { prntRow := 6; prntRowStr := 'ROWDELIM'; }
+          2: { prntRow := 11; prntRowStr := 'ROWITOG'; }
+          3: { prntRow := 13; prntRowStr := 'ROWAGREG'; }
+          4: continue;
+        end;
+
+        var code2010, name2010 : String;
+        GetCurrentCodeName (code2010, name2010);
+
+        //xlSetCellStringValue(fpSpAxtf.code, 1+tt, 1, 1+tt, 1); //
+        //xlSetCellNumberValue(extCl     , 1+tt, 41, 1+tt, 41);
+
+        //xlSetCellStringValue(PadCh ('',' ', 2 * getCurrentLevelNumber) + fpstbud.Name, prntRow, 2, prntRow, 2); //
+        //xlSetCellStringValue(PadCh ('',' ', 2 * getCurrentLevelNumber) + fpSpAxtf.name, prntRow, 2, prntRow, 2); //
+        xlSetCellStringValue(PadCh ('',' ', 2 * getCurrentLevelNumber) + name2010, prntRow, 2, prntRow, 2); //
+
+        if ( extCl <> 1) {
+          //xlSetCellStringValue(extraChar + trimFirst0(fpstbud.LevelCode), prntRow, 1, prntRow, 1 ); //
+          xlSetCellStringValue(extraChar + code2010, prntRow, 1, prntRow, 1 ); //
+          //xlSetCellStringValue(kated.name, 1+tt, 27, 1+tt, 27);
+          var sms :array [1..3] of double;
+          ExcelPrint2_2010(fpSpAxtf.coTable,cPlan,150,prntRow,3,sms[1]);
+          ExcelPrint2_2010(fpSpAxtf.coTable,cPlanDop,150,prntRow,4,sms[2]);
+          ExcelPrint2_2010(fpSpAxtf.coTable,cFact,151,prntRow,5,sms[3]);
+
+          if ( abs (sms[1]) < 0.0000001 and abs (sms[2]) < 0.0000001 and abs (sms[3]) < 0.0000001) then {
+            if (not isShowZeros and fpSpAxtf.isLeaf = 1) {
+              continue;
+            }
+          }
+
+          inc (tt);
+
+          if (tt mod visualHeaderPause) = 0 then {
+            setVisualHeader (FormatStr_4 ( 'Выгрузка данных формы ПЗап | %d из %d | %d | %s',3,4, tt ,fpSpAxtf.Name));
+          }
+
+          insert fpzap_printed set fpzap_printed.cRec := fpSpAxtf.nRec ,
+                                  fpzap_printed.printedAtRow := repGetPrintRow ,
+                                  fpzap_printed.cNode  := fpSpAxtf.cNode,
+                                  //fpzap_printed.code   := extraChar + trimFirst0(fpstbud.levelcode),
+                                  fpzap_printed.code   := code2010,
+                                  //fpzap_printed.name   := PadCh ('',' ', 2 * getCurrentLevelNumber) + fpSpAxtf.name,
+                                  fpzap_printed.name   := PadCh ('',' ', 2 * getCurrentLevelNumber) + name2010,
+                                  fpzap_printed.sum[1] := sms[1],
+                                  fpzap_printed.sum[2] := sms[2],
+                                  fpzap_printed.sum[3] := sms[3],
+                                  fpzap_printed.extPar := extCl,
+                                  //fpzap_printed.extPar1:= extCl1,
+                                  fpzap_printed.isLeaf := fpSpAxtf.isLeaf,
+                                  fpzap_printed.coTable := fpSpAxtf.coTable,
+                                  fpzap_printed.isKAUGroup := isKauGroup (fpSpAxtf.nRec)
+
+                                  ;
+
+        };
+        xlRunMacro('CopyRow(' + prntRowStr + ')');
+      }
+      else{}
+    }
+    xlRunMacro('ROWEMPTY');
+
+    xlSetActiveSheetByName(reportSheetName);
+    DoGroupDataPZap;
+
+    groupExcelDatas91(2);
+
+    xlSetActiveSheetByName(dataSheetName);
+
+    printSigners2 (25);
+
+    printExecutor2(28);
+
+
+  end;
+
+  procedure HandleApply;
+  begin
+    doPrint;
+  end;
+
+Handleevent
+cmApply:
+{
+  HandleApply;
+
+}
+cmPick:
+  case curField of
+    #sPlan     :  RunInterface('F_FpBudget::Budget', word(cgiPick), word(0), word(0), comp(0), cPlan, 0, 0);
+    #sPlanDop  :  RunInterface('F_FpBudget::Budget', word(cgiPick), word(0), word(0), comp(0), cPlanDop, 0, 0);
+    #sFact     :  RunInterface('F_FpBudget::Budget', word(cgiPick), word(0), word(0), comp(0), cFact , 0, 0);
+    #sTForm    :  RunInterface('F_FpBudget::getTForm', cgiPick, 0, cTForm);
+    #sPeriod   :  RunInterface('F_FpCatalog::getPeriod', cgiPick, comp(0), comp(0), cPeriod, cgSetFPTuneDefault);
+!    #sPersons  :  RunInterface('SelectPersons', sPersons);
+
+    #sPodpGrp    : {
+      podpisanty.SelectPodpis;
+      RescanPanel (scKatH01);
+    }
+
+    #sPath     :
+   {
+        var sTmp : string;
+            sTmp := GetFileName('*.XLS', 'Выберите файл с шаблоном');
+        if (trim(sTmp) = '')
+         { Exit; }
+        Set sPath := sTmp;
+    }
+
+  end;
+!-------------------------------------------------------------------------------
+cmDelOnProtect:
+  case curField of
+    #sPeriod   : Set cPeriod:=0;
+    #sTForm    : Set cTForm:=0;
+    #sPlan    : Set cPlan:=0;
+    #sFact     : Set cFact:=0;
+    #sPodpGrp  : {
+      set podpisanty.cPodpGroup := 0;
+    }
+  end;
+
+cmInit:
+{
+  handleInit;
+}
+
+cmHotKeys : {
+  var mn : longint ;
+  mn := LoadMenu('form91showdebug') ;
+  var i : integer;
+  i := RunLoadMenu (mn);
+  //message  ('i == ' + i);
+  if (i <> 0 and i <> cmCancel) {
+    Putcommand(i)
+  }
+}
+
+cmShowDebug91 : {
+  RunWindowModal( wnInfoWindow );
+}
+
+end;
+end.
+

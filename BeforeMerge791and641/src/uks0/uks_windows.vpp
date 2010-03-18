@@ -1,0 +1,237 @@
+procedure pickPlan; forward;
+procedure pickPlanVar; forward;
+procedure pickPlanVarFact; forward;
+procedure pickPlanVarUPlan; forward;
+
+procedure set_state; forward;
+function build_rep: boolean;  forward;
+
+Window wnInfoWindow 'gg' ('gg', hcNoContext);
+  Show at(,,,29);
+
+  Browse brplan_tblDbg '' ('',  hcNoContext);
+    Show at(,,,10);
+    Table plan_tblDbg;
+  Fields
+    plan_tblDbg.iRegister '.iRegister':[10],protect;
+    plan_tblDbg.obj '.obj':[10],protect;
+
+    plan_tblDbg.col '.col':[10],protect;
+    //plan_tblDbg.per '.per':[10],protect;
+    plan_tblDbg.name '.name':[10],protect;
+
+    plan_tblDbg.isGroup '.isGroup':[10],protect;
+    plan_tblDbg.iArticle '.iArticle':[10],protect;
+    plan_tblDbg.topArticle '.topArticle':[10],protect;
+
+    plan_tblDbg.base_val '.base_val':[10],protect;
+    plan_tblDbg.plan_val '.plan_val':[10],protect;
+    plan_tblDbg.fact_val '.fact_val':[10],protect;
+
+    plan_tblDbg.vlu '.vlu':[10],protect;
+
+    plan_tblDbg.stage '.stage':[10],protect;
+
+    plan_tblDbg.passNo '.passNo':[10],protect;
+
+    //plan_tblDbg.cPer '.cPer':[10],protect;
+    plan_tblDbg.perName '.perName':[10],protect;
+
+    plan_tblDbg.pvNRec '.pvNRec':[10],protect;
+
+
+
+  End; // Browse
+
+  Browse brobj_tbl 'gg' ('gg', hcNoContext);
+    Show at(,11,,20);
+    Table obj_tbl;
+  Fields
+    obj_tbl.code '.code':[10],protect;
+    obj_tbl.vol '.vol':[10],protect;
+    obj_tbl.obj '.obj':[10],protect;
+    obj_tbl.node '.node':[10],protect;
+
+    obj_tbl.name '.name':[10],protect;
+    obj_tbl.abbr '.abbr':[10],protect;
+    obj_tbl.unit '.unit':[10],protect;
+
+    obj_tbl.sootAn '.sootAn':[10],protect;
+    obj_tbl.sootAnNRec '.sootAnNRec':[10],protect;
+    obj_tbl.sootAnCode '.sootAnCode':[10],protect;
+
+    obj_tbl.sootAnName '.sootAnName':[10],protect;
+    obj_tbl.anNode '.anNode':[10],protect;
+    obj_tbl.Stage '.Stage':[10],protect;
+    obj_tbl.SortingCode '.SortingCode':protect;
+
+    obj_tbl.printedAt '.printedAt':protect;
+
+  End; // Browse
+
+  Browse brplan_tbl '' ('',  hcNoContext);
+    Show at(,21,,);
+    Table plan_tbl;
+  Fields
+    plan_tbl.obj '.obj':[10],protect;
+
+    plan_tbl.col '.col':[10],protect;
+    plan_tbl.per '.per':[10],protect;
+    plan_tbl.base_val '.base_val':[10],protect;
+    plan_tbl.plan_val '.plan_val':[10],protect;
+    plan_tbl.fact_val '.fact_val':[10],protect;
+    plan_tbl.stage '.stage':[10],protect;
+
+    plan_tbl.printedAt '.printedAt':[10],protect;
+
+
+  End; // Browse
+
+End; // Window
+
+
+window param_win 'Параметры формирования отчета' ('', , sci13Esc) gray, escclose;
+show at (,,80,24)
+
+screen scr01;
+show at (,,,)
+fields
+     uksTree.name: protect, pickbutton;
+     katVarPl.name: protect, pickbutton;
+
+     katVarPlFact.name: protect, pickbutton;
+     katVarPlUPlan.name: protect, pickbutton;
+
+     rep_type: [list
+                 0 'ТПиР',
+                 1 'КР'], protect;
+     rep_mode: noprotect;
+     repPeriod.name ('Период отчета'): protect, pickbutton;
+     price_mode: [list
+                 0 'Сумма всего',
+                 2 'Сумма без налогов',
+                 4 'Сумма налогов',
+                 6 'Сумма всего без НДС',
+                 8 'Сумма НДС'], protect;
+     scale: noprotect;
+     xlt_file: noprotect, pickbutton;
+
+     sootvCode : noprotect;
+     analitWKAU: noprotect;
+buttons
+!        cmOk,,, 'Формирование отчета...';
+        cmOk2,,, 'Формирование отчета ...';
+        cmCancel,,, 'Отмена формирования';
+<<
+ `План строительства`
+  .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+ `Вариант`      .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+   `Вариант`
+`типа факт`     .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+   `Вариант`
+`типа утв. план`.@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+ `Программа:`.@@@@@@@@@@@@@@@@@  Режим отчета: (.) План            `
+                                               (.) План-Факт       `
+
+                                 Период отчета.@@@@@@@@@@@@@@
+
+ `Режим цен:`.@@@@@@@@@@@@@@@@@  Масштаб сумм: (.) в руб.           `
+                                               (.) в тыс.руб.       `
+ `Шаблон для excel-отчета:`
+  .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+ `Код каталога соответствий:`.@@@@@ `Код аналитики:`.@@@@@@@@@
+
+!               <.Формировать.>
+               <. Формировать .>  <.   Отмена   .>
+>>
+end; //screen
+
+
+!--------------------------------------------------------------------------
+handleevent // window
+cmInit: {
+  ReadDSK;
+
+  pickPlan;
+  cNode := 0;
+  /*
+  rep_mode := 0;
+  rep_type := 0;
+  price_mode := cgTotal;
+  scale := 1;
+  xlt_file := translatepath('%StartPath%XLS\User_Reports\form615_.xlt')
+  //  set_state;
+  */
+  if cUksTree = 0 then {
+
+  }
+}
+
+cmOk2:{
+  StoreDSK;
+  make_rep := true;
+  koef := 1.0;
+  if (scale = 1) koef := 1000.0;
+  //closewindow(param_win);
+  if make_rep {
+    make_rep := build_rep2;
+  }
+}
+
+cmOk: {
+  StoreDSK;
+  make_rep := true;
+  koef := 1.0;
+  if (scale = 1) koef := 1000.0;
+  //closewindow(param_win);
+  if make_rep {
+    make_rep := build_rep;
+  }
+}
+cmPick: {
+  case curfield of
+  #uksTree.name: pickPlan;
+  #katVarPl.name: pickPlanVar;
+
+  #katVarPlFact.name: pickPlanVarFact;
+  #katVarPlUPlan.name: pickPlanVarUPlan;
+
+  #repPeriod.name: {
+    tcPer := repPeriod.Nrec;
+    if (runInterface('F_FpCatalog::getPeriod', word(cgiPick), comp(0064000000000017h),
+                      comp(0), tcPer, word(0)) = cmDefault)
+      if (getFirst repPeriod where ((tcPer == repPeriod.Nrec)) <> tsOk) {}
+//runwindowmodal(period_win);
+  }
+  #xlt_file: {
+    tmp := getfilename('*.xlt', 'Выберите файл шаблона отчета');
+    if (tmp <> '') {
+      xlt_file := tmp;
+      rereadrecord;
+    }
+  }
+  end; //case
+}
+cmExprFieldChanged: set_state;
+cmCancel: {}
+
+  cmHotKeys : {
+    var mn : longint ;
+    mn := LoadMenu('formUKSshowdebug') ;
+    var i : integer;
+    i := RunLoadMenu (mn);
+    //message  ('i == ' + i);
+    if (i <> 0 and i <> cmCancel) {
+      Putcommand(i)
+    }
+  }
+  cmShowDebug : {
+    RunWindowModal (wnInfoWindow );
+  }
+
+end;
+end; //window
+

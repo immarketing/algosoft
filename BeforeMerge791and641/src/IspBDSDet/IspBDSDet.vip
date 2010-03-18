@@ -1,0 +1,263 @@
+
+!#include galnet.ccm
+!end;
+!#include uAlgor.vih
+!#include oAlgSetup.vih
+
+!#include iXLSRepBuilder.VIH
+
+!#include alg_5998.vih
+
+
+!#component "L_DOGOVOR"
+
+!#include consts_alg1.inc
+!end;
+
+!#include alg1.vih
+
+!#include selDate.vip
+
+!#component "M_MNPLAN"
+
+!#include agdefines.inc
+
+#include FpExCO.Vih
+#include Getkau.vih
+
+#include UserReport.vih
+
+#include podpis.vih
+
+// Для попадания примера в список отчетов -
+// раскомментировать конструкцию VipInterface (Implements для Атлантиса 5.1)
+
+#ifdef Atl51
+VipInterface UserReport_szmn_formIspBDSDet  Implements IUserReport
+  Licensed(Free)
+;
+#else
+!VipInterface UserReport_szmn_form741 Implements IUserReport;
+#end
+
+#doc
+Пример пользовательского отчета #1
+#end
+
+Interface UserReport_szmn_formIspBDSDet;
+
+create view;
+
+!-------------------------------------------------------------------------------
+// Запуск отчета на выполнение при выборе его из списка отчетов
+procedure Run;
+begin
+  RunInterface('szmn_bud_FormIspBDSDet' );
+end;
+!-------------------------------------------------------------------------------
+// Наименование отчета в списке
+function GetReportName: String;
+begin
+  GetReportName := 'Форма исполнение БДС с детализацией';
+end;
+!-------------------------------------------------------------------------------
+function GetGroupName (Level : Word) : String;
+begin
+  GetGroupName := '';
+  case Level of
+    1 : GetGroupName := 'Отчеты по бюджетам';
+  end;
+end;
+!-------------------------------------------------------------------------------
+function GetPriority : Integer;
+begin
+  GetPriority := 0;
+end;
+!-------------------------------------------------------------------------------
+function VisibleInModule(Ind : Byte) : String;
+begin
+  VisibleInModule := '*';
+  case Ind of
+    1 : VisibleInModule := 'SFP';
+  end;
+end;
+!-------------------------------------------------------------------------------
+end.
+
+formIspBDSDetshowdebug menu
+{
+  - 'Показать отладочную информацию', cmShowDebugIspBDSDet, 'Отладочная информация' ;
+}
+
+vipInterface szmn_bud_FormIspBDSDet licensed(free);
+
+Interface szmn_bud_FormIspBDSDet
+  '-= Исполнение БДС детализированное =- ' (,hcNoContext,) EscClose, Cyan;
+  //show at  (0,0,70,10)
+  show at  (0,0,100,30)
+  ;
+
+#include ispbdsDet_memtbls.vip
+
+create view
+var
+ cPlan,
+ cFact,
+ cPeriod,
+ cTForm,
+ cCopyBud,
+ cStBud,
+ cFP :comp;
+ sPath :string;
+ pathUserOut : string;
+ NameExcel   : string;
+ wPeriod,mp,i  : word;
+ Check: integer;
+ isError: boolean;
+ sPersons: string;
+
+ extClName     : String;
+ extClNamePZap : String;
+ excCode1      : String; // разделитель
+ excCode2      : String; // итого
+ excCode3      : String; // Агрегат
+ excCode4      : String;
+ excCode5      : String;
+ excCode6      : String;
+
+ podpisanty  : SZMN_COMMON::IPodpis (vPodpis) new;// (  ) new;
+
+As select
+  if(cPeriod=0   ,'выберите значение',fpPeriod.Name)   (FieldName = sPeriod)
+, if(cTForm=0    ,'выберите значение',fpTForm.Name)    (FieldName = sTForm)
+, if(cPlan=0     ,'выберите значение',fpBudVar.SBUDSTAGE  + ' | ' + fpBudVar.Name)   (FieldName = sPlan)
+, if(cFact=0     ,'выберите значение',fpBudVar1.SBUDSTAGE + ' | ' + fpBudVar1.Name)  (FieldName = sFact)
+, podpisanty.DialogFieldString  (FieldName = sPodpGrp)
+, fpvalues.summa
+From
+  fpBudVar
+ ,synonym  fpPeriod  fpP
+ ,synonym  fpBudVar  fpBudVar1
+
+ ,fpAxTF Axis1
+ ,fpAxTF Axis2
+ ,fpSpAxTF SpAxis1
+ ,fpSpAxTF SpAxis2
+ ,fpvalues
+ ,Synonym fpBudVar fpBV
+ ,Synonym fpValues fpV
+ , podpisanty
+ , ispbds
+ , fpOborot fpOb
+ , ispbdsGrouped ispbdsOrdered (ispbds_ord)
+ , ispbdsGrouped
+ , ispbds ispbdslinked
+ , printed
+
+ where
+((
+  // иерархия оси1
+
+cPeriod   == fpPeriod.nrec  and
+
+cTForm         == fpTForm.nrec    and
+
+cPlan     == fpBudVar.nrec   and
+cFact     == fpBudVar1.nrec
+
+and fpBudVar.cBudget   == FpBudget.nrec
+
+// лог таблица для знач1ений
+
+and fpTForm.nrec   == fpAxTF.cMain     //может быть несколько
+and fpAxTF.NRec    == fpSpAxtf.cMain
+
+and fpSpAxtf.cMean == fpStBud.nrec
+
+and cCopyBud       == fpBV.nrec
+
+and fpBV.nrec      == fpV.cBudVar
+and word(cFP)      == fpV.KodReg //план факт1
+and comp(cStBud)   == fpV.cStBud // ??a??? i?n?N?a
+and fpStBud.nrec   == fpV.cStBud
+
+and fpV.cPeriod    == fpP.nrec
+and fpStBud.ced    == kated.nrec//единицы измерения
+
+//and ispbdsGrouped.cPeriod == ispbdslinked.cPeriod (noindex)
+and ispbdsGrouped.cStBud  == ispbdslinked.cStBud (noindex)
+and ispbdsGrouped.cPodr   == ispbdslinked.cPodr (noindex)
+and ispbdsGrouped.cDog    == ispbdslinked.cDog (noindex)
+
+and fpSpAxtf.cMean   == ispbdsOrdered.cStBud
+))
+;
+
+#include ispbdsDet_windows.vip
+#include ispbdsDet_proc.vip
+
+Handleevent
+  cmHotKeys : {
+    var mn : longint ;
+    mn := LoadMenu('formIspBDSDetshowdebug') ;
+    var i : integer;
+    i := RunLoadMenu (mn);
+    //message  ('i == ' + i);
+    if (i <> 0 and i <> cmCancel) {
+      Putcommand(i)
+    }
+  }
+
+
+  cmShowDebugIspBDSDet: {
+    RunWindowModal( wnInfoWindow );
+  }
+
+  cmApply:
+  {
+    doPrintReport();
+
+  }
+
+cmPick:
+  case curField of
+    #sPlan     :  RunInterface('F_FpBudget::Budget', word(cgiPick), word(0), word(0), comp(0), cPlan, 0, 0);
+    #sFact     :  RunInterface('F_FpBudget::Budget', word(cgiPick), word(0), word(0), comp(0), cFact , 0, 0);
+
+    #sTForm    :  RunInterface('F_FpBudget::getTForm', cgiPick, 0, cTForm);
+    #sPeriod   :  RunInterface('F_FpCatalog::getPeriod', cgiPick, comp(0), comp(0), cPeriod, cgSetFPTuneDefault);
+    //#sPersons  :  RunInterface('SelectPersons', sPersons);
+
+    #sPodpGrp    : {
+      podpisanty.SelectPodpis;
+      RescanPanel (scKatH01);
+    }
+
+    #sPath     : {
+        var sTmp : string;
+            sTmp := GetFileName('*.XLS', 'Выберите файл с шаблоном');
+        if (trim(sTmp) = '')
+         { Exit; }
+        Set sPath := sTmp;
+    }
+
+  end;
+!-------------------------------------------------------------------------------
+cmDelOnProtect:
+  case curField of
+    #sPeriod   : Set cPeriod:=0;
+    #sTForm    : Set cTForm:=0;
+    #sPlan     : Set cPlan :=0;
+    #sFact    : Set sFact  :=0;
+  end;
+
+cmInit:
+{
+  podpisanty.setprefix('szmn_bud_FormIspBDSDet');
+  podpisanty.reinit;
+  ReadDsk;
+}
+
+end;
+
+End.  // interface
