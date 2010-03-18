@@ -1,0 +1,32 @@
+const
+  //ColorNeed = 6;
+  
+#include excel.inc
+
+#include GLOCONST.INC
+
+#include fldcolor.inc
+
+end;
+
+
+#define ComponentVersion
+#define Atl51
+#define GAL8_1
+#define __UKS_PL2__
+
+#define Licensed_Free licensed (FREE)
+#include szmn_cmn.inc
+
+
+#component "C_Partner"
+
+#make 'src\cPartner\Filter.vip'
+#make 'src\cPartner\Sample5.vip'
+#make 'src\cPartner\RepBDR5.vip'
+
+#make 'src\cPartner\Sample6.vip'
+#make 'src\cPartner\RepBDR6.vip'
+
+#make 'src\cPartner\*.vip'
+

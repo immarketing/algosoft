@@ -1,0 +1,356 @@
+VipInterface RepBDRGPO   Licensed(Free);
+
+#doc
+Настройка фильтров для отчета График погашения обязательств
+#end
+Interface RepBDRGPO 'Установка фильтров' DoAccept, EscClose, Cyan;
+  show at (5,5,75,25);
+
+Table struct TPRN2
+(
+   NRec         : comp //tNRec                 // NRec для ссылок
+  ,Sort         : word " Для сортировки"
+  ,NameST       : string[100] "имя статьи"
+  ,NameST2      : string[100] "имя статьи"
+  ,cBudVar      : comp "вариант бюджета"
+  ,cStBud       : comp "статья бюджета"
+  ,cHashan      : comp " курс валюты"
+  ,cAnal        : comp "символ валюты"
+  ,MES          : array [1..12] of double "MES"
+ )
+
+with index
+(
+   TPRN201 = NRec (Unique, Surrogate)
+  ,TPRN202 = Sort+cBudVar+cStBud+cHashan
+!  ,TPRN203 = TypeRec + SubOsSch + KodSPO + KauOs[1] + KauOs[2]+ KauOs[3]+ KauOs[4] + KauOs[5] + KauOs[6]
+!  ,TPRN204 = SubOsSch + N_KauOSPF+ N_KauOSP+N_KauOSS+SubSchKN+N_KauKSPF+N_KauKSP
+
+);
+
+
+create view BDR
+var
+ cC,
+ cbud ,
+ cPlan,
+ cPlan1,
+ cPlan2,
+ cFact,
+ cPeriod, 
+ cTForm,     
+ cCopyBud,
+ cBDR,    
+ cNDS_BDR,
+ cABDS,   
+ cABDSF,  
+ cPayBDS,
+ cPrevSt,
+
+ cFP :comp;
+ sPath :string;
+ pathUserOut : string;
+ NameExcel   : string;
+ wPeriod,mp,i,tt ,Nstr,wSt : word;
+ isError: boolean;
+As select
+  if(cPeriod=0   ,'выберите значение',fpPeriod.Name)  (FieldName = sPeriod) 
+//, if(cTForm=0    ,'выберите значение',fpTForm.Name)   (FieldName = sTForm)
+, if(cPlan1=0    ,'выберите значение',fpBudVar.Name)   (FieldName = sPlan1)   
+, if(cPlan2=0    ,'выберите значение',fpBudVar2.Name)  (FieldName = sPlan2)
+, if(cBDR=0    ,'выберите значение',fpStBud5.Name )  (FieldName = sBDR)    
+, if(cNDS_BDR=0,'выберите значение',fpStBud1.Name)  (FieldName = sNDS_BDR)
+, if(cABDS=0   ,'выберите значение',fpStBud2.Name)  (FieldName = sABDS)   
+, if(cABDSF=0  ,'выберите значение',fpStBud3.Name)  (FieldName = sABDSF)  
+, if(cPayBDS=0 ,'выберите значение',fpStBud4.Name)  (FieldName = sPayBDS)
+//, if(cFact=0  ,'выберите значение',fpBudVar2.Name)  (FieldName = sFact)  
+, if(cPrevSt=0 ,'выберите значение',fpStBud6.Name)  (FieldName = sPrevSt)  
+, fpvalues.summa
+From
+  fpBudVar
+ ,synonym  fpPeriod  fpP
+ ,synonym  fpBudVar  fpBudVar2
+ ,fpvalues
+ ,Synonym fpBudVar fpBV
+ ,Synonym fpValues fpV
+ ,TPRN2(TPRN202)
+ ,Synonym TPRN2 TPRN 
+ ,synonym  fpStBud  fpStBud1
+ ,synonym  fpStBud  fpStBud2
+ ,synonym  fpStBud  fpStBud3
+ ,synonym  fpStBud  fpStBud4
+ ,synonym  fpStBud  fpStBud5
+ ,synonym  fpStBud  fpStBud6
+ where
+((
+
+    cPeriod   == fpPeriod.nrec  
+and cPlan1    == fpBudVar.nrec  
+and fpBudVar.cBudget   == FpBudget.nrec
+
+and cPlan2    == fpBudVar2.nrec  
+
+and cBDR    == fpStBud5.nrec  
+and cNDS_BDR== fpStBud1.nrec 
+and cABDS   == fpStBud2.nrec 
+and cABDSF  == fpStBud3.nrec 
+and cPayBDS == fpStBud4.nrec
+and cPrevST == fpStBud6.nrec
+
+and cPlan          == fpV.cBudVar
+and word(150)      == fpV.KodReg //план факт1
+and cbud           == fpV.cStBud
+and fpV.cPeriod    == fpP.nrec  
+and word(wSt)      == TPRN.Sort 
+and fpV.cBudVar    == TPRN.cBudVar
+and fpV.cStBud     == TPRN.cStBud 
+and fpV.cHashAn    == TPRN.cHashAn
+and TPRN2.cHashAn   == HashAn.nrec
+and HashAn.cAnalit[1]==FPSPAXTF.CMEAN(noindex)
+
+ 
+))
+;
+
+procedure maketbl (cSt:comp;sst:string;sst2:string;wY:word;Sort:word);
+var j:word;
+begin
+    set cbud := cSt;
+    _LOOP  fpV
+    {
+      if((month(fpP.dbeg)=month(fpP.dEnd)) and (year(fpP.dbeg)=(year(fpperiod.dbeg)-wY)) )
+      {
+         if not isvalid(tnTPRN)
+         {
+           for(j:=1;j<13;j:=j+1) TPRN2.MES[j]:=0;
+ 
+           TPRN2.NRec         :=0; 
+           TPRN2.NameST       :=sst; 
+           TPRN2.NameST2      :=sst2; 
+           TPRN2.cBudVar      :=fpV.cBudVar;
+           TPRN2.cStBud       :=cbud; 
+           TPRN2.cHashan      :=fpV.cHashAn; 
+           TPRN2.cAnal        :=0; 
+           TPRN2.Sort         :=Sort;
+           TPRN2.MES[month(fpP.dbeg)] :=fpV.summa;
+           insert current TPRN2;
+         }
+         else
+         {
+           TPRN.MES[month(fpP.dbeg)] :=fpV.summa;
+           update current TPRN;
+         }
+      }
+      else{}
+    }	
+
+end;
+
+
+
+
+Screen scKatH01 'Установка фильтров' (,, sci13Esc);
+!  Table KatH;
+Fields
+//  sTForm  ('',,) : Protect,PickButton,
+//    {Font = {BackColor = if (cTForm=0,    ColorNeed,0)}};
+  sPeriod ('',,) : Protect,PickButton,
+    {Font = {BackColor = if (cPeriod=0,   ColorNeed,0)}};
+  sPlan1  ('',,) : Protect,PickButton,
+    {Font = {BackColor = if (cPlan1=0,    ColorNeed,0)}};
+
+  sBDR ('',,) : Protect,PickButton,
+    {Font = {BackColor = if (cBDR=0, ColorNeed,0)}};
+  sNDS_BDR ('',,) : Protect,PickButton,
+    {Font = {BackColor = if (cNDS_BDR=0, ColorNeed,0)}};
+  sABDS ('',,) : Protect,PickButton,
+    {Font = {BackColor = if (cABDS=0, ColorNeed,0)}};
+  sABDSF ('',,) : Protect,PickButton,
+    {Font = {BackColor = if (cABDSF=0, ColorNeed,0)}};
+  sPayBDS ('',,) : Protect,PickButton,
+    {Font = {BackColor = if (cPayBDS=0, ColorNeed,0)}};
+
+  sPlan2  ('',,) : Protect,PickButton,
+    {Font = {BackColor = if (cPlan2=0,    ColorNeed,0)}};
+
+  sPrevSt ('',,) : Protect,PickButton,
+    {Font = {BackColor = if (cPrevST=0, ColorNeed,0)}};
+
+  sPath ('',,) : Protect,PickButton,
+    {Font = {BackColor = if (sPath='',    ColorNeed,0)}};
+	
+buttons
+cmApply;
+cmCancel;
+// Типовая форма бюджета .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+<<
+                     Текущий период
+ Период               .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+ Вариант бюджета      .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+             Соответствие статей бюджета
+ БДР                  .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+ НДС для БДР          .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+ авансы БДС           .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+ авансы БДС буд. года .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+ оплата по факту БДС  .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+                    Прошлый период
+ Вариант бюджета      .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+ за прошлый период    .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+ Путь к шаблону        .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+          <.Сформировать.>    <.  Отмена  .>
+>>
+end; // Screen
+Handleevent
+cmApply:
+{
+                                                              
+//    message('Нажали на кнопку');
+    pathUserOut := GetDefaultUserPath;
+    NameExcel   := pathUserOut;
+    wPeriod:=word(trim(NextNumStr(sPeriod)))-1;
+
+    xlCreateExcel('',true);
+      if (xlIsExcelValid)
+      {
+//         xlOpenWorkBook(translatepath('%startpath%')+'doc\Transport.xls');
+//         xlSetActiveWorkBookByName(translatepath('%startpath%')+'doc\Transport.xls');
+//         xlSaveAsWorkBookByName(translatepath('%startpath%')+'doc\Transport.xls', NameExcel+'.xls');
+
+         xlOpenWorkBook(trim(sPath));
+         xlSetActiveWorkBookByName(trim(sPath));
+         xlSaveAsWorkBookByName(trim(sPath), NameExcel+'.xls');
+
+      }
+
+
+      xlSetActiveSheet(1); //Титул_1
+
+      xlSetCellStringValue(month(fpperiod.dbeg), 1, 1, 1, 1); //
+      xlSetCellStringValue(year(fpperiod.dbeg), 1, 2, 1, 2); //	
+
+      Set cCopyBud:=cCopyBud;
+      Set cPlan:=cPlan1;
+      Set wSt:=1;
+      MakeTBL (cBDR ,sBDR       ,'БДР                 ',0,1);
+      Set wSt:=2;
+      MakeTBL (cNDS_BDR,sNDS_BDR,'НДС для БДР         ',0,2);
+      Set wSt:=3;
+      MakeTBL (cABDS   ,sABDS   ,'авансы БДС          ',0,3);
+      Set wSt:=4;
+      MakeTBL (cABDSF  ,sABDSF  ,'авансы БДС буд. года',0,4);
+      Set wSt:=5;
+      MakeTBL (cPayBDS ,sPayBDS ,'оплата по факту БДС ',0,5);
+
+      Set cPlan:=cPlan2;
+      Set wSt:=6;
+      MakeTBL (cPrevSt ,sPrevSt ,'за прошлый период   ',1,6);
+
+      xlSetNumberFormat('@'        ,5 , 3, 65000, 3);
+  //    xlSetNumberFormat('@'        , 5, 22, 65000, 22);
+
+      tt:=5
+      _loop TPRN2 
+      {
+
+          xlSetCellStringValue( TPRN2.NameSt, tt, 2, tt,   2); //
+	  xlSetCellStringValue( TPRN2.NameSt2,tt, 1, tt,   1); //	
+//          xlSetCellStringValue( TPRN2.cHashan,tt, 4, tt,   4); //
+	  xlSetCellStringValue( if(isvalid(tnHashAn),FPSPAXTF.Name,''), tt   , 3, tt,   3);
+                                                         
+          xlSetCellNumberValue( TPRN2.mes[1], tt, 5, tt,   5); //	
+          xlSetCellNumberValue( TPRN2.mes[2], tt, 6, tt,   6); //	
+          xlSetCellNumberValue( TPRN2.mes[3], tt, 7, tt,   7); //
+	  xlSetCellNumberValue( TPRN2.mes[4], tt, 8, tt,   8); //		
+          xlSetCellNumberValue( TPRN2.mes[5], tt, 9, tt,   9); //	
+          xlSetCellNumberValue( TPRN2.mes[6], tt,10, tt,  10); //	
+          xlSetCellNumberValue( TPRN2.mes[7], tt,11, tt,  11); //	
+          xlSetCellNumberValue( TPRN2.mes[8], tt,12, tt,  12); //	
+          xlSetCellNumberValue( TPRN2.mes[9], tt,13, tt,  13); //	
+          xlSetCellNumberValue( TPRN2.mes[10],tt,14, tt,  14); //	
+          xlSetCellNumberValue( TPRN2.mes[11],tt,15, tt,  15); //	
+          xlSetCellNumberValue( TPRN2.mes[12],tt,16, tt,  16); //	
+
+        inc(tt);
+      }
+//      ExcelPrint(cPayBDS ,sPayBDS, cPlan1,150,2);
+      xlRunMacro('GalFpUser_AfterReport');
+      xlKillExcel;
+
+
+     SaveMyDsk(sPath    ,'GPOsPath'    ) ;
+     SaveMyDsk(cPlan1   ,'GPOcPlan1'   ) ;
+     SaveMyDsk(cPlan2   ,'GPOcPlan2'   ) ;
+     SaveMyDsk(cBDR     ,'GPOcBDR'     ) ;
+     SaveMyDsk(cNDS_BDR ,'GPOcNDS_BDR' ) ;
+     SaveMyDsk(cABDS    ,'GPOcABDS'    ) ;
+     SaveMyDsk(cABDSF   ,'GPOcABDSF'   ) ;
+     SaveMyDsk(cPayBDS  ,'GPOcPayBDS'  ) ;
+     SaveMyDsk(cPrevst  ,'GPOcPrevst'  ) ;
+     SaveMyDsk(cPeriod  ,'GPOcPeriod'  ) ; 
+   PutCommand(cmClose);
+}
+cmPick:
+  case curField of
+    #sPlan1    :  RunInterface('F_FpBudget::Budget', word(cgiPick), word(0), word(0), comp(0), cPlan1, 0, 0);
+//    #sTForm    :  RunInterface('F_FpBudget::getTForm', cgiPick, 0, cTForm);
+    #sPeriod   :  RunInterface('F_FpCatalog::getPeriod', cgiPick, comp(0), comp(0), cPeriod, cgSetFPTuneDefault);
+    #sBDR    :  RunInterface('F_FpCatalog::getStBud', cgiPick,0, cBDR    ) ;
+    #sNDS_BDR:  RunInterface('F_FpCatalog::getStBud', cgiPick,0, cNDS_BDR) ;
+    #sABDS   :  RunInterface('F_FpCatalog::getStBud', cgiPick,0, cABDS   ) ;
+    #sABDSF  :  RunInterface('F_FpCatalog::getStBud', cgiPick,0, cABDSF  ) ;
+    #sPayBDS :  RunInterface('F_FpCatalog::getStBud', cgiPick,0, cPayBDS ) ;
+    #sPlan2  :  RunInterface('F_FpBudget::Budget', word(cgiPick), word(0), word(0), comp(0), cPlan2, 0, 0);
+    #sPrevSt :  RunInterface('F_FpCatalog::getStBud', cgiPick,0, cPrevst ) ;
+
+    #sPath     :
+   {
+        var sTmp : string;
+            sTmp := GetFileName('*.XLS', 'Выберите файл с шаблоном');
+        if (trim(sTmp) = '')
+         { Exit; }
+        Set sPath := sTmp;
+    }
+
+  end;  
+!-------------------------------------------------------------------------------
+cmDelOnProtect:
+  case curField of
+    #sPeriod   : Set cPeriod:=0;
+    #sPlan1    : Set cPlan1:=0;
+    #sPlan2    : Set cPlan2:=0;
+    #sBDR     : Set cBDR      :=0;
+    #sNDS_BDR : Set cNDS_BDR  :=0;
+    #sABDS    : Set cABDS     :=0;
+    #sABDSF   : Set cABDSF    :=0;
+    #sPayBDS  : Set cPayBDS   :=0;
+    #sPrevst  : Set cPrevst   :=0;
+                         
+
+
+
+
+
+  end;                                                    
+                                                          
+cmInit:                                                   
+{                                                         
+
+ if (not ReadMyDsk(sPath    ,'GPOsPath'    ,isError))  sPath     := '';
+ if (not ReadMyDsk(cPlan1   ,'GPOcPlan1'   ,isError))  cPlan1    := 0;
+ if (not ReadMyDsk(cPlan2   ,'GPOcPlan2'   ,isError))  cPlan2    := 0;
+ if (not ReadMyDsk(cBDR     ,'GPOcBDR'     ,isError))  cBDR      := 0;
+ if (not ReadMyDsk(cNDS_BDR ,'GPOcNDS_BDR' ,isError))  cNDS_BDR  := 0;
+ if (not ReadMyDsk(cABDS    ,'GPOcABDS'    ,isError))  cABDS     := 0;
+ if (not ReadMyDsk(cABDSF   ,'GPOcABDSF'   ,isError))  cABDSF    := 0;
+ if (not ReadMyDsk(cPayBDS  ,'GPOcPayBDS'  ,isError))  cPayBDS   := 0;
+ if (not ReadMyDsk(cPrevst  ,'GPOcPrevst'  ,isError))  cPrevst   := 0;
+ if (not ReadMyDsk(cPeriod  ,'GPOcPeriod'  ,isError))  cPeriod   := 0;
+
+}
+
+end;
+end.
+

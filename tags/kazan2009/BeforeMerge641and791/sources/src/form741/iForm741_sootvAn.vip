@@ -1,0 +1,23 @@
+  /*
+  create view if741_sootvAn
+  var
+    cFPKATIMP : comp; // ссылка на рабочую таблицу соответствий
+    anc1, anc2 : word;
+    cAn1, cAn2 : comp;
+  as
+  select *
+    from  FPKATIMP FPKATIMPPR2,
+          FPIMPREL FPIMPRELpr2
+   where ((
+     cFPKATIMP == FPKATIMPPR2.nRec and
+     FPKATIMPPR2.nrec == FPIMPRELpr2.CMAIN and
+
+     anc1 == FPIMPRELpr2.IMPKODAN and
+     cAn1 == FPIMPRELpr2.CIMPMEAN and
+
+     anc2 == FPIMPRELpr2.KODAN (noindex)  and
+     cAn2 == FPIMPRELpr2.CMEAN (noindex)
+   ))
+  ;
+  */
+
