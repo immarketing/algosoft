@@ -1,0 +1,14 @@
+!const
+!#include Tpp_Key.inc
+!#include KauConst.inc
+!#include GloConst.inc
+!#include FldColor.inc 
+!#include buhconst.inc
+!include KatDoc.inc
+!end;
+!#include DicTypes.def
+
+!#component "F_USERREPORTS"
+
+#make "src\check\iCheck.vip"
+#make "src\check\*.frn"

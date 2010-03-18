@@ -1,0 +1,116 @@
+#include Tables.vih
+
+const
+sci178InsPM = 6959;
+cmMarkUnMark = 1221;
+cmSelectAll = 1219;
+cmUnSelectAll = 1220;
+End;
+
+Interface SelectPersons 'Выберите работников для подписи' (,,sci178InsPM) DoAccept,EscClose,cyan,AlwaysReturn;
+Show at(1,1,82,26);
+var
+  i:integer;
+  isDel:boolean;
+  sPersons: string;
+    
+create view
+from Persons, Appointments, Catalogs, TabPersons tpsn
+where
+((
+  Persons.AppointCur == Appointments.nRec  and
+  Appointments.Post == Catalogs.NRec and
+  Persons.nrec == tpsn.nrec
+))  
+!and
+!(
+!Catalogs.name <> ''
+!)
+;
+parameters
+
+  sPersons;
+
+  function SearchInd(NrecPersons:comp):boolean;
+  {
+    if (GetFirst TabPersons where ((NrecPersons==TabPersons.nrec))=tsok) SearchInd:=TRUE;
+    else SearchInd:=FALSE;
+  }
+
+  procedure DeleteInd(NrecPersons:comp);
+  {
+    if (GetFirst TabPersons where ((NrecPersons==TabPersons.nrec))=tsok) delete current TabPersons;    
+  }
+
+  procedure AddInd(NrecPersons:comp);
+  {
+    insert TabPersons set
+    TabPersons.nrec:=NrecPersons;
+    //if (getfirst Catalogs where (( NrecPersons == Persons.nrec and Persons.cbaseprof == Catalogs.nrec )) = tsok) { TabPersons.work:=Catalogs.name; }  
+    TabPersons.work:=Catalogs.name
+    TabPersons.name:=Persons.fio;   
+    update current TabPersons;    
+  }
+
+  panel panPersons;
+  table Persons;
+
+  browse brPersons
+    show at (,,,);
+  fields    
+    if(SearchInd(Persons.nrec),'v','')'v ':[3],Skip   ,{font={bold=TRUE}};
+    Persons.fio  'ФИО сотрудника' ('ФИО сотрудника'): [30], protect,{font={bold=IsValidAll (tnTPSN) /*SearchInd(Persons.nrec) */}};
+    Persons.tabnmb  'Таб.номер' ('Табельный номер'): [10], protect,{font={bold=IsValidAll (tnTPSN) /*SearchInd(Persons.nrec) */}};
+    Catalogs.name 'Должность' ('Должность'): [10], protect,{font={bold=IsValidAll (tnTPSN) /*SearchInd(Persons.nrec) */}};
+!    if (getfirst Catalogs where (( Persons.cbaseprof == Catalogs.nrec )) = tsok, Catalogs.name,' ')  'Должность' ('Должность'):[30],Protect,{font={bold=SearchInd(Persons.Nrec)}};
+    
+  end;
+
+  end;
+
+  HandleEvent
+    cmInit:{
+      delete all TabPersons;
+    }     
+
+    cmMarkUnMark:{
+      if (SearchInd(Persons.nrec)){
+        DeleteInd(Persons.nrec);
+      }else{
+        AddInd(Persons.nrec);
+      }
+      if(getnext Persons)<>TsOk Then{};
+      Rescanpanel(brPersons);
+    }
+
+    cmSelectAll:{
+      delete all from TabPersons;
+      _loop Persons{
+        AddInd(Persons.nrec);
+      }
+      Rescanpanel(brPersons);
+    }
+    cmUnSelectAll:{
+      delete all from TabPersons;
+      Rescanpanel(brPersons);
+    }
+    cmDone:{
+      i:=0;
+      mtChangeRefCount(#TabPersons,1);
+      _loop TabPersons{
+        inc(i);
+      }
+      if (i<>0){
+        if (i=1) {
+          if (getfirst TabPersons = tsok) {sPersons:=TabPersons.name + ' ' + TabPersons.work;}
+        }
+        else{
+          sPersons:='Множественный выбор(' + i + ')';
+        }
+      }
+      else { sPersons:='выберите значение'; }
+      CloseInterface(cmDefault);
+      stop;
+    }
+  end;
+end.

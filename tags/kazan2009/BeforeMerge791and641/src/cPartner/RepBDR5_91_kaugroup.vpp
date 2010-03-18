@@ -1,0 +1,144 @@
+create view forKauGroup
+var
+  cRec    : comp;
+as select *
+from
+  fpSpAxtf,
+  fpSpAxtf fpSpAxtfSub
+  where
+  ((
+  cRec                  == fpSpAxtf.nRec and
+  fpSpAxtf.nrec         == fpSpAxtfSub.cNode (noindex)
+  ))
+;
+
+function isKauGroup (const pRec : comp) : byte;
+begin
+  set forKauGroup.cRec := pRec;
+  set isKauGroup := 0;
+
+  if (forKauGroup.getFirst fpSpAxtf = tsOK ) {
+    if (forKauGroup.fpSpAxtf.coTable = 0) {
+      if (forKauGroup.getFirst fpSpAxtfSub = tsOK ) {
+        set isKauGroup := 1;
+      }
+    }
+  }
+end;
+
+
+  create view forGrouping
+  as
+  select *
+    from  f91_printed prntd_mkgroup,
+          f91_printed f91ptdesc (f91_ptd_cnode_desc),
+          f91_printed f91ptdescsuper,
+
+          f91_uniquenodes unds91,
+          f91_printed     prtd91 (f91_ptd_node_prrow)
+
+   where ((
+   0                      == prntd_mkgroup.coTable and
+   1                      == prntd_mkgroup.isKAUGroup and
+
+   f91ptdesc.cnode        == f91ptdescsuper.cRec and
+
+   unds91.crec            == prtd91.cNode
+
+   ))
+        ;
+
+procedure updateIsMakeGroup();
+begin
+  forGrouping._loop prntd_mkgroup {
+    update f91_printed where (( forGrouping.prntd_mkgroup.cnode == f91_printed.crec))
+           set f91_printed.isMakeGroup := 1;
+  }
+
+end;
+
+procedure calculateGroupBorders();
+begin
+  //
+
+  delete all f91_uniquenodes;
+  delete all f91_groupft;
+
+  insert f91_uniquenodes (cRec)
+  select cnode from f91_printed
+  ignore_errors (tsDuplicateKey) ;
+
+  insert f91_groupft (cRec) select cRec from f91_uniquenodes;
+
+  var cr, fr,to  : comp;
+  var fr_row,to_row : word;
+  var isEditFr, isEditTo : boolean;
+
+  do{
+    if forGrouping.getLast unds91 = tsOK do {
+      isEditTo := false;
+      isEditFr := false;
+      cr       := 0;
+      if forGrouping.getLast prtd91 = tsOK then {
+       if (getFirst f91_printed where (( forGrouping.unds91.cRec == f91_printed.cRec )) = tsOK  ) then {
+         cr := forGrouping.unds91.cRec;
+         if (f91_printed.groupTo < forGrouping.prtd91.printedAtRow){
+           //update f91_printed where ((forGrouping.unds91.cRec == f91_printed.cRec )) set f91_printed.groupTo := forGrouping.prtd91.cRec;
+           //Message (f91_printed.groupTo);
+           isEditTo := true;
+           set to := forGrouping.prtd91.cRec;
+           set to_row := forGrouping.prtd91.printedAtRow;
+         }
+       }
+      }
+      ;
+      if forGrouping.getFirst prtd91 = tsOK then {
+       if (getFirst f91_printed where (( forGrouping.unds91.cRec == f91_printed.cRec )) = tsOK  ) then {
+         if (f91_printed.groupFrom > forGrouping.prtd91.printedAtRow) or (f91_printed.groupFrom = 0){
+           //update f91_printed where ((forGrouping.unds91.cRec == f91_printed.cRec )) set f91_printed.groupFrom := forGrouping.prtd91.cRec;
+           isEditFr := true;
+           set fr := forGrouping.prtd91.cRec;
+           set fr_row := forGrouping.prtd91.printedAtRow;
+         }
+       }
+      }
+      ;
+      update f91_printed where ((cr == f91_printed.cRec ))
+             set f91_printed.groupFrom := if (isEditFr, fr , f91_printed.groupFrom),
+                 f91_printed.groupTo := if (isEditTo, to , f91_printed.groupTo );
+
+      update f91_groupft where ((cr == f91_groupft.cRec ))
+               set f91_groupft.groupFromRec := if (isEditFr,fr, f91_groupft.groupFromRec),
+                   //f91_groupft.cRec := cr,
+                   f91_groupft.groupToRec := if (isEditTo,to,f91_groupft.groupToRec),
+                   f91_groupft.groupFrom := if (isEditFr,fr_row,f91_groupft.groupFrom),
+                   f91_groupft.groupTo := if (isEditTo,to_row,f91_groupft.groupTo)
+
+      /*
+      if (getFirst f91_groupft where (( cr == f91_groupft.crec)) <> tsOK) then {
+        insert f91_groupft
+               set f91_groupft.groupFromRec := fr,
+                   f91_groupft.cRec := cr,
+                   f91_groupft.groupToRec := to,
+                   f91_groupft.groupFrom := fr_row,
+                   f91_groupft.groupTo := to_row
+                   ;
+      };
+      */
+    } while (forGrouping.getprev unds91 = tsOK);
+  } while (isEditFr or isEditTo);
+end;
+
+procedure groupExcelDatas91( crct : integer);
+begin
+  update f91_groupft set f91_groupft.Groupfrom := f91_groupft.Groupfrom + crct, f91_groupft.groupTo := f91_groupft.groupTo + crct;
+
+  update f91_groupft where (( f91_groupft.cRec == f91_printed.cRec ))
+         set f91_groupft.isMakeGroup := f91_printed.isMakeGroup;
+
+  _loop f91_groupft where ((1 == f91_groupft.isMakeGroup)) {
+    xlRunMacro('ActiveSheetGroupData('+String ( f91_groupft.groupFrom)+','+ String ( f91_groupft.groupTo) +')');
+  }
+end;
+
+

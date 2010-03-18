@@ -1,0 +1,441 @@
+VipInterface RepBDR3   Licensed(Free);
+
+#doc
+Настройка фильтров для отчета График погашения обязательств
+#end
+Interface RepBDR3 'Установка фильтров' DoAccept, EscClose, Cyan;
+  show at (5,5,75,25);
+create view BDR
+var
+ cC,
+ cPlan1,
+ cPlan2,
+ cFact,
+ cPeriod, 
+ cTForm,     
+ cCopyBud,
+ cFP :comp;
+ sPath :string;
+ pathUserOut : string;
+ NameExcel   : string;
+ wPeriod,mp,i  : word;
+ isError: boolean;
+As select
+  if(cPeriod=0   ,'выберите значение',fpPeriod.Name)  (FieldName = sPeriod) 
+, if(cTForm=0    ,'выберите значение',fpTForm.Name)   (FieldName = sTForm)
+, if(cPlan1=0    ,'выберите значение',fpBudVar.Name)   (FieldName = sPlan1)   
+, if(cPlan2=0    ,'выберите значение',fpBudVar1.Name)  (FieldName = sPlan2)
+, if(cFact=0  ,'выберите значение',fpBudVar2.Name)  (FieldName = sFact)    
+, fpvalues.summa
+From
+  fpBudVar
+ ,synonym  fpPeriod  fpP
+ ,synonym  fpBudVar  fpBudVar1
+ ,synonym  fpBudVar  fpBudVar2
+
+ ,fpAxTF Axis1
+ ,fpAxTF Axis2
+ ,fpSpAxTF SpAxis1
+ ,fpSpAxTF SpAxis2
+ ,fpvalues
+ ,Synonym fpBudVar fpBV
+ ,Synonym fpValues fpV
+ where
+((
+  // иерархия оси1
+/*
+       Axis1.NRec    == SpAxis1.cMain
+  and  cParent1      == SpAxis1.cNode
+  and  SpAxis1.cSloj == GrAn.NRec
+  and  SpAxis1.KodGrKau  == KatKauAx1.KodGroup
+
+  // иерархия оси2
+  and  Axis2.NRec    == SpAxis2.cMain
+  and  cParent2      == SpAxis2.cNode
+  and  SpAxis2.KodGrKau  == KatKauAx2.KodGroup and
+*/
+
+cPeriod   == fpPeriod.nrec  and
+//cCO     == fpCO.nrec     and
+//cBudg   == fpBudVar.nrec and      
+cTForm         == fpTForm.nrec    and
+
+
+
+/*
+fpTForm.nrec   == fpAxTF.cMain    and
+fpAxTF.NRec    == fpSpAxtf.cMain  and  
+
+fpSpAxtf.nrec  == fpvalues.cstBud and
+cPlanM         == fpvalues.cBudvar and
+*/
+
+cPlan1    == fpBudVar.nrec   and
+cPlan2    == fpBudVar1.nrec  and
+cFact     == fpBudVar2.nrec
+
+
+//cC        == fpstbud.cmain
+//and cC    == fpvalues.cbudvar  
+//and fpTForm.nrec     == fpStBud.nrec
+//and fpStBud.nrec     == fpvalues.cstbud
+//and fpValues.cperiod == fpPeriod.nrec 
+
+and fpBudVar.cBudget   == FpBudget.nrec
+//and FpBudget.cco       == fpCO.nrec
+
+//and comp(cBudg)        == fpvalues.cbudvar  // = "вариант бюджета из фильтра" 
+//and word(150 )         == fpvalues.kodreg   // = 150 
+//and comp(cStBud)       == fpvalues.cstbud   //= "статья БДР из фильтра (nrec)" cBDR and cNDS_BDR 
+//and fpperiod.nrec      == fpvalues.cperiod  //=  
+//and FpBudget.cco       == fpvalues.cco(noindex)  //= "центр ответственности из фильтра" 
+               
+//and comp(4)            == fpperiod.ctper      //= 4 
+//and date(1,mp,wPeriod) == fpperiod.dBeg
+// cTPer + dBeg + dEnd
+
+// лог таблица для знач1ений
+
+and fpTForm.nrec   == fpAxTF.cMain     //может быть несколько
+and fpAxTF.NRec    == fpSpAxtf.cMain    
+and fpSpAxtf.cMean == fpStBud.nrec    
+and cCopyBud       == fpBV.nrec        
+and fpBV.nrec      == fpV.cBudVar
+and word(cFP)      == fpV.KodReg //план факт1
+and fpStBud.nrec   == fpV.cStBud
+and fpV.cPeriod    == fpP.nrec
+and fpStBud.ced    == kated.nrec//еденицы измерения
+//and date(1 ,1 ,year(fpperiod.dend))  <<= fpP.dbeg(noindex)
+//and date(31,12,year(fpperiod.dend))  >>= fpP.dEnd(noindex)
+))
+;
+/*
+Select fpvalues.summa from fpvalues, fpperiod, hashan 
+where 
+fpvalues.cbudvar = "вариант бюджета из фильтра" and 
+fpvalues.kodreg = 150 and 
+fpvalues.cstbud = " статья бюджета соответствующая авансовым оплатам по БДС следующего года (nrec)" and 
+fpvalues.cperiod = fpperiod .nrec and 
+fpperiod .ctper = 4 and 
+year(fpperiod.dend) = "год формирования отчета" and 
+month(fpperiod.dend) = 1 and 
+hashan.nrec = fpvalues.chashan and 
+hashan.canalit[1] = "аналитика соотвентствующая месяцу из колонки";
+*/
+
+/*
+Select fpvalues.summa 
+from fpvalues, fpperiod, hashan 
+where 
+    fpvalues.cbudvar = "вариант бюджета из фильтра" 
+and fpvalues.kodreg = 150 
+and fpvalues.cstbud = статья бюджета соответствующая оплатам по факту БДС (nrec)" 
+and fpvalues.cperiod = fpperiod .nrec 
+and fpperiod .ctper = 4 
+and year(fpperiod.dend) = "год формирования отчета" 
+and month(fpperiod.dend) = 1 
+and hashan.nrec = fpvalues.chashan 
+and hashan.canalit[1] = 00CD0000000004D9h;
+
+
+Для строк январь - февраль:
+Select fpvalues.summa from fpvalues, fpperiod, hashan where fpvalues.cbudvar = "вариант бюджета из фильтра" and fpvalues.kodreg = 150 and fpvalues.cstbud = статья бюджета соответствующая оплатам по факту БДС (nrec)"       and fpvalues.cperiod = fpperiod .nrec and fpperiod .ctper = 4 and year(fpperiod.dend) = "год формирования отчета" and month(fpperiod.dend) = 1 and hashan.nrec = fpvalues.chashan and hashan.canalit[1] = "аналитика соотвентствующая месяцу из строки";
+Для строк март - декабрь:
+Select fpvalues.summa from fpvalues, fpperiod, hashan where fpvalues.cbudvar = "вариант бюджета из фильтра" and fpvalues.kodreg = 150 and fpvalues.cstbud = " статья бюджета соответствующая авансовым оплатам по БДС (nrec)" and fpvalues.cperiod = fpperiod .nrec and fpperiod .ctper = 4 and year(fpperiod.dend) = "год формирования отчета" and month(fpperiod.dend) = 1 and hashan.nrec = fpvalues.chashan and hashan.canalit[1] = "аналитика соотвентствующая 
+
+*/
+
+/*
+function ValFP(cB:comp;m:word):double;
+Begin
+  ValFP:=0;
+  Set cStBud:=cB;
+  Set mp:=m;
+  if(getfirst fpvalues=tsOk)
+  {
+   ValFP:=fpvalues.summa;
+  }
+end;
+*/
+
+//
+procedure ExcelPrint(CopyBud:comp; FP:word; Nstr:word; Nstol:word);
+begin
+      Set cCopyBud:=CopyBud;
+      Set cFP:= FP; 
+//      _LOOP  fpSpAxtf
+      _LOOP  fpV 
+      {
+        if((month(fpP.dbeg)=month(fpP.dEnd)) and (year(fpP.dbeg)=year(fpperiod.dbeg) and (fpvalues.chashan = 0))) //chek year
+        {
+          xlSetCellNumberValue(fpv.summa   , Nstr, Nstol + month(fpP.dbeg), Nstr, Nstol + month(fpP.dbeg));
+        }
+        else{}
+      }	
+end;
+
+//определяет первый день текущего квартала
+
+function FirstKvartalDay(D:date):date;
+var Kvartal: byte;
+begin 
+	case Month(D) of
+		1..3  : Kvartal:=1;
+		4..6  : Kvartal:=2;
+		7..9  : Kvartal:=3;
+		10..12: Kvartal:=4;
+	end;
+	case Kvartal of
+		1: FirstKvartalDay:=To_Date(1,1,Year(D));
+		2: FirstKvartalDay:=To_Date(4,1,Year(D));
+		3: FirstKvartalDay:=To_Date(7,1,Year(D));
+		4: FirstKvartalDay:=To_Date(10,1,Year(D));
+	end;
+end;
+
+
+//пересмотр дат
+
+
+Screen scKatH01 'Установка фильтров' (,, sci13Esc);
+!  Table KatH;
+Fields
+  sTForm  ('',,) : Protect,PickButton,
+    {Font = {BackColor = if (cTForm=0,    ColorNeed,0)}};
+  sPeriod ('',,) : Protect,PickButton,
+    {Font = {BackColor = if (cPeriod=0,   ColorNeed,0)}};
+  sPlan1  ('',,) : Protect,PickButton,
+    {Font = {BackColor = if (cPlan1=0,    ColorNeed,0)}};
+  sPlan2  ('',,) : Protect,PickButton,
+    {Font = {BackColor = if (cPlan2=0,    ColorNeed,0)}};
+  sFact   ('',,) : Protect,PickButton,
+    {Font = {BackColor = if (cFact =0,    ColorNeed,0)}};
+  sPath ('',,) : Protect,PickButton,
+    {Font = {BackColor = if (sPath='',    ColorNeed,0)}};
+	
+buttons
+cmApply;
+cmCancel;
+<<
+
+ Типовая форма бюджета .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+ Месяц                 .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+
+                           Варианты бюджета
+
+ План                          .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+ План с учетом доп.потребности .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+ Факт                          .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+ 	
+
+ Путь к шаблону        .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+          <.Сформировать.>    <.  Отмена  .>
+>>
+end; // Screen
+Handleevent
+cmApply:
+{
+                                                              
+//    message('Нажали на кнопку');
+    pathUserOut := GetDefaultUserPath;
+    NameExcel   := pathUserOut;
+    wPeriod:=word(trim(NextNumStr(sPeriod)))-1;
+
+    xlCreateExcel('',true);
+      if (xlIsExcelValid)
+      {
+//         xlOpenWorkBook(translatepath('%startpath%')+'doc\Transport.xls');
+//         xlSetActiveWorkBookByName(translatepath('%startpath%')+'doc\Transport.xls');
+//         xlSaveAsWorkBookByName(translatepath('%startpath%')+'doc\Transport.xls', NameExcel+'.xls');
+
+         xlOpenWorkBook(trim(sPath));
+         xlSetActiveWorkBookByName(trim(sPath));
+         xlSaveAsWorkBookByName(trim(sPath), NameExcel+'.xls');
+
+      }
+
+/*
+
+НДС
+
+Select fpvalues.summa 
+from fpvalues, fpperiod 
+where 
+    fpvalues.cbudvar = "вариант бюджета из фильтра" 
+and fpvalues.kodreg = 150 
+and fpvalues.cco = "центр ответственности из фильтра" 
+and fpvalues.cstbud = "статья соответствующая НДС для БДР (nrec)" 
+and fpvalues.cperiod = fpperiod .nrec 
+and fpperiod .ctper = 4 
+and year(fpperiod.dend) = "год формирования отчета" 
+and month(fpperiod.dend) = "номер месяца соответствующий периоду в строке";
+
+*/ 
+
+      xlSetActiveSheet(1); //Титул_1
+
+      xlSetCellStringValue(month(fpperiod.dbeg), 1, 1, 1, 1); //
+      xlSetCellStringValue(year(fpperiod.dbeg), 1, 2, 1, 2); //	
+      var tt:word;
+      tt:=0;
+//      Set cCopyBud:=cPlan1;
+//      Set cFP:= 150;
+      _LOOP  fpSpAxtf 
+      {
+        if(isValid(tnfpstbud)) //chek year
+        {
+          inc(tt);
+          xlSetCellStringValue(/*fpSpAxtf.levelCode*/fpSpAxtf.code, 1+tt, 1, 1+tt, 1); //
+          xlSetCellStringValue(fpstbud.Name, 1+tt, 2, 1+tt, 2); //
+          xlSetCellStringValue(kated.name, 1+tt, 39, 1+tt, 39);
+          ExcelPrint(cPlan1,150,1+tt,2);
+          ExcelPrint(cPlan2,150,1+tt,14);
+          ExcelPrint(cFact,151,1+tt,26);                            
+        }
+        else{}
+      }
+
+//      xlSetCellValue( sGetTune('INSNAME'), 23, 19, 23, 19); //Наименование Инспекции
+//      xlSetCellStringValue( MyOrg.Name, 28, 2, 28, 2);
+
+      xlRunMacro('GalFpUser_AfterReport');
+      xlKillExcel;
+
+     SaveMyDsk(sPath,'PZdsksPath');
+/*
+   SaveMyDsk(sPath,'dsksPath');
+   SaveMyDsk(wSetFilt2,'dskSetFilt2');
+   SaveMyDsk(d1,'dsk_d1') ;
+   SaveMyDsk(d2,'dsk_d2') ;
+ */
+  PutCommand(cmClose);
+}
+cmPick:
+  case curField of
+//    #sPeriod : RunInterface('F_FpCatalog::getPeriod', cgiPick, comp(0), comp(0), cPeriod, cgSetFPTuneDefault) ;      //        if (RunInterface('getPeriod', cgiPick, GetCurFpTper, 0, PickedPer, cgSetFPTuneDefault) <> cmCancel)
+//    #sCO     :  RunInterface('F_FpCatalog::GetCO',word(cgiPick),comp(0),comp(0),cCO);
+
+/*    #sBudg,#sCO  : if( RunInterface('F_FpBudget::Budget', word(cgiPick), word(0), word(0), comp(0), cBudg, 0, 0)<> cmCancel)
+                   { 
+                     if(getfirst FpBudget=tsok){ 
+                        SET cco:=FpBudget.CCO;
+                     }
+                   }
+*/
+//    #sBudg   :  RunInterface('F_FpCatalog::getvariant',word(cgiPick), comp(0), cBudg);
+    #sPlan1    :  RunInterface('F_FpBudget::Budget', word(cgiPick), word(0), word(0), comp(0), cPlan1, 0, 0);
+    #sPlan2    :  RunInterface('F_FpBudget::Budget', word(cgiPick), word(0), word(0), comp(0), cPlan2, 0, 0);
+    #sFact     :  RunInterface('F_FpBudget::Budget', word(cgiPick), word(0), word(0), comp(0), cFact , 0, 0);
+    #sTForm    :  RunInterface('F_FpBudget::getTForm', cgiPick, 0, cTForm);
+    #sPeriod   :  RunInterface('F_FpCatalog::getPeriod', cgiPick, comp(0), comp(0), cPeriod, cgSetFPTuneDefault);
+
+    #sPath     :
+   {
+        var sTmp : string;
+            sTmp := GetFileName('*.XLS', 'Выберите файл с шаблоном');
+        if (trim(sTmp) = '')
+         { Exit; }
+        Set sPath := sTmp;
+    }
+
+  end;  
+!-------------------------------------------------------------------------------
+cmDelOnProtect:
+  case curField of
+    #sPeriod   : Set cPeriod:=0;
+    #sTForm    : Set cTForm:=0;
+    #sPlan1    : Set cPlan1:=0;
+    #sPlan2    : Set cPlan2:=0;
+    #sFact     : Set cFact:=0;
+  end;
+
+cmInit:
+{
+ cPlan1:=0;
+ cPlan2:=0;
+ cFact:=0;
+ cTForm:=0;
+ cPeriod:=0;     
+ sPath:='C:\8.1.XLS';
+// wPeriod:=2008;
+
+ if (not ReadMyDsk(sPath,'PZdsksPath',isError))  sPath := '';
+/*
+
+  if (not ReadMyDsk(wSetFilt1,'dskSetFilt1',isError))  wsetFilt1 := 0;
+  if (not ReadMyDsk(wSetFilt2,'dskSetFilt2',isError))  wsetFilt2 := 0;
+  if (not ReadMyDsk(d1,'dsk_d1',isError))  d1 := Add_day(Sub_day(Cur_date,day(cur_Date)),1);
+  if (not ReadMyDsk(d2,'dsk_d2',isError))  d2 := Add_day(Sub_day(Cur_date,day(cur_Date)),last_day(Cur_date));
+
+*/
+}
+
+end;
+end.
+
+/*
+
+ - 'Центры ответственности', cmRunInterface('getCO(0,0,0,0)'),'Центры ответственности',hcBudgetFuncCentryOtvet;
+Parameters
+  wIntMode  // режим запуска (cgiNo, cgiPick, ...) см.GLOCONST.INC
+, cTopRec   // зарезервированно, пока cTopRec=comp(0)
+, cNodeTop  // вывод только ветки с вершиной cNodeTop, чтобы все дерево cNodeTop=comp(0)
+, cGetRec   // выбранная запись
+
+-----------;
+ - 'Варианты бюджета',       cmRunInterface('getVariant(0,0,0)'),'Варианты бюджетов',hcBudgetFuncVariantyBudgeta;
+#ifdef ComponentVersion
+  vbResult := (RunInterface('F_FpCatalog::GetVariant', word(1), comp(0), vcRec) <> cmCancel);
+#else
+  vbResult := (RunInterface('GetVariant', word(1), comp(0), vcRec) <> cmCancel);
+#endif
+
+
+    #fpCO.Name:
+    { RunInterface('GetCO',word(cgiPick),comp(0),comp(0),KatH.cCO);
+    }
+    #fpVarian.Name:
+    { RunInterface('getvariant',word(cgiPick), comp(0), KatH.cVariant);
+    }
+
+
+
+ - 'Статьи бюджетов',        cmRunInterface('F_FpCatalog::getStBud(0,0,0)'),'Статьи бюджетов',hcBudgetFuncStatBudgeta;
+  wIntMode   // режим запуска (cgiNo, cgiPick, ...) см.GLOCONST.INC
+, cNodeTop   // вывод только ветки с вершиной cNodeTop, чтобы все дерево cNodeTop=comp(0)
+, cGetRec    // выбранная запись
+;
+
+  RunInterface('GetStBud', word(cgiSingleEdit), comp(0), KatH.NRec);
+-----------;
+
+ - 'Периоды планирования',   cmRunInterface('getPeriod(0,0,0,0,1)'),'Периоды планирования',hcBudgetFuncPeriodyPlanir;
+
+  wIntMode      // режим запуска (cgiNo, cgiPick, ...) см.GLOCONST.INC
+, cTopRec       // тип периода
+, cNodeTop      // вывод только ветки с вершиной cNodeTop, чтобы все дерево cNodeTop=comp(0)
+, cGetRec       // выбранная запись
+, wDefaultTune  // настройка из которой брать тип периода см.GLOCONST.INC:
+                //   cgSetFPTuneDefault  - брать настройки для FP
+                //   cgSetOFPTuneDefault - брать настройки для OFP
+                //   cgSetFATuneDefault  - брать настройки для FA
+                //   cgSetUksTuneDefault - брать настройки для капстроя
+      #fpStBud.Name  : {
+        if (RunInterface('getStBud', cgiPick,0,PickedSt) <> cmCancel)
+          if (fpStBud.Abbr = '') {
+            Message('У статьи "'+fpStBud.Name+'" нет аббревиатуры',Error);
+            Set PickedSt := 0;
+          }
+      }
+      #fpPeriod.Name : {
+        if (RunInterface('getPeriod', cgiPick, GetCurFpTper, 0, PickedPer, cgSetFPTuneDefault) <> cmCancel)
+          if (fpPeriod.Abbr = '') {
+            Message('У периода "'+fpPeriod.Name+'" нет аббревиатуры',Error);
+            Set PickedPer := 0;
+          }
+      }
+
+
+*/

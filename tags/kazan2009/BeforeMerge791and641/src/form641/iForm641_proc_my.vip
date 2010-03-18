@@ -1,0 +1,1426 @@
+#include iForm641_extClass.vip
+
+  procedure CheckDefaultValues;
+  begin
+    if (extClName = '') {set extClName := 'Характеристики для форм 7.9.1 и 7.9'};
+    if (excCode1 = '') {set excCode1 := 'Разделитель'} ;
+    if (excCode2 = '') {set excCode2 := 'Вынос в подвал'}  ;
+    if (excCode3 = '') {set excCode3 := 'Итого'}   ;
+    if (excCode4 = '') {set excCode4 := 'Агрегат'}   ;
+
+    if cReg1 = 0 {cReg1 := 150};
+    if cReg2 = 0 {cReg2 := 150};
+    if cReg3 = 0 {cReg3 := 151};
+    if cReg4 = 0 {cReg4 := 151};
+
+    if (extClName1 = '') {set extClName1 := 'Дополнительная обработка статьи'};
+    if (excCode5 = '') {set excCode5 := 'Сумма'};
+    if (excCode6 = '') {set excCode6 := 'Сложить'};
+    if (excCode7 = '') {set excCode7 := 'Вычесть'};
+
+    if (extClName2 = '') {set extClName2 := 'Расчет сальдо'};
+    if (excCode8 = '') {set excCode8 := 'Сальдо периода'};
+    if (excCode9 = '') {set excCode9 := '+ сальдо периода'};
+    if (excCode10 = '') {set excCode10 := '- сальдо периода'};
+
+    if (excCode11 = '') {set excCode11 := 'Н. сальдо'};
+    if (excCode12 = '') {set excCode12 := 'К. сальдо'};
+
+    if (extClName3 = '') {set extClName3 := 'Дополнительная обработка статьи для 6.4.1'};
+    /*
+    if (excCode13 = '') {set excCode5 := 'Сумма'};
+    if (excCode14 = '') {set excCode6 := 'Сложить'};
+    if (excCode15 = '') {set excCode7 := 'Вычесть'};
+    */
+    if (extClName4 = '') {set extClName4 := 'Дополнительная обработка статьи для 6.4.1 (сумма №2)'};
+    if (extClName5 = '') {set extClName5 := 'Дополнительная обработка статьи для 6.4.1 (сумма №3)'};
+    if (extClName6 = '') {set extClName6 := 'Дополнительная обработка статьи для 6.4.1 (сумма №4)'};
+  end;
+
+  Procedure StoreDSK();
+  begin
+    CheckDefaultValues;
+
+    SaveMyDsk(sPath,  '6dsksPath1');
+    SaveMyDsk(cTForm, '6dsksPath2');
+    SaveMyDsk(cPeriod,'6dsksPath3');
+    SaveMyDsk(cPlan1, '6dsksPath4');
+
+
+    SaveMyDsk(cPlanOtd, 'iForm641.cPlanOtd');
+
+    SaveMyDsk(cPlan2, '6dsksPath5');
+    SaveMyDsk(cFact,  '6dsksPath6');
+    SaveMyDsk(cPlan3, '6dsksPath7');
+
+    SaveMyDsk(sPath,     'iForm641_sPath');
+
+    SaveMyDsk(Check,     'iForm641.Check');
+
+
+    SaveMyDsk(extClName,   'iForm641_extClName');
+    SaveMyDsk(excCode1,    'iForm641_excCode1');
+    SaveMyDsk(excCode2,    'iForm641_excCode2');
+    SaveMyDsk(excCode3,    'iForm641_excCode3');
+    SaveMyDsk(excCode4,    'iForm641_excCode4');
+
+    SaveMyDsk(cReg1,    'iForm641.cReg1');
+    SaveMyDsk(cReg2,    'iForm641.cReg2');
+    SaveMyDsk(cReg3,    'iForm641.cReg3');
+    SaveMyDsk(cReg4,    'iForm641.cReg4');
+
+    SaveMyDsk(extClName1,  'iForm641.extClName1');
+    SaveMyDsk(excCode5,    'iForm641.excCode5');
+    SaveMyDsk(excCode6,    'iForm641.excCode6');
+    SaveMyDsk(excCode7,    'iForm641.excCode7');
+
+    SaveMyDsk(extClName2,  'iForm641.extClName2');
+    SaveMyDsk(excCode8,    'iForm641.excCode8');
+    SaveMyDsk(excCode9,    'iForm641.excCode9');
+    SaveMyDsk(excCode10,    'iForm641.excCode10');
+    SaveMyDsk(excCode11,    'iForm641.excCode11');
+    SaveMyDsk(excCode12,    'iForm641.excCode12');
+
+    SaveMyDsk(extClName3,  'iForm641.extClName3');
+    /*
+    SaveMyDsk(excCode13,    'iForm641.excCode13');
+    SaveMyDsk(excCode14,    'iForm641.excCode14');
+    SaveMyDsk(excCode15,    'iForm641.excCode15');
+    */
+    SaveMyDsk(extClName4,  'iForm641.extClName4');
+    SaveMyDsk(extClName5,  'iForm641.extClName5');
+    SaveMyDsk(extClName6,  'iForm641.extClName6');
+  end;
+
+
+  procedure ReadDSK;
+  begin
+    var dc : boolean;
+
+    dc := true;
+
+    if (not ReadMyDsk(Check,     'iForm641.Check',isError))  Check := '';
+
+    if (not ReadMyDsk(sPath  ,'6dsksPath1',isError))  sPath := '';
+    if (not ReadMyDsk(cPlan1 ,'6dsksPath4',isError))  cPlan1:=0;
+
+    if (not ReadMyDsk(cPlanOtd, 'iForm641.cPlanOtd',isError))  cPlanOtd:=0;
+
+    if (not ReadMyDsk(cPlan2 ,'6dsksPath5',isError))  cPlan2:=0;
+    if (not ReadMyDsk(cPlan3 ,'6dsksPath7',isError))  cPlan3:=0;
+    if (not ReadMyDsk(cFact  ,'6dsksPath6',isError))  cFact:=0;
+    if (not ReadMyDsk(cTForm ,'6dsksPath2',isError))  cTForm:=0;
+    if (not ReadMyDsk(cPeriod,'6dsksPath3',isError))  cPeriod:=0;
+
+    if (not ReadMyDsk(sPath  ,'iForm641_sPath',isError))  sPath := '';
+    if (sPath='') set sPath := translatepath('%startpath%Xls\F_FPBUDGET\SZMN_Budjet\tmpl_6_4_1.xls');
+
+    ReadMyDsk (extClName,   'iForm641_extClName', dc);
+    ReadMyDsk (excCode1,    'iForm641_excCode1', dc);
+    ReadMyDsk (excCode2,    'iForm641_excCode2', dc);
+    ReadMyDsk (excCode3,    'iForm641_excCode3', dc);
+    ReadMyDsk (excCode4,    'iForm641_excCode4', dc);
+
+    ReadMyDsk (cReg1,    'iForm641.cReg1', dc);
+    ReadMyDsk (cReg2,    'iForm641.cReg2', dc);
+    ReadMyDsk (cReg3,    'iForm641.cReg3', dc);
+    ReadMyDsk (cReg4,    'iForm641.cReg4', dc);
+
+    ReadMyDsk (extClName1,  'iForm641.extClName1', dc);
+    ReadMyDsk (excCode5,    'iForm641.excCode5', dc);
+    ReadMyDsk (excCode6,    'iForm641.excCode6', dc);
+    ReadMyDsk (excCode7,    'iForm641.excCode7', dc);
+
+    ReadMyDsk (extClName2,  'iForm641.extClName2', dc);
+    ReadMyDsk (excCode8,    'iForm641.excCode8', dc);
+    ReadMyDsk (excCode9,    'iForm641.excCode9', dc);
+    ReadMyDsk (excCode10,    'iForm641.excCode10', dc);
+
+    ReadMyDsk (excCode11,    'iForm641.excCode11', dc);
+    ReadMyDsk (excCode12,    'iForm641.excCode12', dc);
+
+    ReadMyDsk (extClName3,  'iForm641.extClName3', dc);
+    /*
+    ReadMyDsk (excCode13,    'iForm641.excCode13', dc);
+    ReadMyDsk (excCode14,    'iForm641.excCode14', dc);
+    ReadMyDsk (excCode15,    'iForm641.excCode15', dc);
+    */
+    ReadMyDsk (extClName4,  'iForm641.extClName4', dc);
+    ReadMyDsk (extClName5,  'iForm641.extClName5', dc);
+    ReadMyDsk (extClName6,  'iForm641.extClName6', dc);
+
+    CheckDefaultValues;
+  end;
+
+  create view forGetCode
+  var
+  cKAU : comp;
+  as select * from spkau where ((
+  cKAU == spkau.nRec
+  ))
+  ;
+
+  procedure GetCurrentCodeName (var code : String ; var name : String);
+  begin
+    // Replace (,'_','-')
+    // fpStBud
+    // superKAUfpStBud
+
+    var cd, nm : String;
+
+    if(fpSpAxtf.coTable = word(22217) ) {
+      cd := fpStBud.abbr;
+      nm := fpSpAxtf.name;
+      //
+      if ( SubStr (cd, Length(cd),1 )= '_'  ) {
+        cd := cd + '00'
+      }
+
+      code := Replace (cd, '_', '-');
+      name := nm;
+    } else {
+      if (getFirst superKauSpAxtf = tsOK ) {};
+      if (getFirst superKAUfpStBud = tsOK ) {};
+      cd := superKAUfpStBud.abbr;
+      nm := fpSpAxtf.name;
+
+      set forGetCode.cKAU := fpSpAxtf.cMEAN;
+      if (forGetCode.getfirst spkau = tsOK) {
+        code := Replace (cd + forGetCode.spkau.levelcode,'_','-');
+      } else {
+        code := Replace (cd + fpSpAxtf.levelcode,'_','-');
+      }
+
+      //
+      name := fpSpAxtf.name;
+    }
+  end;
+
+
+  function trimFirst0 (st : String):string;
+  begin
+    result := st;
+    exit;
+
+    if st = '' then {
+      result := '';
+      exit
+    };
+    if substr (st,1,1) = '0' then
+      result := trimFirst0 (substr (st,2,255))
+    else
+      result := st;
+  end;
+
+  function repGetPrintRow: word;
+  begin
+    xlRunMacro('getRowToFill(1,1)');
+    xlGetCellValue(1, 1, result);
+  end;
+
+  procedure printSigners;
+  begin
+    if not podpisanty.isSelected then exit;
+
+    _loop podpisanty {
+      var ar : array [1..2] of string;
+      ar[1] := podpisanty.dolj;
+      ar[2] := podpisanty.fio;
+
+      xlSetCellStringValue(ar[1] + '____________________________________' + ar[2] , 30 , 1, 30, 1); //
+      //xlSetCellStringValue( , 30, 11, 30, 11); //
+      xlRunMacro('CopyRow(ROWSIGN)');
+
+    }
+  end;
+
+  procedure printExecutor;
+  begin
+    var sFIO :String ;
+    sFIO := Trim (sGetTune ('USER.FIO'));
+    var ps1 : byte;
+    ps1 := pos (' ',sFIO);
+    if (ps1 <> 0 ){
+      var sfam : String;
+      //sFAM := substr (sFIO,1,ps1-1);
+      sFAM := substr (sFIO,1,ps1-1) + ' ' + Substr (trim (substr (sFIO,ps1+1,255)),1,1) + '.';
+
+      sFIO := trim (substr (sFIO,ps1+1,255));
+      ps1 := pos (' ',sFIO);
+
+      if (ps1 <> 0) {
+        sFAM := sFAM + ' ' + Substr (trim (substr (sFIO,ps1+1,255)),1,1) + '.';
+      } else {
+      }
+
+      sFIO := sFAM;
+    }
+
+
+    //xlSetCellStringValue('/ '+ sFIO + ' /', 15, 9, 15, 9);
+
+    var tel : string;
+
+    if (getFirst persons where (( sGetTune ('USER.FIO') == persons.FIO (noindex) )) = tsOK) {
+      if (getFirst COMMUNICATIONS where ((  persons.nrec == COMMUNICATIONS.person and
+                                            comp('000000000000022Bh') == COMMUNICATIONS.comtype
+                                            )) = tsOK){
+        tel := COMMUNICATIONS.ADDR;
+      }
+    }
+    xlSetCellStringValue(sFIO + ',' + tel , 35, 1, 35, 1);
+    xlRunMacro('CopyRow(ROWEX)');
+
+  end;
+
+  function DeleteColumns (periodNum : byte) : byte;
+  begin
+    var i : byte;
+
+    result := 43;
+
+    for (i := 12; i>=1; dec(i)) {
+      if (i < periodNum) {
+        // факт
+        xlRunMacro('DeleteEntireColumn ( ' + (3 + (i-1)*3 + 3) + ' )');
+        xlRunMacro('DeleteEntireColumn ( ' + (3 + (i-1)*3 + 2) + ' )');
+
+        result := result - 2;
+
+        xlSetCellStringValue('Факт' , 8, 3 + (i-1)*3 + 1, 8, 3 + (i-1)*3 + 1);
+      } else if (i = periodNum) {
+        // ожид. факт = факт ???
+        xlRunMacro('DeleteEntireColumn ( ' + (3 + (i-1)*3 + 3) + ' )');
+        xlRunMacro('DeleteEntireColumn ( ' + (3 + (i-1)*3 + 2) + ' )');
+        //xlSetCellStringValue('Ожид. факт' , 3 + (i-1)*3 + 1, 1, 3 + (i-1)*3 + 1, 1);
+        result := result - 2;
+
+        xlSetCellStringValue('Ожид. факт' , 8, 3 + (i-1)*3 + 1, 8, 3 + (i-1)*3 + 1);
+      } else if (i > periodNum) {
+        // планы, доп. планы и корректировка. ???
+        //xlRunMacro('DeleteEntireColumn ( ' + (3 + (i-1)*3 + 1) + ' )');
+        //xlRunMacro('DeleteEntireColumn ( ' + (3 + (i-1)*3 + 2) + ' )');
+      }
+    }
+  end;
+
+  procedure MarkColumns (periodNum : byte);
+  begin
+    var i : byte;
+    var colMark : byte;
+    colMark := 4;
+    for (i := 1; i<=12; inc(i)) {
+      if (i < periodNum) {
+        // факт
+        xlSetCellStringValue('' + colMark ,9, colMark, 9, colMark);
+        colMark += 1;
+      } else if (i = periodNum) {
+        // ожид. факт = факт ???
+        xlSetCellStringValue('' + colMark ,9, colMark, 9, colMark);
+        colMark += 1;
+      } else if (i > periodNum) {
+        xlSetCellStringValue('' + colMark ,9, colMark, 9, colMark);
+        xlSetCellStringValue('' + (colMark + 1) ,9, colMark + 1, 9, colMark + 1);
+        xlSetCellStringValue('' + (colMark + 2) + '=' + colMark + ' + ' + (colMark + 1) ,
+                                  9, colMark + 2, 9, colMark + 2);
+        colMark += 3;
+      }
+    }
+    xlSetCellStringValue('' + colMark ,9, colMark+1, 9, colMark+1);
+    xlSetCellStringValue('' + (colMark + 1) + '=' + (colMark+0) + ' - 3',
+                            9, colMark + 2, 9, colMark + 2);
+
+  end;
+
+  procedure ExcelPrint2(CopyBud:comp; FP:word; Nstr:word; Nstol:word; varnt : byte);
+  begin
+    Set cCopyBud:=CopyBud;
+    Set cFP:= FP;
+
+    var sm : double;
+    sm := 0;
+
+    //      _LOOP  fpSpAxtf
+    _LOOP  fpV {
+      if((month(fpP.dbeg)=month(fpP.dEnd)) and (year(fpP.dbeg)=year(fpperiod.dbeg) and (fpvalues.chashan = 0))) { //chek year
+        if(Check=0) {
+          sm := fpv.summa;
+          //xlSetCellNumberValue(     , Nstr, Nstol + month(fpP.dbeg), Nstr, Nstol + month(fpP.dbeg));
+        }else{
+          sm := fpv.summa/1000;
+          //xlSetCellNumberValue(fpv.summa/1000, Nstr, Nstol + month(fpP.dbeg), Nstr, Nstol + month(fpP.dbeg));
+        }
+        //xlSetCellNumberValue(sm, Nstr, Nstol + month(fpP.dbeg), Nstr, Nstol + month(fpP.dbeg));
+
+        case varnt of
+          Plan : update current f641_printed set f641_printed.sumvar1[month(fpP.dbeg)] := sm ;
+          DopPlan : update current f641_printed set f641_printed.sumvar2[month(fpP.dbeg)] := sm ;
+          Fact : update current f641_printed set f641_printed.sumvar3[month(fpP.dbeg)] := sm ;
+          OjidPlan : update current f641_printed set f641_printed.sumvar4[month(fpP.dbeg)] := sm ;
+          PlanOtd : update current f641_printed set f641_printed.sumvarOtd[month(fpP.dbeg)] := sm ;
+        end
+
+      }
+      else{}
+    }
+  end;
+
+  procedure ExcelPrint2_2010
+                       ( wTbl : word;
+                         CopyBud:comp;
+                         FP:word;
+                         Nstr:word;
+                         Nstol:word;
+                         varnt : byte
+                         );
+  begin
+    if (wTbl = 22217){ // статья бюджета
+      ExcelPrint2 (CopyBud,FP,Nstr,Nstol,varnt);
+      exit;
+    }
+    // аналитика
+    //xlSetCellNumberValue(0 , Nstr, Nstol , Nstr, Nstol );
+
+    Set cCopyBud:=CopyBud;
+    Set cFP := FP;
+    var sm : double;
+    sm := 0;
+
+    if (getFirst superfpSpAxtf = tsOK) {
+      if (getFirst HashAn = tsOK) {
+        _loop fpV2 {
+          if (getFirst fpP2 <> tsOK)  {};
+          if((month(fpP2.dbeg)=month(fpP2.dEnd)) and (year(fpP2.dbeg)=year(fpperiod.dbeg) )) {
+            if(Check=0) {
+              //xlSetCellNumberValue(fpv2.summa     , Nstr, Nstol , Nstr, Nstol );
+              sm := fpv2.summa;
+            } else {
+              //xlSetCellNumberValue(fpv2.summa/1000, Nstr, Nstol , Nstr, Nstol );
+              sm := fpv2.summa/1000;
+            }
+            case varnt of
+              Plan : update current f641_printed set f641_printed.sumvar1[month(fpP2.dbeg)] := sm ;
+              DopPlan : update current f641_printed set f641_printed.sumvar2[month(fpP2.dbeg)] := sm ;
+              Fact : update current f641_printed set f641_printed.sumvar3[month(fpP2.dbeg)] := sm ;
+              OjidPlan : update current f641_printed set f641_printed.sumvar4[month(fpP2.dbeg)] := sm ;
+              PlanOtd : update current f641_printed set f641_printed.sumvarOtd[month(fpP2.dbeg)] := sm ;
+            end
+
+          }
+        }
+      }
+    }
+  end;
+
+
+  function CalcCurrentSumBDSGod (pNum : byte) : double;
+  begin
+    var i : byte;
+    result := 0;
+    for ( i := 1; i <=12; inc(i)){
+      if (i < pnum) {
+        // здесь - из факта
+        result += f641_printed.sumvar3[i];
+      } else if (i = pnum) {
+        // здесь - из ожидаемого факта
+        result += f641_printed.sumvar4[i];
+      } else if (i = (pnum + 1)) {
+        // из доп. потребности
+        result += f641_printed.sumvar2[i];
+      } else {
+        // из доп. потребности
+        result += if (f641_printed.sumvar2[i]>0,f641_printed.sumvar2[i], f641_printed.sumvar1[i] );
+      }
+    }
+  end;
+
+  function min (p1,p2 : double) : double;
+  begin
+    result := if (p1>p2,p2,p1);
+  end;
+
+  function d2s(v : double):String;
+  begin
+    result := DoubleToStr (v,   '\d,666666666667^899999999999');
+  end;
+
+  create view forGrouping
+  as
+  select *
+    from
+          f641_printed f641_printed_ord2 ,
+          f641_printed subp3
+   where ((
+   f641_printed_ord2.cRec == subp3.cNode
+   ))
+        ;
+  Procedure doGroupPrintedData(const periodNum : word);
+  begin
+    forGrouping._loop f641_printed_ord2{
+      var fSum : string;
+      fSum := '';
+
+      if (forGrouping.f641_printed_ord2.extPar = 1) {
+        continue;
+      }
+
+      forGrouping._loop subp3{
+        var tsts : string;
+        var raz : integer;
+
+        raz  := forGrouping.subp3.printedAtRow - forGrouping.f641_printed_ord2.printedAtRow ;
+        tsts := ''+ raz;
+
+        fSum := fSum + ';R[' + tsts + ']C';
+      }
+
+      if (fSum > '') {
+        //xlSetCellFormula('=Сумм('+fSum+')',forGrouping.f791_printed_ord2.printedAtRow,3,forGrouping.f791_printed_ord2.printedAtRow,7);
+        for (i := 1; i<=12; inc(i)) {
+          if (i >= periodNum) {
+            xlSetCellFormula( '=Сумм('+fSum+')',
+                              forGrouping.f641_printed_ord2.printedAtRow,
+                              3 + (i-1)*3 + 2,
+                              forGrouping.f641_printed_ord2.printedAtRow,
+                              3 + (i-1)*3 + 3
+                              );
+          }
+        }
+      }
+    }
+  end
+
+  procedure doPrintExtraSum641_2 (const periodNum : byte);
+  begin
+    var extraSm : word;
+    extraSm := 0;
+
+    var extraFrm : String;
+    extraFrm := '=СУММ(0';
+
+    _LOOP  fpSpAxtf  {
+      if(isValid(tnfpstbud)) { //chek year
+        if (getFirst f641_printed where (( fpSpAxtf.nRec==f641_printed.cRec)) = tsOK ) {
+        };
+        if (f641_printed.extPar4 = 5){
+          // тут должна быть сумма
+          extraSm := f641_printed.printedAtRow;
+        }
+
+      }
+    }
+
+    if (extraSm <> 0) {
+      _LOOP  fpSpAxtf  {
+        if(isValid(tnfpstbud)) { //chek year
+          if (getFirst f641_printed where (( fpSpAxtf.nRec==f641_printed.cRec)) = tsOK ) {
+          };
+          if (f641_printed.extPar4 = 6){
+            // тут надо сложить
+            extraFrm := extraFrm + ';R[' + (f641_printed.printedAtRow - extraSm) + ']C';
+          }
+          if (f641_printed.extPar4 = 7){
+            // тут надо отнять
+            extraFrm := extraFrm + ';-R[' + (f641_printed.printedAtRow - extraSm) + ']C';
+          }
+        }
+      }
+
+      extraFrm := extraFrm + ')';
+
+      var i : byte;
+
+      for (i := 1; i<=12; inc(i)) {
+        if (i > periodNum+1) {
+          xlSetCellFormula( extraFrm,
+                            extraSm,
+                            3 + (i-1)*3 + 2,
+                            extraSm,
+                            3 + (i-1)*3 + 3
+                            );
+        }
+      }
+      xlSetCellFormula( extraFrm,
+                        extraSm,
+                        3 + (12-1)*3 + 5,
+                        extraSm,
+                        3 + (12-1)*3 + 5
+                        );
+
+    }
+  end;
+
+  procedure doPrintExtraSum641_0 (const periodNum : byte);
+  begin
+    var extraSm : array [1..2] of word;
+
+    var i : byte;
+    for (i := 1 ; i<=2 ; i := i + 1){
+
+      extraSm[i] := 0;
+    }
+    //extraSm := 0;
+
+    var extraFrm : array [1..2] of String;
+    for (i := 1 ; i<=2 ; i := i + 1){
+      extraFrm[i] := '=СУММ(0';
+    }
+
+
+    _LOOP  fpSpAxtf  {
+      if(isValid(tnfpstbud)) { //chek year
+        if (getFirst f641_printed where (( fpSpAxtf.nRec==f641_printed.cRec)) = tsOK ) {
+        };
+
+        for (i := 1 ; i<=2 ; i := i + 1){
+          if (f641_printed.extPar0[i] = 5){
+            // тут должна быть сумма
+            extraSm[i] := f641_printed.printedAtRow;
+          }
+        }
+      }
+    }
+
+    for (i := 1 ; i<=2 ; i := i + 1){
+      if (extraSm[i] <> 0) {
+        _LOOP  fpSpAxtf  {
+          if(isValid(tnfpstbud)) { //chek year
+            if (getFirst f641_printed where (( fpSpAxtf.nRec==f641_printed.cRec)) = tsOK ) {
+            };
+            if (f641_printed.extPar0[i] = 6){
+              // тут надо сложить
+              extraFrm[i] := extraFrm[i] + ';R[' + (f641_printed.printedAtRow - extraSm[i]) + ']C';
+            }
+            if (f641_printed.extPar0[i]= 7){
+              // тут надо отнять
+              extraFrm[i] := extraFrm[i] + ';-R[' + (f641_printed.printedAtRow - extraSm[i]) + ']C';
+            }
+          }
+        }
+      }
+    }
+
+    for (i := 1 ; i<=2 ; i := i + 1){
+      extraFrm[i] := extraFrm[i] + ')';
+    }
+
+    var j : byte;
+
+    for (i := 1 ; i<=2 ; i := i + 1){
+      if (extraSm[i] = 0) {
+        continue;
+      }
+      for (j := 1; j<=12; inc(j)) {
+        if (j > periodNum+1) {
+          xlSetCellFormula( extraFrm[i],
+                            extraSm[i],
+                            3 + (j-1)*3 + 2,
+                            extraSm[i],
+                            3 + (j-1)*3 + 3
+                            );
+        }
+      }
+      xlSetCellFormula( extraFrm[i],
+                        extraSm[i],
+                        3 + (12-1)*3 + 5,
+                        extraSm[i],
+                        3 + (12-1)*3 + 5
+                        );
+    }
+  end;
+
+  procedure doPrintExtraSum641 (const periodNum : byte);
+  begin
+    var extraSm : word;
+    extraSm := 0;
+
+    var extraFrm : String;
+    extraFrm := '=СУММ(0';
+
+    _LOOP  fpSpAxtf  {
+      if(isValid(tnfpstbud)) { //chek year
+        if (getFirst f641_printed where (( fpSpAxtf.nRec==f641_printed.cRec)) = tsOK ) {
+        };
+        if (f641_printed.extPar3 = 5){
+          // тут должна быть сумма
+          extraSm := f641_printed.printedAtRow;
+        }
+
+      }
+    }
+
+    if (extraSm <> 0) {
+      _LOOP  fpSpAxtf  {
+        if(isValid(tnfpstbud)) { //chek year
+          if (getFirst f641_printed where (( fpSpAxtf.nRec==f641_printed.cRec)) = tsOK ) {
+          };
+          if (f641_printed.extPar3 = 6){
+            // тут надо сложить
+            extraFrm := extraFrm + ';R[' + (f641_printed.printedAtRow - extraSm) + ']C';
+          }
+          if (f641_printed.extPar3 = 7){
+            // тут надо отнять
+            extraFrm := extraFrm + ';-R[' + (f641_printed.printedAtRow - extraSm) + ']C';
+          }
+        }
+      }
+
+      extraFrm := extraFrm + ')';
+
+      var i : byte;
+
+      for (i := 1; i<=12; inc(i)) {
+        if (i > periodNum+1) {
+          xlSetCellFormula( extraFrm,
+                            extraSm,
+                            3 + (i-1)*3 + 2,
+                            extraSm,
+                            3 + (i-1)*3 + 3
+                            );
+        }
+      }
+      xlSetCellFormula( extraFrm,
+                        extraSm,
+                        3 + (12-1)*3 + 5,
+                        extraSm,
+                        3 + (12-1)*3 + 5
+                        );
+
+    }
+  end;
+
+
+  procedure doPrintExtraSum (const periodNum : byte);
+  begin
+    var extraSm : word;
+    extraSm := 0;
+
+    var extraFrm : String;
+    extraFrm := '=СУММ(0';
+
+    _LOOP  fpSpAxtf  {
+      if(isValid(tnfpstbud)) { //chek year
+        if (getFirst f641_printed where (( fpSpAxtf.nRec==f641_printed.cRec)) = tsOK ) {
+        };
+        if (f641_printed.AgregHandling = 5){
+          // тут должна быть сумма
+          extraSm := f641_printed.printedAtRow;
+        }
+
+      }
+    }
+
+    if (extraSm <> 0) {
+      _LOOP  fpSpAxtf  {
+        if(isValid(tnfpstbud)) { //chek year
+          if (getFirst f641_printed where (( fpSpAxtf.nRec==f641_printed.cRec)) = tsOK ) {
+          };
+          if (f641_printed.AgregHandling = 6){
+            // тут надо сложить
+            extraFrm := extraFrm + ';R[' + (f641_printed.printedAtRow - extraSm) + ']C';
+          }
+          if (f641_printed.AgregHandling = 7){
+            // тут надо отнять
+            extraFrm := extraFrm + ';-R[' + (f641_printed.printedAtRow - extraSm) + ']C';
+          }
+        }
+      }
+
+      extraFrm := extraFrm + ')';
+
+      var i : byte;
+
+      for (i := 1; i<=12; inc(i)) {
+        if (i > periodNum) {
+          xlSetCellFormula( extraFrm,
+                            extraSm,
+                            3 + (i-1)*3 + 2,
+                            extraSm,
+                            3 + (i-1)*3 + 3
+                            );
+        }
+      }
+
+    }
+
+
+
+  end;
+
+#include iForm641_kaugroup.vip
+
+  procedure doPrintReport;
+  begin
+    var tms : array [1..10] of time;
+
+    tms[1] := Cur_Time;
+
+    StoreDSK;
+    var periodNum : byte;
+
+    delete all f641_printed;
+
+    //    message('Нажали на кнопку');
+    pathUserOut := GetDefaultUserPath;
+    NameExcel   := pathUserOut;
+    wPeriod     := word(trim(NextNumStr(sPeriod)))-1;
+
+    if (getFirst fpPeriod = tsOK){
+      periodNum := month (fpPeriod.dBeg);
+
+    } else {
+      periodNum := 1;
+    }
+
+    xlCreateExcelWithTemplate(sPath,true);
+
+    xlRunMacro('REP_BegoreReportPrint');
+
+    /*
+    xlCreateExcel('',true);
+    if (xlIsExcelValid)  {
+      //         xlOpenWorkBook(translatepath('%startpath%')+'doc\Transport.xls');
+      //         xlSetActiveWorkBookByName(translatepath('%startpath%')+'doc\Transport.xls');
+      //         xlSaveAsWorkBookByName(translatepath('%startpath%')+'doc\Transport.xls', NameExcel+'.xls');
+
+      xlOpenWorkBook(trim(sPath));
+      xlSetActiveWorkBookByName(trim(sPath));
+      xlSaveAsWorkBookByName(trim(sPath), NameExcel+'.xls');
+
+    }
+    */
+
+    var dataSheetName : string;
+    dataSheetName  := 'datas641';
+
+    var reportSheetName : string;
+    reportSheetName  := 'rep641';
+
+    xlRunMacro('setDataSheetName('+dataSheetName+')');
+    xlRunMacro('setReportSheetName('+reportSheetName+')');
+    xlRunMacro('setRowToFill('+String (10)+')');
+
+    xlSetActiveSheetByName(dataSheetName);
+    //xlSetActiveSheet(1); //Титул_1
+    if (getfirst fpPeriod = tsOK) {
+
+      xlSetCellStringValue('' + year (fpPeriod.dbeg), 4, 2, 4, 2); //
+    }
+
+    if(Check=0) {
+      xlSetCellStringValue('руб.', 4, 6, 4, 6); //
+    } else {
+      xlSetCellStringValue('тыс.руб.', 4, 6, 4, 6); //
+    }
+
+
+    //xlSetCellStringValue(month(fpperiod.dbeg), 1, 1, 1, 1); //
+    //xlSetCellStringValue(year(fpperiod.dbeg), 1, 2, 1, 2); //
+
+    var tt:word;
+    tt:=0;
+    var firstChar : String;
+    firstChar := '''';
+    //      SetOrder(tibyPrior);
+
+    var stepsTotal : byte;
+    stepstotal := 3;
+    _LOOP  fpSpAxtf  {
+      if (tt mod visualHeaderPause) = 0 then {
+        setVisualHeader (FormatStr_4 ( 'Загрузка данных | %d из %d | %d | %s',1,stepstotal, tt ,fpSpAxtf.Name));
+      };
+
+      if(fpSpAxtf.coTable = word(22217) )       // (isValid(tnfpstbud))
+      {
+        set cStBud  := fpSpAxtf.cMean;//
+      } else{
+        if (getFirst superKauSpAxtf = tsOK) {
+          set cStBud  := superKauSpAxtf.cMEAN;
+        }
+      }
+
+      var code2010, name2010 : String;
+      GetCurrentCodeName (code2010, name2010);
+
+
+      if(isValid(tnfpstbud) or 1=1) { //chek year
+        inc(tt);
+
+        var extCl : byte;
+        extCl := 0;
+
+        if ( fpSpAxtf.coTable = coFPSTBUD ) {
+          extCl := GetStBudExtraParameters( coFPSTBUD , fpSpAxtf.CMEAN, extClName2 );
+        }
+
+        var extCl1 : byte;
+        extCl1 := 0;
+        if ( fpSpAxtf.coTable = coFPSTBUD ) {
+          extCl1 := GetStBudExtraParameters( coFPSTBUD , fpSpAxtf.CMEAN, extClName1 );
+        }
+
+        var extCl3 : byte;
+        extCl3 := 0;
+        if ( fpSpAxtf.coTable = coFPSTBUD ) {
+          extCl3 := GetStBudExtraParameters( coFPSTBUD , fpSpAxtf.CMEAN, extClName3 );
+        }
+
+        var extCl4 : byte;
+        extCl4 := 0;
+        if ( fpSpAxtf.coTable = coFPSTBUD ) {
+          extCl4 := GetStBudExtraParameters( coFPSTBUD , fpSpAxtf.CMEAN, extClName4 );
+        }
+
+        var extCl5 : byte;
+        extCl5 := 0;
+        if ( fpSpAxtf.coTable = coFPSTBUD ) {
+          extCl5 := GetStBudExtraParameters( coFPSTBUD , fpSpAxtf.CMEAN, extClName5 );
+        }
+
+        var extCl6 : byte;
+        extCl6 := 0;
+        if ( fpSpAxtf.coTable = coFPSTBUD ) {
+          extCl6 := GetStBudExtraParameters( coFPSTBUD , fpSpAxtf.CMEAN, extClName6 );
+        }
+        //xlSetCellStringValue(/*fpSpAxtf.levelCode*/fpSpAxtf.code, 1+tt, 1, 1+tt, 1); //
+        /*
+        xlSetCellStringValue(fpstbud.Name, 1+tt, 2, 1+tt, 2); //
+        xlSetCellStringValue(kated.name, 1+tt, 51, 1+tt, 51);
+        */
+
+        insert f641_printed set f641_printed.cRec := fpSpAxtf.nRec ,
+                                f641_printed.printedAtRow := repGetPrintRow - 1,
+                                f641_printed.cNode  := fpSpAxtf.cNode,
+                                //f641_printed.code   := firstChar + trimFirst0 (fpstbud.levelcode),
+                                f641_printed.code   := code2010,
+
+                                //f641_printed.name   := fpSpAxtf.name,
+                                f641_printed.name   := name2010,
+
+                                f641_printed.prior  := fpstbud.prior,
+                                f641_printed.SaldoType := extCl,
+                                f641_printed.extPar3:= extCl3,
+                                f641_printed.extPar4:= extCl4,
+                                f641_printed.extPar0[1]:= extCl5,
+                                f641_printed.extPar0[2]:= extCl6,
+                                f641_printed.isLeaf    := fpSpAxtf.isLeaf ,
+                                f641_printed.coTable   := fpSpAxtf.coTable ,
+                                f641_printed.AgregHandling := extCl1,
+                                f641_printed.isKAUGroup := isKauGroup (fpSpAxtf.nRec)
+
+                                ;
+
+        ExcelPrint2_2010(fpSpAxtf.coTable,cPlan1,cReg1,1+tt,2,Plan);
+        ExcelPrint2_2010(fpSpAxtf.coTable,cPlan2,cReg2,1+tt,14,DopPlan);
+        ExcelPrint2_2010(fpSpAxtf.coTable,cFact,cReg3,1+tt,26,Fact);
+        ExcelPrint2_2010(fpSpAxtf.coTable,cPlan3,cReg4,1+tt,38,OjidPlan);
+
+        var wasNonZeros : boolean;
+        wasNonZeros := false
+        for (i := 1; i<=12; i := i +1) {
+          if ( abs ( f641_printed.sumvar1[i]) > 0.0000001 or
+               abs ( f641_printed.sumvar2[i]) > 0.0000001 or
+               abs ( f641_printed.sumvar3[i]) > 0.0000001 or
+               abs ( f641_printed.sumvar4[i]) > 0.0000001 or
+               abs ( f641_printed.sumvarOtd[i]) > 0.0000001
+                ) then {
+            wasNonZeros := true
+            break;
+          }
+        }
+
+        if ( not wasNonZeros) then {
+          if (not isShowZeros and fpSpAxtf.isLeaf = 1) {
+            delete current f641_printed;
+            //dec(tt);
+            //continue;
+          }
+        }
+
+
+        // ExcelPrint2(cPlanOtd,cReg1,1+tt,2, PlanOtd); не надо!
+
+        //xlSetCellStringValue(fpstbud.prior, 1+tt, 52, 1+tt, 52);
+        //xlSetCellStringValue(/*fpSpAxtf.levelCode*/fpSpAxtf.code, 1+tt, 1, 1+tt, 1);
+        //xlSetCellStringValue(fpstbud.levelcode, 1+tt, 53, 1+tt, 53);
+        // вот тут делаем обработку вставки отчета 7ю9ю1 в отчет 6.4.1
+      }
+    }
+
+    var targetPeriod : byte;
+    targetPeriod := periodNum + 1;
+
+    var extraSum : double;
+    extraSum := 0;
+
+
+    /*
+    _LOOP  fpSpAxtf  {
+      if(isValid(tnfpstbud)) { //chek year
+        if (getFirst f641_printed where (( fpSpAxtf.nRec==f641_printed.cRec)) = tsOK ) {
+          update current f641_printed set
+          f641_printed.sumvar1[targetPeriod] := if (f641_printed.sumvar1[targetPeriod] < f641_printed.sumvarOtd[targetPeriod],
+                                                f641_printed.sumvar1[targetPeriod],
+                                                f641_printed.sumvarOtd[targetPeriod]
+                                                );
+          var extCl : byte;
+          if ( fpSpAxtf.coTable = coFPSTBUD ) {
+            extCl := GetStBudExtraParameters( coFPSTBUD , fpSpAxtf.CMEAN, extClName1 );
+            if (extCl = 6){
+              extraSum := extraSum + f641_printed.sumvar1[targetPeriod];
+            }
+            if (extCl = 7){
+              extraSum := extraSum - f641_printed.sumvar1[targetPeriod];
+            }
+          }
+        }
+      }
+    }
+    _LOOP  fpSpAxtf  {
+      if(isValid(tnfpstbud)) { //chek year
+        if (getFirst f641_printed where (( fpSpAxtf.nRec==f641_printed.cRec)) =tsOK ) {
+          var extCl : byte;
+          if ( fpSpAxtf.coTable = coFPSTBUD ) {
+            extCl := GetStBudExtraParameters( coFPSTBUD , fpSpAxtf.CMEAN, extClName1 );
+            if (extCl = 5){
+              update current f641_printed set f641_printed.sumvar1[targetPeriod] := extraSum;
+            }
+          }
+        }
+      }
+    }
+    */
+
+    tt:=0;
+    _LOOP  fpSpAxtf  {
+      //tt := tt +1;
+      if (tt mod visualHeaderPause) = 0 then {
+        setVisualHeader (FormatStr_4 ( 'Вывод в Excel | %d из %d | %d | %s',2,stepstotal, tt ,fpSpAxtf.Name));
+      }
+
+      if(isValid(tnfpstbud) or 1=1) { //chek year
+        // вот тут мы ее закончили
+        if (getFirst f641_printed where (( fpSpAxtf.nRec==f641_printed.cRec)) <> tsOK ) {
+          continue;
+        };
+
+        inc(tt);
+        var i : byte;
+        var oj  : double;
+
+        oj := 0;
+
+        For (i := 1; i<=12; inc(i)) {
+          //oj += f641_printed.sumvar4[i];
+          oj += f641_printed.sumvar1[i];
+
+          /*
+          if ( f641_printed.sumvar2[i] = 0 ) {
+            update current f641_printed set f641_printed.sumvar2[i] := f641_printed.sumvar2[i];
+          };
+          */
+        }
+        update current f641_printed set f641_printed.Sumojid := oj; // 33 колонка - сумма планов
+
+        var godSm : double ;
+
+        godSm := CalcCurrentSumBDSGod (periodNum);
+        update current f641_printed set f641_printed.SumBDSGod := godSm;  // 3 колонка - сумма планов и факта
+
+
+        if ( periodNum <=10) {
+          if (( f641_printed.Sumojid - f641_printed.SumBDSGod) < 0 ){
+            // обработаем отрицательную разницу
+            if (f641_printed.prior  = 0 ){
+              update current f641_printed set
+              f641_printed.SumKorr[12]    := f641_printed.Sumojid - f641_printed.SumBDSGod,
+              f641_printed.SumKorrStr[12] := '(' +
+                                             d2s (f641_printed.Sumojid)+
+                                              '-' +
+                                             d2s (f641_printed.SumBDSGod) + ')'
+                                             ;
+            }
+          } else {
+            // положительная разница
+              // таки обрабатываем положительную разницу
+              update current f641_printed set
+              f641_printed.SumKorr[periodNum+2]    := f641_printed.Sumojid - f641_printed.SumBDSGod,
+              f641_printed.SumKorrStr[periodNum+2] := '('
+                                                      + d2s (f641_printed.Sumojid)
+                                                      + '-'
+                                                      + d2s (f641_printed.SumBDSGod) + ')'
+              ;
+          }
+        }
+
+        var extCl : byte;
+
+        extCl := 0;
+
+        if ( fpSpAxtf.coTable = coFPSTBUD ) {
+          extCl := GetStBudExtraParameters( coFPSTBUD , fpSpAxtf.CMEAN, extClName );
+          update current f641_printed set f641_printed.extPar := extCl;
+        }
+
+        //собственно, печатаем в ексель.
+        var dataRow : word;
+
+        if ( extCl = 1 ) {
+          // строка - разделитель
+          dataRow := 15; // для ROW1
+        } else if ( extCl = 0 ){
+          // простая строка
+          dataRow := 19; // для ROW0
+        } else if ( extCl = 3 ){
+          // строка - разделитель
+          dataRow := 21; // для ROW3
+        } else if ( extCl = 4 ){
+          // строка - разделитель
+          dataRow := 25; // для ROW4
+        } else if ( extCl = 2 ){
+          //extCl := 0;
+          //dataRow := 19; // для ROW0
+          continue;
+        }
+
+        var sSum : String;
+        sSum := '=0';
+
+        /*
+        xlSetCellStringValue(firstChar + trimFirst0 (fpstbud.levelcode), dataRow, 1, dataRow, 1);
+        xlSetCellStringValue(fpSpAxtf.name, dataRow, 2, dataRow, 2); //
+        */
+
+        xlSetCellStringValue(firstChar + f641_printed.code, dataRow, 1, dataRow, 1);
+        xlSetCellStringValue(f641_printed.name, dataRow, 2, dataRow, 2); //
+
+        if ((extCl = 0) or (extCl = 3) or (extCl = 4)) {
+          //xlSetCellNumberValue('''' + f641_printed.Sumojid , dataRow, 71 , dataRow, 71 );
+          //xlSetCellNumberValue('''' + f641_printed.SumBDSGod , dataRow, 72 , dataRow, 72 );
+          for (i := 1; i<=12; inc(i)) {
+            if (i < periodNum) {
+              sSum += '+RC[' + ((i-1)*3 +1) + ']';
+
+              // факт
+              xlSetCellNumberValue(f641_printed.sumvar3[i] , dataRow, 3 + (i-1)*3 + 1 , dataRow, 3 + (i-1)* 3 + 1 );
+
+            } else if (i = periodNum) {
+              sSum += '+RC[' + ((i-1)*3 +1) + ']';
+              // ожид. факт
+              xlSetCellNumberValue(f641_printed.sumvar4[i] , dataRow, 3 + (i-1)*3 + 1 , dataRow, 3 + (i-1)* 3 + 1 );
+            } else if (i > periodNum) {
+              sSum += '+RC[' + ((i-1)*3 +3) + ']';
+              // планы, доп. планы и корректировка. ???
+
+              //xlSetCellNumberValue(min (f641_printed.sumvar1[i],f641_printed.sumvar2[i]) , dataRow, 3 + (i-1)*3 + 1 , dataRow, 3 + (i-1)* 3 + 1 );
+              xlSetCellNumberValue(  f641_printed.sumvar1[i] ,
+                                     dataRow,
+                                     3 + (i-1)*3 + 1 ,
+                                     dataRow,
+                                     3 + (i-1)* 3 + 1
+                                     );
+
+              /*
+              xlSetCellNumberValue( f641_printed.sumvar2[i] -
+                                    min (f641_printed.sumvar1[i],f641_printed.sumvar3[i]) +
+                                    f641_printed.SumKorr[i] ,
+                                    dataRow, 3 + (i-1)*3 + 2 ,
+                                    dataRow, 3 + (i-1)* 3 + 2
+                                    ); */
+              if ( (f641_printed.SumKorr[i]>0) and (i = periodNum + 2) ) {
+                 xlSetCellFormula ( '=' + '' +
+                                       d2s (if (f641_printed.sumvar2[i]>0,f641_printed.sumvar2[i],f641_printed.sumvar1[i])) +'-' +
+                                       //d2s (f641_printed.sumvar2[i]) +'-' +
+                                       d2s (f641_printed.sumvar1[i]) + '+' +
+                                       if (f641_printed.SumKorr[i]<>0,f641_printed.SumKorrStr [i],'0') ,
+                                       dataRow, 3 + (i-1)*3 + 2 ,
+                                       dataRow, 3 + (i-1)* 3 + 2
+                                       );
+              } else if ( (f641_printed.SumKorr[i]<0) and  (i = 12)) {
+                 xlSetCellFormula ( '=' + '' +
+                                       d2s (if (f641_printed.sumvar2[i]>0,f641_printed.sumvar2[i],f641_printed.sumvar1[i])) +'-' +
+                                       //d2s (f641_printed.sumvar2[i]) +'-' +
+                                       d2s (f641_printed.sumvar1[i]) + '+' +
+                                       if (f641_printed.SumKorr[i]<>0,f641_printed.SumKorrStr [i],'0') ,
+                                       dataRow, 3 + (i-1)*3 + 2 ,
+                                       dataRow, 3 + (i-1)* 3 + 2
+                                       );
+              } else if (i = (periodNum +1)) {
+                var frm : String;
+                frm := '=' + 'ЕСЛИ((' +
+                                       d2s (f641_printed.sumvar2[i]) +'-' +
+                                       d2s (f641_printed.sumvar1[i]) + ')>0;' +
+                                       '('+ d2s (f641_printed.sumvar2[i]) +'-' +
+                                       d2s (f641_printed.sumvar1[i]) + ');0)' +
+                                       '+' +
+                                       if (f641_printed.SumKorr[i]<>0,f641_printed.SumKorrStr [i],'0');
+                xlSetCellFormula (  frm,
+                                     dataRow, 3 + (i-1)* 3 + 2 ,
+                                     dataRow, 3 + (i-1)* 3 + 2
+                                     );
+
+                xlSetCellNumberValue( f641_printed.sumvar2[i] ,
+                                      dataRow, 3 + (i-1)*3 + 3 ,
+                                      dataRow, 3 + (i-1)* 3 + 3
+                                      );
+              } else {
+                 xlSetCellFormula ( '=' + '' +
+                                       d2s (if (f641_printed.sumvar2[i]>0,f641_printed.sumvar2[i],f641_printed.sumvar1[i])) +'-' +
+                                       d2s (f641_printed.sumvar1[i]) ,
+                                       dataRow, 3 + (i-1)*3 + 2 ,
+                                       dataRow, 3 + (i-1)* 3 + 2
+                                       );
+              }
+            }
+          }
+          xlSetCellNumberValue(f641_printed.Sumojid , dataRow, 41 , dataRow, 41 );
+
+          xlSetCellFormula(sSum,dataRow,3,dataRow,3);
+
+          if (extCl = 0) {
+            xlRunMacro('CopyRow(ROW0)');
+          } else if (extCl = 3) {
+            xlRunMacro('CopyRow(ROW3)');
+          } else if (extCl = 4) {
+            xlRunMacro('CopyRow(ROW4)');
+          }
+
+        } else if (extCl = 1) {
+          xlRunMacro('CopyRow(ROW1)');
+        }
+
+        update current f641_printed set f641_printed.printedAtRow := repGetPrintRow - 1;
+
+        if ( f641_printed.SaldoType = 8 ) {
+          // Сальдо периода
+          rowSaldoPer := f641_printed.printedAtRow;
+        }
+        if ( f641_printed.SaldoType = 11 ) {
+          // Начальное сальдо
+          rowSaldoNach := f641_printed.printedAtRow;
+        }
+        if ( f641_printed.SaldoType = 12 ) {
+          // Конечное сальдо
+          rowSaldoKon := f641_printed.printedAtRow;
+        }
+
+      } else {
+      }
+    }
+    //xlSetCellStringValue(Check, 1, 54, 1, 54);
+
+    //      xlSetCellValue( sGetTune('INSNAME'), 23, 19, 23, 19); //Наименование Инспекции
+    //      xlSetCellStringValue( MyOrg.Name, 28, 2, 28, 2);
+
+    printSigners;
+    printExecutor;
+
+    xlSetActiveSheetByName(reportSheetName);
+
+    var fSaldoPer : String;
+
+    fSaldoPer := '=СУММ(0';
+
+    tt := 0;
+    _LOOP  fpSpAxtf  {
+      tt := tt +1;
+      if (tt mod visualHeaderPause) = 0 then {
+        setVisualHeader (FormatStr_4 ( 'Расчет итогов | %d из %d | %d | %s',3,stepstotal, tt ,fpSpAxtf.Name));
+      }
+      if(isValid(tnfpstbud) or 1=1) {
+        if (getFirst f641_printed where (( fpSpAxtf.nRec==f641_printed.cRec)) <> tsOK ) {
+          continue;
+        };
+        if ( f641_printed.SaldoType = 9 ) {
+          // +
+          fSaldoPer := fSaldoPer + ';R[-'+ (rowSaldoPer - f641_printed.printedAtRow) + ']C';
+        }
+        if ( f641_printed.SaldoType = 10 ) {
+          // -
+          fSaldoPer := fSaldoPer + ';-R[-'+ (rowSaldoPer - f641_printed.printedAtRow) + ']C';
+        }
+      }
+    }
+
+    fSaldoPer := fSaldoPer + ')';
+
+
+    var raznKN, raznKP, raznNK : word;
+
+    raznKN  := rowSaldoKon - rowSaldoNach;
+    raznKP  := rowSaldoKon - rowSaldoPer;
+    raznNK  := rowSaldoNach - rowSaldoKon;
+
+    if ( rowSaldoKon <> 0 and rowSaldoNach <> 0 and rowSaldoPer <> 0 ) {
+      for (i := 1; i<=12; inc(i)) {
+        if (i < periodNum) {
+          // konechn
+          xlSetCellFormula( '=R[-'+raznKN+']C+R[-'+raznKP+']C',
+                            rowSaldoKon,
+                            3 + (i-1)*3 + 1,
+                            rowSaldoKon,
+                            3 + (i-1)*3 + 1
+                            );
+          if (i <> 1) {
+            // не первый период - пишем формулу начального периода
+            xlSetCellFormula( '=R[-'+raznNK+']C[-3]',
+                              rowSaldoNach,
+                              3 + (i-1)*3 + 1,
+                              rowSaldoNach,
+                              3 + (i-1)*3 + 1
+                              );
+          }
+
+          //sSum += '+RC[' + ((i-1)*3 +1) + ']';
+
+          // факт
+          //xlSetCellNumberValue(f641_printed.sumvar3[i] , dataRow, 3 + (i-1)*3 + 1 , dataRow, 3 + (i-1)* 3 + 1 );
+
+        } else if (i = periodNum) {
+          //sSum += '+RC[' + ((i-1)*3 +1) + ']';
+          // ожид. факт
+          //xlSetCellNumberValue(f641_printed.sumvar4[i] , dataRow, 3 + (i-1)*3 + 1 , dataRow, 3 + (i-1)* 3 + 1 );
+          xlSetCellFormula( '=R[-'+raznKN+']C+R[-'+raznKP+']C',
+                            rowSaldoKon,
+                            3 + (i-1)*3 + 1,
+                            rowSaldoKon,
+                            3 + (i-1)*3 + 1
+                            );
+          if (i <> 1) {
+            // не первый период - пишем формулу начального периода
+            xlSetCellFormula( '=R[-'+raznNK+']C[-3]',
+                              rowSaldoNach,
+                              3 + (i-1)*3 + 1,
+                              rowSaldoNach,
+                              3 + (i-1)*3 + 1
+                              );
+          }
+
+        } else if (i = (periodNum + 1) ) {
+          xlSetCellFormula( '=R[-'+raznKN+']C+R[-'+raznKP+']C',
+                            rowSaldoKon,
+                            3 + (i-1)*3 + 1,
+                            rowSaldoKon,
+                            3 + (i-1)*3 + 1
+                            );
+          xlSetCellFormula( '=R[-'+raznKN+']C+R[-'+raznKP+']C',
+                            rowSaldoKon,
+                            3 + (i-1)*3 + 3,
+                            rowSaldoKon,
+                            3 + (i-1)*3 + 3
+                            );
+
+          xlSetCellFormula( '=R[-'+raznNK+']C[-3]',
+                            rowSaldoNach,
+                            3 + (i-1)*3 + 1,
+                            rowSaldoNach,
+                            3 + (i-1)*3 + 1
+                            );
+          xlSetCellFormula( '=R[-'+raznNK+']C[-5]',
+                            rowSaldoNach,
+                            3 + (i-1)*3 + 3,
+                            rowSaldoNach,
+                            3 + (i-1)*3 + 3
+                            );
+          //rowSaldoPer fSaldoPer
+          xlSetCellFormula( fSaldoPer,
+                            rowSaldoPer,
+                            3 + (i-1)*3 + 1,
+                            rowSaldoPer,
+                            3 + (i-1)*3 + 1
+                            );
+          xlSetCellFormula( fSaldoPer,
+                            rowSaldoPer,
+                            3 + (i-1)*3 + 3,
+                            rowSaldoPer,
+                            3 + (i-1)*3 + 3
+                            );
+
+        } else if (i > periodNum) {
+          xlSetCellFormula( '=R[-'+raznKN+']C+R[-'+raznKP+']C',
+                            rowSaldoKon,
+                            3 + (i-1)*3 + 1,
+                            rowSaldoKon,
+                            3 + (i-1)*3 + 1
+                            );
+          xlSetCellFormula( '=R[-'+raznKN+']C+R[-'+raznKP+']C',
+                            rowSaldoKon,
+                            3 + (i-1)*3 + 3,
+                            rowSaldoKon,
+                            3 + (i-1)*3 + 3
+                            );
+
+          xlSetCellFormula( '=R[-'+raznNK+']C[-3]',
+                            rowSaldoNach,
+                            3 + (i-1)*3 + 1,
+                            rowSaldoNach,
+                            3 + (i-1)*3 + 1
+                            );
+          xlSetCellFormula( '=R[-'+raznNK+']C[-3]',
+                            rowSaldoNach,
+                            3 + (i-1)*3 + 3,
+                            rowSaldoNach,
+                            3 + (i-1)*3 + 3
+                            );
+          //rowSaldoPer fSaldoPer
+          xlSetCellFormula( fSaldoPer,
+                            rowSaldoPer,
+                            3 + (i-1)*3 + 1,
+                            rowSaldoPer,
+                            3 + (i-1)*3 + 1
+                            );
+          xlSetCellFormula( fSaldoPer,
+                            rowSaldoPer,
+                            3 + (i-1)*3 + 3,
+                            rowSaldoPer,
+                            3 + (i-1)*3 + 3
+                            );
+        }
+      }
+    }
+
+    doPrintExtraSum (periodNum);
+
+    update f641_printed where (( 1 == f641_printed.isKAUGroup))
+           set f641_printed.isMakeGroup := 1
+           ;
+
+    updateIsMakeGroup;
+    calculateGroupBorders;
+    groupExcelDatas641(0);
+    doGroupPrintedData (periodNum);
+
+    doPrintExtraSum641(periodNum);
+    doPrintExtraSum641_2(periodNum);
+    doPrintExtraSum641_0(periodNum);
+
+    var firstDel : byte;
+
+    firstDel := DeleteColumns(periodNum);
+    MarkColumns(periodNum);
+
+    xlRunMacro('AfterPrint(' + firstDel + ')');
+    xlRunMacro('REP_AfterReportPrint');
+
+    xlKillExcel;
+
+    tms[10] := Cur_Time;
+
+    if (isShowTimeLabels) then {
+      message ( tms[1] + ''#13'' +
+                tms[2] + ''#13'' +
+                tms[3] + ''#13'' +
+                tms[4] + ''#13'' +
+                tms[5] + ''#13'' +
+                tms[6] + ''#13'' +
+                tms[7] + ''#13'' +
+                tms[8] + ''#13'' +
+                tms[9] + ''#13'' +
+                tms[10] + ''#13''
+                )
+                ;
+    };
+
+  end;
+
+
