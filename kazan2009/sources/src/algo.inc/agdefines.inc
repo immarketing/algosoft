@@ -12,4 +12,20 @@
 
 #define _VERSIONEDNAME_(name) #(name)#_CURVERSION_
 
-#end
+!#define _IS_SZMN_DEBUG_
+
+#ifdef _IS_SZMN_DEBUG_
+
+#define szmn_bud_Form641_2010 szmn_bud_Form641_2010_
+#define szmn_bud_Form791_2010 szmn_bud_Form791_2010_
+#define szmn_bud_Form791641_2010 szmn_bud_Form791641_2010_
+
+#ELSE
+
+#define szmn_bud_Form641_2010 szmn_bud_Form641_2010
+#define szmn_bud_Form791_2010 szmn_bud_Form791_2010
+#define szmn_bud_Form791641_2010 szmn_bud_Form791641_2010
+
+#ENDIF
+
+#ENDIF

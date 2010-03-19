@@ -1,0 +1,127 @@
+
+
+#include agdefines.inc
+
+#include iForm641.vih
+#include iForm791.vih
+
+#include FpExCO.Vih
+#include Getkau.vih
+
+#include UserReport.vih
+
+#include podpis.vih
+
+// Для попадания примера в список отчетов -
+// раскомментировать конструкцию VipInterface (Implements для Атлантиса 5.1)
+
+#ifdef Atl51
+VipInterface UserReport_szmn_form791641_2010  Implements IUserReport
+  Licensed(Free)
+;
+#else
+!VipInterface UserReport_szmn_form741 Implements IUserReport;
+#end
+
+#doc
+
+#end
+
+Interface UserReport_szmn_form791641_2010;
+create view
+;
+
+!-------------------------------------------------------------------------------
+// Запуск отчета на выполнение при выборе его из списка отчетов
+procedure Run;
+begin
+  RunInterface('szmn_bud_Form791641_2010' );
+end;
+!-------------------------------------------------------------------------------
+// Наименование отчета в списке
+function GetReportName: String;
+begin
+  GetReportName := 'Форма 7.9.1 и 6.4.1 (вариант 2010 года)';
+end;
+!-------------------------------------------------------------------------------
+function GetGroupName (Level : Word) : String;
+begin
+  GetGroupName := '';
+  case Level of
+    1 : GetGroupName := 'Отчеты по бюджетам';
+  end;
+end;
+!-------------------------------------------------------------------------------
+function GetPriority : Integer;
+begin
+  GetPriority := 0;
+end;
+!-------------------------------------------------------------------------------
+function VisibleInModule(Ind : Byte) : String;
+begin
+  VisibleInModule := '*';
+  case Ind of
+    1 : VisibleInModule := 'SFP';
+  end;
+end;
+!-------------------------------------------------------------------------------
+end.
+
+form791641showdebug menu
+{
+  - 'Показать отладочную информацию', cmShowDebug791641, 'Отладочная информация' ;
+}
+
+vipInterface
+#szmn_bud_Form791641_2010
+licensed(free)
+;
+
+Interface
+#szmn_bud_Form791641_2010
+  '-= СЗМН Бюджет. Формы 7.9.1. и 6.4.1 Вариант 2010 года v20100315 =- ' (,hcNoContext,) EscClose, Cyan;
+  //show at  (0,0,70,10)
+  show at  (0,0,100,30)
+  ;
+create view
+var
+  vFrm641  : #szmn_bud_Form641_2010 new;
+  vFrm791  : #szmn_bud_Form791_2010 new;
+
+  sPath :string;
+
+;
+#include iForm791641_windows.vip
+#include iForm791641_proc.vip
+
+Handleevent
+  cmHotKeys : {
+    var mn : longint ;
+    mn := LoadMenu('form791641showdebug') ;
+    var i : integer;
+    i := RunLoadMenu (mn);
+    //message  ('i == ' + i);
+    if (i <> 0 and i <> cmCancel) {
+      Putcommand(i)
+    }
+  }
+
+  cmShowDebug791641: {
+    RunWindowModal( wnInfoWindow );
+  }
+
+  cmReport:
+  {
+    handleCmReport;
+  }
+  cmInit:
+  {
+    handleInit;
+
+  }
+  cmPick: {
+    handleCmPick;
+  }
+  end;
+
+End.  // interface

@@ -589,7 +589,7 @@
       xlSetCellFormula('=‘ã¬¬('+ extraFrm +')',extraSm,5,extraSm,5);
     }
 
-    xlRunMacro('AfterPrint');
+    xlRunMacro('AfterPrint791');
   end;
 
   create view lvlnmb
@@ -666,11 +666,18 @@
     }
   end;
 
+#include iForm791_procint.vip
+
   procedure doPrintReport791; forward;
+
+  procedure doPrintReport;
+  begin
+    doPrintReport791;
+  end;
 
   procedure doHandleTest;
   begin
-    doPrintReport791;
+    doPrintReport;
   end;
 
   procedure doPrintReport791;
@@ -696,7 +703,9 @@
 
     tms[1] := Cur_Time;
 
-    xlCreateExcelWithTemplate(sPath,true);
+    if IsCreateAndKillExcel then {
+      xlCreateExcelWithTemplate(sPath,true);
+    }
 
     if (xlIsExcelValid) {
        //xlOpenWorkBook(trim(sPath));
@@ -713,6 +722,7 @@
     var reportSheetName79 : string;
     reportSheetName79:= 'rep79';
 
+    xlRunMacro('REP_BegoreReportPrint791');
     xlRunMacro('setDataSheetName('+dataSheetName+')');
     xlRunMacro('setReportSheetName('+reportSheetName+')');
     xlRunMacro('setRowToFill('+String (11)+')');
@@ -951,7 +961,7 @@
 
     xlSetActiveSheetByName(reportSheetName); //?????_1
 
-    xlRunMacro('AfterPrint');
+    xlRunMacro('AfterPrint791');
 
     tms[4] := Cur_Time;
 
@@ -960,9 +970,11 @@
 
     doGroupData2(dataSheetName, reportSheetName, reportSheetName79);
 
-    xlRunMacro('AfterReportPrint');
+    xlRunMacro('AfterReportPrint791');
 
-    xlKillExcel;
+    if IsCreateAndKillExcel then {
+      xlKillExcel;
+    }
     tms[6] := Cur_Time;
     StopVisual ('',0);
 
@@ -978,3 +990,26 @@
     };
 
   end;
+
+  procedure handleInit;
+  begin
+    set isShowZeros := true;
+
+    set isShowTimeLabels := false;
+
+    set coTableToSum := 22217;
+
+    set isDebugDatas := false;
+
+    podpisanty.setprefix('szmn_bud_Form791');
+    podpisanty.reinit;
+
+    podpisanty2.setprefix('szmn_bud_Form791_2');
+    podpisanty2.reinit;
+
+    ReadDsk;
+
+    SetIsCreateAndKillExcel(true);
+
+  end;
+

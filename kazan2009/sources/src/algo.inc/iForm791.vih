@@ -1,0 +1,34 @@
+
+#ifndef __iForm791_VIH
+#define __iForm791_VIH
+
+#include agdefines.inc
+
+
+!#ifdef  ComponentVersion
+!#component "SZMN_COMMON"
+!#endif //ComponentVersion
+
+#doc
+Интерфейс доступа к функциям формы 7.9.1
+#end
+ObjInterface Iszmn_bud_Form791_2010;
+  procedure SetIsCreateAndKillExcel (val : boolean);
+  procedure SetIsEmbedded (val : boolean);
+  procedure doPrintReport;
+end;
+
+!#ifdef  ComponentVersion
+!#component "SZMN_COMMON"
+!#endif //ComponentVersion
+
+VipInterface
+#szmn_bud_Form791_2010
+implements Iszmn_bud_Form791_2010
+
+#Licensed_Free
+; // VipInterface vPodpis
+
+
+#endif  // __iForm791_VIH
+

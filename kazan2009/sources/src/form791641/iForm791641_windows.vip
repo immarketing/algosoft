@@ -1,0 +1,39 @@
+tabbedSheet tabbed
+  //
+  Screen scKatH01 'Установка фильтров' ;
+  Fields
+    sPath ('',,) : Protect,PickButton,
+      {Font = {BackColor = if (sPath='',    ColorNeed,0)}};
+  buttons
+  cmReport;
+  cmCancel;
+  <<
+
+  Путь к шаблону .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+  <. Объединенный отчет 7.9, 7.9.1 и 6.4.1 .>  <.  Отмена  .>
+!            <.Сформировать.>
+  >>
+  end; // Screen
+  screen  sCheckdop 'Дополнительно';
+  <<
+  >>
+  end; // screen  sCheckdop 'Дополнительно';
+  embedded eiForm641 'Настройки формы 6.4.1' interface
+  vFrm641;
+  //show at (,,,,);
+  cache = preload ;
+  end;
+  embedded eiForm791 'Настройки формы 7.9.1' interface
+  vFrm791;
+  //show at (,,,,);
+  cache = preload ;
+  end;
+end;
+Window wnInfoWindow 'wnInfoWindow' ('wnInfoWindow', hcNoContext);
+  Show at(,,,29);
+
+  tabbedSheet tabbed
+  end; // tabbedSheet tabbed
+
+End; // Window

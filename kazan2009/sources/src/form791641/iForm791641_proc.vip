@@ -1,0 +1,92 @@
+
+procedure CheckDefValues;
+begin
+  if (sPath='') set sPath := translatepath('%startpath%Xls\F_FPBUDGET\SZMN_Budjet\tmpl_7_9_1_6_4_1.xls');
+end;
+
+Procedure StoreDSK();
+begin
+  CheckDefValues;
+
+  SaveMyDsk(sPath,     'iForm791641.sPath');
+end;
+
+procedure ReadDSK;
+begin
+  var dc : boolean;
+
+  dc := true;
+
+  if (not ReadMyDsk(sPath  ,'iForm791641.sPath',dc))  sPath := '';
+
+  CheckDefValues;
+
+end;
+
+procedure handleCmPick;
+begin
+  case curField of
+    #sPath     : {
+      var sTmp : string;
+      sTmp := GetFileName('*.XLS', 'Выберите файл с шаблоном');
+      if (trim(sTmp) = ''){
+        Exit;
+      }
+      Set sPath := sTmp;
+    }
+
+  end;
+end
+
+procedure handleInit;
+begin
+  ReadDSK;
+end
+
+
+procedure doTest;
+begin
+  /*
+  var
+
+    vi  : Iszmn_bud_Form641_2010(#szmn_bud_Form641_2010) new;// (  ) new;
+  */
+  //vFrm641.testinterface;
+end
+
+procedure doPrint641;
+begin
+  vFrm641.SetIsCreateAndKillExcel(false);
+  vFrm641.SetIsEmbedded(true);
+
+  vFrm641.doPrintReport;
+end;
+
+procedure doPrint791;
+begin
+  vFrm791.SetIsCreateAndKillExcel(false);
+  vFrm791.SetIsEmbedded(true);
+
+  vFrm791.doPrintReport;
+end;
+
+procedure doPrintReport;
+begin
+  xlCreateExcelWithTemplate(sPath,true);
+  doPrint641;
+  doPrint791;
+  xlKillExcel;
+end
+
+procedure handleCmReport;
+begin
+  StartNewVisual (vtRotateVisual , vfScreenBottom + vfTimer  + vfThread  , 'Подготовка данных отчета', 100);
+  StoreDSK;
+  doPrintReport();
+  StopVisual('',0);
+end;
+
+
+
+
+

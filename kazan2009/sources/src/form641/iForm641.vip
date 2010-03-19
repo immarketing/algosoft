@@ -21,7 +21,7 @@
 
 !#component "M_MNPLAN"
 
-!#include agdefines.inc
+#include agdefines.inc
 
 #include FpExCO.Vih
 #include Getkau.vih
@@ -29,6 +29,8 @@
 #include UserReport.vih
 
 #include podpis.vih
+
+#include iForm641.vih
 
 // Для попадания примера в список отчетов -
 // раскомментировать конструкцию VipInterface (Implements для Атлантиса 5.1)
@@ -110,11 +112,12 @@ end;
 */
 
 
-vipInterface szmn_bud_Form641_2010 licensed(free);
+//vipInterface szmn_bud_Form641_2010 licensed(free);
 //vipInterface #(_VERSIONEDNAME_(szmn_bud_Form714_)) licensed(free);
 //#_VIPINTERFVERS_(szmn_bud_Form714_);
 
-Interface szmn_bud_Form641_2010
+Interface //szmn_bud_Form641_2010
+#szmn_bud_Form641_2010
 //Interface #_VERSIONEDNAME_(szmn_bud_Form714_)
 //#_INTERFVERS_(szmn_bud_Form714_)
   '-= СЗМН Бюджет. Форма 6.4.1. Вариант 2010 года v.20100317 =- ' (,hcNoContext,) EscClose, Cyan;
@@ -333,6 +336,7 @@ and f641_printed.cRec == subp3.cNode
 
 #include iForm641_windows.vip
 #include iForm641_proc.vip
+#include iForm641_procint.vip
 #include iForm641_proc_my.vip
 
 Handleevent
@@ -427,25 +431,14 @@ cmDelOnProtect:
     }
   end;
 
+cmOnVipLoad: {
+  handleInit;
+}
+
+
 cmInit:
 {
-  set isShowZeros := true;
-
-  ReadDSK ();
-
-  podpisanty.setprefix('szmn_bud_Form641');
-  podpisanty.reinit;
-
-  set visualHeaderPause := 20;
-
-/*
-
-  if (not ReadMyDsk(wSetFilt1,'dskSetFilt1',isError))  wsetFilt1 := 0;
-  if (not ReadMyDsk(wSetFilt2,'dskSetFilt2',isError))  wsetFilt2 := 0;
-  if (not ReadMyDsk(d1,'dsk_d1',isError))  d1 := Add_day(Sub_day(Cur_date,day(cur_Date)),1);
-  if (not ReadMyDsk(d2,'dsk_d2',isError))  d2 := Add_day(Sub_day(Cur_date,day(cur_Date)),last_day(Cur_date));
-
-*/
+  handleInit();
 }
 
 end;

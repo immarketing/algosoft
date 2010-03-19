@@ -16,11 +16,11 @@
 
 !#include alg1.vih
 
-!#include selDate.vip
+#include iForm791.vih
 
 !#component "M_MNPLAN"
 
-!#include agdefines.inc
+#include agdefines.inc
 
 #include FpExCO.Vih
 #include Getkau.vih
@@ -89,9 +89,9 @@ form791showdebug menu
   - 'Показать отладочную информацию', cmShowDebug791, 'Отладочная информация' ;
 }
 
-vipInterface szmn_bud_Form791_2010 licensed(free);
+//vipInterface #szmn_bud_Form791_2010 licensed(free);
 
-Interface szmn_bud_Form791_2010
+Interface #szmn_bud_Form791_2010
   '-= СЗМН Бюджет. Форма 7.9.1. Вариант 2010 года v20100315 =- ' (,hcNoContext,) EscClose, Cyan;
   //show at  (0,0,70,10)
   show at  (0,0,100,30)
@@ -353,23 +353,14 @@ cmDelOnProtect:
     }
   end;
 
+
+cmOnVipLoad: {
+  handleInit;
+}
+
 cmInit:
 {
-  set isShowZeros := true;
-
-  set isShowTimeLabels := false;
-
-  set coTableToSum := 22217;
-
-  set isDebugDatas := false;
-
-  podpisanty.setprefix('szmn_bud_Form791');
-  podpisanty.reinit;
-
-  podpisanty2.setprefix('szmn_bud_Form791_2');
-  podpisanty2.reinit;
-
-  ReadDsk;
+  handleInit;
 }
 
 end;
