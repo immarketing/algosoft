@@ -122,6 +122,41 @@ Handleevent
   cmPick: {
     handleCmPick;
   }
+
+  cmRefresh: {
+    handlecmRefresh
+  };
+
+  cmUsePeriod641: {
+    handlecmUsePeriod641
+  };
+
+  cmUsePeriod791: {
+    handlecmUsePeriod791
+  };
+
+  cmUseTForm641: {
+    handlecmUseTForm641;
+  };
+  cmUseTForm791: {
+    handlecmUseTForm791
+  };
+
+  cmUsePlan641: {
+    handlecmUsePlan641;
+  };
+  cmUsePlan791: {
+    handlecmUsePlan791;
+  };
+
+  cmUseDPlan641: {
+    handlecmUseDPlan641;
+  };
+  cmUseDPlan791: {
+    handlecmUseDPlan791;
+  };
+
+
   end;
 
 End.  // interface

@@ -23,6 +23,99 @@ begin
 
 end;
 
+procedure handlecmRefresh;
+begin
+  ReReadRecord ;
+
+  if (vFrm641.ReportPeriod <> vFrm791.ReportPeriod) then {
+    //Message ('vFrm641.ReportPeriod <> vFrm791.ReportPeriod');
+    ShowButton (scKatH01,cmUsePeriod641,true);
+    ShowButton (scKatH01,cmUsePeriod791,true);
+  } else {
+    //Message ('!vFrm641.ReportPeriod <> vFrm791.ReportPeriod');
+    ShowButton (scKatH01,cmUsePeriod641,false);
+    ShowButton (scKatH01,cmUsePeriod791,false);
+  }
+
+  if (vFrm641.budgetForm <> vFrm791.budgetForm) then {
+    //Message ('vFrm641.ReportPeriod <> vFrm791.ReportPeriod');
+    ShowButton (scKatH01,cmUseTForm641,true);
+    ShowButton (scKatH01,cmUseTForm791,true);
+  } else {
+    //Message ('!vFrm641.ReportPeriod <> vFrm791.ReportPeriod');
+    ShowButton (scKatH01,cmUseTForm641,false);
+    ShowButton (scKatH01,cmUseTForm791,false);
+  }
+
+  if (vFrm641.BudgetVarPlan <> vFrm791.BudgetVarPlan) then {
+    //Message ('vFrm641.ReportPeriod <> vFrm791.ReportPeriod');
+    ShowButton (scKatH01,cmUsePlan641,true);
+    ShowButton (scKatH01,cmUsePlan791,true);
+  } else {
+    //Message ('!vFrm641.ReportPeriod <> vFrm791.ReportPeriod');
+    ShowButton (scKatH01,cmUsePlan641,false);
+    ShowButton (scKatH01,cmUsePlan791,false);
+  }
+
+  if (vFrm641.BudgetVarDopPlan <> vFrm791.BudgetVarDopPlan) then {
+    //Message ('vFrm641.ReportPeriod <> vFrm791.ReportPeriod');
+    ShowButton (scKatH01,cmUseDPlan641,true);
+    ShowButton (scKatH01,cmUseDPlan791,true);
+  } else {
+    //Message ('!vFrm641.ReportPeriod <> vFrm791.ReportPeriod');
+    ShowButton (scKatH01,cmUseDPlan641,false);
+    ShowButton (scKatH01,cmUseDPlan791,false);
+  }
+end;
+
+procedure handlecmUseDPlan641;
+begin
+  set vFrm791.BudgetVarDopPlan := vFrm641.BudgetVarDopPlan;
+  handlecmRefresh;
+end;
+
+procedure handlecmUseDPlan791;
+begin
+  set vFrm641.BudgetVarDopPlan := vFrm791.BudgetVarDopPlan;
+  handlecmRefresh;
+end;
+
+procedure handlecmUsePlan641;
+begin
+  set vFrm791.BudgetVarPlan := vFrm641.BudgetVarPlan;
+  handlecmRefresh;
+end;
+
+procedure handlecmUsePlan791;
+begin
+  set vFrm641.BudgetVarPlan := vFrm791.BudgetVarPlan;
+  handlecmRefresh;
+end;
+
+procedure handlecmUseTForm641;
+begin
+  set vFrm791.budgetForm := vFrm641.budgetForm;
+  handlecmRefresh;
+end;
+
+procedure handlecmUseTForm791;
+begin
+  set vFrm641.budgetForm := vFrm791.budgetForm;
+  handlecmRefresh;
+end;
+
+procedure handlecmUsePeriod641;
+begin
+  set vFrm791.ReportPeriod := vFrm641.ReportPeriod;
+  handlecmRefresh;
+end;
+
+procedure handlecmUsePeriod791;
+begin
+  set vFrm641.ReportPeriod := vFrm791.ReportPeriod;
+  handlecmRefresh;
+end;
+
 procedure handleCmPick;
 begin
   case curField of
@@ -59,6 +152,17 @@ begin
   vFrm641.SetIsCreateAndKillExcel(false);
   vFrm641.SetIsEmbedded(true);
 
+  var i791 :
+  #Iszmn_bud_Form791_printed
+  noauto
+  ;
+
+  i791 :=
+  #Iszmn_bud_Form791_printed
+  (vFrm791);
+
+  vFrm641.SetUsing791Printed(i791);
+
   vFrm641.doPrintReport;
 end;
 
@@ -73,8 +177,8 @@ end;
 procedure doPrintReport;
 begin
   xlCreateExcelWithTemplate(sPath,true);
-  doPrint641;
   doPrint791;
+  doPrint641;
   xlKillExcel;
 end
 
@@ -85,8 +189,5 @@ begin
   doPrintReport();
   StopVisual('',0);
 end;
-
-
-
 
 

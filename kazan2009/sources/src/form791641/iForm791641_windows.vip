@@ -1,24 +1,60 @@
 tabbedSheet tabbed
   //
-  Screen scKatH01 'Установка фильтров' ;
+  Screen scKatH01 'Установка параметров объединенного отчета' ;
   Fields
     sPath ('',,) : Protect,PickButton,
       {Font = {BackColor = if (sPath='',    ColorNeed,0)}};
+
+    vFrm641.ReportPeriodName ('',,) : Protect, skip;
+    vFrm791.ReportPeriodName ('',,) : Protect, skip;
+
+    vFrm641.budgetFormName ('',,) : Protect, skip;
+    vFrm791.budgetFormName ('',,) : Protect, skip;
+
+    vFrm641.BudgetVarPlanName ('',,) : Protect, skip;
+    vFrm791.BudgetVarPlanName ('',,) : Protect, skip;
+
+    vFrm641.BudgetVarDopPlanName ('',,) : Protect, skip;
+    vFrm791.BudgetVarDopPlanName ('',,) : Protect, skip;
   buttons
+  cmRefresh;
+
+  cmUsePeriod641;
+  cmUsePeriod791;
+
+  cmUseTForm641;
+  cmUseTForm791;
+
+  cmUsePlan641;
+  cmUsePlan791;
+
+  cmUseDPlan641;
+  cmUseDPlan791;
+
   cmReport;
   cmCancel;
   <<
 
-  Путь к шаблону .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+    Путь к шаблону .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+                                                                             <. Обновить .>
+
+                Форма 6.4.1                                              Форма 7.9.1
+    Период .@@@@@@@@@@@@@@@@@@@@@@@@@@@@ <. >>> .> <. <<< .>    .@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+   Т.форма .@@@@@@@@@@@@@@@@@@@@@@@@@@@@ <. >>> .> <. <<< .>    .@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+   "План"  .@@@@@@@@@@@@@@@@@@@@@@@@@@@@ <. >>> .> <. <<< .>    .@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+"Доп.план" .@@@@@@@@@@@@@@@@@@@@@@@@@@@@ <. >>> .> <. <<< .>    .@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
   <. Объединенный отчет 7.9, 7.9.1 и 6.4.1 .>  <.  Отмена  .>
 !            <.Сформировать.>
   >>
   end; // Screen
+  /*
   screen  sCheckdop 'Дополнительно';
   <<
   >>
   end; // screen  sCheckdop 'Дополнительно';
+  */
   embedded eiForm641 'Настройки формы 6.4.1' interface
   vFrm641;
   //show at (,,,,);

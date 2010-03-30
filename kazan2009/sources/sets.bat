@@ -3,7 +3,8 @@
 set ApiDataBase=D:\GALAKTIKA\GAL810\DATA.SZMN
 rem set ApiDataBase=D:\TEMP\DEMO.20081106\Galtest_data
 
-set ApiExePath=D:\GALAKTIKA\GAL810\exe
+set ApiExePath=D:\GALAKTIKA\GAL810\exe.szmn
+rem set ApiExePath=D:\GALAKTIKA\GAL810\exe
 rem set ApiExePath=D:\TEMP\nmz\exe
 
 set ApiOutFile=debug.res

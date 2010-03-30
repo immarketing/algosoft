@@ -1,0 +1,37 @@
+
+#ifndef __iForm791Printed_VIH
+#define __iForm791Printed_VIH
+
+#include agdefines.inc
+
+//#include iFormCmnPars.vih
+
+!#ifdef  ComponentVersion
+!#component "SZMN_COMMON"
+!#endif //ComponentVersion
+
+#doc
+Интерфейс доступа к внутренним данным формы 7.9.1
+#end
+ObjInterface
+#Iszmn_bud_Form791_printed;
+  property cRec         : comp read ;
+  property printedAtRow : word read ;
+
+  index iByCRec  = cRec;
+end;
+
+!#ifdef  ComponentVersion
+!#component "SZMN_COMMON"
+!#endif //ComponentVersion
+
+VipInterface
+#szmn_bud_Form791_printed
+implements
+#Iszmn_bud_Form791_printed
+
+#Licensed_Free
+; // VipInterface vPodpis
+
+
+#endif  // __iForm791_VIH

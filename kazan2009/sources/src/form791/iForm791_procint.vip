@@ -3,4 +3,23 @@
 
 #include cmn_procint.inc
 
+function getReportPeriod: comp;
+begin
+  set result := cPeriod;
+end;
+
+procedure setReportPeriod(result : comp);
+begin
+  set cPeriod := result;
+end;
+
+function getReportPeriodName: String;
+begin
+  set result := sPeriod;
+end;
+
+property ReportPeriod : comp read getReportPeriod write setReportPeriod (result);
+property ReportPeriodName : String read getReportPeriodName;
+
+
 #end

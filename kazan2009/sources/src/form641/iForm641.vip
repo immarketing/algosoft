@@ -31,6 +31,7 @@
 #include podpis.vih
 
 #include iForm641.vih
+#include iForm791printed.vih
 
 // Для попадания примера в список отчетов -
 // раскомментировать конструкцию VipInterface (Implements для Атлантиса 5.1)
@@ -157,6 +158,12 @@ var
  Check: integer;
   podpisanty  : SZMN_COMMON::IPodpis (vPodpis) new;// (  ) new;
 
+  isUsing791printed : boolean;
+
+  i791printed :
+  #Iszmn_bud_Form791_printed
+  ;
+
   extClName   : String;
   excCode1    : String;
   excCode2    : String;
@@ -248,6 +255,8 @@ From
    , fpStBud superKAUfpStBud
    , f641_uniquenodes
    , f641_groupft
+
+   , i791printed
 
  where
 ((

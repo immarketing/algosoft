@@ -19,12 +19,16 @@
 #define szmn_bud_Form641_2010 szmn_bud_Form641_2010_
 #define szmn_bud_Form791_2010 szmn_bud_Form791_2010_
 #define szmn_bud_Form791641_2010 szmn_bud_Form791641_2010_
+#define szmn_bud_Form791_printed szmn_bud_Form791_printed_
+#define Iszmn_bud_Form791_printed Iszmn_bud_Form791_printed_
 
 #ELSE
 
 #define szmn_bud_Form641_2010 szmn_bud_Form641_2010
 #define szmn_bud_Form791_2010 szmn_bud_Form791_2010
 #define szmn_bud_Form791641_2010 szmn_bud_Form791641_2010
+#define szmn_bud_Form791_printed szmn_bud_Form791_printed
+#define Iszmn_bud_Form791_printed Iszmn_bud_Form791_printed
 
 #ENDIF
 

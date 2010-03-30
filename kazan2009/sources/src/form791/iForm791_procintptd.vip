@@ -1,0 +1,9 @@
+#ifndef _iFORM791_PROCINTPRINTED_inc_Included
+#define _iFORM791_PROCINTPRINTED_inc_Included
+
+  property cRec         : comp read f791_printed.cRec;
+  property printedAtRow : word read f791_printed.printedAtRow;
+
+  index iByCRec  auto;
+
+#end

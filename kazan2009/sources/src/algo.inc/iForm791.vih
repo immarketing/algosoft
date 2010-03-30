@@ -4,6 +4,8 @@
 
 #include agdefines.inc
 
+#include iFormCmnPars.vih
+#include iForm791printed.vih
 
 !#ifdef  ComponentVersion
 !#component "SZMN_COMMON"
@@ -24,11 +26,13 @@ end;
 
 VipInterface
 #szmn_bud_Form791_2010
-implements Iszmn_bud_Form791_2010
+implements
+  Iszmn_bud_Form791_2010,
+  Iszmn_bud_Form_Common_Parameters,
+  #Iszmn_bud_Form791_printed
 
 #Licensed_Free
 ; // VipInterface vPodpis
 
 
 #endif  // __iForm791_VIH
-

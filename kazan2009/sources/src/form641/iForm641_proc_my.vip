@@ -457,6 +457,37 @@
   Procedure doGroupPrintedData(const periodNum : word);
   begin
     forGrouping._loop f641_printed_ord2{
+      {
+        // =rep791!R[-3]C[2]
+        if (getFirst i791printed where ((forGrouping.f641_printed_ord2.cRec == i791printed.cRec)) = tsOK) then {
+          var rw : integer;
+          var c1,c2,c3 : integer;
+
+          rw := (i791printed.printedatrow - forGrouping.f641_printed_ord2.printedAtRow);
+
+          var i : byte;
+
+          i := periodNum + 1;
+
+          c1 := 3 - (3 + (i-1)*3 + 1);
+          c2 := 6 - (3 + (i-1)*3 + 2);
+          c3 := 7 - (3 + (i-1)*3 + 3);
+
+          xlSetCellFormula (  '=rep791!R[' + (rw) + ']C[' + c1 + ']',
+                               forGrouping.f641_printed_ord2.printedAtRow, 3 + (i-1)* 3 + 1 ,
+                               forGrouping.f641_printed_ord2.printedAtRow, 3 + (i-1)* 3 + 1
+                               );
+          xlSetCellFormula (  '=rep791!R[' + (rw) + ']C[' + c2 + ']',
+                               forGrouping.f641_printed_ord2.printedAtRow, 3 + (i-1)* 3 + 2 ,
+                               forGrouping.f641_printed_ord2.printedAtRow, 3 + (i-1)* 3 + 2
+                               );
+          xlSetCellFormula (  '=rep791!R[' + (rw) + ']C[' + c3 + ']',
+                               forGrouping.f641_printed_ord2.printedAtRow, 3 + (i-1)* 3 + 3 ,
+                               forGrouping.f641_printed_ord2.printedAtRow, 3 + (i-1)* 3 + 3
+                               );
+
+        }
+      }
       var fSum : string;
       fSum := '';
 
@@ -749,13 +780,38 @@
 
 #include iForm641_kaugroup.vip
 
+  procedure doPrintCurRowPeriodPlus1 (dataRow : word; i : word);
+  begin
+    if (not isUsing791printed) then {
+      var frm : String;
+      frm := '=' + '…‘‹ˆ((' +
+                             d2s (f641_printed.sumvar2[i]) +'-' +
+                             d2s (f641_printed.sumvar1[i]) + ')>0;' +
+                             '('+ d2s (f641_printed.sumvar2[i]) +'-' +
+                             d2s (f641_printed.sumvar1[i]) + ');0)' +
+                             '+' +
+                             if (f641_printed.SumKorr[i]<>0,f641_printed.SumKorrStr [i],'0');
+      xlSetCellFormula (  frm,
+                           dataRow, 3 + (i-1)* 3 + 2 ,
+                           dataRow, 3 + (i-1)* 3 + 2
+                           );
+
+      xlSetCellNumberValue( f641_printed.sumvar2[i] ,
+                            dataRow, 3 + (i-1)*3 + 3 ,
+                            dataRow, 3 + (i-1)* 3 + 3
+                            );
+    } else {
+    }
+  end;
+
+
   procedure doPrintReport;
   begin
     var tms : array [1..10] of time;
 
     tms[1] := Cur_Time;
 
-    StoreDSK;
+    //StoreDSK;
     var periodNum : byte;
 
     delete all f641_printed;
@@ -1148,23 +1204,7 @@
                                        dataRow, 3 + (i-1)* 3 + 2
                                        );
               } else if (i = (periodNum +1)) {
-                var frm : String;
-                frm := '=' + '…‘‹ˆ((' +
-                                       d2s (f641_printed.sumvar2[i]) +'-' +
-                                       d2s (f641_printed.sumvar1[i]) + ')>0;' +
-                                       '('+ d2s (f641_printed.sumvar2[i]) +'-' +
-                                       d2s (f641_printed.sumvar1[i]) + ');0)' +
-                                       '+' +
-                                       if (f641_printed.SumKorr[i]<>0,f641_printed.SumKorrStr [i],'0');
-                xlSetCellFormula (  frm,
-                                     dataRow, 3 + (i-1)* 3 + 2 ,
-                                     dataRow, 3 + (i-1)* 3 + 2
-                                     );
-
-                xlSetCellNumberValue( f641_printed.sumvar2[i] ,
-                                      dataRow, 3 + (i-1)*3 + 3 ,
-                                      dataRow, 3 + (i-1)* 3 + 3
-                                      );
+                doPrintCurRowPeriodPlus1 (dataRow,i);
               } else {
                  xlSetCellFormula ( '=' + '' +
                                        d2s (if (f641_printed.sumvar2[i]>0,f641_printed.sumvar2[i],f641_printed.sumvar1[i])) +'-' +
@@ -1444,6 +1484,8 @@
 
     SetIsCreateAndKillExcel(true);
 
+    isUsing791printed := false;
+
     /*
 
     if (not ReadMyDsk(wSetFilt1,'dskSetFilt1',isError))  wsetFilt1 := 0;
@@ -1453,5 +1495,3 @@
 
     */
   end;
-
-

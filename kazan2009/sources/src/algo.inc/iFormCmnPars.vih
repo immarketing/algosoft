@@ -1,0 +1,30 @@
+
+#ifndef __iFormCmnPars_VIH
+#define __iFormCmnPars_VIH
+
+#include agdefines.inc
+
+
+!#ifdef  ComponentVersion
+!#component "SZMN_COMMON"
+!#endif //ComponentVersion
+
+#doc
+общие параметры форм
+#end
+ObjInterface Iszmn_bud_Form_Common_Parameters;
+  property budgetForm : comp read write;
+  property budgetFormName : String read;
+
+  property ReportPeriod : comp read write;
+  property ReportPeriodName : String read;
+
+  property BudgetVarPlan : comp read write;
+  property BudgetVarPlanName : String read;
+
+  property BudgetVarDopPlan : comp read write;
+  property BudgetVarDopPlanName : String read;
+
+end;
+
+#endif  // __iFormCmnPars_VIH

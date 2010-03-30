@@ -667,6 +667,7 @@
   end;
 
 #include iForm791_procint.vip
+#include iForm791_procintptd.vip
 
   procedure doPrintReport791; forward;
 
@@ -677,6 +678,7 @@
 
   procedure doHandleTest;
   begin
+    StoreDSK;
     doPrintReport;
   end;
 
@@ -684,7 +686,6 @@
   begin
     StartNewVisual (vtRotateVisual, vfScreenBottom + vfThread + vfTimer, 'Формирование отчета' , 100);
     SetVisualHeader ('Формирование отчета');
-    StoreDSK;
 
     var tms : array [1..7] of time;
 
@@ -1012,4 +1013,3 @@
     SetIsCreateAndKillExcel(true);
 
   end;
-

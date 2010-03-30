@@ -3,4 +3,37 @@
 
 #include cmn_procint.inc
 
+
+function getReportPeriod: comp;
+begin
+  //set result := cPeriod;
+  set result := fpPeriodToPlan.nrec;
+end;
+
+procedure setReportPeriod(result : comp);
+begin
+  if (getFirst fpPeriod  fpPeriodLocal where ((result == fpPeriodLocal.nrec)) = tsOK) then {
+    set cPeriod := fpPeriodLocal.cPrev;
+  }
+
+end;
+
+function getReportPeriodName: String;
+begin
+  //set result := sPeriod;
+  set result := sPeriodToPlan
+end;
+
+property ReportPeriod : comp read getReportPeriod write setReportPeriod (result);
+property ReportPeriodName : String read getReportPeriodName;
+
+procedure SetUsing791Printed ( i791 :
+#Iszmn_bud_Form791_printed
+);
+begin
+  set isUsing791printed := true;
+  set i791printed       := i791;
+end;
+
+
 #end

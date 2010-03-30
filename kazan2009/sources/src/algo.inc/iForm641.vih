@@ -4,6 +4,8 @@
 
 #include agdefines.inc
 
+#include iFormCmnPars.vih
+#include iForm791printed.vih
 
 !#ifdef  ComponentVersion
 !#component "SZMN_COMMON"
@@ -19,6 +21,10 @@ ObjInterface Iszmn_bud_Form641_2010;
   procedure SetIsEmbedded (val : boolean);
   procedure doPrintReport;
 
+  procedure SetUsing791Printed ( i791 :
+  #Iszmn_bud_Form791_printed
+  );
+
 end;
 
 !#ifdef  ComponentVersion
@@ -27,11 +33,10 @@ end;
 
 VipInterface
 #szmn_bud_Form641_2010
-implements Iszmn_bud_Form641_2010
+implements Iszmn_bud_Form641_2010, Iszmn_bud_Form_Common_Parameters
 
 #Licensed_Free
 ; // VipInterface vPodpis
 
 
 #endif  // __iForm641_VIH
-

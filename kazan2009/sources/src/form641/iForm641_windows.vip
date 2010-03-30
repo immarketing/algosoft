@@ -173,6 +173,14 @@ Window wnInfoWindow 'wnInfoWindow' ('wnInfoWindow', hcNoContext);
   Show at(,,,29);
   tabbedSheet tabbed
 
+    Browse bri791printed 'i791printed' ('f641_uniquenodes', hcNoContext);
+      //Show at(,1,,);
+      Table i791printed;
+    Fields
+      i791printed.crec '.crec':[10],protect;
+      i791printed.printedAtRow '.printedAtRow':[10],protect;
+    End; // Browse
+
     Browse brf641_uniquenodes 'f641_uniquenodes' ('f641_uniquenodes', hcNoContext);
       //Show at(,1,,);
       Table f641_uniquenodes;
