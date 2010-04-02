@@ -117,8 +117,9 @@ end;
 //vipInterface #(_VERSIONEDNAME_(szmn_bud_Form714_)) licensed(free);
 //#_VIPINTERFVERS_(szmn_bud_Form714_);
 
-Interface //szmn_bud_Form641_2010
-#szmn_bud_Form641_2010
+Interface #szmn_bud_Form641_2010
+//szmn_bud_Form641_2010
+
 //Interface #_VERSIONEDNAME_(szmn_bud_Form714_)
 //#_INTERFVERS_(szmn_bud_Form714_)
   '-= СЗМН Бюджет. Форма 6.4.1. Вариант 2010 года v.20100317 =- ' (,hcNoContext,) EscClose, Cyan;
@@ -194,6 +195,9 @@ var
   extClName5  : String;
   extClName6  : String;
 
+  extClName7  : String; // статья - "приходная" - ее обрабатывать не надо.
+  excCode13   : String; // Значение - "да" для extClName7
+
   cReg1       : word;
   cReg2       : word;
   cReg3       : word;
@@ -208,6 +212,8 @@ var
   isShowTimeLabels : boolean;
 
   isDebugDatas     : boolean;
+
+  isDebugDatas2    : boolean;
 
   visualHeaderPause : word;
 
@@ -288,19 +294,37 @@ and fpTForm.nrec   == fpAxTF.cMain     //может быть несколько
 and fpAxTF.NRec    == fpSpAxtf.cMain
 
 and (
-      not isDebugDatas or
       (
-      isDebugDatas and
+        not isDebugDatas or
+          (
+          isDebugDatas and
+          (
+          fpSpAxtf.nRec=comp('0131000000051790h') or
+          fpSpAxtf.nRec=comp('0131000000051792h') or
+          fpSpAxtf.nRec=comp('0131000000051791h') or
+          fpSpAxtf.cKauNode = comp('0131000000051792h') or
+          fpSpAxtf.cNode = comp('0131000000051792h') or
+          fpSpAxtf.cNode = comp('0131000000051791h')
+          )
+          )
+      )
+      or
       (
-      fpSpAxtf.nRec=comp('0131000000051790h') or
-      fpSpAxtf.nRec=comp('0131000000051792h') or
-      fpSpAxtf.nRec=comp('0131000000051791h') or
-      fpSpAxtf.cKauNode = comp('0131000000051792h') or
-      fpSpAxtf.cNode = comp('0131000000051792h') or
-      fpSpAxtf.cNode = comp('0131000000051791h')
+        not isDebugDatas2 or
+        (
+        isDebugDatas2 and
+        (
+        fpSpAxtf.nRec=comp('0131000000050E0Bh') or
+        fpSpAxtf.nRec=comp('0131000000050E0Bh') or
+        fpSpAxtf.nRec=comp('0131000000050E0Bh') or
+        //fpSpAxtf.cKauNode = comp('0131000000051792h') or
+        fpSpAxtf.cNode = comp('0131000000050E0Bh') or
+        fpSpAxtf.cNode = comp('0131000000050E0Bh') or
+        fpSpAxtf.cNode = comp('0131000000050E0Bh')
+        )
+        )
       )
-      )
-      )
+    )
 
 /*
 and ( fpSpAxtf.nRec=comp('0131000000051792h') or

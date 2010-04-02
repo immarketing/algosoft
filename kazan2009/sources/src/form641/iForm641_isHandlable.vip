@@ -1,0 +1,80 @@
+
+create view for_isHandable
+var
+  pRec : comp;
+as select *
+from f641_printed, fpSpAxtf
+where ((
+pRec == f641_printed.cRec and
+prec == fpSpAxtf.nRec
+))
+;
+
+function isHandable (var cTop: comp; vRec : comp) : boolean;
+begin
+  set for_isHandable.pRec := vRec;
+
+  if (for_isHandable.getFirst f641_printed = tsOK) {
+    // Такая запись уже есть.
+    if for_isHandable.f641_printed.isPrihodSt > 0 then {
+      result := true;  // точно - да
+      exit;
+    } else if for_isHandable.f641_printed.isPrihodSt < 0 then {
+      result := false; // точно - нет
+      exit;
+    } else {
+      if (for_isHandable.f641_printed.cNode = 0) then {
+        // текущая запись - вершина и надо залезать в базу
+        if (for_isHandable.getFirst fpSpAxtf = tsOK) {
+          if ( for_isHandable.fpSpAxtf.coTable = coFPSTBUD ) {
+            var extCl : byte;
+            extCl := GetStBudExtraParameters( coFPSTBUD , for_isHandable.fpSpAxtf.CMEAN, extClName7 );
+            if (extCl = 13) then {
+              //
+              set result := true;
+            } else {
+              set result := false;
+            }
+          } //if ( for_isHandable.fpSpAxtf.coTable = coFPSTBUD )
+        } else {
+          set result := false;
+        }
+        set cTop := vRec;
+        update f641_printed where (( vRec == f641_printed.cRec))
+               set f641_printed.isPrihodSt := if (result,1,-1);
+      } else {
+        set result := isHandable(cTop, for_isHandable.f641_printed.cNode);
+        update f641_printed where (( vRec == f641_printed.cRec))
+               set f641_printed.isPrihodSt := if (result,1,-1),
+                   f641_printed.cTopNode := cTop
+                   ;
+      }
+    }
+  } else {
+    // такой записи в кэше нет.
+    // необходимо лезть в базу...
+    if (for_isHandable.getFirst fpSpAxtf = tsOK) {
+      if ( for_isHandable.fpSpAxtf.cNode = 0 ) then {
+        if ( for_isHandable.fpSpAxtf.coTable = coFPSTBUD ) {
+          var extCl : byte;
+          extCl := GetStBudExtraParameters( coFPSTBUD , for_isHandable.fpSpAxtf.CMEAN, extClName7 );
+          if (extCl = 13) then {
+            //
+            set result := true;
+          } else {
+            set result := false;
+          }
+        } //if ( for_isHandable.fpSpAxtf.coTable = coFPSTBUD )
+        // возвращаем
+        set cTop := vRec;
+        exit;
+      } else {
+        // по рекурсии
+        set result := isHandable(cTop, for_isHandable.fpSpAxtf.cNode);
+      }
+    } else {
+      // такой записи просто нет
+      set result := false;
+    }
+  }
+end;

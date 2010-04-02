@@ -35,7 +35,10 @@ table struct f641_printed
   AgregHandling : byte,
   coTable       : word,
   isMakeGroup   : byte,
-  isKauGroup    : byte
+  isKauGroup    : byte,
+
+  cTopNode      : comp,
+  isPrihodSt    : integer
 )
 with index
 (

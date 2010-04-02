@@ -1,3 +1,5 @@
+procedure handlecmChangeTabbedSheetFormat; forward;
+
 tabbedSheet tabbed
   //
   Screen scKatH01 'Установка параметров объединенного отчета' ;
@@ -64,6 +66,11 @@ tabbedSheet tabbed
   vFrm791;
   //show at (,,,,);
   cache = preload ;
+  end;
+  handleEvent
+    cmChangeTabbedSheetFormat : {
+      handlecmChangeTabbedSheetFormat;
+    }
   end;
 end;
 Window wnInfoWindow 'wnInfoWindow' ('wnInfoWindow', hcNoContext);

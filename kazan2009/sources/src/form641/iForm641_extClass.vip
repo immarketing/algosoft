@@ -79,6 +79,8 @@ begin
 
         if (extClass.ExClassSeg.Value = excCode11  /*'Сальдо начальное'*/) {result := 11; exit};
         if (extClass.ExClassSeg.Value = excCode12 /*'Сальдо конечное'*/) {result := 12; exit};
+
+        if (extClass.ExClassSeg.Value = excCode13 /*'Сальдо конечное'*/) {result := 13; exit};
       }
     }
   }

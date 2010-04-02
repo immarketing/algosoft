@@ -123,10 +123,15 @@ end; // Screen
     extClName6  ('',,) : NoProtect,noPickButton,
       {Font = {BackColor = if (extClName6='',    ColorNeed,0)}};
 
+    extClName7  ('',,) : NoProtect,noPickButton,
+      {Font = {BackColor = if (extClName7='',    ColorNeed,0)}};
+    excCode13  ('',,) : NoProtect,noPickButton,
+      {Font = {BackColor = if (excCode13='',    ColorNeed,0)}};
+
     isShowZeros  ('',,) : NoProtect,noPickButton;
     isShowTimeLabels  ('',,) : NoProtect,noPickButton;
-
     isDebugDatas  ('',,) : NoProtect,noPickButton;
+    isDebugDatas2 ('',,) : NoProtect,noPickButton;
   <<
 
          Название классификатора .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -164,7 +169,11 @@ end; // Screen
  Название классификатора [Дополнительная обработка
      статьи для 6.4.1 (сумма №4)].@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
-  [.] Печатать нулевые`  [.] Показывать время исполнения` [.] Тестовый объем данных`
+ Название классификатора [Статья - приходная.
+                Не пересчитывать].@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+              Код аналитики [Да] .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+  [.] Печатать нулевые`  [.] Показывать время исполнения` [.] Тестовый объем данных` [.] Тестовый объем данных - 2`
   >>
   end; // screen  sCheckdop 'Дополнительно';
 end;
@@ -202,7 +211,7 @@ Window wnInfoWindow 'wnInfoWindow' ('wnInfoWindow', hcNoContext);
       f641_groupft.isMakeGroup '.isMakeGroup':[10],protect;
     End; // Browse
 
-    Browse brPrinted 'brPrinted' ('brPrinted', hcNoContext);
+    Browse brPrinted 'f641_printed' ('brPrinted', hcNoContext);
       //Show at(,1,,);
       Table f641_printed;
     Fields
@@ -229,6 +238,9 @@ Window wnInfoWindow 'wnInfoWindow' ('wnInfoWindow', hcNoContext);
 
       f641_printed.isMakeGroup '.isMakeGroup':[10],protect;
       f641_printed.isKauGroup '.isKauGroup':[10],protect;
+
+      f641_printed.cTopNode '.cTopNode':[10],protect;
+      f641_printed.isPrihodSt '.isPrihodSt':[10],protect;
 
       /*
       f641_printed.nRec '.nRec':[10],protect;

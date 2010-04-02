@@ -1,156 +1,6 @@
 #include iForm641_extClass.vip
 
-  procedure CheckDefaultValues;
-  begin
-    if (extClName = '') {set extClName := 'Характеристики для форм 7.9.1 и 7.9'};
-    if (excCode1 = '') {set excCode1 := 'Разделитель'} ;
-    if (excCode2 = '') {set excCode2 := 'Вынос в подвал'}  ;
-    if (excCode3 = '') {set excCode3 := 'Итого'}   ;
-    if (excCode4 = '') {set excCode4 := 'Агрегат'}   ;
-
-    if cReg1 = 0 {cReg1 := 150};
-    if cReg2 = 0 {cReg2 := 150};
-    if cReg3 = 0 {cReg3 := 151};
-    if cReg4 = 0 {cReg4 := 151};
-
-    if (extClName1 = '') {set extClName1 := 'Дополнительная обработка статьи'};
-    if (excCode5 = '') {set excCode5 := 'Сумма'};
-    if (excCode6 = '') {set excCode6 := 'Сложить'};
-    if (excCode7 = '') {set excCode7 := 'Вычесть'};
-
-    if (extClName2 = '') {set extClName2 := 'Расчет сальдо'};
-    if (excCode8 = '') {set excCode8 := 'Сальдо периода'};
-    if (excCode9 = '') {set excCode9 := '+ сальдо периода'};
-    if (excCode10 = '') {set excCode10 := '- сальдо периода'};
-
-    if (excCode11 = '') {set excCode11 := 'Н. сальдо'};
-    if (excCode12 = '') {set excCode12 := 'К. сальдо'};
-
-    if (extClName3 = '') {set extClName3 := 'Дополнительная обработка статьи для 6.4.1'};
-    /*
-    if (excCode13 = '') {set excCode5 := 'Сумма'};
-    if (excCode14 = '') {set excCode6 := 'Сложить'};
-    if (excCode15 = '') {set excCode7 := 'Вычесть'};
-    */
-    if (extClName4 = '') {set extClName4 := 'Дополнительная обработка статьи для 6.4.1 (сумма №2)'};
-    if (extClName5 = '') {set extClName5 := 'Дополнительная обработка статьи для 6.4.1 (сумма №3)'};
-    if (extClName6 = '') {set extClName6 := 'Дополнительная обработка статьи для 6.4.1 (сумма №4)'};
-  end;
-
-  Procedure StoreDSK();
-  begin
-    CheckDefaultValues;
-
-    SaveMyDsk(sPath,  '6dsksPath1');
-    SaveMyDsk(cTForm, '6dsksPath2');
-    SaveMyDsk(cPeriod,'6dsksPath3');
-    SaveMyDsk(cPlan1, '6dsksPath4');
-
-
-    SaveMyDsk(cPlanOtd, 'iForm641.cPlanOtd');
-
-    SaveMyDsk(cPlan2, '6dsksPath5');
-    SaveMyDsk(cFact,  '6dsksPath6');
-    SaveMyDsk(cPlan3, '6dsksPath7');
-
-    SaveMyDsk(sPath,     'iForm641_sPath');
-
-    SaveMyDsk(Check,     'iForm641.Check');
-
-
-    SaveMyDsk(extClName,   'iForm641_extClName');
-    SaveMyDsk(excCode1,    'iForm641_excCode1');
-    SaveMyDsk(excCode2,    'iForm641_excCode2');
-    SaveMyDsk(excCode3,    'iForm641_excCode3');
-    SaveMyDsk(excCode4,    'iForm641_excCode4');
-
-    SaveMyDsk(cReg1,    'iForm641.cReg1');
-    SaveMyDsk(cReg2,    'iForm641.cReg2');
-    SaveMyDsk(cReg3,    'iForm641.cReg3');
-    SaveMyDsk(cReg4,    'iForm641.cReg4');
-
-    SaveMyDsk(extClName1,  'iForm641.extClName1');
-    SaveMyDsk(excCode5,    'iForm641.excCode5');
-    SaveMyDsk(excCode6,    'iForm641.excCode6');
-    SaveMyDsk(excCode7,    'iForm641.excCode7');
-
-    SaveMyDsk(extClName2,  'iForm641.extClName2');
-    SaveMyDsk(excCode8,    'iForm641.excCode8');
-    SaveMyDsk(excCode9,    'iForm641.excCode9');
-    SaveMyDsk(excCode10,    'iForm641.excCode10');
-    SaveMyDsk(excCode11,    'iForm641.excCode11');
-    SaveMyDsk(excCode12,    'iForm641.excCode12');
-
-    SaveMyDsk(extClName3,  'iForm641.extClName3');
-    /*
-    SaveMyDsk(excCode13,    'iForm641.excCode13');
-    SaveMyDsk(excCode14,    'iForm641.excCode14');
-    SaveMyDsk(excCode15,    'iForm641.excCode15');
-    */
-    SaveMyDsk(extClName4,  'iForm641.extClName4');
-    SaveMyDsk(extClName5,  'iForm641.extClName5');
-    SaveMyDsk(extClName6,  'iForm641.extClName6');
-  end;
-
-
-  procedure ReadDSK;
-  begin
-    var dc : boolean;
-
-    dc := true;
-
-    if (not ReadMyDsk(Check,     'iForm641.Check',isError))  Check := '';
-
-    if (not ReadMyDsk(sPath  ,'6dsksPath1',isError))  sPath := '';
-    if (not ReadMyDsk(cPlan1 ,'6dsksPath4',isError))  cPlan1:=0;
-
-    if (not ReadMyDsk(cPlanOtd, 'iForm641.cPlanOtd',isError))  cPlanOtd:=0;
-
-    if (not ReadMyDsk(cPlan2 ,'6dsksPath5',isError))  cPlan2:=0;
-    if (not ReadMyDsk(cPlan3 ,'6dsksPath7',isError))  cPlan3:=0;
-    if (not ReadMyDsk(cFact  ,'6dsksPath6',isError))  cFact:=0;
-    if (not ReadMyDsk(cTForm ,'6dsksPath2',isError))  cTForm:=0;
-    if (not ReadMyDsk(cPeriod,'6dsksPath3',isError))  cPeriod:=0;
-
-    if (not ReadMyDsk(sPath  ,'iForm641_sPath',isError))  sPath := '';
-    if (sPath='') set sPath := translatepath('%startpath%Xls\F_FPBUDGET\SZMN_Budjet\tmpl_6_4_1.xls');
-
-    ReadMyDsk (extClName,   'iForm641_extClName', dc);
-    ReadMyDsk (excCode1,    'iForm641_excCode1', dc);
-    ReadMyDsk (excCode2,    'iForm641_excCode2', dc);
-    ReadMyDsk (excCode3,    'iForm641_excCode3', dc);
-    ReadMyDsk (excCode4,    'iForm641_excCode4', dc);
-
-    ReadMyDsk (cReg1,    'iForm641.cReg1', dc);
-    ReadMyDsk (cReg2,    'iForm641.cReg2', dc);
-    ReadMyDsk (cReg3,    'iForm641.cReg3', dc);
-    ReadMyDsk (cReg4,    'iForm641.cReg4', dc);
-
-    ReadMyDsk (extClName1,  'iForm641.extClName1', dc);
-    ReadMyDsk (excCode5,    'iForm641.excCode5', dc);
-    ReadMyDsk (excCode6,    'iForm641.excCode6', dc);
-    ReadMyDsk (excCode7,    'iForm641.excCode7', dc);
-
-    ReadMyDsk (extClName2,  'iForm641.extClName2', dc);
-    ReadMyDsk (excCode8,    'iForm641.excCode8', dc);
-    ReadMyDsk (excCode9,    'iForm641.excCode9', dc);
-    ReadMyDsk (excCode10,    'iForm641.excCode10', dc);
-
-    ReadMyDsk (excCode11,    'iForm641.excCode11', dc);
-    ReadMyDsk (excCode12,    'iForm641.excCode12', dc);
-
-    ReadMyDsk (extClName3,  'iForm641.extClName3', dc);
-    /*
-    ReadMyDsk (excCode13,    'iForm641.excCode13', dc);
-    ReadMyDsk (excCode14,    'iForm641.excCode14', dc);
-    ReadMyDsk (excCode15,    'iForm641.excCode15', dc);
-    */
-    ReadMyDsk (extClName4,  'iForm641.extClName4', dc);
-    ReadMyDsk (extClName5,  'iForm641.extClName5', dc);
-    ReadMyDsk (extClName6,  'iForm641.extClName6', dc);
-
-    CheckDefaultValues;
-  end;
+#include iForm641_DSKWork.vip
 
   create view forGetCode
   var
@@ -340,6 +190,9 @@
     var sm : double;
     sm := 0;
 
+    var cacheVal : type$p_f641_printed;
+    cacheVal := f641_printed.bufferp;
+
     //      _LOOP  fpSpAxtf
     _LOOP  fpV {
       if((month(fpP.dbeg)=month(fpP.dEnd)) and (year(fpP.dbeg)=year(fpperiod.dbeg) and (fpvalues.chashan = 0))) { //chek year
@@ -353,16 +206,26 @@
         //xlSetCellNumberValue(sm, Nstr, Nstol + month(fpP.dbeg), Nstr, Nstol + month(fpP.dbeg));
 
         case varnt of
+          /*
           Plan : update current f641_printed set f641_printed.sumvar1[month(fpP.dbeg)] := sm ;
           DopPlan : update current f641_printed set f641_printed.sumvar2[month(fpP.dbeg)] := sm ;
           Fact : update current f641_printed set f641_printed.sumvar3[month(fpP.dbeg)] := sm ;
           OjidPlan : update current f641_printed set f641_printed.sumvar4[month(fpP.dbeg)] := sm ;
           PlanOtd : update current f641_printed set f641_printed.sumvarOtd[month(fpP.dbeg)] := sm ;
+          */
+          Plan : set cacheVal.sumvar1[month(fpP.dbeg)] := sm ;
+          DopPlan : set cacheVal.sumvar2[month(fpP.dbeg)] := sm ;
+          Fact : set cacheVal.sumvar3[month(fpP.dbeg)] := sm ;
+          OjidPlan : set cacheVal.sumvar4[month(fpP.dbeg)] := sm ;
+          PlanOtd : set cacheVal.sumvarOtd[month(fpP.dbeg)] := sm ;
         end
 
       }
       else{}
     }
+
+    f641_printed.bufferp := cacheVal;
+    update current f641_printed;
   end;
 
   procedure ExcelPrint2_2010
@@ -388,6 +251,9 @@
 
     if (getFirst superfpSpAxtf = tsOK) {
       if (getFirst HashAn = tsOK) {
+        var cacheVal : type$p_f641_printed;
+        cacheVal := f641_printed.bufferp;
+
         _loop fpV2 {
           if (getFirst fpP2 <> tsOK)  {};
           if((month(fpP2.dbeg)=month(fpP2.dEnd)) and (year(fpP2.dbeg)=year(fpperiod.dbeg) )) {
@@ -399,15 +265,25 @@
               sm := fpv2.summa/1000;
             }
             case varnt of
+              /*
               Plan : update current f641_printed set f641_printed.sumvar1[month(fpP2.dbeg)] := sm ;
               DopPlan : update current f641_printed set f641_printed.sumvar2[month(fpP2.dbeg)] := sm ;
               Fact : update current f641_printed set f641_printed.sumvar3[month(fpP2.dbeg)] := sm ;
               OjidPlan : update current f641_printed set f641_printed.sumvar4[month(fpP2.dbeg)] := sm ;
               PlanOtd : update current f641_printed set f641_printed.sumvarOtd[month(fpP2.dbeg)] := sm ;
+              */
+              Plan : set cacheVal.sumvar1[month(fpP2.dbeg)] := sm ;
+              DopPlan : set cacheVal.sumvar2[month(fpP2.dbeg)] := sm ;
+              Fact : set cacheVal.sumvar3[month(fpP2.dbeg)] := sm ;
+              OjidPlan : set cacheVal.sumvar4[month(fpP2.dbeg)] := sm ;
+              PlanOtd : set cacheVal.sumvarOtd[month(fpP2.dbeg)] := sm ;
             end
 
           }
         }
+        set f641_printed.bufferp := cacheVal;
+        update current f641_printed;
+
       }
     }
   end;
@@ -779,6 +655,7 @@
   end;
 
 #include iForm641_kaugroup.vip
+#include iForm641_isHandlable.vip
 
   procedure doPrintCurRowPeriodPlus1 (dataRow : word; i : word);
   begin
@@ -870,7 +747,6 @@
     } else {
       xlSetCellStringValue('тыс.руб.', 4, 6, 4, 6); //
     }
-
 
     //xlSetCellStringValue(month(fpperiod.dbeg), 1, 1, 1, 1); //
     //xlSetCellStringValue(year(fpperiod.dbeg), 1, 2, 1, 2); //
@@ -967,6 +843,9 @@
                                 f641_printed.isKAUGroup := isKauGroup (fpSpAxtf.nRec)
 
                                 ;
+        var cTp: comp;
+
+        isHandable(cTp, fpSpAxtf.nRec);
 
         ExcelPrint2_2010(fpSpAxtf.coTable,cPlan1,cReg1,1+tt,2,Plan);
         ExcelPrint2_2010(fpSpAxtf.coTable,cPlan2,cReg2,1+tt,14,DopPlan);
@@ -1085,29 +964,30 @@
         godSm := CalcCurrentSumBDSGod (periodNum);
         update current f641_printed set f641_printed.SumBDSGod := godSm;  // 3 колонка - сумма планов и факта
 
-
-        if ( periodNum <=10) {
-          if (( f641_printed.Sumojid - f641_printed.SumBDSGod) < 0 ){
-            // обработаем отрицательную разницу
-            if (f641_printed.prior  = 0 ){
-              update current f641_printed set
-              f641_printed.SumKorr[12]    := f641_printed.Sumojid - f641_printed.SumBDSGod,
-              f641_printed.SumKorrStr[12] := '(' +
-                                             d2s (f641_printed.Sumojid)+
-                                              '-' +
-                                             d2s (f641_printed.SumBDSGod) + ')'
-                                             ;
+        if (f641_printed.isPrihodSt <=0 ) then {
+          if ( periodNum <=10) {
+            if (( f641_printed.Sumojid - f641_printed.SumBDSGod) < 0 ){
+              // обработаем отрицательную разницу
+              if (f641_printed.prior  = 0 ){
+                update current f641_printed set
+                f641_printed.SumKorr[12]    := f641_printed.Sumojid - f641_printed.SumBDSGod,
+                f641_printed.SumKorrStr[12] := '(' +
+                                               d2s (f641_printed.Sumojid)+
+                                                '-' +
+                                               d2s (f641_printed.SumBDSGod) + ')'
+                                               ;
+              }
+            } else {
+              // положительная разница
+                // таки обрабатываем положительную разницу
+                update current f641_printed set
+                f641_printed.SumKorr[periodNum+2]    := f641_printed.Sumojid - f641_printed.SumBDSGod,
+                f641_printed.SumKorrStr[periodNum+2] := '('
+                                                        + d2s (f641_printed.Sumojid)
+                                                        + '-'
+                                                        + d2s (f641_printed.SumBDSGod) + ')'
+                ;
             }
-          } else {
-            // положительная разница
-              // таки обрабатываем положительную разницу
-              update current f641_printed set
-              f641_printed.SumKorr[periodNum+2]    := f641_printed.Sumojid - f641_printed.SumBDSGod,
-              f641_printed.SumKorrStr[periodNum+2] := '('
-                                                      + d2s (f641_printed.Sumojid)
-                                                      + '-'
-                                                      + d2s (f641_printed.SumBDSGod) + ')'
-              ;
           }
         }
 
@@ -1474,6 +1354,8 @@
   begin
     //Message ('handle init');
     set isShowZeros := true;
+    set isDebugDatas := false;
+    set isDebugDatas2 := false;
 
     ReadDSK ();
 
