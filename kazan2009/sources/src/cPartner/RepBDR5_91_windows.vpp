@@ -25,6 +25,9 @@ Fields
     {Font = {BackColor = if (sPath='',    ColorNeed,0)}};
   Check ('') :NoProtect;
 
+  isShowPoyasZap ('') :NoProtect;
+  isShowFormName ('') :NoProtect;
+
 buttons
 cmApply;
 cmCancel;
@@ -45,7 +48,7 @@ cmCancel;
  Путь к шаблону        .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
     `Печатать в`
-     (.) руб`
+     (.) руб`       [.] Печатать пояснительную записку` [.] Выводить в отчет название типовой формы`
      (.) тыс.руб`
 
           <.Сформировать.>    <.  Отмена  .>

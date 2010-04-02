@@ -9,7 +9,7 @@ if exist AtlantIs.res del AtlantIs.res
 
 set tempDateStr1=%DATE%
 date 01.01.2007
-%ApiExePath%\vip.exe cPartner.prj %1
+%ApiExePath%\vip.exe cPartner.prj %IS_SZMN_DEBUG% %1
 date %tempDateStr1%
 
 if exist AtlantIs.res del AtlantIs.res

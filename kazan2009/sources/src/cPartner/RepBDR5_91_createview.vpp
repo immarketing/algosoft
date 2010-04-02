@@ -36,6 +36,9 @@ var
   isShowTimeLabels : boolean;
   isDebugDatas     : boolean;
 
+  isShowPoyasZap   : boolean; // показывать пояснительную записку или нет
+  isShowFormName   : boolean; // выводить в отчетные формы название типовой формы
+
 
 As select
   if(cPeriod=0   ,'выберите значение',fpPeriod.Name)   (FieldName = sPeriod)
@@ -160,4 +163,3 @@ and fpzap_printed.cRec == sub_pzp.cNode
 ))
 
 ;
-

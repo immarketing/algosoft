@@ -7,6 +7,8 @@ const
 #include GLOCONST.INC
 end;
 
+#include agdefines.inc
+
 form91showdebug menu
 {
   - 'Показать отладочную информацию', cmShowDebug91, 'Отладочная информация' ;
@@ -20,7 +22,7 @@ VipInterface RepBDR5_2010   Licensed(Free);
 #doc
 Настройка фильтров для отчета График погашения обязательств
 #end
-Interface RepBDR5_2010 'Установка фильтров' DoAccept, EscClose, Cyan;
+Interface #RepBDR5_2010 '-= Отчетные формы 9.1 и Пояснительная записка. 2010 г. v.20100402 =-' DoAccept, EscClose, Cyan;
   show at (5,5,100,30);
 
 #include RepBDR5_91_memtbl.vpp
@@ -345,6 +347,8 @@ end;
     ReadMyDsk (excCode5,    'szmn_bud_Form91.excCode5', dc);
     ReadMyDsk (excCode6,    'szmn_bud_Form91.excCode6', dc);
 
+    ReadMyDsk (isShowPoyasZap,    'szmn_bud_Form91.isShowPoyasZap', dc);
+    ReadMyDsk (isShowFormName,    'szmn_bud_Form91.isShowFormName', dc);
 
     CheckExtAttr;
 
@@ -384,6 +388,8 @@ end;
     SaveMyDsk(excCode5,    'szmn_bud_Form91.excCode5');
     SaveMyDsk(excCode6,    'szmn_bud_Form91.excCode6');
 
+    SaveMyDsk(isShowPoyasZap,    'szmn_bud_Form91.isShowPoyasZap');
+    SaveMyDsk(isShowFormName,    'szmn_bud_Form91.isShowFormName');
 
   end;
 
@@ -406,6 +412,8 @@ end;
     podpisanty.setprefix('szmn_bud_Form91');
     podpisanty.reinit;
 
+    isShowPoyasZap   := true;
+    isShowFormName   := false;
 
     //if (not ReadMyDsk(sPath,'dsksPath',isError))  sPath := '';
     //if (not ReadMyDsk(sPersons,'szmn_rep_9_1_spers',isError))  sPersons := '';
@@ -815,6 +823,21 @@ end;
 
   end;
 
+  procedure PrintFormName;
+  begin
+    /*
+
+    Selection.Insert Shift:=xlDown
+    */
+    if (not isShowFormName) then {
+      exit;
+    }
+    xlRunMacro('AddRowForFormName');
+    xlSetCellStringValue('Наименование формы:', 4, 4, 4, 4);
+    xlSetCellStringValue(sTForm, 4, 5, 4, 5);
+
+  end;
+
   procedure DoPrintPZap; forward;
 
   procedure doPrint;
@@ -992,7 +1015,12 @@ end;
     printExecutor (tt);
 
     tms[6] := Cur_Time;
-    DoPrintPZap;
+
+    if (isShowPoyasZap) then {
+      DoPrintPZap;
+    } else {
+      xlRunMacro('HideSheet(pZap)');
+    }
 
     xlSetActiveSheetByName('Otchet'); //?????_1
 
@@ -1000,6 +1028,8 @@ end;
     xlRunMacro('HideSheet(Sheet1)');
     xlRunMacro('REP_AfterReportPrint');
     //xlRunMacro('HideSheet(пояснительная)');
+
+    printFormName;
 
     xlKillExcel;
 
@@ -1222,4 +1252,3 @@ cmShowDebug91 : {
 
 end;
 end.
-
