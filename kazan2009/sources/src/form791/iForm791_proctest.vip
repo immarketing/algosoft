@@ -320,10 +320,12 @@
     update f791_printed where (( 1 == f791_printed.isKAUGroup))
            set f791_printed.isMakeGroup := 1
            ;
+    /*
     forGrouping._loop prntd_mkgroup {
       update f791_printed where (( forGrouping.prntd_mkgroup.cnode == f791_printed.crec))
              set f791_printed.isMakeGroup := 1;
     }
+    */
 
     var extraSm : word;
     extraSm := 0;

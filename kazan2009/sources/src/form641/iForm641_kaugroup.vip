@@ -50,6 +50,7 @@ select *
 
 procedure updateIsMakeGroup();
 begin
+  exit;
   forHandleGrouping._loop prntd_mkgroup {
     update f641_printed where (( forHandleGrouping.prntd_mkgroup.cnode == f641_printed.crec))
            set f641_printed.isMakeGroup := 1;
@@ -139,4 +140,3 @@ begin
     xlRunMacro('ActiveSheetGroupData('+String ( f641_groupft.groupFrom)+','+ String ( f641_groupft.groupTo) +')');
   }
 end;
-

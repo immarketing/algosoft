@@ -50,6 +50,7 @@ end;
 
 procedure updateIsMakeGroup();
 begin
+  exit;
   forGrouping._loop prntd_mkgroup {
     update f91_printed where (( forGrouping.prntd_mkgroup.cnode == f91_printed.crec))
            set f91_printed.isMakeGroup := 1;
@@ -140,5 +141,4 @@ begin
     xlRunMacro('ActiveSheetGroupData('+String ( f91_groupft.groupFrom)+','+ String ( f91_groupft.groupTo) +')');
   }
 end;
-
 

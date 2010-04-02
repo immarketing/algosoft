@@ -1224,6 +1224,7 @@ cmDelOnProtect:
     #sPeriod   : Set cPeriod:=0;
     #sTForm    : Set cTForm:=0;
     #sPlan    : Set cPlan:=0;
+    #sPlanDop  :  Set cPlanDop:=0;
     #sFact     : Set cFact:=0;
     #sPodpGrp  : {
       set podpisanty.cPodpGroup := 0;
