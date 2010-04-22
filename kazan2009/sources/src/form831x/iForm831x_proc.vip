@@ -12,6 +12,18 @@ end;
 
 procedure handleInit;
 begin
+    set isShowZeros := true;
+
+    set isShowTimeLabels := false;
+
+    set coTableToSum := 22217;
+
+    set isDebugDatas := false;
+
+    podpisanty.setprefix('szmn_bud_Form831x');
+    podpisanty.reinit;
+
+    ReadDsk;
 end;
 
 procedure doHandlecmDelOnProtect;
