@@ -1,0 +1,90 @@
+  procedure CheckDefValues;
+  begin
+    if (extClName = '') {set extClName := 'Характеристики для форм 7.9.1 и 7.9'};
+
+    if (excCode1 = '') {set excCode1 := 'Разделитель'};
+    if (excCode2 = '') {set excCode2 := 'Вынос в подвал'};
+    if (excCode3 = '') {set excCode3 := 'Итого'};
+    if (excCode4 = '') {set excCode4 := 'Агрегат'};
+
+    if (extClName1 = '') {set extClName1 := 'Дополнительная обработка статьи'};
+    if (excCode5 = '') {set excCode5 := 'Сумма'};
+    if (excCode6 = '') {set excCode6 := 'Сложить'};
+    if (excCode7 = '') {set excCode7 := 'Вычесть'};
+
+    if (sPath='') set sPath := translatepath('%startpath%Xls\F_FPBUDGET\SZMN_Budjet\tmpl_7_9_1.xls');
+  end;
+
+  Procedure StoreDSK();
+  begin
+    CheckDefValues;
+
+    SaveMyDsk(sPath,     'iForm831x.sPath');
+
+    SaveMyDsk(cTForm,    'iForm831x.cTForm');
+    SaveMyDsk(cPeriod,   'iForm831x.cPeriod');
+    SaveMyDsk(cPlan,     'iForm831x.cPlan');
+    SaveMyDsk(cFact,     'iForm831x.cFact');
+
+    /*
+    SaveMyDsk(extClName,    'iForm791_extClName');
+    SaveMyDsk(excCode1,    'iForm791_excCode1');
+    SaveMyDsk(excCode2,    'iForm791_excCode2');
+    SaveMyDsk(excCode3,    'iForm791_excCode3');
+    SaveMyDsk(excCode4,    'iForm791_excCode4');
+
+    SaveMyDsk(extClName1,    'iForm791_extClName1');
+    SaveMyDsk(excCode5,    'iForm791_excCode5');
+    SaveMyDsk(excCode6,    'iForm791_excCode6');
+    SaveMyDsk(excCode7,    'iForm791_excCode7');
+
+    SaveMyDsk (cPodpGrp,'iForm791_cPodpGrp' );
+    */
+
+    SaveMyDsk (Check,    'iForm831x.Check' );
+
+    SaveMyDsk (coTableToSum,    'iForm791.coTableToSum' );
+
+  end;
+
+  procedure ReadDSK;
+  begin
+    var dc : boolean;
+
+    dc := true;
+
+    SaveMyDsk(sPath,     'iForm831x.sPath');
+    SaveMyDsk(cTForm,    'iForm831x.cTForm');
+    SaveMyDsk(cPeriod,   'iForm831x.cPeriod');
+    SaveMyDsk(cPlan,     'iForm831x.cPlan');
+    SaveMyDsk(cFact,     'iForm831x.cFact');
+
+    ReadMyDsk(sPath,     'iForm831x.sPath',isError);
+    ReadMyDsk(cTForm,    'iForm831x.cTForm',isError);
+    ReadMyDsk(cPlan,     'iForm831x.cPlan',isError);
+    ReadMyDsk(cFact,     'iForm831x.cFact',isError);
+    ReadMyDsk(cPeriod,   'iForm831x.cPeriod',isError);
+
+    /*
+
+    ReadMyDsk (cPodpGrp,'iForm791_cPodpGrp', dc);
+
+    ReadMyDsk (extClName,    'iForm791_extClName', dc);
+    ReadMyDsk (excCode1,    'iForm791_excCode1', dc);
+    ReadMyDsk (excCode2,    'iForm791_excCode2', dc);
+    ReadMyDsk (excCode3,    'iForm791_excCode3', dc);
+    ReadMyDsk (excCode4,    'iForm791_excCode4', dc);
+
+    ReadMyDsk (extClName1,    'iForm791_extClName1', dc);
+    ReadMyDsk (excCode5,    'iForm791_excCode5', dc);
+    ReadMyDsk (excCode6,    'iForm791_excCode6', dc);
+    ReadMyDsk (excCode7,    'iForm791_excCode7', dc);
+
+    ReadMyDsk (Check,    'iForm791_Check', dc);
+
+    //ReadMyDsk (coTableToSum, 'iForm791.coTableToSum', dc);
+    */
+
+
+    CheckDefValues;
+  end;

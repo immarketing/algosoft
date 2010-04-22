@@ -1,0 +1,54 @@
+#include iForm831x_dskwork.vip
+
+procedure doHandlecmReport;
+begin
+end
+
+
+procedure doHandlecmShowDebug83x();
+begin
+  RunWindowModal( wnInfoWindow );
+end;
+
+procedure handleInit;
+begin
+end;
+
+procedure doHandlecmDelOnProtect;
+begin
+  case curField of
+    #sTForm    : Set cTForm:=0;
+    #sPeriod   : Set cPeriod:=0;
+    #sPlan     : Set cPlan :=0;
+    #sFact     : Set cFact :=0;
+
+    #sPodpGrp  : {
+      set podpisanty.cPodpGroup := 0;
+    }
+  end;
+
+end;
+
+procedure doHandlecmPick;
+begin
+  case curField of
+    #sTForm    :  RunInterface('F_FpBudget::getTForm', cgiPick, 0, cTForm);
+    #sPeriod   :  RunInterface('F_FpCatalog::getPeriod', cgiPick, comp(0), comp(0), cPeriod, cgSetFPTuneDefault);
+    #sPlan     :  RunInterface('F_FpBudget::Budget', word(cgiPick), word(0), word(0), comp(0), cPlan, 0, 0);
+    #sFact     :  RunInterface('F_FpBudget::Budget', word(cgiPick), word(0), word(0), comp(0), cFact, 0, 0);
+
+    #sPodpGrp    : {
+      podpisanty.SelectPodpis;
+      RescanPanel (scKatH01);
+    }
+
+    #sPath     : {
+      var sTmp : string;
+      sTmp := GetFileName('*.XLS', 'Выберите файл с шаблоном');
+      if (trim(sTmp) = '') { Exit; }
+      Set sPath := sTmp;
+    }
+  end;
+end;
+
+
