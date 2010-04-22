@@ -1,9 +1,63 @@
 #include iForm831x_dskwork.vip
+#include iForm831x_extClass.vip
+#include iForm831x_procreport.vip
+
+function trimFirst0 (st : String):string;
+begin
+  result := st;
+  exit;
+
+  if st = '' then {
+    result := '';
+    exit
+  };
+  if substr (st,1,1) = '0' then
+    result := trimFirst0 (substr (st,2,255))
+  else
+    result := st;
+end;
 
 procedure doHandlecmReport;
 begin
+  StartNewVisual (vtRotateVisual, vfScreenBottom + vfThread + vfTimer + vfBreak + vfConfirm , 'Формирование отчета' , 100);
+  SetVisualHeader ('Формирование отчета');
+
+  StoreDSK;
+
+  doPrintReport8311;
+
+  StopVisual ('',0);
+
+  if (isShowTimeLabels) then {
+    /*
+    message ( tms[1] + ''#13'' +
+              tms[2] + ''#13'' +
+              tms[3] + ''#13'' +
+              tms[4] + ''#13'' +
+              tms[5] + ''#13'' +
+              tms[6] + ''#13''
+              )
+              ;
+    */
+  };
+
 end
 
+procedure printSigners;
+begin
+  if not podpisanty.isSelected then exit;
+
+  _loop podpisanty {
+    var ar : array [1..2] of string;
+    ar[1] := podpisanty.dolj;
+    ar[2] := podpisanty.fio;
+
+    xlSetCellStringValue(ar[1] , 14, 2, 14, 2); // ??N? - ????
+    xlSetCellStringValue(ar[2] , 14, 7, 14, 7); // ??N? - ????
+    xlRunMacro('CopyRow(ROW3)');
+  }
+
+end;
 
 procedure doHandlecmShowDebug83x();
 begin

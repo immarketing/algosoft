@@ -1,0 +1,286 @@
+  function trimFirst0 (st : String):string; forward;
+
+  create view lvlnmb
+  var
+    cPos : comp
+  as
+  select *
+    from fpSpAxtf spAx
+   where ((
+   cPos == spAx.nrec
+   ))
+   ;
+
+  function getCurrentLevelNumber : word;
+  begin
+
+    result := 0;
+
+    set lvlnmb.cPos := fpSpAxtf.nRec;
+    do {
+      if (lvlnmb.getfirst spAx = tsOK) {
+        if (lvlnmb.spAx.cNode = 0) {
+          exit;
+        } else {
+          inc (result);
+          set lvlnmb.cPos := lvlnmb.spAx.cNode;
+        }
+      } else {
+        exit;
+      }
+    } while true;
+  end;
+
+  procedure ExcelPrint2(CopyBud:comp; FP:word; Nstr:word; Nstol:word; var vl : double);
+  begin
+    xlSetCellNumberValue(0 , Nstr, Nstol , Nstr, Nstol );
+    vl      := 0;
+
+    Set cCopyBud:=CopyBud;
+    Set cFP := FP;
+
+    _LOOP  fpV {
+      if (getFirst fpP <> tsOK) {exit};
+      if ( fpPeriod.dBeg = fpP.dBeg ) and (fpPeriod.dEnd = fpP.dEnd)
+      //if ( fpV.cPeriod = cPeriod )
+      //if((month(fpP.dbeg)=month(fpP.dEnd)) and (month(fpP.dbeg)=month(fpperiod.dbeg)) and (year(fpP.dbeg)=year(fpperiod.dbeg)))// and (fpvalues.chashan = 0))) //chek year
+      {
+        if(Check=0)
+        {
+          xlSetCellNumberValue(fpv.summa     , Nstr, Nstol , Nstr, Nstol );
+          vl := fpv.summa;
+        }
+        else
+        {
+          xlSetCellNumberValue(fpv.summa/1000, Nstr, Nstol , Nstr, Nstol );
+          vl := fpv.summa/1000;
+        }
+      }
+      else{}
+    }
+  end;
+
+  procedure ExcelPrint3( wTbl : word;
+                         CopyBud:comp;
+                         FP:word;
+                         Nstr:word;
+                         Nstol:word;
+                         var vl : double
+                         );
+  begin
+    if (wTbl = 22217){ // статья бюджета
+      ExcelPrint2 (CopyBud,FP,Nstr,Nstol,vl);
+      exit;
+    }
+    // аналитика
+    xlSetCellNumberValue(0 , Nstr, Nstol , Nstr, Nstol );
+    vl      := 0;
+
+    Set cCopyBud:=CopyBud;
+    Set cFP := FP;
+
+    if (getFirst superfpSpAxtf = tsOK) {
+      if (getFirst HashAn = tsOK) {
+        if (getFirst fpV2 = tsOK) {
+          if(Check=0) {
+            xlSetCellNumberValue(fpv2.summa     , Nstr, Nstol , Nstr, Nstol );
+            vl := fpv2.summa;
+          } else {
+            xlSetCellNumberValue(fpv2.summa/1000, Nstr, Nstol , Nstr, Nstol );
+            vl := fpv2.summa/1000;
+          }
+        }
+      }
+    }
+  end;  create view forGetCode
+  var
+  cKAU : comp;
+  as select * from spkau where ((
+  cKAU == spkau.nRec
+  ))
+  ;
+
+
+  procedure GetCurrentCodeName (var code : String ; var name : String);
+  begin
+    // Replace (,'_','-')
+    // fpStBud
+    // superKAUfpStBud
+
+    var cd, nm : String;
+
+    if(fpSpAxtf.coTable = word(22217) ) {
+      cd := fpStBud.abbr;
+      nm := fpSpAxtf.name;
+      //
+      if ( SubStr (cd, Length(cd),1 )= '_'  ) {
+        cd := cd + '00'
+      }
+
+      code := Replace (cd, '_', '-');
+      name := nm;
+    } else {
+      if (getFirst superKauSpAxtf = tsOK ) {};
+      if (getFirst superKAUfpStBud = tsOK ) {};
+      cd := superKAUfpStBud.abbr;
+      nm := fpSpAxtf.name;
+
+      set forGetCode.cKAU := fpSpAxtf.cMEAN;
+      if (forGetCode.getfirst spkau = tsOK) {
+        code := Replace (cd + forGetCode.spkau.levelcode,'_','-');
+      } else {
+        code := Replace (cd + fpSpAxtf.levelcode,'_','-');
+      }
+      //
+      name := fpSpAxtf.name;
+    }
+  end;
+
+  procedure doPrintReport8311;
+  begin
+    var tt:word;
+
+    //Message ( 'doPrintReport8311');
+
+    tt:=0;
+
+    _LOOP fpSpAxtf {
+      NextVisual;
+      inc(tt);
+      set cStBud  := 0;
+      if(fpSpAxtf.coTable = word(22217) )       // (isValid(tnfpstbud))
+      {
+        set cStBud  := fpSpAxtf.cMean;//
+        set cHashAn := comp(0);
+        //xlSetCellStringValue('1', 1+tt, 40, 1+tt, 40);
+      } else{
+        if (getFirst superKauSpAxtf = tsOK) {
+          /*
+          if (getFirst superfpSpAxtf2 = tsOK) {
+            set cStBud  := superfpSpAxtf2.cMEAN;
+          }
+          */
+          set cStBud  := superKauSpAxtf.cMEAN;
+        }
+        set cHashAn := Hashan.nrec;
+        //xlSetCellStringValue('2', 1+tt, 40, 1+tt, 40);
+      }
+
+      var code2010, name2010 : String;
+
+      GetCurrentCodeName (code2010, name2010);
+
+      var delit : double;
+      if(Check=0)      {
+        delit := 1;
+      }      else      {
+        delit := 1000;
+      }
+
+      var extCl : byte;
+      extCl := 0;
+      var extCl1 : byte;
+      extCl1 := 0;
+      var extraChar : string;
+      extraChar := '''';
+      if ( fpSpAxtf.coTable = coFPSTBUD ) {
+        extCl  := GetStBudExtraParameters( coFPSTBUD , fpSpAxtf.CMEAN, extClName );
+        extCl1 := GetStBudExtraParameters( coFPSTBUD , fpSpAxtf.CMEAN, extClName1 );
+      } else {
+        if (getfirst superfpSpAxtf = tsOK) {}
+        extCl  := GetStBudExtraParameters( coFPSTBUD , superfpSpAxtf.CMEAN, extClName );
+        extCl1 := GetStBudExtraParameters( coFPSTBUD , superfpSpAxtf.CMEAN, extClName1 );
+      }
+
+      if ( extCl = 1 /* fpSpAxtf.cNode = 0h */)then {
+        // самый верхний уровень группировки
+
+        //xlSetCellStringValue(extraChar + trimFirst0(fpstbud.levelcode), 8, 1, 8, 1);
+        //xlSetCellStringValue(extraChar + trimFirst0(fpstbud.abbr), 8, 1, 8, 1);
+        xlSetCellStringValue(extraChar + trimFirst0(code2010), 8, 1, 8, 1);
+
+
+        //xlSetCellStringValue(fpSpAxtf.levelcode, 8, 1, 8, 1); //
+        xlSetCellStringValue(fpSpAxtf.name, 8, 2, 8, 2); //
+        xlRunMacro('CopyRow(ROW0)');
+      } else if (  (extCl = 3)  or (extCl = 4)  /* агрегат /* fpSpAxtf.isLeaf = 0 */ )then {
+        var r2print : word;
+        if (extCl = 4) {
+          r2print := 10;
+        } else {
+          r2print := 48;
+        }
+
+        // Группа не верхнего уровня
+        //xlSetCellStringValue(extraChar + trimFirst0(fpstbud.levelcode), r2print, 1, r2print, 1);
+        //xlSetCellStringValue(extraChar + trimFirst0(fpstbud.abbr), r2print, 1, r2print, 1);
+        xlSetCellStringValue(extraChar + trimFirst0(code2010), r2print, 1, r2print, 1);
+
+
+        //xlSetCellStringValue(fpSpAxtf.levelcode, 10, 1, 10, 1); //
+        xlSetCellStringValue(PadCh ('',' ', 2 * getCurrentLevelNumber) + fpSpAxtf.name, r2print, 2, r2print, 2); //
+        ExcelPrint3(fpSpAxtf.coTable,cPlan,150,r2print,3, arValues[1]); // План 1
+        ExcelPrint3(fpSpAxtf.coTable,cPlan,150,r2print,4, arValues[3]); // План 3
+        ExcelPrint3(fpSpAxtf.coTable,cPlan,150,r2print,4, arValues[2]); // План 2
+
+        if ( abs (arValues[1]) < 0.0000001 and abs (arValues[2]) < 0.0000001 and abs (arValues[3]) < 0.0000001) then {
+          if (not isShowZeros and fpSpAxtf.isLeaf = 1) {
+            continue;
+          }
+        }
+
+        if (extCl = 2) {
+          // - в подвал
+          insert f791_podval set  f791_podval.name := PadCh ('',' ', 2 * getCurrentLevelNumber) + fpSpAxtf.name,
+                                  f791_podval.code := extraChar + trimFirst0(fpSpAxtf.levelcode),
+                                  f791_podval.summa:= arValues[2]
+                                  ;
+        }
+
+        arValues[3] := arValues[3] - if ( (arValues[1]- arValues[2]) < 0 ,arValues[1],arValues[2]) ;
+        //xlSetCellNumberValue(if (arValues[3]<0,0,arValues[3]) , r2print, 6 , r2print, 6 );
+
+        if (extCl <> 2) {
+          if (extCl = 4) {
+            xlRunMacro('CopyRow(ROW2)');
+          } else {
+            xlRunMacro('CopyRow(ROW791ITOGO)');
+          }
+        };
+      } else {
+        // Лист - простая строка
+        //xlSetCellStringValue(extraChar + trimFirst0(fpstbud.levelcode), 9, 1, 9, 1);
+        //xlSetCellStringValue(extraChar + trimFirst0(fpstbud.abbr), 9, 1, 9, 1);
+        xlSetCellStringValue(extraChar + trimFirst0(code2010), 9, 1, 9, 1);
+
+
+        //xlSetCellStringValue(fpSpAxtf.levelcode, 9, 1, 9, 1); //
+        xlSetCellStringValue(PadCh ('',' ', 2 * getCurrentLevelNumber) + fpSpAxtf.name, 9, 2, 9, 2); //
+        ExcelPrint3(fpSpAxtf.coTable,cPlan,150,9,3, arValues[1]); // План 1
+        ExcelPrint3(fpSpAxtf.coTable,cFact,150,9,4, arValues[2]); // План 2
+
+        if (extCl = 2) {
+          // - в подвал
+          insert f791_podval set  f791_podval.name := PadCh ('',' ', 2 * getCurrentLevelNumber) + fpSpAxtf.name,
+                                  f791_podval.code := extraChar + trimFirst0(fpSpAxtf.levelcode),
+                                  //f791_podval.code := fpstbud.levelcode,
+                                  f791_podval.summa:= arValues[2];
+        }
+
+        arValues[3] := arValues[3] - if ( (arValues[1]- arValues[2]) < 0 ,arValues[1],arValues[2]) ;
+
+        if ( abs (arValues[1]) < 0.0000001 and abs (arValues[2]) < 0.0000001 and abs (arValues[3]) < 0.0000001) then {
+          if (not isShowZeros and fpSpAxtf.isLeaf = 1) {
+            continue;
+          }
+        }
+
+        //xlSetCellNumberValue( if (arValues[3]<0,0,arValues[3]) , 9, 6 , 9, 6 );
+
+        if (extCl <> 2) {
+          xlRunMacro('CopyRow(ROW1)');
+        };
+      }
+
+    }
+  end;

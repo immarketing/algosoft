@@ -53,12 +53,6 @@
 
     dc := true;
 
-    SaveMyDsk(sPath,     'iForm831x.sPath');
-    SaveMyDsk(cTForm,    'iForm831x.cTForm');
-    SaveMyDsk(cPeriod,   'iForm831x.cPeriod');
-    SaveMyDsk(cPlan,     'iForm831x.cPlan');
-    SaveMyDsk(cFact,     'iForm831x.cFact');
-
     ReadMyDsk(sPath,     'iForm831x.sPath',isError);
     ReadMyDsk(cTForm,    'iForm831x.cTForm',isError);
     ReadMyDsk(cPlan,     'iForm831x.cPlan',isError);
