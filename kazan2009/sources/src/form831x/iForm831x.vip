@@ -97,8 +97,7 @@ Interface #szmn_bud_Form831x_2010
   show at  (0,0,100,30)
   ;
 
-!#include iForm791_memtbls.vip
-
+#include iForm831x_memtbls.vip
 #include iForm831x_createview.vip
 #include iForm831x_windows.vip
 #include iForm831x_proc.vip
@@ -137,6 +136,10 @@ Handleevent
 
   cmDelOnProtect: {
     doHandlecmDelOnProtect;
+  }
+
+  cmTest : {
+    doHandlecmTest;
   }
   /*
   cmApply:

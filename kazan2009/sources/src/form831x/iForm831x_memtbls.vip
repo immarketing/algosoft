@@ -1,0 +1,178 @@
+
+table struct f831_selectedperiods
+(
+  rangeid          : word ,
+  cPeriod          : comp 
+)
+with index
+(
+  f831_slpd_rid = rangeid+cPeriod (unique)
+)
+;
+
+/*
+table struct f791_2fields
+(
+  f1          : longint "",
+  f2          : longint
+)
+;
+
+table struct f791_2extcl
+(
+  wTable        : word,
+  cRec          : comp,
+  name          : String,
+  val           : String
+)
+;
+
+
+table struct f791_podval
+(
+!  nRec          : comp "",
+  cRec          : comp ,
+  code          : String,
+  name          : String,
+  summa         : double
+)
+with index
+(
+!  f791_pdv_nrec = NREC(Unique, Surrogate),
+  f791_pdv_code = code
+
+)
+;
+
+
+table struct f791_stack
+(
+  nRec          : comp "",
+  cRec          : comp ,
+  cNode         : comp ,
+  level         : word ,
+  printedAt     : word
+)
+with index
+(
+  f714_stk_nrec = NREC(Unique, Surrogate),
+  f714_stk_nrec_desc = NREC,
+  f791_stk_crec = crec,
+  f791_stk_cnode = cnode
+)
+;
+
+
+table struct f791_printed
+(
+  nRec          : comp "",
+  cRec          : comp ,
+  cnode         : comp,
+  printedAtRow  : word,
+  code          : String,
+  name          : String,
+  groupFrom     : word,
+  groupTo       : word,
+  rowsToGroup   : word,
+  groupFrom79   : word,
+  groupTo79     : word,
+  rowsToGroup79 : word,
+  extPar        : byte,
+  extPar1       : byte,
+  isLeaf        : byte,
+  printedatrow79: word,
+  sum           : array [1..3] of double,
+  isKAUGroup    : byte,
+  isMakeGroup   : byte,
+  coTable        : word
+)
+with index
+(
+  f714_ptd_nrec = NREC(Unique, Surrogate),
+  f791_ptd_crec = crec,
+  f791_ptd_cnode = cnode,
+  f791_ptd_node_prrow = cnode + printedAtRow,
+  f791_ptd_rowsToGroup = groupFrom + rowsToGroup (desc),
+  f791_ptd_ctkg        = coTable + isKAUGroup,
+  f791_ptd_kg        = isKAUGroup
+)
+;
+
+/*
+table struct f714_datas
+(
+  nRec        : comp "",
+  Npp         : String ,
+  NppSort     : String,
+  cOrg        : comp,
+  OrgName     : string, // организация
+  OrgINN      : String,
+  cDog        : comp,
+  DogName     : String, // договор
+  DogPred     : String,
+  cAppDog     : String,
+  AppDogName  : String, // доп. договор
+  plDate      : date,
+  plDay       : byte,
+  cStBud      : comp,
+  StBudName   : string,
+  sum         : double,
+  sumAr       : array [1..31] of double,
+  AKTOFPnRec  : comp
+)
+with index
+(
+  f714_ds_nrec = NREC(Unique, Surrogate),
+  f714_OrgName = cStBud + OrgName,
+  f714_ON_DN_SDN = OrgName + DogName + AppDogName,
+  f714_ON_DN_SDN_SB = OrgName + DogName + AppDogName + cStBud
+
+)
+;
+
+table struct f714_stbud
+(
+  nRec        : comp "",
+  //cCO         : comp "",
+  name        : String,
+  levelcode   : String,
+  code        : String,
+  cNode       :comp,
+  lvl         : word,
+  isLeaf      : byte,
+  SortCode    : String,
+  maxLn       : byte,
+  codeLen     : byte
+)
+with index
+(
+  f714_sb_nrec   = NREC(Unique),
+  f714_sb_lvl    = lvl + nrec,
+  f714_sb_cNode  = cnode + levelcode,
+  f714_sb_lcode   = levelcode,
+  f714_sb_scode   = SortCode
+
+
+)
+;
+
+table struct f714_sb_iter
+(
+  nRec        : comp "",
+  cRec        : comp, // ссылка на статью
+  cnode       : comp, // ссылка на вышестоящую статью
+  level       : byte,
+  prStart     : byte, // признак старта: 1 -  старт 2 - финиш
+  printedAtRow: word, // строка выведена на этой строке отчета
+  SubRowsPrinted: word // напечатано столько подстрок
+)
+with index
+(
+  f714_sbi_nrec   = NREC(Unique, Surrogate),
+  f714_sbi_lvl    = level,
+  f714_sbi_rsi    = crec + prStart,
+  f714_sbi_rsi2   = cnode + prStart
+
+)
+;
+*/

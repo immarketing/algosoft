@@ -2,119 +2,237 @@
 #include iForm831x_extClass.vip
 #include iForm831x_procreport.vip
 
-function trimFirst0 (st : String):string;
-begin
-  result := st;
-  exit;
+  create view forPeriodSelection
+  var
+  cPer : comp; //  период
+  as select *
+       from fpPeriod ,
+            fpPeriod monthBefore,
+            fpPeriod monthAfter
+  where ((
 
-  if st = '' then {
-    result := '';
-    exit
-  };
-  if substr (st,1,1) = '0' then
-    result := trimFirst0 (substr (st,2,255))
-  else
+  cPer == fpPeriod.nRec and
+  fpPeriod.CPREV == monthBefore.nRec and
+  fpPeriod.nRec == monthAfter.CPREV
+  ))
+  ;
+
+
+  procedure buildUsedPeriods; forward;
+  procedure doHandlecmTest;
+  begin
+    buildUsedPeriods;
+  end;
+
+  procedure buildUsedPeriods;
+  begin
+    //message ('doHandlecmTest');
+    // f831_selectedperiods
+
+    // отбираем текущий месяц
+
+    delete all f831_selectedperiods;
+
+    var cPrd : comp;
+    cPrd := cPeriod;
+
+    insert f831_selectedperiods set
+           f831_selectedperiods.rangeid := 1,
+           f831_selectedperiods.cPeriod := cPrd
+           ;
+
+    VAR curMonth, curKvart, curYear : word;
+
+    set forPeriodSelection.cPer := cPrd;
+
+    if (forPeriodSelection.getFirst fpPeriod = tsOK) {
+      curMonth := month(forPeriodSelection.fpPeriod.DBEG);
+      curKvart := (curMonth -1 ) div 3;
+      curYear  := year(forPeriodSelection.fpPeriod.DBEG);
+      insert f831_selectedperiods set
+             f831_selectedperiods.rangeid := 2,
+             f831_selectedperiods.cPeriod := cPrd
+             ;
+      insert f831_selectedperiods set
+             f831_selectedperiods.rangeid := 3,
+             f831_selectedperiods.cPeriod := cPrd
+             ;
+      while (true) {
+        if (forPeriodSelection.getFirst fpPeriod <> tsOK) {break};
+        if (forPeriodSelection.getFirst monthBefore <> tsOK) {break};
+        if ( year(forPeriodSelection.monthBefore.DBEG)  = curYear ){
+          //
+          insert f831_selectedperiods set
+                 f831_selectedperiods.rangeid := 3,
+                 f831_selectedperiods.cPeriod := forPeriodSelection.monthBefore.nRec
+                 ;
+          if (((month(forPeriodSelection.monthBefore.DBEG) -1 ) div 3) = curKvart) {
+            insert f831_selectedperiods set
+                   f831_selectedperiods.rangeid := 2,
+                   f831_selectedperiods.cPeriod := forPeriodSelection.monthBefore.nRec
+                   ;
+          }
+          set forPeriodSelection.cPer := forPeriodSelection.monthBefore.nRec;
+        } else {
+          break;
+        }
+      }
+      set forPeriodSelection.cPer := cPrd;
+
+      while (true) {
+        if (forPeriodSelection.getFirst fpPeriod <> tsOK) {break};
+        if (forPeriodSelection.getFirst monthAfter <> tsOK) {break};
+        if ( year(forPeriodSelection.monthAfter.DBEG)  = curYear ){
+          //
+          insert f831_selectedperiods set
+                 f831_selectedperiods.rangeid := 3,
+                 f831_selectedperiods.cPeriod := forPeriodSelection.monthAfter.nRec
+                 ;
+          if (((month(forPeriodSelection.monthAfter.DBEG) -1 ) div 3) = curKvart) {
+            insert f831_selectedperiods set
+                   f831_selectedperiods.rangeid := 2,
+                   f831_selectedperiods.cPeriod := forPeriodSelection.monthAfter.nRec
+                   ;
+          }
+          set forPeriodSelection.cPer := forPeriodSelection.monthAfter.nRec;
+        } else {
+          break;
+        }
+      }
+
+    }
+  end;
+
+  function trimFirst0 (st : String):string;
+  begin
     result := st;
-end;
+    exit;
 
-procedure doHandlecmReport;
-begin
-  StartNewVisual (vtRotateVisual, vfScreenBottom + vfThread + vfTimer + vfBreak + vfConfirm , 'Формирование отчета' , 100);
-  SetVisualHeader ('Формирование отчета');
-
-  StoreDSK;
-
-  doPrintReport8311;
-
-  StopVisual ('',0);
-
-  if (isShowTimeLabels) then {
-    /*
-    message ( tms[1] + ''#13'' +
-              tms[2] + ''#13'' +
-              tms[3] + ''#13'' +
-              tms[4] + ''#13'' +
-              tms[5] + ''#13'' +
-              tms[6] + ''#13''
-              )
-              ;
-    */
-  };
-
-end
-
-procedure printSigners;
-begin
-  if not podpisanty.isSelected then exit;
-
-  _loop podpisanty {
-    var ar : array [1..2] of string;
-    ar[1] := podpisanty.dolj;
-    ar[2] := podpisanty.fio;
-
-    xlSetCellStringValue(ar[1] , 14, 2, 14, 2); // ??N? - ????
-    xlSetCellStringValue(ar[2] , 14, 7, 14, 7); // ??N? - ????
-    xlRunMacro('CopyRow(ROW3)');
-  }
-
-end;
-
-procedure doHandlecmShowDebug83x();
-begin
-  RunWindowModal( wnInfoWindow );
-end;
-
-procedure handleInit;
-begin
-    set isShowZeros := true;
-
-    set isShowTimeLabels := false;
-
-    set coTableToSum := 22217;
-
-    set isDebugDatas := false;
-
-    podpisanty.setprefix('szmn_bud_Form831x');
-    podpisanty.reinit;
-
-    ReadDsk;
-end;
-
-procedure doHandlecmDelOnProtect;
-begin
-  case curField of
-    #sTForm    : Set cTForm:=0;
-    #sPeriod   : Set cPeriod:=0;
-    #sPlan     : Set cPlan :=0;
-    #sFact     : Set cFact :=0;
-
-    #sPodpGrp  : {
-      set podpisanty.cPodpGroup := 0;
-    }
+    if st = '' then {
+      result := '';
+      exit
+    };
+    if substr (st,1,1) = '0' then
+      result := trimFirst0 (substr (st,2,255))
+    else
+      result := st;
   end;
 
-end;
+  procedure doHandlecmReport;
+  begin
+    StartNewVisual (vtRotateVisual, vfScreenBottom + vfThread + vfTimer + vfBreak + vfConfirm , 'Формирование отчета' , 100);
+    SetVisualHeader ('Формирование отчета');
 
-procedure doHandlecmPick;
-begin
-  case curField of
-    #sTForm    :  RunInterface('F_FpBudget::getTForm', cgiPick, 0, cTForm);
-    #sPeriod   :  RunInterface('F_FpCatalog::getPeriod', cgiPick, comp(0), comp(0), cPeriod, cgSetFPTuneDefault);
-    #sPlan     :  RunInterface('F_FpBudget::Budget', word(cgiPick), word(0), word(0), comp(0), cPlan, 0, 0);
-    #sFact     :  RunInterface('F_FpBudget::Budget', word(cgiPick), word(0), word(0), comp(0), cFact, 0, 0);
+    StoreDSK;
 
-    #sPodpGrp    : {
-      podpisanty.SelectPodpis;
-      RescanPanel (scKatH01);
+    buildUsedPeriods;
+
+    doPrintReport8311;
+
+    StopVisual ('',0);
+
+    if (isShowTimeLabels) then {
+      /*
+      message ( tms[1] + ''#13'' +
+                tms[2] + ''#13'' +
+                tms[3] + ''#13'' +
+                tms[4] + ''#13'' +
+                tms[5] + ''#13'' +
+                tms[6] + ''#13''
+                )
+                ;
+      */
+    };
+
+  end
+
+  procedure printSigners;
+  begin
+    if not podpisanty.isSelected then exit;
+
+    _loop podpisanty {
+      var ar : array [1..2] of string;
+      ar[1] := podpisanty.dolj;
+      ar[2] := podpisanty.fio;
+
+      xlSetCellStringValue(ar[1] , 14, 2, 14, 2); // ??N? - ????
+      xlSetCellStringValue(ar[2] , 14, 7, 14, 7); // ??N? - ????
+      xlRunMacro('CopyRow(ROW3)');
     }
 
-    #sPath     : {
-      var sTmp : string;
-      sTmp := GetFileName('*.XLS', 'Выберите файл с шаблоном');
-      if (trim(sTmp) = '') { Exit; }
-      Set sPath := sTmp;
-    }
   end;
-end;
 
+  procedure doHandlecmShowDebug83x();
+  begin
+    RunWindowModal( wnInfoWindow );
+  end;
 
+  procedure handleInit;
+  begin
+      set isShowZeros := true;
+
+      set isShowTimeLabels := false;
+
+      set coTableToSum := 22217;
+
+      set isDebugDatas := false;
+
+      podpisanty.setprefix('szmn_bud_Form831x');
+      podpisanty.reinit;
+
+      ReadDsk;
+  end;
+
+  procedure doHandlecmDelOnProtect;
+  begin
+    case curField of
+      #sTForm    : Set cTForm:=0;
+      #sPeriod   : Set cPeriod:=0;
+      #sPlan     : Set cPlan :=0;
+      #sFact     : Set cFact :=0;
+
+      #sPodpGrp  : {
+        set podpisanty.cPodpGroup := 0;
+      }
+    end;
+
+  end;
+
+  procedure doHandlecmPick;
+  begin
+    case curField of
+      #sTForm    :  RunInterface('F_FpBudget::getTForm', cgiPick, 0, cTForm);
+      #sPeriod   :  {
+        var cp : comp;
+        cp := cPeriod;
+
+        RunInterface('F_FpCatalog::getPeriod', cgiPick, comp(0), comp(0), cp, cgSetFPTuneDefault);
+
+        if (getfirst fpPeriod fpp where (( cp == fpp.nRec )) = tsOK) {
+          if (fpp.isLeaf = 1) {
+            if ( (CalcDaysBetweenDates  (fpp.DBEG , fpp.DEND, false) <= 32)
+               and
+               (CalcDaysBetweenDates  (fpp.DBEG , fpp.DEND, false) > 20) ){
+              set cPeriod := cp;
+            }
+          }
+        }
+      }
+
+      #sPlan     :  RunInterface('F_FpBudget::Budget', word(cgiPick), word(0), word(0), comp(0), cPlan, 0, 0);
+      #sPlanC    :  RunInterface('F_FpBudget::Budget', word(cgiPick), word(0), word(0), comp(0), cPlanC, 0, 0);
+      #sFact     :  RunInterface('F_FpBudget::Budget', word(cgiPick), word(0), word(0), comp(0), cFact, 0, 0);
+
+      #sPodpGrp    : {
+        podpisanty.SelectPodpis;
+        RescanPanel (scKatH01);
+      }
+
+      #sPath     : {
+        var sTmp : string;
+        sTmp := GetFileName('*.XLS', 'Выберите файл с шаблоном');
+        if (trim(sTmp) = '') { Exit; }
+        Set sPath := sTmp;
+      }
+    end;
+  end;
