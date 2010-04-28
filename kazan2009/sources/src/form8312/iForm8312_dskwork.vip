@@ -1,0 +1,54 @@
+  procedure CheckDefValues;
+  begin
+    /*
+    if (extClName = '') {set extClName := 'Характеристики для форм 7.9.1 и 7.9'};
+
+    if (excCode1 = '') {set excCode1 := 'Разделитель'};
+    if (excCode2 = '') {set excCode2 := 'Вынос в подвал'};
+    if (excCode3 = '') {set excCode3 := 'Итого'};
+    if (excCode4 = '') {set excCode4 := 'Агрегат'};
+
+    if (extClName1 = '') {set extClName1 := 'Дополнительная обработка статьи'};
+    if (excCode5 = '') {set excCode5 := 'Сумма'};
+    if (excCode6 = '') {set excCode6 := 'Сложить'};
+    if (excCode7 = '') {set excCode7 := 'Вычесть'};
+    */
+
+    if (sPath='') set sPath := translatepath('%startpath%Xls\F_FPBUDGET\SZMN_Budjet\tmpl_8_3_1_2.xls');
+  end;
+
+  Procedure StoreDSK();
+  begin
+    CheckDefValues;
+
+    SaveMyDsk(sPath,     DSKPREFIX + '.sPath');
+
+    SaveMyDsk(cTForm,    DSKPREFIX + '.cTForm');
+    SaveMyDsk(cPeriod,   DSKPREFIX + '.cPeriod');
+    SaveMyDsk(cPlan,     DSKPREFIX + '.cPlan');
+    SaveMyDsk(cPlanC,    DSKPREFIX + '.cPlanC');
+
+    SaveMyDsk(cFact,     DSKPREFIX + '.cFact');
+
+    SaveMyDsk (Check,    DSKPREFIX + '.Check' );
+  end;
+
+  procedure ReadDSK;
+  begin
+    var dc : boolean;
+    var isError : boolean;
+
+    isError := true;
+
+    ReadMyDsk(sPath,     DSKPREFIX +'.sPath',isError);
+    ReadMyDsk(cTForm,    DSKPREFIX +'.cTForm',isError);
+    ReadMyDsk(cPlan,     DSKPREFIX +'.cPlan',isError);
+    ReadMyDsk(cPlanC,    DSKPREFIX +'.cPlanC',isError);
+
+    ReadMyDsk(cFact,     DSKPREFIX +'.cFact',isError);
+    ReadMyDsk(cPeriod,   DSKPREFIX +'.cPeriod',isError);
+
+    ReadMyDsk (Check,    DSKPREFIX +'.Check', isError);
+
+    CheckDefValues;
+  end;

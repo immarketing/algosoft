@@ -1,0 +1,145 @@
+#include iForm8312_dskwork.vip
+
+  procedure doPrintReport;
+  begin
+    var repVarsArray : TBudVariantRecordArray3;
+
+    var reporter : #szmn_bud_Form831x_2010;
+
+    repVarsArray[1].cfpBudVar    :=  cPlan;
+    repVarsArray[1].regType      :=  150;
+    repVarsArray[1].tmplColMonth :=  3;
+    repVarsArray[1].tmplColKvart :=  9;
+    repVarsArray[1].tmplColYear  :=  15;
+
+    repVarsArray[2].cfpBudVar    :=  cPlanC;
+    repVarsArray[2].regType      :=  150;
+    repVarsArray[2].tmplColMonth :=  5;
+    repVarsArray[2].tmplColKvart :=  11;
+    repVarsArray[2].tmplColYear  :=  17;
+
+    repVarsArray[3].cfpBudVar    :=  cFact;
+    repVarsArray[3].regType      :=  151;
+    repVarsArray[3].tmplColMonth :=  6;
+    repVarsArray[3].tmplColKvart :=  12;
+    repVarsArray[3].tmplColYear  :=  18;
+
+    var tmplRec : TTemplateRecord;
+
+    tmplRec.sPath := sPath;
+    tmplRec.dataSheetName := 'datas8.3.1.x';
+    tmplRec.repSheetName := 'rep8.3.1.x';
+    tmplRec.tmplRow :=  15;
+    tmplRec.tmplRowName := 'ROWORDINAL';
+    tmplRec.tmplLastTblRowName := 'ROWTBLFINISH';
+    tmplRec.rowToStartWith := 9;
+
+    tmplRec.periodNameCell.row := 4;
+    tmplRec.periodNameCell.col := 2;
+
+    tmplRec.startMacrosName := 'REP_BegoreReportPrint831x';
+    tmplRec.finishMacrosName := 'AfterPrint831x';
+
+    reporter.SetBudVariants(repVarsArray);
+    reporter.SetTemplate (tmplRec);
+    reporter.SetStartKillExcel(true, true);
+
+    reporter.SetReportPeriod(cPeriod);
+
+    reporter.SetTypeForm(cTForm);
+
+#ifdef _IS_SZMN_DEBUG_
+    reporter.SetCodificatorByName ('szmn_bud_Ierarhycodificator_');
+#else
+    reporter.SetCodificatorByName ('szmn_bud_Ierarhycodificator');
+#ENDIF
+
+    if(Check=0) {
+      reporter.SetScale (1);
+    } else {
+      reporter.SetScale(1000);
+    }
+
+    reporter.SetIsDebugDatas(isDebugDatas);
+
+    reporter.DoPrintReport;
+  end;
+
+  procedure doHandlecmReport;
+  begin
+    StoreDSK;
+    doPrintReport;
+  end
+
+  procedure doHandlecmShowDebug83x();
+  begin
+    //RunWindowModal( wnInfoWindow );
+  end;
+
+  procedure handleInit;
+  begin
+    set isShowTimeLabels := false;
+    set isDebugDatas := false;
+
+    set DSKPREFIX := 'iForm8312';
+
+    podpisanty.setprefix('szmn_bud_' + DSKPREFIX);
+    podpisanty.reinit;
+
+    ReadDsk;
+  end;
+
+  procedure doHandlecmDelOnProtect;
+  begin
+    case curField of
+      #sTForm    : Set cTForm:=0;
+      #sPeriod   : Set cPeriod:=0;
+      #sPlan     : Set cPlan :=0;
+      #sPlanC    : Set cPlanC :=0;
+      #sFact     : Set cFact :=0;
+
+      #sPodpGrp  : {
+        set podpisanty.cPodpGroup := 0;
+      }
+    end;
+
+  end;
+
+  procedure doHandlecmPick;
+  begin
+    case curField of
+      #sTForm    :  RunInterface('F_FpBudget::getTForm', cgiPick, 0, cTForm);
+      #sPeriod   :  {
+        var cp : comp;
+        cp := cPeriod;
+
+        RunInterface('F_FpCatalog::getPeriod', cgiPick, comp(0), comp(0), cp, cgSetFPTuneDefault);
+
+        if (getfirst fpPeriod fpp where (( cp == fpp.nRec )) = tsOK) {
+          if (fpp.isLeaf = 1) {
+            if ( (CalcDaysBetweenDates  (fpp.DBEG , fpp.DEND, false) <= 32)
+               and
+               (CalcDaysBetweenDates  (fpp.DBEG , fpp.DEND, false) > 20) ){
+              set cPeriod := cp;
+            }
+          }
+        }
+      }
+
+      #sPlan     :  RunInterface('F_FpBudget::Budget', word(cgiPick), word(0), word(0), comp(0), cPlan, 0, 0);
+      #sPlanC    :  RunInterface('F_FpBudget::Budget', word(cgiPick), word(0), word(0), comp(0), cPlanC, 0, 0);
+      #sFact     :  RunInterface('F_FpBudget::Budget', word(cgiPick), word(0), word(0), comp(0), cFact, 0, 0);
+
+      #sPodpGrp    : {
+        podpisanty.SelectPodpis;
+        RescanPanel (scKatH01);
+      }
+
+      #sPath     : {
+        var sTmp : string;
+        sTmp := GetFileName('*.XLS', 'Выберите файл с шаблоном');
+        if (trim(sTmp) = '') { Exit; }
+        Set sPath := sTmp;
+      }
+    end;
+  end;

@@ -1,0 +1,78 @@
+
+#include BudCdfc.vih
+#include BudCdfcIerar.vih
+
+interface #szmn_bud_Ierarhycodificator
+;
+  create view
+  var
+    curfpSpAxtf : comp;
+    cKAU : comp;
+  as
+  select *
+    from
+         fpSpAxtf,
+         fpStBud ,
+         fpSpAxtf superKauSpAxtf,
+         fpStBud  superKAUfpStBud,
+         spkau
+   where ((
+    curfpSpAxtf == fpSpAxtf.nRec
+    and fpSpAxtf.cMean == fpStBud.nrec
+    and fpSpAxtf.cKauNode == superKauSpAxtf.nRec
+    and superKauSpAxtf.cMean == superKAUfpStBud.nRec
+    and cKAU == spkau.nRec
+   ))
+   ;
+
+  function trimFirst0 (st : String):string;
+  begin
+    result := st;
+    //exit;
+
+    if st = '' then {
+      result := '';
+      exit
+    };
+    if substr (st,1,1) = '0' then
+      result := trimFirst0 (substr (st,2,255))
+    else
+      result := st;
+  end;
+
+  procedure GetCodeAndName ( const fpSpAxtfNRec: comp;
+                             var code : String ;
+                             var name : String
+                             );
+  begin
+    set curfpSpAxtf := fpSpAxtfNRec;
+
+    var cd, nm : String;
+
+    if (getFirst fpSpAxtf = tsOK) {
+      cd := '';
+      nm := fpSpAxtf.name;
+
+      if (getFirst fpStBud = tsOK){
+        var j : word;
+        j := Length (nm);
+        if ( (j < Length (fpStBud.Name)) and ( nm = SubStr(fpStBud.Name,1,j)) ) {
+          nm := fpStBud.Name;
+        }
+      }
+
+      while (true) {
+        if (getFirst fpSpAxtf = tsOK) {
+          cd := trimFirst0(fpSpAxtf.levelcode) + if (cd<>'','.' + cd,'');
+          set curfpSpAxtf := fpSpAxtf.cNode;
+        } else {
+          break;
+        }
+      }
+
+      code := cd;
+      name := nm;
+    };
+  end;
+
+end.

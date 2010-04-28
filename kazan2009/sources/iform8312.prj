@@ -1,0 +1,28 @@
+#ifdef _IS_SZMN_DEBUG_
+#include iform831x.prj
+#endif
+
+const
+  //ColorNeed = 6;
+
+#include excel.inc
+
+#include GLOCONST.INC
+
+#include fldcolor.inc
+
+end;
+
+
+#define ComponentVersion
+#define Atl51
+#define GAL8_1
+#define __UKS_PL2__
+
+#define Licensed_Free licensed (FREE)
+
+!timever
+
+#include szmn_cmn.inc
+
+#make "src\form8312\iForm8312.vip"

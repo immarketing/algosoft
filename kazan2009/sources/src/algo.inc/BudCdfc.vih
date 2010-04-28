@@ -1,0 +1,35 @@
+
+#ifndef __BUDGET_CODIFICATOR_VIH
+#define __BUDGET_CODIFICATOR_VIH
+
+#include agdefines.inc
+
+!#include Podpis.vih
+
+!#include iFormCmnPars.vih
+!#include iForm791printed.vih
+
+!#ifdef  ComponentVersion
+!#component "SZMN_COMMON"
+!#endif //ComponentVersion
+
+#doc
+#end
+
+ObjInterface #Iszmn_bud_codificator;
+  procedure GetCodeAndName ( const fpSpAxtfNRec: comp;
+                             var code : String ;
+                             var name : String
+                             );
+end;
+
+VipInterface
+#szmn_bud_codificator
+implements
+  #Iszmn_bud_codificator
+
+#Licensed_Free
+;
+
+
+#endif  // __iForm791_VIH

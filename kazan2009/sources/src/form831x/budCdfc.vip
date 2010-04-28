@@ -1,0 +1,63 @@
+
+#include BudCdfc.vih
+
+interface #szmn_bud_codificator;
+  create view
+  var
+    curfpSpAxtf : comp;
+    cKAU : comp;
+  as
+  select *
+    from
+         fpSpAxtf,
+         fpStBud ,
+         fpSpAxtf superKauSpAxtf,
+         fpStBud  superKAUfpStBud,
+         spkau
+   where ((
+    curfpSpAxtf == fpSpAxtf.nRec
+    and fpSpAxtf.cMean == fpStBud.nrec
+    and fpSpAxtf.cKauNode == superKauSpAxtf.nRec
+    and superKauSpAxtf.cMean == superKAUfpStBud.nRec
+    and cKAU == spkau.nRec
+   ))
+   ;
+
+  procedure GetCodeAndName ( const fpSpAxtfNRec: comp;
+                             var code : String ;
+                             var name : String
+                             );
+  begin
+    set curfpSpAxtf := fpSpAxtfNRec;
+
+    var cd, nm : String;
+
+    if(fpSpAxtf.coTable = word(22217) ) {
+      cd := fpStBud.abbr;
+      nm := fpSpAxtf.name;
+      //
+      if ( SubStr (cd, Length(cd),1 )= '_'  ) {
+        cd := cd + '00'
+      }
+
+      code := Replace (cd, '_', '-');
+      name := nm;
+    } else {
+      if (getFirst superKauSpAxtf = tsOK ) {};
+      if (getFirst superKAUfpStBud = tsOK ) {};
+      cd := superKAUfpStBud.abbr;
+      nm := fpSpAxtf.name;
+
+      set cKAU := fpSpAxtf.cMEAN;
+      if (getfirst spkau = tsOK) {
+        code := Replace (cd + spkau.levelcode,'_','-');
+      } else {
+        code := Replace (cd + fpSpAxtf.levelcode,'_','-');
+      }
+      //
+      name := fpSpAxtf.name;
+    }
+
+  end;
+
+end.

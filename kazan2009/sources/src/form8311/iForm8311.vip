@@ -1,0 +1,164 @@
+
+!#include galnet.ccm
+!end;
+!#include uAlgor.vih
+!#include oAlgSetup.vih
+
+!#include iXLSRepBuilder.VIH
+
+!#include alg_5998.vih
+
+
+!#component "L_DOGOVOR"
+
+!#include consts_alg1.inc
+!end;
+
+!#include alg1.vih
+
+!#include iForm791.vih
+
+!#component "M_MNPLAN"
+
+#include agdefines.inc
+
+#include FpExCO.Vih
+#include Getkau.vih
+
+#include UserReport.vih
+
+#include iForm831x.vih
+
+#include podpis.vih
+
+#include BudCdfc.vih
+#include BudCdfcIerar.vih
+
+// Для попадания примера в список отчетов -
+// раскомментировать конструкцию VipInterface (Implements для Атлантиса 5.1)
+
+#ifdef Atl51
+VipInterface UserReport_szmn_form8311_2010  Implements IUserReport
+  Licensed(Free)
+;
+#else
+!VipInterface UserReport_szmn_form741 Implements IUserReport;
+#end
+
+#doc
+Пример пользовательского отчета #1
+#end
+
+Interface UserReport_szmn_form8311_2010;
+
+create view;
+
+!-------------------------------------------------------------------------------
+// Запуск отчета на выполнение при выборе его из списка отчетов
+procedure Run;
+begin
+  RunInterface('szmn_bud_Form8311_2010' );
+end;
+!-------------------------------------------------------------------------------
+// Наименование отчета в списке
+function GetReportName: String;
+begin
+  GetReportName := 'Форм 8.3.1.1 (вариант 2010 года)';
+end;
+!-------------------------------------------------------------------------------
+function GetGroupName (Level : Word) : String;
+begin
+  GetGroupName := '';
+  case Level of
+    1 : GetGroupName := 'Отчеты по бюджетам';
+  end;
+end;
+!-------------------------------------------------------------------------------
+function GetPriority : Integer;
+begin
+  GetPriority := 0;
+end;
+!-------------------------------------------------------------------------------
+function VisibleInModule(Ind : Byte) : String;
+begin
+  VisibleInModule := '*';
+  case Ind of
+    1 : VisibleInModule := 'SFP';
+  end;
+end;
+!-------------------------------------------------------------------------------
+end.
+
+form8311showdebug menu
+{
+  - 'Показать отладочную информацию', cmShowDebug831, 'Отладочная информация' ;
+}
+
+//vipInterface #szmn_bud_Form791_2010 licensed(free);
+
+Interface #szmn_bud_Form8311_2010
+  '-= СЗМН Бюджет. Формы 8.3.1.1 Вариант 2010 года =- ' (,hcNoContext,) EscClose, Cyan;
+  //show at  (0,0,70,10)
+  show at  (0,0,100,30)
+  ;
+
+!#include iForm831x_memtbls.vip
+#include iForm8311_createview.vip
+#include iForm8311_windows.vip
+#include iForm8311_proc.vip
+
+Handleevent
+  cmHotKeys : {
+    var mn : longint ;
+    mn := LoadMenu('form8311showdebug') ;
+    var i : integer;
+    i := RunLoadMenu (mn);
+    //message  ('i == ' + i);
+    if (i <> 0 and i <> cmCancel) {
+      Putcommand(i)
+    }
+  }
+
+  cmReport: {
+    doHandlecmReport;
+  }
+
+  cmShowDebug831: {
+    //doHandlecmShowDebug832();
+
+  }
+  cmPick: {
+    doHandlecmPick;
+  }
+
+  cmOnVipLoad: {
+    handleInit;
+  }
+
+  cmInit: {
+    handleInit;
+  }
+
+  cmDelOnProtect: {
+    doHandlecmDelOnProtect;
+  }
+
+  /*
+  cmTest : {
+    //doHandlecmTest;
+  }
+
+  cmApply:
+  {
+    doPrintReport();
+
+  }
+  !-------------------------------------------------------------------------------
+
+
+
+  */
+
+end;
+
+End.  // interface

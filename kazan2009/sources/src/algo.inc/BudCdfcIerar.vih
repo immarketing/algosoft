@@ -1,0 +1,15 @@
+#ifndef __BUDGET_IERARHYCODIFICATOR_VIH
+#define __BUDGET_IERARHYCODIFICATOR_VIH
+
+#include agdefines.inc
+#include BudCdfc.vih
+
+#doc
+#end
+VipInterface
+#szmn_bud_Ierarhycodificator
+implements
+  #Iszmn_bud_codificator
+#Licensed_Free
+;
+#endif  // __BUDGET_IERARHYCODIFICATOR_VIH

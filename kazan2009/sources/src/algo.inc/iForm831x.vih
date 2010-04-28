@@ -1,0 +1,97 @@
+
+#ifndef __iForm831x_VIH
+#define __iForm831x_VIH
+
+#include agdefines.inc
+
+#include Podpis.vih
+#include BudCdfc.vih
+
+!#include iFormCmnPars.vih
+!#include iForm791printed.vih
+
+!#ifdef  ComponentVersion
+!#component "SZMN_COMMON"
+!#endif //ComponentVersion
+
+#doc
+Интерфейс доступа к функциям формы 8.3.1.x
+#end
+
+type
+  TExcelCell=record
+    col, row : word;
+  end;
+
+  TBudVariantRecord=record
+    cfpBudVar : comp;  // ссылка на вариант плана
+
+    regType   : byte; // тип значения 150, 151, 152 - план, факт, резерв соответственно
+
+    //templateRow : word; // строка эксель шаблона, на которые надо писать данные
+    tmplColMonth : byte; // колонка для значений за месяц
+    tmplColKvart : byte; // колонка для значений за месяц
+    tmplColYear  : byte; // колонка для значений за месяц
+  end;
+
+  TTemplateRecord=record
+    sPath          : String;
+    dataSheetName  : String;
+    repSheetName   : String;
+
+    tmplRow        : word;   // строка шаблона, на которую заносятся данные
+    tmplRowName    : String; // название строки диапазона, на которую выносятся данные и копируются в отчет
+    tmplLastTblRowName    : String; // название строки диапазона, на которую выносятся данные и копируются в отчет
+
+    rowToStartWith : String; // с какой строки начинать формирование отчета
+
+    startMacrosName : String;  // название стартового макроса
+    finishMacrosName : String;  // название стартового макроса
+
+    periodNameCell : TExcelCell; // ячейка для названия периода получения отчета
+  end;
+
+  TSignerRecord=record
+    sgnrs : SZMN_COMMON::IPodpis;
+    doljCell: TExcelCell;
+    fioCell: TExcelCell;
+    //sgnRow: word;
+    sgnRowName: String
+  end;
+
+  TBudVariantRecordArray3 = array [1..3] of TBudVariantRecord;
+
+ObjInterface Iszmn_bud_Form831x_2010;
+  procedure SetBudVariants (const varArray : TBudVariantRecordArray3);
+  procedure SetTemplate (const tmplRec : TTemplateRecord);
+  procedure SetStartKillExcel (const isStart : boolean; const isKill : boolean);
+
+  procedure SetReportPeriod(prdnRec : comp);
+
+  procedure SetTypeForm(tFormnRec : comp);
+
+  procedure SetSigners ( sgnrs : TSignerRecord );
+
+  procedure DoPrintReport;
+
+  procedure DoPrintSigners;
+
+  procedure SetScale (const scl : LongInt);
+
+  procedure SetCodificator (const cdfctr : #Iszmn_bud_codificator);
+  procedure SetCodificatorByName (const cdfctrInterfName : String);
+
+  procedure SetIsDebugDatas(const isDbd : boolean );
+
+end;
+
+VipInterface
+#szmn_bud_Form831x_2010
+implements
+  Iszmn_bud_Form831x_2010
+
+#Licensed_Free
+;
+
+
+#endif  // __iForm791_VIH

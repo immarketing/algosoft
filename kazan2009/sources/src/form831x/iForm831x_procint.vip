@@ -1,0 +1,98 @@
+  // процедуры и функции объектного интерфейса
+  var templateRec      : TTemplateRecord; // настройки шаблона
+  var budVariantsSetup : TBudVariantRecordArray3; // обслуживаем 3 варианта
+  var signers          : TSignerRecord;
+
+  var isStartExcel : boolean
+  var isKillExcel : boolean;
+
+  var budgetCodificator : #Iszmn_bud_codificator;
+
+  procedure SetCodificator (const cdfctr : #Iszmn_bud_codificator);
+  begin
+    set budgetCodificator := cdfctr;
+  end;
+
+  var reportScale : longint;
+
+  procedure SetScale (const scl : LongInt);
+  begin
+    reportScale :=  scl;
+  end;
+
+  procedure SetCodificatorByName (const cdfctrInterfName : String);
+  begin
+    // #szmn_bud_codificator
+    LoadVipRef(budgetCodificator, cdfctrInterfName);
+  end;
+
+  procedure SetBudVariants (const varArray : TBudVariantRecordArray3);
+  begin
+    set budVariantsSetup := varArray;
+  end;
+
+  procedure SetTemplate (const tmplRec : TTemplateRecord);
+  begin
+    set templateRec := tmplRec;
+
+    set sPath       := templateRec.sPath;
+  end;
+
+  procedure SetStartKillExcel (const isStart : boolean; const isKill : boolean);
+  begin
+    set isStartExcel := isStart;
+    set isKillExcel  := isKill;
+  end;
+
+  procedure SetTypeForm(tFormnRec : comp);
+  begin
+    set cTForm := tFormnRec;
+  end;
+
+  procedure SetReportPeriod(prdnRec : comp);
+  begin
+    set cPeriod := prdnRec;
+  end;
+
+  procedure SetSigners ( sgnrs: TSignerRecord );
+  begin
+    set podpisanty := sgnrs.sgnrs;
+    set signers    := sgnrs;
+  end;
+
+  procedure SetIsDebugDatas(const isDbd : boolean );
+  begin
+    set isDebugDatas := isDbd;
+  end;
+
+  procedure StoreDSK;forward;
+  procedure buildUsedPeriods;forward;
+  procedure doPrintReport8311;forward;
+
+  procedure DoPrintReport;
+  begin
+    StartNewVisual (vtRotateVisual, vfScreenBottom + vfThread + vfTimer + vfBreak + vfConfirm , 'Формирование отчета' , 100);
+    SetVisualHeader ('Формирование отчета');
+
+    StoreDSK;
+
+    buildUsedPeriods;
+
+    doPrintReport8311;
+
+    StopVisual ('',0);
+
+    if (isShowTimeLabels) then {
+      /*
+      message ( tms[1] + ''#13'' +
+                tms[2] + ''#13'' +
+                tms[3] + ''#13'' +
+                tms[4] + ''#13'' +
+                tms[5] + ''#13'' +
+                tms[6] + ''#13''
+                )
+                ;
+      */
+    };
+
+  end;
