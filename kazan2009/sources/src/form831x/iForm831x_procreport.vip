@@ -66,17 +66,25 @@
 
       values[3] += fpv.summa;
     }
+
+    if (reportScale = 0) {
+      reportScale := 1;
+    }
+
+    xlSetCellNumberValue(values[1]/reportScale, Nstr, Nstol[1] , Nstr, Nstol[1] );
+    xlSetCellNumberValue(values[2]/reportScale, Nstr, Nstol[2] , Nstr, Nstol[2] );
+    xlSetCellNumberValue(values[3]/reportScale, Nstr, Nstol[3] , Nstr, Nstol[3] );
+
+    /*
     if(Check=0) {
       xlSetCellNumberValue(values[1]     , Nstr, Nstol[1] , Nstr, Nstol[1] );
       xlSetCellNumberValue(values[2]     , Nstr, Nstol[2] , Nstr, Nstol[2] );
       xlSetCellNumberValue(values[3]     , Nstr, Nstol[3] , Nstr, Nstol[3] );
       //vl := fpv.summa;
     } else {
-      xlSetCellNumberValue(values[1]/1000, Nstr, Nstol[1] , Nstr, Nstol[1] );
-      xlSetCellNumberValue(values[2]/1000, Nstr, Nstol[2] , Nstr, Nstol[2] );
-      xlSetCellNumberValue(values[3]/1000, Nstr, Nstol[3] , Nstr, Nstol[3] );
       //vl := fpv.summa/1000;
     }
+    */
 
   end;
 
@@ -92,14 +100,59 @@
       ExcelPrint2 (CopyBud,FP,Nstr,Nstol,vl);
       exit;
     }
-    /*
     // аналитика
-    xlSetCellNumberValue(0 , Nstr, Nstol , Nstr, Nstol );
+    //xlSetCellNumberValue(0 , Nstr, Nstol , Nstr, Nstol );
     vl      := 0;
 
     Set cCopyBud:=CopyBud;
     Set cFP := FP;
 
+    var values : array [1..3] of double;
+    values[1] := 0;
+    values[2] := 0;
+    values[3] := 0;
+
+    if (getFirst HashAn = tsOK) {
+      _LOOP  fpV2 {
+        if (getFirst f831_selPYearV2 <> tsOK) {exit};
+        //if (getFirst fpP <> tsOK) {exit};
+
+        if (f831_selPYearV2.cPeriod = cPeriod) {
+          values[1] := fpv2.summa;
+        }
+
+        if (getFirst f831_selectedperiods kvart where (( 2 == kvart.rangeid and
+                                                         fpV2.cPeriod == kvart.cPeriod )) = tsOK ){
+          values[2] += fpv2.summa;
+        }
+
+        values[3] += fpv2.summa;
+      }
+
+      if (reportScale = 0) {
+        reportScale := 1;
+      }
+      xlSetCellNumberValue(values[1]/reportScale, Nstr, Nstol[1] , Nstr, Nstol[1] );
+      xlSetCellNumberValue(values[2]/reportScale, Nstr, Nstol[2] , Nstr, Nstol[2] );
+      xlSetCellNumberValue(values[3]/reportScale, Nstr, Nstol[3] , Nstr, Nstol[3] );
+
+      /*
+
+      if(Check=0) {
+        xlSetCellNumberValue(values[1]     , Nstr, Nstol[1] , Nstr, Nstol[1] );
+        xlSetCellNumberValue(values[2]     , Nstr, Nstol[2] , Nstr, Nstol[2] );
+        xlSetCellNumberValue(values[3]     , Nstr, Nstol[3] , Nstr, Nstol[3] );
+        //vl := fpv.summa;
+      } else {
+        xlSetCellNumberValue(values[1]/1000, Nstr, Nstol[1] , Nstr, Nstol[1] );
+        xlSetCellNumberValue(values[2]/1000, Nstr, Nstol[2] , Nstr, Nstol[2] );
+        xlSetCellNumberValue(values[3]/1000, Nstr, Nstol[3] , Nstr, Nstol[3] );
+        //vl := fpv.summa/1000;
+      }
+      */
+    }
+
+    /*
     if (getFirst superfpSpAxtf = tsOK) {
       if (getFirst HashAn = tsOK) {
         if (getFirst fpV2 = tsOK) {
@@ -116,6 +169,11 @@
     */
   end;
 
+  procedure GetCurrentCodeName (var code : String ; var name : String);
+  begin
+    budgetCodificator.GetCodeAndName(fpSpAxtf.nrec, code, name);
+  end;
+  /*
   create view forGetCode
   var
   cKAU : comp;
@@ -159,6 +217,7 @@
       name := fpSpAxtf.name;
     }
   end;
+  */
 
   procedure PrintCurrentRowClass1();
   begin
@@ -226,36 +285,41 @@
   end;
 
   procedure PrintCurrentRowClass0( const extraChar : String;
-                                   const code2010  : String
+                                   const code2010_  : String
                                    );
   begin
     var arValues : array[1..3] of double;
 
     var planCols : array[1..3] of word;
-    planCols[1] := 3;
-    planCols[2] := 9;
-    planCols[3] := 15;
+    planCols[1] := budVariantsSetup[1].tmplColMonth;
+    planCols[2] := budVariantsSetup[1].tmplColKvart ;
+    planCols[3] := budVariantsSetup[1].tmplColYear ;
     var planCCols : array[1..3] of word;
-    planCCols[1] := 5;
-    planCCols[2] := 11;
-    planCCols[3] := 17;
+    planCCols[1] := budVariantsSetup[2].tmplColMonth ;
+    planCCols[2] := budVariantsSetup[2].tmplColKvart ;
+    planCCols[3] := budVariantsSetup[2].tmplColYear ;
     var factCols : array[1..3] of word;
-    factCols[1] := 6;
-    factCols[2] := 12;
-    factCols[3] := 18;
+    factCols[1] := budVariantsSetup[3].tmplColMonth ;
+    factCols[2] := budVariantsSetup[3].tmplColKvart ;
+    factCols[3] := budVariantsSetup[3].tmplColYear ;
+
+    var code2010, name2010 : String;
+    GetCurrentCodeName (code2010, name2010);
+
     // Лист - простая строка
     //xlSetCellStringValue(extraChar + trimFirst0(fpstbud.levelcode), 9, 1, 9, 1);
     //xlSetCellStringValue(extraChar + trimFirst0(fpstbud.abbr), 9, 1, 9, 1);
     xlSetCellStringValue(extraChar + trimFirst0(code2010), 15, 1, 15, 1);
 
     //xlSetCellStringValue(fpSpAxtf.levelcode, 9, 1, 9, 1); //
-    xlSetCellStringValue(PadCh ('',' ', 2 * getCurrentLevelNumber) + fpSpAxtf.name, 15, 2, 15, 2); //
+    //xlSetCellStringValue(PadCh ('',' ', 2 * getCurrentLevelNumber) + fpSpAxtf.name, 15, 2, 15, 2); //
+    xlSetCellStringValue(PadCh ('',' ', 2 * getCurrentLevelNumber) + name2010, 15, 2, 15, 2); //
 
-    ExcelPrint3(fpSpAxtf.coTable,cPlan,150,15,planCols, arValues[1]); // План 1
+    ExcelPrint3(fpSpAxtf.coTable,budVariantsSetup[1].cfpBudVar,budVariantsSetup[1].regType,templateRec.tmplRow,planCols, arValues[1]); // План 1
 
-    ExcelPrint3(fpSpAxtf.coTable,cPlanC,150,15,planCCols, arValues[2]); // План 1
+    ExcelPrint3(fpSpAxtf.coTable,budVariantsSetup[2].cfpBudVar,budVariantsSetup[2].regType,templateRec.tmplRow,planCCols, arValues[2]); // План 1
 
-    ExcelPrint3(fpSpAxtf.coTable,cFact,151,15,factCols, arValues[3]); // План 2
+    ExcelPrint3(fpSpAxtf.coTable,budVariantsSetup[3].cfpBudVar,budVariantsSetup[3].regType,templateRec.tmplRow,factCols, arValues[3]); // План 2
 
     /*
     if (extCl = 2) {
@@ -280,7 +344,8 @@
 
     //xlSetCellNumberValue( if (arValues[3]<0,0,arValues[3]) , 9, 6 , 9, 6 );
 
-    xlRunMacro('CopyRow(ROWORDINAL)');
+    //xlRunMacro('CopyRow(ROWORDINAL)');
+    xlRunMacro('CopyRow(' + templateRec.tmplRowName +')');
 
     /*
     if (extCl <> 2) {
@@ -288,6 +353,25 @@
     };
     */
   end;
+
+  procedure DoPrintSigners;
+  begin
+    if not podpisanty.isSelected then exit;
+
+    _loop podpisanty {
+      var ar : array [1..2] of string;
+      ar[1] := podpisanty.dolj;
+      ar[2] := podpisanty.fio;
+
+      xlSetCellStringValue(ar[1] , signers.doljCell.row, signers.doljCell.col, signers.doljCell.row, signers.doljCell.col); // ??N? - ????
+      xlSetCellStringValue(ar[2] , signers.fioCell.row, signers.fioCell.col, signers.fioCell.row, signers.fioCell.col); // ??N? - ????
+
+      xlRunMacro('CopyRow('+ signers.sgnRowName +')');
+
+    }
+  end;
+
+
 
   procedure PrintCurrentRowClassifiedBy(
                                    const classificator : byte;
@@ -312,24 +396,30 @@
 
     tt:=0;
 
-    /*
-    if IsCreateAndKillExcel then {
+    if isStartExcel then {
       xlCreateExcelWithTemplate(sPath,true);
     }
-    */
-    xlCreateExcelWithTemplate(sPath,true);
 
     var dataSheetName : string;
-    dataSheetName  := 'datas8.3.1.x';
+    //dataSheetName  := 'datas8.3.1.x';
+    dataSheetName  := templateRec.dataSheetName;
     var reportSheetName : string;
-    reportSheetName  := 'rep8.3.1.x';
+    //reportSheetName  := 'rep8.3.1.x';
+    reportSheetName  := templateRec.repSheetName;
 
-    xlRunMacro('REP_BegoreReportPrint831x');
+    //xlRunMacro('REP_BegoreReportPrint831x');
+    xlRunMacro(templateRec.startMacrosName);
     xlRunMacro('setDataSheetName('+dataSheetName+')');
     xlRunMacro('setReportSheetName('+reportSheetName+')');
-    xlRunMacro('setRowToFill('+String (9)+')');
+    xlRunMacro('setRowToFill('+String (templateRec.rowToStartWith)+')');
 
     xlSetActiveSheetByName(dataSheetName);
+
+    xlSetCellStringValue(sPeriod, templateRec.periodNameCell.row,
+                                  templateRec.periodNameCell.col,
+                                  templateRec.periodNameCell.row,
+                                  templateRec.periodNameCell.col
+                                  ); //
 
     var
       arValues : array [1..3] of double;
@@ -357,8 +447,9 @@
       }
 
       var code2010, name2010 : String;
-
+      /*
       GetCurrentCodeName (code2010, name2010);
+      */
 
       var delit : double;
       if(Check=0)      {
@@ -386,10 +477,15 @@
     }
 
     //ROWTBLFINISH
-    xlRunMacro('CopyRow(ROWTBLFINISH)');
+    //xlRunMacro('CopyRow(ROWTBLFINISH)');
+    xlRunMacro('CopyRow(' + templateRec.tmplLastTblRowName +')');
+
 
     xlSetActiveSheetByName(reportSheetName); //?????_1
-    xlRunMacro('AfterPrint831x');
+    //xlRunMacro('AfterPrint831x');
+    xlRunMacro(templateRec.finishMacrosName);
 
-    xlKillExcel;
+    if isKillExcel then {
+      xlKillExcel;
+    }
   end;

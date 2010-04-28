@@ -1,3 +1,7 @@
+#ifdef _IS_SZMN_DEBUG_
+#include iform831x.prj
+#endif
+
 const
   //ColorNeed = 6;
 

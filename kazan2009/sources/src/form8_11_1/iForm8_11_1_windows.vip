@@ -7,10 +7,12 @@ tabbedSheet tabbed
       {Font = {BackColor = if (cTForm=0,    ColorNeed,0)}};
     sPeriod ('',,) : Protect,PickButton,
       {Font = {BackColor = if (cPeriod=0,   ColorNeed,0)}};
-    sPlan1  ('',,) : Protect,PickButton,
-      {Font = {BackColor = if (cPlan1=0,    ColorNeed,0)}};
-    sPlan2  ('',,) : Protect,PickButton,
-      {Font = {BackColor = if (cPlan2=0,    ColorNeed,0)}};
+    sPlan   ('',,) : Protect,PickButton,
+      {Font = {BackColor = if (cPlan=0,    ColorNeed,0)}};
+    sPlanC   ('',,) : Protect,PickButton,
+      {Font = {BackColor = if (cPlanC=0,    ColorNeed,0)}};
+    sFact   ('',,) : Protect,PickButton,
+      {Font = {BackColor = if (cFact=0,    ColorNeed,0)}};
     /*
     sPlan3  ('',,) : Protect,PickButton,
       {Font = {BackColor = if (cPlan3=0,    ColorNeed,0)}};
@@ -26,8 +28,7 @@ tabbedSheet tabbed
   buttons
   cmReport;
   cmCancel;
-!  cmApply;
-!  cmWindow;
+  cmTest;
   <<
 
    Типовая форма бюджета .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -37,6 +38,7 @@ tabbedSheet tabbed
                              Варианты бюджета
 
    План                                 .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+   План корректированный                .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
    Факт                                 .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
    Cотрудники для подписи               .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -49,14 +51,16 @@ tabbedSheet tabbed
 
   <. Отчет .>  <.  Отмена  .>
 
-!            <.Сформировать.>
+  <. test .>
   >>
   end; // Screen
 
-  /*
   screen  sCheckdop 'Дополнительно';
   Fields
 
+    isDebugDatas  ('',,) : NoProtect,noPickButton;
+
+  /*
     extClName  ('',,) : NoProtect,noPickButton,
       {Font = {BackColor = if (extClName='',    ColorNeed,0)}};
     excCode1  ('',,) : NoProtect,noPickButton,
@@ -81,11 +85,13 @@ tabbedSheet tabbed
 
     isShowTimeLabels  ('',,) : NoProtect,noPickButton;
 
-    isDebugDatas  ('',,) : NoProtect,noPickButton;
 
     coTableToSum  ('',,) : NoProtect,noPickButton;
+    */
   <<
-
+  [.] Тестовый объем данных`
+  >>
+  /*
          Название классификатора .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
      Код аналитики [Разделитель] .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
   Код аналитики [Вынос в подвал] .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -98,13 +104,57 @@ tabbedSheet tabbed
          Код аналитики [Сложить] .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
          Код аналитики [Вычесть] .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
-  [.] Печатать нулевые`  [.] Показывать время исполнения` [.] Тестовый объем данных`
+  [.] Печатать нулевые`  [.] Показывать время исполнения`
 
    coTableToSum для суммировки   .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
-  >>
+   */
   end; // screen  sCheckdop 'Дополнительно';
-  */
 end;
+
+/*
+
+Window wnInfoWindow 'Отладочная информация' ('Отладочная информация', hcNoContext);
+  Show at(,,,29);
+
+  tabbedSheet tabbed
+
+    Browse brf831_selectedperiods 'f831_selectedperiods' ('f831_selectedperiods',  hcNoContext);
+      //Show at(,6,,10);
+      Table f831_selectedperiods;
+    Fields
+      f831_selectedperiods.rangeid '.rangeid':[10],protect;
+      f831_selectedperiods.cPeriod '.cPeriod':[10],protect;
+      fpPSel.NRec   '.NRec':[10],protect;
+      fpPSel.Name   '.Name':[10],protect;
+    End; // Browse
+
+    Browse brf831_selPMonth 'f831_selPMonth' ('f831_selPMonth',  hcNoContext);
+      //Show at(,6,,10);
+      Table f831_selPMonth;
+    Fields
+      f831_selPMonth.rangeid '.rangeid':[10],protect;
+      f831_selPMonth.cPeriod '.cPeriod':[10],protect;
+    End; // Browse
+
+    Browse brf831_selPKvart 'f831_selPKvart' ('f831_selectedperiods',  hcNoContext);
+      //Show at(,6,,10);
+      Table f831_selPKvart;
+    Fields
+      f831_selPKvart.rangeid '.rangeid':[10],protect;
+      f831_selPKvart.cPeriod '.cPeriod':[10],protect;
+    End; // Browse
+
+    Browse brf831_selPYear 'f831_selPYear' ('f831_selectedperiods',  hcNoContext);
+      //Show at(,6,,10);
+      Table f831_selPYear;
+    Fields
+      f831_selPYear.rangeid '.rangeid':[10],protect;
+      f831_selPYear.cPeriod '.cPeriod':[10],protect;
+    End; // Browse
+
+  end; // tabbedSheet tabbed
+
+End; // Window
 /*
 Window wnInfoWindow 'gg' ('gg', hcNoContext);
   Show at(,,,29);

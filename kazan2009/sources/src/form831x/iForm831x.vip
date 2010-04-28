@@ -16,7 +16,7 @@
 
 !#include alg1.vih
 
-#include iForm791.vih
+#include iForm831x.vih
 
 !#component "M_MNPLAN"
 
@@ -28,12 +28,15 @@
 #include UserReport.vih
 
 #include podpis.vih
+#include BudCdfc.vih
+
 
 // Для попадания примера в список отчетов -
 // раскомментировать конструкцию VipInterface (Implements для Атлантиса 5.1)
 
 #ifdef Atl51
-VipInterface UserReport_szmn_form831x_2010  Implements IUserReport
+VipInterface UserReport_szmn_form831x_2010
+//Implements IUserReport
   Licensed(Free)
 ;
 #else

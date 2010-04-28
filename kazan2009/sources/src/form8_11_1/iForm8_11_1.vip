@@ -16,7 +16,7 @@
 
 !#include alg1.vih
 
-#include iForm791.vih
+!#include iForm791.vih
 
 !#component "M_MNPLAN"
 
@@ -26,6 +26,8 @@
 #include Getkau.vih
 
 #include UserReport.vih
+
+#include iForm831x.vih
 
 #include podpis.vih
 
@@ -58,7 +60,7 @@ end;
 // Наименование отчета в списке
 function GetReportName: String;
 begin
-  GetReportName := 'Форма 8.11.1 (вариант 2010 года)';
+  GetReportName := 'Форм 8.11.1 (вариант 2010 года)';
 end;
 !-------------------------------------------------------------------------------
 function GetGroupName (Level : Word) : String;
@@ -84,7 +86,7 @@ end;
 !-------------------------------------------------------------------------------
 end.
 
-form83xshowdebug menu
+form8_11_1showdebug menu
 {
   - 'Показать отладочную информацию', cmShowDebug8_11_1, 'Отладочная информация' ;
 }
@@ -92,22 +94,20 @@ form83xshowdebug menu
 //vipInterface #szmn_bud_Form791_2010 licensed(free);
 
 Interface #szmn_bud_Form8_11_1_2010
-  '-= СЗМН Бюджет. Форма 8.11.1 Вариант 2010 года =- ' (,hcNoContext,) EscClose, Cyan;
+  '-= СЗМН Бюджет. Формы 8.11.1 Вариант 2010 года =- ' (,hcNoContext,) EscClose, Cyan;
   //show at  (0,0,70,10)
   show at  (0,0,100,30)
   ;
 
-!#include iForm791_memtbls.vip
-
+!#include iForm831x_memtbls.vip
 #include iForm8_11_1_createview.vip
 #include iForm8_11_1_windows.vip
-!#include iForm791_proctest.vip
-!#include iForm791_proc.vip
+#include iForm8_11_1_proc.vip
 
 Handleevent
   cmHotKeys : {
     var mn : longint ;
-    mn := LoadMenu('cmShowDebug8_11_1') ;
+    mn := LoadMenu('form8_11_1showdebug') ;
     var i : integer;
     i := RunLoadMenu (mn);
     //message  ('i == ' + i);
@@ -116,67 +116,17 @@ Handleevent
     }
   }
 
-  /*
-
-  cmTest: {
-    doHandleTest;
+  cmReport: {
+    doHandlecmReport;
   }
 
-  cmShowDebug791: {
-    RunWindowModal( wnInfoWindow );
-  }
-  cmApply:
-  {
-    doPrintReport();
+  cmShowDebug8_11_1: {
+    //doHandlecmShowDebug832();
 
   }
-  cmPick:
-    case curField of
-      #sPlan1    :  RunInterface('F_FpBudget::Budget', word(cgiPick), word(0), word(0), comp(0), cPlan1, 0, 0);
-      #sPlan2    :  RunInterface('F_FpBudget::Budget', word(cgiPick), word(0), word(0), comp(0), cPlan2, 0, 0);
-      #sPlan3    :  RunInterface('F_FpBudget::Budget', word(cgiPick), word(0), word(0), comp(0), cPlan3, 0, 0);
-      #sTForm    :  RunInterface('F_FpBudget::getTForm', cgiPick, 0, cTForm);
-      #sPeriod   :  RunInterface('F_FpCatalog::getPeriod', cgiPick, comp(0), comp(0), cPeriod, cgSetFPTuneDefault);
-      //#sPersons  :  RunInterface('SelectPersons', sPersons);
-
-      #sPodpGrp    : {
-        podpisanty.SelectPodpis;
-        RescanPanel (scKatH01);
-
-
-      }
-      #sPodpGrp2   : {
-        podpisanty2.SelectPodpis;
-        RescanPanel (scKatH01);
-      }
-
-      #sPath     :
-     {
-          var sTmp : string;
-              sTmp := GetFileName('*.XLS', 'Выберите файл с шаблоном');
-          if (trim(sTmp) = '')
-           { Exit; }
-          Set sPath := sTmp;
-      }
-
-    end;
-  !-------------------------------------------------------------------------------
-  cmDelOnProtect:
-    case curField of
-      #sPeriod   : Set cPeriod:=0;
-      #sTForm    : Set cTForm:=0;
-      #sPlan1    : Set cPlan1:=0;
-      #sPlan2    : Set cPlan2:=0;
-      #sPlan3    : Set cPlan3:=0;
-
-      #sPodpGrp  : {
-        set podpisanty.cPodpGroup := 0;
-      }
-      #sPodpGrp2  : {
-        set podpisanty2.cPodpGroup := 0;
-      }
-    end;
-
+  cmPick: {
+    doHandlecmPick;
+  }
 
   cmOnVipLoad: {
     handleInit;
@@ -185,6 +135,23 @@ Handleevent
   cmInit: {
     handleInit;
   }
+
+  cmDelOnProtect: {
+    doHandlecmDelOnProtect;
+  }
+
+  cmTest : {
+    //doHandlecmTest;
+  }
+  /*
+  cmApply:
+  {
+    doPrintReport();
+
+  }
+  !-------------------------------------------------------------------------------
+
+
 
   */
 

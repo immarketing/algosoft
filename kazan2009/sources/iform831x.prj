@@ -21,4 +21,6 @@ end;
 
 #include szmn_cmn.inc
 
+#make "src\form831x\budCdfc.vip"
 #make "src\form831x\iForm831x.vip"
+#make "src\form831x\budCdfcIerar.vip"

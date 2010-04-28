@@ -1,3 +1,5 @@
+#include iForm831x_procint.vip
+
 #include iForm831x_dskwork.vip
 #include iForm831x_extClass.vip
 #include iForm831x_procreport.vip
@@ -120,32 +122,10 @@
 
   procedure doHandlecmReport;
   begin
-    StartNewVisual (vtRotateVisual, vfScreenBottom + vfThread + vfTimer + vfBreak + vfConfirm , 'Формирование отчета' , 100);
-    SetVisualHeader ('Формирование отчета');
-
-    StoreDSK;
-
-    buildUsedPeriods;
-
-    doPrintReport8311;
-
-    StopVisual ('',0);
-
-    if (isShowTimeLabels) then {
-      /*
-      message ( tms[1] + ''#13'' +
-                tms[2] + ''#13'' +
-                tms[3] + ''#13'' +
-                tms[4] + ''#13'' +
-                tms[5] + ''#13'' +
-                tms[6] + ''#13''
-                )
-                ;
-      */
-    };
-
+    DoPrintReport;
   end
 
+  /*
   procedure printSigners;
   begin
     if not podpisanty.isSelected then exit;
@@ -161,6 +141,7 @@
     }
 
   end;
+  */
 
   procedure doHandlecmShowDebug83x();
   begin
@@ -169,18 +150,27 @@
 
   procedure handleInit;
   begin
-      set isShowZeros := true;
+    set isStartExcel := true;
+    set isKillExcel  := true;
 
-      set isShowTimeLabels := false;
+    set isShowZeros := true;
 
-      set coTableToSum := 22217;
+    set isShowTimeLabels := false;
 
-      set isDebugDatas := false;
+    set coTableToSum := 22217;
 
-      podpisanty.setprefix('szmn_bud_Form831x');
-      podpisanty.reinit;
+    set isDebugDatas := false;
 
-      ReadDsk;
+#ifdef _IS_SZMN_DEBUG_
+    SetCodificatorByName('szmn_bud_codificator_');
+#else
+    SetCodificatorByName('szmn_bud_codificator');
+#ENDIF
+
+    podpisanty.setprefix('szmn_bud_Form831x');
+    podpisanty.reinit;
+
+    ReadDsk;
   end;
 
   procedure doHandlecmDelOnProtect;

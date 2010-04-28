@@ -1,20 +1,31 @@
-create view BDR
+create view
 var
- cPlan1,
- cPlan2,
- cPlan3,
- cPeriod,
- cTForm,
- cCopyBud,
- cFP,
- cStBud,
- cHashAn :comp;
- sPath :string;
+  cPlan,
+  cPlanC,
+  cFact,
+  cPeriod,
+  cTForm,
+
+  cCopyBud,
+  cFP,
+  cStBud,
+  cHashAn :comp;
+  sPath :string;
+  DSKPREFIX : String;
+
+  podpisanty  : SZMN_COMMON::IPodpis (vPodpis) new;// (  ) new;
+
+  isShowTimeLabels : boolean;
+  isDebugDatas     : boolean;
+
+  Check:integer;
+  /*
+
+
  pathUserOut : string;
  NameExcel   : string;
  wPeriod,mp,i  : word;
  isError: boolean;
- Check:integer;
  sPersons: string;
 
 
@@ -25,8 +36,7 @@ var
 
   //ppp         : SZMN_COMMON::vPodpis new;
 
-  podpisanty  : SZMN_COMMON::IPodpis (vPodpis) new;// (  ) new;
-  podpisanty2 : SZMN_COMMON::IPodpis (vPodpis) new;// (  ) new;
+  //podpisanty2 : SZMN_COMMON::IPodpis (vPodpis) new;// (  ) new;
 
   extClName   : String;
   excCode1    : String;
@@ -46,27 +56,32 @@ var
   isDebugDatas     : boolean;
 
   coTableToSum : word;
+  */
 
 As select
   if(cPeriod=0   ,'выберите значение',fpPeriod.Name)  (FieldName = sPeriod)
 , if(cTForm=0    ,'выберите значение',fpTForm.Name)   (FieldName = sTForm)
-, if(cPlan1=0    ,'выберите значение',fpBudVar.Name)   (FieldName = sPlan1)
-, if(cPlan2=0    ,'выберите значение',fpBudVar1.Name)  (FieldName = sPlan2)
-, if(cPlan3=0    ,'выберите значение',fpBudVar2.Name)  (FieldName = sPlan3)
+, if(cPlan=0    ,'выберите значение',fpBudVarPlan.Name)   (FieldName = sPlan)
+, if(cPlanC=0   ,'выберите значение',fpBudVarPlanC.Name)   (FieldName = sPlanC)
+, if(cFact=0    ,'выберите значение',fpBudVarFact.Name)  (FieldName = sFact)
+
 , podpisanty.DialogFieldString  (FieldName = sPodpGrp)
-, podpisanty2.DialogFieldString  (FieldName = sPodpGrp2)
+!, podpisanty2.DialogFieldString  (FieldName = sPodpGrp2)
 
 //, if(fpSpAxtf.coTable  ,'выберите значение',fpBudVar2.Name)  (FieldName = sPlan3)
-, fpvalues.summa
+//, fpvalues.summa
 
 From
   fpBudVar
   ,fpPeriod
- ,synonym  fpPeriod  fpP
- ,synonym  fpBudVar  fpBudVar1
- ,synonym  fpBudVar  fpBudVar2
+  , fpTForm
+ ,synonym  fpBudVar  fpBudVarPlan
+ ,synonym  fpBudVar  fpBudVarPlanC
+ ,synonym  fpBudVar  fpBudVarFact
 
+ /*
  ,fpvalues
+ ,synonym  fpPeriod  fpP
  ,Synonym fpBudVar fpBV
  ,Synonym fpValues fpV
  ,Synonym fpValues fpV2
@@ -77,7 +92,7 @@ From
  ,spKAU
  ,spKAU spKAUPodp (SPKAU07)
 
-! , podpisanty
+ , podpisanty
 ! , podpisanty2
 
 ! , f791_podval
@@ -92,15 +107,22 @@ From
 
   , fpStBud superKAUfpStBud
 
+  ,synonym  fpPeriod  fpPSel
+  , f831_selectedperiods
+  , f831_selectedperiods f831_selPMonth
+  , f831_selectedperiods f831_selPKvart
+  , f831_selectedperiods f831_selPYear
+  */
  where
 ((
 
 cPeriod   == fpPeriod.nrec   and
 cTForm    == fpTForm.nrec    and
-cPlan1    == fpBudVar.nrec   and
-cPlan2    == fpBudVar1.nrec  and
-cPlan3     == fpBudVar2.nrec
+cPlan     == fpBudVarPlan.nrec   and
+cPlanC    == fpBudVarPlanC.nrec   and
+cFact     == fpBudVarFact.nrec
 
+/*
 and fpBudVar.cBudget   == FpBudget.nrec
 
 //and wKODGRKAU == spKAU.KODGRKAU (noindex)
@@ -123,12 +145,12 @@ and (
       (
       isDebugDatas and
       (
-      fpSpAxtf.nRec=comp('0131000000051790h') or
-      fpSpAxtf.nRec=comp('0131000000051792h') or
-      fpSpAxtf.nRec=comp('0131000000051791h') or
-      fpSpAxtf.cKauNode = comp('0131000000051792h') or
-      fpSpAxtf.cNode = comp('0131000000051792h') or
-      fpSpAxtf.cNode = comp('0131000000051791h')
+      fpSpAxtf.nRec=comp('01310000000CCD3Dh') or
+      //fpSpAxtf.nRec=comp('0131000000051792h') or
+      //fpSpAxtf.nRec=comp('0131000000051791h') or
+      //fpSpAxtf.cKauNode = comp('0131000000051792h') or
+      fpSpAxtf.cNode = comp('01310000000CCD3Dh')
+      //fpSpAxtf.cNode = comp('0131000000051791h')
       )
       )
       )
@@ -144,13 +166,22 @@ and superKauSpAxtf.cMean == superKAUfpStBud.nRec
 
 //and (fpSpAxtf.nRec=comp('0131000000051792h') or fpSpAxtf.cNode = comp('0131000000051792h'))
 
+and f831_selectedperiods.cPeriod == fpPSel.nRec
+
+and 1 == f831_selPMonth.rangeid
+and 2 == f831_selPKvart.rangeid
+and 3 == f831_selPYear.rangeid
+
 and cCopyBud       == fpBV.nrec
 and fpBV.nrec      == fpV.cBudVar // вариант бюджета
 and word(cFP)      == fpV.KodReg //план факт резерв
 and comp(cStBud)   == fpV.cStBud // статья бюджета
-and cPeriod        == fpV.cPeriod // ссылка на период
-and comp(0)        == fpV.cHashAn
-and fpV.cPeriod    == fpP.nrec   // ссылка на период
+//and cPeriod        == fpV.cPeriod // ссылка на период
+// and comp(0)        == fpV.cHashAn
+//and fpV.cPeriod    == fpP.nrec   // ссылка на период
+and fpV.cPeriod    /==  f831_selPYear.cPeriod   // ссылка на отобранные периода - года
+and fpV.cPeriod    ==  f831_selPKvart.cPeriod   // ссылка на отобранный период - квартал
+//and f831_selPYear.cPeriod == fpP.nrec   // ссылка на период
 
 and comp(cStBud)   == fpStBud.nrec
 
@@ -169,6 +200,6 @@ and cPeriod          == fpV2.cPeriod // ссылка на период
 //and superfpSpAxtf.cMEAN == fpV2.cStBud
 
 !and f791_printed.cRec == subp3.cNode
-
+*/
 ))
 ;

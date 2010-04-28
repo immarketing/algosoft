@@ -23,10 +23,18 @@
   #define Iszmn_bud_Form791_printed Iszmn_bud_Form791_printed_
 
   #define szmn_bud_Form831x_2010 szmn_bud_Form831x_2010_
+  #define szmn_bud_Form8311_2010 szmn_bud_Form8311_2010_
+  #define szmn_bud_Form8312_2010 szmn_bud_Form8312_2010_
 
   #define RepBDR5_2010 RepBDR5_2010_
 
   #define szmn_bud_Form8_11_1_2010 szmn_bud_Form8_11_1_2010_
+
+  #define szmn_bud_codificator szmn_bud_codificator_
+  #define Iszmn_bud_codificator Iszmn_bud_codificator_
+
+  #define szmn_bud_Ierarhycodificator szmn_bud_Ierarhycodificator_
+
 
 #ELSE
 
@@ -37,10 +45,17 @@
   #define Iszmn_bud_Form791_printed Iszmn_bud_Form791_printed
 
   #define szmn_bud_Form831x_2010 szmn_bud_Form831x_2010
+  #define szmn_bud_Form8311_2010 szmn_bud_Form8311_2010
+  #define szmn_bud_Form8312_2010 szmn_bud_Form8312_2010
 
   #define RepBDR5_2010 RepBDR5_2010
 
   #define szmn_bud_Form8_11_1_2010 szmn_bud_Form8_11_1_2010
+
+  #define szmn_bud_codificator szmn_bud_codificator
+  #define Iszmn_bud_codificator Iszmn_bud_codificator
+
+  #define szmn_bud_Ierarhycodificator szmn_bud_Ierarhycodificator
 
 #ENDIF
 

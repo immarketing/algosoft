@@ -1,3 +1,4 @@
+
 create view BDR
 var
  cPlan,
@@ -48,6 +49,7 @@ var
 
   coTableToSum : word;
 
+  // для интерфейсной части
 As select
   if(cPeriod=0   ,'выберите значение',fpPeriod.Name)  (FieldName = sPeriod)
 , if(cTForm=0    ,'выберите значение',fpTForm.Name)   (FieldName = sTForm)
@@ -100,6 +102,7 @@ From
   , f831_selectedperiods f831_selPMonth
   , f831_selectedperiods f831_selPKvart
   , f831_selectedperiods f831_selPYear
+  , f831_selectedperiods f831_selPYearV2
 
  where
 ((
@@ -133,6 +136,7 @@ and (
       isDebugDatas and
       (
       fpSpAxtf.nRec=comp('01310000000CCD3Dh') or
+      fpSpAxtf.nRec=comp('01310000000CCD1Ch') or
       //fpSpAxtf.nRec=comp('0131000000051792h') or
       //fpSpAxtf.nRec=comp('0131000000051791h') or
       //fpSpAxtf.cKauNode = comp('0131000000051792h') or
@@ -158,6 +162,7 @@ and f831_selectedperiods.cPeriod == fpPSel.nRec
 and 1 == f831_selPMonth.rangeid
 and 2 == f831_selPKvart.rangeid
 and 3 == f831_selPYear.rangeid
+and 3 == f831_selPYearV2.rangeid
 
 and cCopyBud       == fpBV.nrec
 and fpBV.nrec      == fpV.cBudVar // вариант бюджета
@@ -182,9 +187,10 @@ and comp(0)        == HashAn.cBlock (noindex)    //не уверен что всегда 0 из за 
 and HashAn.nRec      == fpV2.cHashAn (noindex)
 and fpBV.nrec        == fpV2.cBudVar // вариант бюджета
 and word(cFP)        == fpV2.KodReg //план факт резерв
-and comp(cStBud)     == fpV2.cStBud // статья бюджета
-and cPeriod          == fpV2.cPeriod // ссылка на период
-//and superfpSpAxtf.cMEAN == fpV2.cStBud
+//and comp(cStBud)     == fpV2.cStBud // статья бюджета
+and superKauSpAxtf.cMEAN == fpV2.cStBud // статья бюджета
+//and cPeriod          == fpV2.cPeriod // ссылка на период
+and fpV2.cPeriod     /==  f831_selPYearV2.cPeriod   // ссылка на отобранные периода - года
 
 !and f791_printed.cRec == subp3.cNode
 
