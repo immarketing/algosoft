@@ -112,44 +112,49 @@
     values[2] := 0;
     values[3] := 0;
 
-    if (getFirst HashAn = tsOK) {
-      _LOOP  fpV2 {
-        if (getFirst f831_selPYearV2 <> tsOK) {exit};
-        //if (getFirst fpP <> tsOK) {exit};
 
-        if (f831_selPYearV2.cPeriod = cPeriod) {
-          values[1] := fpv2.summa;
+    if (getFirst fpBV = tsOK) {};
+
+    if (getFirst superKauSpAxtf = tsOK) {
+      if (getFirst HashAn = tsOK) {
+        _LOOP  fpV2 {
+          if (getFirst f831_selPYearV2 <> tsOK) {exit};
+          //if (getFirst fpP <> tsOK) {exit};
+
+          if (f831_selPYearV2.cPeriod = cPeriod) {
+            values[1] := fpv2.summa;
+          }
+
+          if (getFirst f831_selectedperiods kvart where (( 2 == kvart.rangeid and
+                                                           fpV2.cPeriod == kvart.cPeriod )) = tsOK ){
+            values[2] += fpv2.summa;
+          }
+
+          values[3] += fpv2.summa;
         }
 
-        if (getFirst f831_selectedperiods kvart where (( 2 == kvart.rangeid and
-                                                         fpV2.cPeriod == kvart.cPeriod )) = tsOK ){
-          values[2] += fpv2.summa;
+        if (reportScale = 0) {
+          reportScale := 1;
         }
+        xlSetCellNumberValue(values[1]/reportScale, Nstr, Nstol[1] , Nstr, Nstol[1] );
+        xlSetCellNumberValue(values[2]/reportScale, Nstr, Nstol[2] , Nstr, Nstol[2] );
+        xlSetCellNumberValue(values[3]/reportScale, Nstr, Nstol[3] , Nstr, Nstol[3] );
 
-        values[3] += fpv2.summa;
+        /*
+
+        if(Check=0) {
+          xlSetCellNumberValue(values[1]     , Nstr, Nstol[1] , Nstr, Nstol[1] );
+          xlSetCellNumberValue(values[2]     , Nstr, Nstol[2] , Nstr, Nstol[2] );
+          xlSetCellNumberValue(values[3]     , Nstr, Nstol[3] , Nstr, Nstol[3] );
+          //vl := fpv.summa;
+        } else {
+          xlSetCellNumberValue(values[1]/1000, Nstr, Nstol[1] , Nstr, Nstol[1] );
+          xlSetCellNumberValue(values[2]/1000, Nstr, Nstol[2] , Nstr, Nstol[2] );
+          xlSetCellNumberValue(values[3]/1000, Nstr, Nstol[3] , Nstr, Nstol[3] );
+          //vl := fpv.summa/1000;
+        }
+        */
       }
-
-      if (reportScale = 0) {
-        reportScale := 1;
-      }
-      xlSetCellNumberValue(values[1]/reportScale, Nstr, Nstol[1] , Nstr, Nstol[1] );
-      xlSetCellNumberValue(values[2]/reportScale, Nstr, Nstol[2] , Nstr, Nstol[2] );
-      xlSetCellNumberValue(values[3]/reportScale, Nstr, Nstol[3] , Nstr, Nstol[3] );
-
-      /*
-
-      if(Check=0) {
-        xlSetCellNumberValue(values[1]     , Nstr, Nstol[1] , Nstr, Nstol[1] );
-        xlSetCellNumberValue(values[2]     , Nstr, Nstol[2] , Nstr, Nstol[2] );
-        xlSetCellNumberValue(values[3]     , Nstr, Nstol[3] , Nstr, Nstol[3] );
-        //vl := fpv.summa;
-      } else {
-        xlSetCellNumberValue(values[1]/1000, Nstr, Nstol[1] , Nstr, Nstol[1] );
-        xlSetCellNumberValue(values[2]/1000, Nstr, Nstol[2] , Nstr, Nstol[2] );
-        xlSetCellNumberValue(values[3]/1000, Nstr, Nstol[3] , Nstr, Nstol[3] );
-        //vl := fpv.summa/1000;
-      }
-      */
     }
 
     /*

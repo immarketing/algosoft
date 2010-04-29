@@ -49,29 +49,47 @@ interface #szmn_bud_Ierarhycodificator
 
     var cd, nm : String;
 
+
+
     if (getFirst fpSpAxtf = tsOK) {
-      cd := '';
-      nm := fpSpAxtf.name;
+      if(fpSpAxtf.coTable = word(22217) ) {
+        cd := '';
+        nm := fpSpAxtf.name;
 
-      if (getFirst fpStBud = tsOK){
-        var j : word;
-        j := Length (nm);
-        if ( (j < Length (fpStBud.Name)) and ( nm = SubStr(fpStBud.Name,1,j)) ) {
-          nm := fpStBud.Name;
+        if (getFirst fpStBud = tsOK){
+          var j : word;
+          j := Length (nm);
+          if ( (j < Length (fpStBud.Name)) and ( nm = SubStr(fpStBud.Name,1,j)) ) {
+            nm := fpStBud.Name;
+          }
         }
-      }
 
-      while (true) {
-        if (getFirst fpSpAxtf = tsOK) {
-          cd := trimFirst0(fpSpAxtf.levelcode) + if (cd<>'','.' + cd,'');
-          set curfpSpAxtf := fpSpAxtf.cNode;
+        while (true) {
+          if (getFirst fpSpAxtf = tsOK) {
+            cd := trimFirst0(fpSpAxtf.levelcode) + if (cd<>'','.' + cd,'');
+            set curfpSpAxtf := fpSpAxtf.cNode;
+          } else {
+            break;
+          }
+        }
+
+        code := cd;
+        name := nm;
+      } else {
+        if (getFirst superKauSpAxtf = tsOK ) {};
+        if (getFirst superKAUfpStBud = tsOK ) {};
+        cd := superKAUfpStBud.abbr;
+        nm := fpSpAxtf.name;
+
+        set cKAU := fpSpAxtf.cMEAN;
+        if (getfirst spkau = tsOK) {
+          code := Replace (cd + spkau.levelcode,'_','-');
         } else {
-          break;
+          code := Replace (cd + fpSpAxtf.levelcode,'_','-');
         }
+        //
+        name := fpSpAxtf.name;
       }
-
-      code := cd;
-      name := nm;
     };
   end;
 

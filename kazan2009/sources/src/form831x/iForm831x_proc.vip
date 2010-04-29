@@ -49,7 +49,7 @@
 
     if (forPeriodSelection.getFirst fpPeriod = tsOK) {
       curMonth := month(forPeriodSelection.fpPeriod.DBEG);
-      curKvart := (curMonth -1 ) div 3;
+      curKvart := ( curMonth - 1 ) div 3;
       curYear  := year(forPeriodSelection.fpPeriod.DBEG);
       insert f831_selectedperiods set
              f831_selectedperiods.rangeid := 2,
@@ -82,6 +82,7 @@
       set forPeriodSelection.cPer := cPrd;
 
       while (true) {
+        break; // периоды "после" отчетного периода - не используем.
         if (forPeriodSelection.getFirst fpPeriod <> tsOK) {break};
         if (forPeriodSelection.getFirst monthAfter <> tsOK) {break};
         if ( year(forPeriodSelection.monthAfter.DBEG)  = curYear ){
@@ -101,7 +102,6 @@
           break;
         }
       }
-
     }
   end;
 
