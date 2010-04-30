@@ -121,12 +121,17 @@ begin
 
   Set cCopyBud:=CopyBud;
   Set cFP:= FP;
+  if (getfirst fpStBud <> tsOK) {exit};
   //      _LOOP  fpSpAxtf
   _LOOP  fpV {
-    //if (getFirst fpP <> tsOK) {exit};
-    if ( fpPeriod.dBeg = fpP.dBeg ) and (fpPeriod.dEnd = fpP.dEnd)
-    //if((month(fpP.dbeg)=month(fpP.dEnd)) and (year(fpP.dbeg)=year(fpperiod.dbeg)))// and (fpvalues.chashan = 0))) //chek year
-    {
+    if (getFirst fpP <> tsOK) {};
+    //if((month(fpP.dbeg)=month(fpP.dEnd)) /*and (month(fpP.dbeg)=month(fpperiod.dbeg)))*/ and (year(fpP.dbeg)=year(fpperiod.dbeg))) {
+    //if ( fpPeriod.dBeg = fpP.dBeg ) and (fpPeriod.dEnd = fpP.dEnd) {
+    if(fpV.cPeriod = cPeriod) {
+      if (month(fpP.dbeg) >12 or  month(fpP.dbeg) < 1) {
+        continue;
+      }
+
       if(Check=0)
       	  {
             vl := fpv.summa;
@@ -140,7 +145,6 @@ begin
     }
   }
 end;
-
 
 procedure ExcelPrint2_2010
                      ( wTbl : word;
@@ -166,10 +170,17 @@ begin
   Set cFP := FP;
 
   if (getFirst HashAn = tsOK) {
-    if (getFirst fpV2 = tsOK) {
+    //if (getFirst fpV2 = tsOK) {
+    _loop fpV2 {
       if (getFirst fpP2 <> tsOK) { continue };
+      if (month(fpP2.dbeg) >12 or  month(fpP2.dbeg) < 1) {
+        continue;
+      }
+
       //if((month(fpP2.dbeg)=month(fpP2.dEnd)) and (year(fpP2.dbeg)=year(fpperiod.dbeg))) and (year(fpP2.dbeg)=year(fpperiod.dbeg))) {
-      if ( fpPeriod.dBeg = fpP2.dBeg ) and (fpPeriod.dEnd = fpP2.dEnd) {
+      //if((month(fpP2.dbeg)=month(fpP2.dEnd)) /*and (year(fpP2.dbeg)=year(fpperiod.dbeg))) */ and (year(fpP2.dbeg)=year(fpperiod.dbeg))) {// and (fpvalues.chashan = 0))) //chek year
+      if(fpV2.cPeriod = cPeriod) {
+      //if ( fpPeriod.dBeg = fpP2.dBeg ) and (fpPeriod.dEnd = fpP2.dEnd) {
         if(Check=0) {
           xlSetCellNumberValue(fpv2.summa     , Nstr, Nstol , Nstr, Nstol );
           vl := fpv2.summa;

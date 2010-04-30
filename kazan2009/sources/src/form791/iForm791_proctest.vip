@@ -16,6 +16,22 @@
     if (excCode6 = '') {set excCode6 := 'Сложить'};
     if (excCode7 = '') {set excCode7 := 'Вычесть'};
 
+    if (extClName2 = '') {set extClName2 := 'Дополнительная обработка статьи для 7.9.1 (разность №1)'};
+    if (excCode8 = '') {set excCode8 := 'Вычитаемое'};
+    if (excCode9 = '') {set excCode9 := 'Разность'};
+    if (excCode10 = '') {set excCode10 := 'Уменьшаемое'};
+
+    /*
+    Дополнительная обработка статьи для 7.9.1 (разность №1)
+    Дополнительная обработка статьи для 7.9.1 (разность №2)
+    Дополнительная обработка статьи для 7.9.1 (разность №3)
+    Дополнительная обработка статьи для 7.9.1 (разность №4)
+
+    Вычитаемое
+    Разность
+    Уменьшаемое
+    */
+
     if (sPath='') set sPath := translatepath('%startpath%Xls\F_FPBUDGET\SZMN_Budjet\tmpl_7_9_1.xls');
   end;
 
@@ -44,6 +60,12 @@
     SaveMyDsk(excCode5,    'iForm791_excCode5');
     SaveMyDsk(excCode6,    'iForm791_excCode6');
     SaveMyDsk(excCode7,    'iForm791_excCode7');
+
+    SaveMyDsk(extClName2,  'iForm791.extClName2');
+    SaveMyDsk(excCode8,    'iForm791.excCode8');
+    SaveMyDsk(excCode9,    'iForm791.excCode9');
+    SaveMyDsk(excCode10,   'iForm791.excCode10');
+
 
     SaveMyDsk (cPodpGrp,'iForm791_cPodpGrp' );
 
@@ -196,6 +218,9 @@
    ))
         ;
   */
+
+#include iForm791_razn.vip
+
   create view forGrouping
   as
   select *
@@ -218,6 +243,7 @@
    1                      == prntd_mkgroup.isKAUGroup
    ))
         ;
+
 
   procedure doGroupData2 (datSheet, repSheet, repSheet79 : String);
   begin
@@ -425,6 +451,14 @@
                               6 ,
                               f791_printed.printedAtRow,
                               6 ); */
+      }
+
+      var rznFrmml : String;
+      var psat     : word;
+
+      if (hasRaznFrml(f791_printed.cRec , rznFrmml, psat)){
+        xlSetCellFormula(rznFrmml,psat,5,psat,5);
+        xlSetCellFormula(rznFrmml,psat,6,psat,6);
       }
     }
 
@@ -825,13 +859,19 @@
 
       extraChar := '''';
 
+      var RaznStatus : byte;
+
       if ( fpSpAxtf.coTable = coFPSTBUD ) {
         extCl  := GetStBudExtraParameters( coFPSTBUD , fpSpAxtf.CMEAN, extClName );
         extCl1 := GetStBudExtraParameters( coFPSTBUD , fpSpAxtf.CMEAN, extClName1 );
+
+        RaznStatus := GetStBudExtraParameters( coFPSTBUD , fpSpAxtf.CMEAN, extClName2 );
       } else {
         if (getfirst superfpSpAxtf = tsOK) {}
         extCl  := GetStBudExtraParameters( coFPSTBUD , superfpSpAxtf.CMEAN, extClName );
         extCl1 := GetStBudExtraParameters( coFPSTBUD , superfpSpAxtf.CMEAN, extClName1 );
+
+        RaznStatus := GetStBudExtraParameters( coSPKAU , fpSpAxtf.CMEAN, extClName2 );
       }
 
       if ( extCl = 1 /* fpSpAxtf.cNode = 0h */)then {
@@ -939,7 +979,8 @@
                                 f791_printed.extPar1:= extCl1,
                                 f791_printed.isLeaf := fpSpAxtf.isLeaf,
                                 f791_printed.coTable := fpSpAxtf.coTable,
-                                f791_printed.isKAUGroup := isKauGroup (fpSpAxtf.nRec)
+                                f791_printed.isKAUGroup := isKauGroup (fpSpAxtf.nRec),
+                                f791_printed.extraRazn791 := RaznStatus
 
                                 ;
         lastPrintedAt := repGetPrintRow - 1;

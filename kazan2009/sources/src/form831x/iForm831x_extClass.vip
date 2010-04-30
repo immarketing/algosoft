@@ -15,8 +15,8 @@ from
   */
   where
   ((
-  wTable                == ExClassVal.wTable   and
-  cRec                  == ExClassVal.cRec     and
+  extClass.wTable                == ExClassVal.wTable   and
+  extClass.cRec                  == ExClassVal.cRec     and
   ExClassVal.cClassSeg  == ExClassSeg.NRec     and
   ExClassVal.wTable     == ExClassName.wTable  and
   ExClassSeg.ClassCode  == ExClassName.ClassCode

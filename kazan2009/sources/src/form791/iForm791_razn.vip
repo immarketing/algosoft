@@ -1,0 +1,51 @@
+
+  create view forRazn
+  var
+    cRec : comp;
+  as
+  select *
+    from  f791_printed,
+          f791_printed sub791_code8,
+          f791_printed sub791_code9
+   where ((
+     forRazn.cRec == f791_printed.cRec and
+     (f791_printed.extraRazn791 = 10) and
+
+     f791_printed.cRec == sub791_code8.cNode and
+     8 == sub791_code8.extraRazn791 and
+     //(sub791.extraRazn791 = 8) and
+
+     f791_printed.cRec == sub791_code9.cNode and
+     9 == sub791_code9.extraRazn791
+     //(sub791.extraRazn791 = 9)
+   ))
+        ;
+
+
+  function hasRaznFrml (const cr : comp; var frml : String; var prntat: word): boolean;
+  begin
+    set result := false;
+
+    set forRazn.cRec := cr;
+    if (forRazn.getFirst f791_printed = tsOK){
+      if (forRazn.f791_printed.extraRazn791 = 10){
+        // sub791_code9
+        var fSum : String;
+        var ps   : word;
+
+        if (forRazn.getFirst sub791_code9 = tsOK){
+          ps := forRazn.sub791_code9.printedAtRow;
+          fSum := fSum + ';R[' + (- ps + forRazn.f791_printed.printedAtRow) + ']C';
+        } else {
+          exit;
+        }
+
+        forRazn._loop sub791_code8 {
+          fSum := fSum + ';-R[' + (- ps + forRazn.sub791_code8.printedAtRow) + ']C';
+        }
+        set result := true;
+        set frml := '=‘ã¬¬('+fSum+')';
+        set prntat := ps;
+      }
+    }
+  end;

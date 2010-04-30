@@ -1,5 +1,5 @@
 // для обработки внешней классификации по статьям бюджета
-create view extClass
+create view extClassVw
 var
   wTable  : word;
   cRec    : comp;
@@ -15,8 +15,8 @@ from
   */
   where
   ((
-  wTable                == ExClassVal.wTable   and
-  cRec                  == ExClassVal.cRec     and
+  extClassVw.wTable                == ExClassVal.wTable   and
+  extClassVw.cRec                  == ExClassVal.cRec     and
   ExClassVal.cClassSeg  == ExClassSeg.NRec     and
   ExClassVal.wTable     == ExClassName.wTable  and
   ExClassSeg.ClassCode  == ExClassName.ClassCode
@@ -34,32 +34,40 @@ from
 function GetStBudExtraParameters (wt : word; cr : comp; pextclName : String) : byte;
 begin
   result := 0;
-  set extClass.wTable := wt;
-  set extClass.cRec   := cr;
+  set extClassVw.wTable := wt;
+  set extClassVw.cRec   := cr;
 
-  extClass._loop ExClassVal {
-    extClass._loop ExClassName {
+  extClassVw._loop ExClassVal {
+    extClassVw._loop ExClassName {
+      /*
       insert f791_2extcl
-         set  f791_2extcl.name := extClass.ExClassName.Name,
-              f791_2extcl.val := extClass.ExClassSeg.Value,
+         set  f791_2extcl.name := extClassVw.ExClassName.Name,
+              f791_2extcl.val := extClassVw.ExClassSeg.Value,
               f791_2extcl.cRec := cr,
               f791_2extcl.wTable := wt;
-      if (extClass.ExClassName.Name <> pextclName /*'Характеристики статьи для форм 7.9.1 и 7.9'*/) {continue};
-      extClass._loop ExClassSeg {
+              */
+      if (extClassVw.ExClassName.Name <> pextclName /*'Характеристики статьи для форм 7.9.1 и 7.9'*/) {continue};
+      extClassVw._loop ExClassSeg {
+        /*
         insert f791_2extcl
            set  f791_2extcl.name := extClass.ExClassName.Name,
                 f791_2extcl.val := extClass.ExClassSeg.Value,
                 f791_2extcl.cRec := cr,
                 f791_2extcl.wTable := wt
                 ;
-        if (extClass.ExClassSeg.Value = excCode1 /*'Разделитель'*/) {result := 1; exit};
-        if (extClass.ExClassSeg.Value = excCode2 /*'Вынос в подвал'*/) {result := 2; exit};
-        if (extClass.ExClassSeg.Value = excCode3 /*'Итого'*/) {result := 3; exit};
-        if (extClass.ExClassSeg.Value = excCode4 /*'Агрегат'*/) {result := 4; exit};
+                */
+        if (extClassVw.ExClassSeg.Value = excCode1 /*'Разделитель'*/) {result := 1; exit};
+        if (extClassVw.ExClassSeg.Value = excCode2 /*'Вынос в подвал'*/) {result := 2; exit};
+        if (extClassVw.ExClassSeg.Value = excCode3 /*'Итого'*/) {result := 3; exit};
+        if (extClassVw.ExClassSeg.Value = excCode4 /*'Агрегат'*/) {result := 4; exit};
 
-        if (extClass.ExClassSeg.Value = excCode5 /*'Сумма'*/)   {result := 5; exit};
-        if (extClass.ExClassSeg.Value = excCode6 /*'Сложить'*/) {result := 6; exit};
-        if (extClass.ExClassSeg.Value = excCode7 /*'Вычесть'*/) {result := 7; exit};
+        if (extClassVw.ExClassSeg.Value = excCode5 /*'Сумма'*/)   {result := 5; exit};
+        if (extClassVw.ExClassSeg.Value = excCode6 /*'Сложить'*/) {result := 6; exit};
+        if (extClassVw.ExClassSeg.Value = excCode7 /*'Вычесть'*/) {result := 7; exit};
+
+        if (extClassVw.ExClassSeg.Value = excCode8 /*'Вычитаемое'*/)   {result := 8; exit};
+        if (extClassVw.ExClassSeg.Value = excCode9 /*'Разность'*/) {result := 9; exit};
+        if (extClassVw.ExClassSeg.Value = excCode10 /*'Уменьшаемое'*/) {result := 10; exit};
       }
     }
   }

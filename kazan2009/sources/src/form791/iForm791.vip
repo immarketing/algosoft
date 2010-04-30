@@ -140,6 +140,12 @@ var
   excCode6    : String;
   excCode7    : String;
 
+  extClName2   : String; // для формулы вычитания
+  excCode8     : String;
+  excCode9     : String;
+  excCode10    : String;
+
+
   isShowZeros : boolean;
 
   isShowTimeLabels : boolean;
@@ -220,12 +226,29 @@ and (
       (
       isDebugDatas and
       (
+      //fpSpAxtf.nRec=comp('0131000000051790h0') or
+      //fpSpAxtf.nRec=comp('0131000000051792h0') or
+      //fpSpAxtf.nRec=comp('0131000000051791h0') or
+
+      fpSpAxtf.nRec=comp('0131000000051792h') or
+      fpSpAxtf.nRec=comp('0131000000051791h') or
+      fpSpAxtf.nRec=comp('0131000000051790h') or
+
+      fpSpAxtf.cKauNode = comp('0131000000051792h') or
+
+      fpSpAxtf.cNode = comp('0131000000051793h') or
+
+      fpSpAxtf.cNode = comp('0131000000051792h0') or
+      fpSpAxtf.cNode = comp('0131000000051791h0')
+
+      /*
       fpSpAxtf.nRec=comp('0131000000051790h') or
       fpSpAxtf.nRec=comp('0131000000051792h') or
       fpSpAxtf.nRec=comp('0131000000051791h') or
       fpSpAxtf.cKauNode = comp('0131000000051792h') or
       fpSpAxtf.cNode = comp('0131000000051792h') or
       fpSpAxtf.cNode = comp('0131000000051791h')
+      */
       )
       )
       )
