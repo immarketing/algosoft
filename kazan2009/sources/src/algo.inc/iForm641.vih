@@ -21,6 +21,8 @@ ObjInterface Iszmn_bud_Form641_2010;
   procedure SetIsEmbedded (val : boolean);
   procedure doPrintReport;
 
+  procedure doStoreDSK();
+
   procedure SetUsing791Printed ( i791 :
   #Iszmn_bud_Form791_printed
   );

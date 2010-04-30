@@ -8,6 +8,8 @@ Procedure StoreDSK();
 begin
   CheckDefValues;
 
+  vFrm641.doStoreDSK();
+
   SaveMyDsk(sPath,     'iForm791641.sPath');
 end;
 
@@ -208,4 +210,3 @@ begin
     Putcommand (cmRefresh);
   end;
 end;
-

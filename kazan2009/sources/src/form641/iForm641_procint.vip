@@ -3,6 +3,11 @@
 
 #include cmn_procint.inc
 
+procedure StoreDSK(); forward;
+procedure doStoreDSK();
+begin
+  StoreDSK();
+end;
 
 function getReportPeriod: comp;
 begin

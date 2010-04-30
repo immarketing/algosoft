@@ -18,6 +18,9 @@ ObjInterface Iszmn_bud_Form791_2010;
   procedure SetIsCreateAndKillExcel (val : boolean);
   procedure SetIsEmbedded (val : boolean);
   procedure doPrintReport;
+
+  procedure doStoreDSK();
+
 end;
 
 !#ifdef  ComponentVersion
