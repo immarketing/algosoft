@@ -33,6 +33,9 @@
         var fSum : String;
         var ps   : word;
 
+        fSum := '';
+        ps := 0;
+
         if (forRazn.getFirst sub791_code9 = tsOK){
           ps := forRazn.sub791_code9.printedAtRow;
           fSum := fSum + ';R[' + (- ps + forRazn.f791_printed.printedAtRow) + ']C';

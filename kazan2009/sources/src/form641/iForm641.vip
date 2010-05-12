@@ -264,6 +264,9 @@ From
 
    , i791printed
 
+  , f641_selectedperiods f641_selPYear
+  , f641_selectedperiods f641_selPYearV2
+
  where
 ((
   // иерархия оси1
@@ -341,10 +344,16 @@ and fpSpAxtf.cNode == superfpSpAxtf.nRec
 and fpSpAxtf.cKauNode == superKauSpAxtf.nRec
 and superKauSpAxtf.cMean == superKAUfpStBud.nRec
 
+and 3 == f641_selPYear.rangeid
+and 3 == f641_selPYearV2.rangeid
+
+
 and cCopyBud       == fpBV.nrec
+and 0              == fpv.chashan (noindex)
 and fpBV.nrec      == fpV.cBudVar
 and word(cFP)      == fpV.KodReg //план факт1
 and fpStBud.nrec   == fpV.cStBud
+and fpV.cPeriod    /==  f641_selPYear.cPeriod   // ссылка на отобранные периода - года
 and fpV.cPeriod    == fpP.nrec
 and fpStBud.ced    == kated.nrec
 
@@ -356,6 +365,7 @@ and HashAn.nRec      == fpV2.cHashAn (noindex)
 and fpBV.nrec        == fpV2.cBudVar // вариант бюджета
 and word(cFP)        == fpV2.KodReg //план факт резерв
 and comp(cStBud)     == fpV2.cStBud // статья бюджета
+and fpV2.cPeriod     /==  f641_selPYearV2.cPeriod   // ссылка на отобранные периода - года
 and fpV2.cPeriod     == fpP2.nrec
 //and cPeriod          == fpV2.cPeriod // ссылка на период
 

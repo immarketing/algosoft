@@ -82,3 +82,14 @@ with index
   //f91_unds_crecdesc = crec (desc),
 )
 ;
+
+table struct f641_selectedperiods
+(
+  rangeid          : word ,
+  cPeriod          : comp
+)
+with index
+(
+  f641_slpd_rid = rangeid+cPeriod (unique)
+)
+;

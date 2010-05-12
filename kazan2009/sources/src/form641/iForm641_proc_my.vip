@@ -195,7 +195,8 @@
 
     //      _LOOP  fpSpAxtf
     _LOOP  fpV {
-      if((month(fpP.dbeg)=month(fpP.dEnd)) and (year(fpP.dbeg)=year(fpperiod.dbeg) and (fpvalues.chashan = 0))) { //chek year
+      //if((month(fpP.dbeg)=month(fpP.dEnd)) and (year(fpP.dbeg)=year(fpperiod.dbeg) and (fpvalues.chashan = 0))) { //chek year
+      if (true) { //chek year
         if(Check=0) {
           sm := fpv.summa;
           //xlSetCellNumberValue(     , Nstr, Nstol + month(fpP.dbeg), Nstr, Nstol + month(fpP.dbeg));
@@ -256,7 +257,8 @@
 
         _loop fpV2 {
           if (getFirst fpP2 <> tsOK)  {};
-          if((month(fpP2.dbeg)=month(fpP2.dEnd)) and (year(fpP2.dbeg)=year(fpperiod.dbeg) )) {
+          //if((month(fpP2.dbeg)=month(fpP2.dEnd)) and (year(fpP2.dbeg)=year(fpperiod.dbeg) )) {
+          if(true) {
             if(Check=0) {
               //xlSetCellNumberValue(fpv2.summa     , Nstr, Nstol , Nstr, Nstol );
               sm := fpv2.summa;
@@ -656,6 +658,7 @@
 
 #include iForm641_kaugroup.vip
 #include iForm641_isHandlable.vip
+#include iForm641_usdPrd.vip
 
   procedure doPrintCurRowPeriodPlus1 (dataRow : word; i : word);
   begin
@@ -687,6 +690,8 @@
     var tms : array [1..10] of time;
 
     tms[1] := Cur_Time;
+
+    buildUsedPeriods;
 
     //StoreDSK;
     var periodNum : byte;
