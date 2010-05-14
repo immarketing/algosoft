@@ -44,19 +44,29 @@
   begin
     CheckDefaultValues;
 
+    /*
     SaveMyDsk(sPath,  '6dsksPath1');
     SaveMyDsk(cTForm, '6dsksPath2');
     SaveMyDsk(cPeriod,'6dsksPath3');
     SaveMyDsk(cPlan1, '6dsksPath4');
-
+    */
+    SaveMyDsk(sPath,  'iForm641.sPath');
+    SaveMyDsk(cTForm, 'iForm641.cTForm');
+    SaveMyDsk(cPeriod,'iForm641.cPeriod');
+    SaveMyDsk(cPlan1, 'iForm641.cPlan1');
 
     SaveMyDsk(cPlanOtd, 'iForm641.cPlanOtd');
 
+    /*
     SaveMyDsk(cPlan2, '6dsksPath5');
     SaveMyDsk(cFact,  '6dsksPath6');
     SaveMyDsk(cPlan3, '6dsksPath7');
+    */
+    SaveMyDsk(cPlan2, 'iForm641.cPlan2');
+    SaveMyDsk(cFact,  'iForm641.cFact');
+    SaveMyDsk(cPlan3, 'iForm641.cPlan3');
 
-    SaveMyDsk(sPath,     'iForm641_sPath');
+    //SaveMyDsk(sPath,     'iForm641_sPath');
 
     SaveMyDsk(Check,     'iForm641.Check');
 
@@ -110,18 +120,29 @@
 
     if (not ReadMyDsk(Check,     'iForm641.Check',isError))  Check := '';
 
+    /*
     if (not ReadMyDsk(sPath  ,'6dsksPath1',isError))  sPath := '';
     if (not ReadMyDsk(cPlan1 ,'6dsksPath4',isError))  cPlan1:=0;
+    */
+    if (not ReadMyDsk(sPath  ,'iForm641.sPath',isError))  sPath := '';
+    if (not ReadMyDsk(cPlan1 ,'iForm641.cPlan1',isError))  cPlan1:=0;
 
     if (not ReadMyDsk(cPlanOtd, 'iForm641.cPlanOtd',isError))  cPlanOtd:=0;
 
+    /*
     if (not ReadMyDsk(cPlan2 ,'6dsksPath5',isError))  cPlan2:=0;
     if (not ReadMyDsk(cPlan3 ,'6dsksPath7',isError))  cPlan3:=0;
     if (not ReadMyDsk(cFact  ,'6dsksPath6',isError))  cFact:=0;
     if (not ReadMyDsk(cTForm ,'6dsksPath2',isError))  cTForm:=0;
     if (not ReadMyDsk(cPeriod,'6dsksPath3',isError))  cPeriod:=0;
+    */
+    if (not ReadMyDsk(cPlan2 ,'iForm641.cPlan2',isError))  cPlan2:=0;
+    if (not ReadMyDsk(cPlan3 ,'iForm641.cPlan3',isError))  cPlan3:=0;
+    if (not ReadMyDsk(cFact  ,'iForm641.cFact',isError))  cFact:=0;
+    if (not ReadMyDsk(cTForm ,'iForm641.cTForm',isError)) {} /* cTForm:=0 */;
+    if (not ReadMyDsk(cPeriod,'iForm641.cPeriod',isError))  cPeriod:=0;
 
-    if (not ReadMyDsk(sPath  ,'iForm641_sPath',isError))  sPath := '';
+    //if (not ReadMyDsk(sPath  ,'iForm641_sPath',isError))  sPath := '';
     if (sPath='') set sPath := translatepath('%startpath%Xls\F_FPBUDGET\SZMN_Budjet\tmpl_6_4_1.xls');
 
     ReadMyDsk (extClName,   'iForm641_extClName', dc);

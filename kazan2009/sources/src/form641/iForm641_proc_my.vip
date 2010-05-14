@@ -1521,6 +1521,9 @@
 
     isUsing791printed := false;
 
+    if (getFirst fpTForm = tsOK) {
+    }
+
     /*
 
     if (not ReadMyDsk(wSetFilt1,'dskSetFilt1',isError))  wsetFilt1 := 0;
