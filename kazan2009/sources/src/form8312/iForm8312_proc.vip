@@ -37,6 +37,9 @@
     tmplRec.periodNameCell.row := 4;
     tmplRec.periodNameCell.col := 2;
 
+    tmplRec.scaleNameCell.row := 4;
+    tmplRec.scaleNameCell.col := 3;
+
     tmplRec.startMacrosName := 'REP_BegoreReportPrint831x';
     tmplRec.finishMacrosName := 'AfterPrint831x';
 
@@ -56,8 +59,10 @@
 
     if(Check=0) {
       reporter.SetScale (1);
+      reporter.SetScaleName ('Руб.');
     } else {
       reporter.SetScale(1000);
+      reporter.SetScaleName ('Тыс. руб.');
     }
 
     reporter.SetIsDebugDatas(isDebugDatas);

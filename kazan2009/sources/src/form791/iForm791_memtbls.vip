@@ -83,7 +83,8 @@ with index
   f791_ptd_rowsToGroup = groupFrom + rowsToGroup (desc),
   f791_ptd_ctkg        = coTable + isKAUGroup,
   f791_ptd_kg        = isKAUGroup,
-  f791_ptd_pstn        = cnode + extraRazn791
+  f791_ptd_pstn      = cnode + extraRazn791,
+  f791_ptd_node_islf = CNODE+ISLEAF
 )
 ;
 

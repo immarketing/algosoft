@@ -49,6 +49,8 @@ type
     finishMacrosName : String;  // название стартового макроса
 
     periodNameCell : TExcelCell; // ячейка для названия периода получения отчета
+
+    scaleNameCell : TExcelCell; // ячейка для названия масштаба
   end;
 
   TSignerRecord=record
@@ -76,7 +78,8 @@ ObjInterface Iszmn_bud_Form831x_2010;
 
   procedure DoPrintSigners;
 
-  procedure SetScale (const scl : LongInt);
+  procedure SetScale (const scl : LongInt); // Установить масштаб 1- в рублях. 1000 - в тысячах
+  procedure SetScaleName (const sclNm : String); // установить наименование масштаба
 
   procedure SetCodificator (const cdfctr : #Iszmn_bud_codificator);
   procedure SetCodificatorByName (const cdfctrInterfName : String);

@@ -426,6 +426,15 @@
                                   templateRec.periodNameCell.col
                                   ); //
 
+    if (templateRec.scaleNameCell.row <> 0 and templateRec.scaleNameCell.col <>0) then {
+      xlSetCellStringValue(reportScaleName,
+                                    templateRec.scaleNameCell.row,
+                                    templateRec.scaleNameCell.col,
+                                    templateRec.scaleNameCell.row,
+                                    templateRec.scaleNameCell.col
+                                    ); //
+    }
+
     var
       arValues : array [1..3] of double;
 

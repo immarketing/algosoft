@@ -20,6 +20,13 @@
     reportScale :=  scl;
   end;
 
+  var reportScaleName : longint;
+
+  procedure SetScaleName (const sclNm : String);
+  begin
+    reportScaleName :=  sclNm;
+  end;
+
   procedure SetCodificatorByName (const cdfctrInterfName : String);
   begin
     // #szmn_bud_codificator

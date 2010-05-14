@@ -245,6 +245,11 @@
         ;
 
 
+  function isCurGroupHasLeafsOnly: boolean;
+  begin
+    set result := not (getFirst subpleafs = tsOK);
+  end;
+
   procedure doGroupData2 (datSheet, repSheet, repSheet79 : String);
   begin
     // Коммерческие расходы
@@ -410,6 +415,31 @@
         fSum := fSum + ';R[' + tsts + ']C';
 
       }
+
+      if (f791_printed.isKAUGroup = 1) {
+        if isCurGroupHasLeafsOnly {
+          var subFirstRow : word;
+          subFirstRow := 0;
+
+          var subLastRow : word;
+          subLastRow := 0;
+
+          if getFirst subp3 = tsOK then { subFirstRow := subp3.printedAtRow;};
+          if getLast subp3 = tsOK then { subLastRow := subp3.printedAtRow;};
+
+          // R[1]C:R[86]C
+
+          if (subFirstRow <> 0 and subLastRow <> 0) then {
+            var raz1 : integer;
+            raz1  := subFirstRow - f791_printed.printedAtRow ;
+            var raz2 : integer;
+            raz2  := subLastRow - f791_printed.printedAtRow ;
+
+            fSum := 'R['+(raz1)+']C:R['+(raz2)+']C';
+          }
+        }
+      }
+
       if (fSum > '') {
         //xlSetCellFormula('=Сумм('+fSum+')',forGrouping.f791_printed_ord2.printedAtRow,3,forGrouping.f791_printed_ord2.printedAtRow,7);
         xlSetCellFormula( '=Сумм('+fSum+')',
@@ -444,7 +474,13 @@
                               4 ,
                               f791_printed.printedAtRow,
                               4 );
-        xlSetCellFormula('=Сумм('+fSum+')',f791_printed.printedAtRow,6,f791_printed.printedAtRow,6);
+                              /*
+        xlSetCellNumberValue( vSums[3] ,
+                              f791_printed.printedAtRow,
+                              5 ,
+                              f791_printed.printedAtRow,
+                              5 );
+        xlSetCellFormula('=Сумм('+fSum+')',f791_printed.printedAtRow,6,f791_printed.printedAtRow,6); */
         /*
         xlSetCellNumberValue( vSums[3] ,
                               f791_printed.printedAtRow,

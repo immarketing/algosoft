@@ -215,7 +215,12 @@ var
 
   isDebugDatas2    : boolean;
 
+  isDebugHideClmns : boolean;
+
   visualHeaderPause : word;
+
+  coTableToSum : word;
+
 
 
 As select
@@ -311,7 +316,7 @@ and (
           )
           )
       )
-      or
+      and
       (
         not isDebugDatas2 or
         (
@@ -358,6 +363,7 @@ and fpV.cPeriod    == fpP.nrec
 and fpStBud.ced    == kated.nrec
 
 and fpSpAxtf.CMEAN == HashAn.cAnalit[1] (noindex)
+!and comp ('0') << HashAn.cSloj (noindex)
 and comp(0)        == HashAn.cBlock (noindex)    //не уверен что всегда 0 из за этого может быть косяк
 
 //and fpSpAxtf.cSloj == fpV2.cSloj

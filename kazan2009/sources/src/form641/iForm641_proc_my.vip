@@ -127,29 +127,32 @@
   begin
     var i : byte;
 
-    result := 43;
+    result := 50;
 
-    for (i := 12; i>=1; dec(i)) {
-      if (i < periodNum) {
-        // факт
-        xlRunMacro('DeleteEntireColumn641 ( ' + (3 + (i-1)*3 + 3) + ' )');
-        xlRunMacro('DeleteEntireColumn641 ( ' + (3 + (i-1)*3 + 2) + ' )');
+    if (isDebugHideClmns) {
 
-        result := result - 2;
+      for (i := 12; i>=1; dec(i)) {
+        if (i < periodNum) {
+          // факт
+          xlRunMacro('DeleteEntireColumn641 ( ' + (3 + (i-1)*3 + 3) + ' )');
+          xlRunMacro('DeleteEntireColumn641 ( ' + (3 + (i-1)*3 + 2) + ' )');
 
-        xlSetCellStringValue('Факт' , 8, 3 + (i-1)*3 + 1, 8, 3 + (i-1)*3 + 1);
-      } else if (i = periodNum) {
-        // ожид. факт = факт ???
-        xlRunMacro('DeleteEntireColumn641 ( ' + (3 + (i-1)*3 + 3) + ' )');
-        xlRunMacro('DeleteEntireColumn641 ( ' + (3 + (i-1)*3 + 2) + ' )');
-        //xlSetCellStringValue('Ожид. факт' , 3 + (i-1)*3 + 1, 1, 3 + (i-1)*3 + 1, 1);
-        result := result - 2;
+          result := result - 2;
 
-        xlSetCellStringValue('Ожид. факт' , 8, 3 + (i-1)*3 + 1, 8, 3 + (i-1)*3 + 1);
-      } else if (i > periodNum) {
-        // планы, доп. планы и корректировка. ???
-        //xlRunMacro('DeleteEntireColumn ( ' + (3 + (i-1)*3 + 1) + ' )');
-        //xlRunMacro('DeleteEntireColumn ( ' + (3 + (i-1)*3 + 2) + ' )');
+          xlSetCellStringValue('Факт' , 8, 3 + (i-1)*3 + 1, 8, 3 + (i-1)*3 + 1);
+        } else if (i = periodNum) {
+          // ожид. факт = факт ???
+          xlRunMacro('DeleteEntireColumn641 ( ' + (3 + (i-1)*3 + 3) + ' )');
+          xlRunMacro('DeleteEntireColumn641 ( ' + (3 + (i-1)*3 + 2) + ' )');
+          //xlSetCellStringValue('Ожид. факт' , 3 + (i-1)*3 + 1, 1, 3 + (i-1)*3 + 1, 1);
+          result := result - 2;
+
+          xlSetCellStringValue('Ожид. факт' , 8, 3 + (i-1)*3 + 1, 8, 3 + (i-1)*3 + 1);
+        } else if (i > periodNum) {
+          // планы, доп. планы и корректировка. ???
+          //xlRunMacro('DeleteEntireColumn ( ' + (3 + (i-1)*3 + 1) + ' )');
+          //xlRunMacro('DeleteEntireColumn ( ' + (3 + (i-1)*3 + 2) + ' )');
+        }
       }
     }
   end;
@@ -327,11 +330,57 @@
   select *
     from
           f641_printed f641_printed_ord2 ,
-          f641_printed subp3
+          f641_printed subp3 (f641_ptd_node_prrow),
+          f641_printed subpleafs
    where ((
-   f641_printed_ord2.cRec == subp3.cNode
+   f641_printed_ord2.cRec == subp3.cNode and
+
+   f641_printed_ord2.cRec == subpleafs.cNode and
+   0 == subpleafs.isLeaf
    ))
         ;
+
+  // процедура расчета сумм по группам аналитик
+  procedure doPreCalcAnalitAggregates;
+  begin
+    forGrouping._loop f641_printed_ord2{
+      if (forGrouping.f641_printed_ord2.isKauGroup = 0)then {
+        continue;
+      }
+      if getFirst f641_printed where ((forGrouping.f641_printed_ord2.nRec == f641_printed.nRec)) = tsOK then {
+        //
+        var cb : type$f641_printed;
+        set cb := f641_printed.buffer;
+
+        var i : byte;
+
+        for (i := 1; i <=12; inc(i)) {
+          cb.sumvar1[i] := 0;
+          cb.sumvar2[i] := 0;
+          cb.sumvar3[i] := 0;
+          cb.sumvar4[i] := 0;
+        }
+
+        forGrouping._loop subp3{
+          for (i := 1; i <=12; inc(i)) {
+            cb.sumvar1[i] += forGrouping.subp3.sumvar1[i];
+            cb.sumvar2[i] += forGrouping.subp3.sumvar2[i];
+            cb.sumvar3[i] += forGrouping.subp3.sumvar3[i];
+            cb.sumvar4[i] += forGrouping.subp3.sumvar4[i];
+          }
+        }
+
+        f641_printed.buffer := cb;
+        update current f641_printed;
+      }
+    }
+  end;
+
+  function isCurGroupHasLeafsOnly: boolean;
+  begin
+    set result := not (forGrouping.getFirst subpleafs = tsOK);
+  end;
+
   Procedure doGroupPrintedData(const periodNum : word);
   begin
     forGrouping._loop f641_printed_ord2{
@@ -366,32 +415,111 @@
 
         }
       }
+
+      if forGrouping.f641_printed_ord2.isKauGroup = 1 then {
+        // эта строка - группа по аналитике - ничего с ней делать не надо, блин.
+        /*
+        if (isCurGroupHasLeafsOnly) {
+        }
+        continue;
+        */
+      }
       var fSum : string;
       fSum := '';
+
+      var fHdnSum : string;
+      fHdnSum := '';
+
+      var hiddenSumCol : byte;
+      hiddenSumCol     := 44;
 
       if (forGrouping.f641_printed_ord2.extPar = 1) {
         continue;
       }
 
-      forGrouping._loop subp3{
-        var tsts : string;
-        var raz : integer;
+      if isCurGroupHasLeafsOnly {
+        var subFirstRow : word;
+        subFirstRow := 0;
 
-        raz  := forGrouping.subp3.printedAtRow - forGrouping.f641_printed_ord2.printedAtRow ;
-        tsts := ''+ raz;
+        var subLastRow : word;
+        subLastRow := 0;
 
-        fSum := fSum + ';R[' + tsts + ']C';
+        if forGrouping.getFirst subp3 = tsOK then { subFirstRow := forGrouping.subp3.printedAtRow;};
+        if forGrouping.getLast subp3 = tsOK then { subLastRow := forGrouping.subp3.printedAtRow;};
+
+        // R[1]C:R[86]C
+
+        if (subFirstRow <> 0 and subLastRow <> 0) then {
+          var raz1 : integer;
+          raz1  := subFirstRow - forGrouping.f641_printed_ord2.printedAtRow ;
+          var raz2 : integer;
+          raz2  := subLastRow - forGrouping.f641_printed_ord2.printedAtRow ;
+
+          fSum := 'R['+(raz1)+']C:R['+(raz2)+']C';
+          fHdnSum := 'R['+(raz1)+']C['+( (3 + ( (periodNum +2) -1)*3 + 3) - hiddenSumCol)+']:R['+(raz2)+']C['+
+          ( (3 + ( (periodNum +2) -1)*3 + 3) - hiddenSumCol)+']';
+        }
+
+      } else {
+        forGrouping._loop subp3{
+          if (forGrouping.subp3.coTable <> coTableToSum) then {
+            continue;
+          }
+
+          var tsts : string;
+          var raz : integer;
+
+          raz  := forGrouping.subp3.printedAtRow - forGrouping.f641_printed_ord2.printedAtRow ;
+          tsts := ''+ raz;
+
+          fSum := fSum + ';R[' + tsts + ']C';
+
+          fHdnSum := fHdnSum + ';R[' + tsts + ']C[' + ( (3 + ( (periodNum +2) -1)*3 + 3) - hiddenSumCol) +']';
+        }
       }
 
       if (fSum > '') {
         //xlSetCellFormula('=Сумм('+fSum+')',forGrouping.f791_printed_ord2.printedAtRow,3,forGrouping.f791_printed_ord2.printedAtRow,7);
-        for (i := 1; i<=12; inc(i)) {
-          if (i >= periodNum) {
+        for (i := periodNum; i<=12; inc(i)) {
+          if (forGrouping.f641_printed_ord2.isKauGroup = 1){
             xlSetCellFormula( '=Сумм('+fSum+')',
+                              forGrouping.f641_printed_ord2.printedAtRow,
+                              3 + (i-1)*3 + 1,
+                              forGrouping.f641_printed_ord2.printedAtRow,
+                              3 + (i-1)*3 + 1
+                              );
+          }
+
+          if (i = periodNum + 2) {
+            xlSetCellFormula( '=Сумм('+fHdnSum+')',
+                              forGrouping.f641_printed_ord2.printedAtRow,
+                              hiddenSumCol,
+                              forGrouping.f641_printed_ord2.printedAtRow,
+                              hiddenSumCol
+                              );
+
+          } else {
+            xlSetCellFormula( '=Сумм('+fSum+')',
+                              forGrouping.f641_printed_ord2.printedAtRow,
+                              3 + (i-1)*3 + 3,
+                              forGrouping.f641_printed_ord2.printedAtRow,
+                              3 + (i-1)*3 + 3
+                              );
+          }
+
+          if (i = periodNum + 2) {
+            xlSetCellFormula( '=RC[' + (44 - (3 + (i-1)*3 + 2))+ ']-RC[-1] + RC['+ (43 - (3 + (i-1)*3 + 2))+ ']',
                               forGrouping.f641_printed_ord2.printedAtRow,
                               3 + (i-1)*3 + 2,
                               forGrouping.f641_printed_ord2.printedAtRow,
-                              3 + (i-1)*3 + 3
+                              3 + (i-1)*3 + 2
+                              );
+          } else {
+            xlSetCellFormula( '=RC[1]-RC[-1]',
+                              forGrouping.f641_printed_ord2.printedAtRow,
+                              3 + (i-1)*3 + 2,
+                              forGrouping.f641_printed_ord2.printedAtRow,
+                              3 + (i-1)*3 + 2
                               );
           }
         }
@@ -889,6 +1017,8 @@
       }
     }
 
+    doPreCalcAnalitAggregates;
+
     var targetPeriod : byte;
     targetPeriod := periodNum + 1;
 
@@ -984,14 +1114,14 @@
               }
             } else {
               // положительная разница
-                // таки обрабатываем положительную разницу
-                update current f641_printed set
-                f641_printed.SumKorr[periodNum+2]    := f641_printed.Sumojid - f641_printed.SumBDSGod,
-                f641_printed.SumKorrStr[periodNum+2] := '('
-                                                        + d2s (f641_printed.Sumojid)
-                                                        + '-'
-                                                        + d2s (f641_printed.SumBDSGod) + ')'
-                ;
+              // таки обрабатываем положительную разницу
+              update current f641_printed set
+              f641_printed.SumKorr[periodNum+2]    := f641_printed.Sumojid - f641_printed.SumBDSGod,
+              f641_printed.SumKorrStr[periodNum+2] := '('
+                                                      + d2s (f641_printed.Sumojid)
+                                                      + '-'
+                                                      + d2s (f641_printed.SumBDSGod) + ')'
+              ;
             }
           }
         }
@@ -1029,6 +1159,11 @@
         var sSum : String;
         sSum := '=0';
 
+        var sHiddenSum : String;
+        sHiddenSum := '=0';
+
+        var bHiddenClmn : byte;
+        set bHiddenClmn := 45;
         /*
         xlSetCellStringValue(firstChar + trimFirst0 (fpstbud.levelcode), dataRow, 1, dataRow, 1);
         xlSetCellStringValue(fpSpAxtf.name, dataRow, 2, dataRow, 2); //
@@ -1043,16 +1178,24 @@
           for (i := 1; i<=12; inc(i)) {
             if (i < periodNum) {
               sSum += '+RC[' + ((i-1)*3 +1) + ']';
+              sHiddenSum += '+RC[' + (3 + (i-1)*3 +1 - bHiddenClmn) + ']';
 
               // факт
               xlSetCellNumberValue(f641_printed.sumvar3[i] , dataRow, 3 + (i-1)*3 + 1 , dataRow, 3 + (i-1)* 3 + 1 );
 
             } else if (i = periodNum) {
               sSum += '+RC[' + ((i-1)*3 +1) + ']';
+              sHiddenSum += '+RC[' + (3 + (i-1)*3 +1 - bHiddenClmn) + ']';
               // ожид. факт
               xlSetCellNumberValue(f641_printed.sumvar4[i] , dataRow, 3 + (i-1)*3 + 1 , dataRow, 3 + (i-1)* 3 + 1 );
             } else if (i > periodNum) {
               sSum += '+RC[' + ((i-1)*3 +3) + ']';
+
+              if ( i = (periodNum + 2) ) {
+                sHiddenSum += '+RC[-1]';
+              } else {
+                sHiddenSum += '+RC[' + (3 + (i-1)*3 +3 - bHiddenClmn) + ']';
+              }
               // планы, доп. планы и корректировка. ???
 
               //xlSetCellNumberValue(min (f641_printed.sumvar1[i],f641_printed.sumvar2[i]) , dataRow, 3 + (i-1)*3 + 1 , dataRow, 3 + (i-1)* 3 + 1 );
@@ -1100,9 +1243,12 @@
               }
             }
           }
+          xlSetCellFormula(sSum,dataRow,3,dataRow,3);
+          xlSetCellFormula(sHiddenSum,dataRow,bHiddenClmn,dataRow,bHiddenClmn);
+          xlSetCellFormula('=RC[-2]-RC[2]',dataRow,43,dataRow,43);
+
           xlSetCellNumberValue(f641_printed.Sumojid , dataRow, 41 , dataRow, 41 );
 
-          xlSetCellFormula(sSum,dataRow,3,dataRow,3);
 
           if (extCl = 0) {
             xlRunMacro('CopyRow(ROW0)');
@@ -1361,6 +1507,8 @@
     set isShowZeros := true;
     set isDebugDatas := false;
     set isDebugDatas2 := false;
+    set isDebugHideClmns := true;
+    set coTableToSum := 22217;
 
     ReadDSK ();
 

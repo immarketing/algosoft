@@ -45,6 +45,7 @@ with index
   f641_ptd_nrec = NREC(Unique, Surrogate),
   f641_ptd_crec = crec,
   f641_ptd_cnode = cnode,
+  f641_ptd_cnode_lf = cnode + isLeaf,
   f641_ptd_node_prrow = cnode + printedAtRow,
   f641_ptd_rowsToGroup = groupFrom + rowsToGroup (desc),
   f641_ptd_isKAUGroup = isKAUGroup,

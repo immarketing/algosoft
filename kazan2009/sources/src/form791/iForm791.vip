@@ -191,9 +191,12 @@ From
 
   , fpSpAxtf superKauSpAxtf
 //  , f791_printed f791_printed_ord2
-  , f791_printed subp3
+  , f791_printed subp3 (f791_ptd_node_prrow)
 
   , fpStBud superKAUfpStBud
+
+
+  , f791_printed subpleafs
 
  where
 ((
@@ -289,6 +292,9 @@ and cPeriod          == fpV2.cPeriod // ссылка на период
 //and superfpSpAxtf.cMEAN == fpV2.cStBud
 
 and f791_printed.cRec == subp3.cNode
+
+and   f791_printed.cRec == subpleafs.cNode
+and   0 == subpleafs.isLeaf
 
 ))
 ;

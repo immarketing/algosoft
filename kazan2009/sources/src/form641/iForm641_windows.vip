@@ -128,10 +128,13 @@ end; // Screen
     excCode13  ('',,) : NoProtect,noPickButton,
       {Font = {BackColor = if (excCode13='',    ColorNeed,0)}};
 
+    coTableToSum  ('',,) : NoProtect,noPickButton;
+
     isShowZeros  ('',,) : NoProtect,noPickButton;
     isShowTimeLabels  ('',,) : NoProtect,noPickButton;
     isDebugDatas  ('',,) : NoProtect,noPickButton;
     isDebugDatas2 ('',,) : NoProtect,noPickButton;
+    isDebugHideClmns ('',,) : NoProtect,noPickButton;
   <<
 
          Название классификатора .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -173,7 +176,13 @@ end; // Screen
                 Не пересчитывать].@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
               Код аналитики [Да] .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
-  [.] Печатать нулевые`  [.] Показывать время исполнения` [.] Тестовый объем данных` [.] Тестовый объем данных - 2`
+   coTableToSum для суммировки   .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+  [.] Печатать нулевые`  [.] Показывать время исполнения`
+
+  [.] Тестовый объем данных` [.] Тестовый объем данных - 2`
+
+  [.] Скрывать колонки - отладка`
   >>
   end; // screen  sCheckdop 'Дополнительно';
 end;
@@ -225,60 +234,11 @@ Window wnInfoWindow 'wnInfoWindow' ('wnInfoWindow', hcNoContext);
 
       f641_printed.printedAtRow '.printedAtRow':[10],protect;
 
-      f641_printed.SaldoType '.SaldoType':[10],protect;
-
-      f641_printed.AgregHandling '.AgregHandling':[10],protect;
-
-      f641_printed.extPar '.extPar':[10],protect;
-      f641_printed.extPar3 '.extPar3':[10],protect;
-      f641_printed.extPar4 '.extPar4':[10],protect;
-      f641_printed.extPar0[1] '.extPar0[1]':[10],protect;
-      f641_printed.extPar0[2] '.extPar0[2]':[10],protect;
-
-
-      f641_printed.isMakeGroup '.isMakeGroup':[10],protect;
       f641_printed.isKauGroup '.isKauGroup':[10],protect;
 
-      f641_printed.cTopNode '.cTopNode':[10],protect;
-      f641_printed.isPrihodSt '.isPrihodSt':[10],protect;
+      f641_printed.isLeaf '.isLeaf':[10],protect;
 
       /*
-      f641_printed.nRec '.nRec':[10],protect;
-      f641_printed.crec '.crec':[10],protect;
-      f641_printed.cnode '.cnode':[10],protect;
-      f641_printed.groupFrom '.groupFrom':[10],protect;
-      f641_printed.groupTo '.groupTo':[10],protect;
-      f641_printed.rowsToGroup '.rowsToGroup':[10],protect;
-      f641_printed.rowsToGroup '.rowsToGroup':[10],protect;
-
-      f641_printed.SumKorr[1] 'SumKorr[1]':[10],protect;
-      f641_printed.SumKorr[2] 'SumKorr[2]':[10],protect;
-      f641_printed.SumKorr[3] 'SumKorr[3]':[10],protect;
-      f641_printed.SumKorr[5] 'SumKorr[5]':[10],protect;
-      f641_printed.SumKorr[6] 'SumKorr[6]':[10],protect;
-      f641_printed.SumKorr[7] 'SumKorr[7]':[10],protect;
-      f641_printed.SumKorr[8] 'SumKorr[8]':[10],protect;
-      f641_printed.SumKorr[9] 'SumKorr[9]':[10],protect;
-      f641_printed.SumKorr[10] 'SumKorr[10]':[10],protect;
-      f641_printed.SumKorr[11] 'SumKorr[11]':[10],protect;
-      f641_printed.SumKorr[4] 'SumKorr[4]':[10],protect;
-      f641_printed.SumKorr[12] 'SumKorr[12]':[10],protect;
-      */
-
-      /*
-      f641_printed.SumKorrStr[1] 'SumKorrStr[1]':[10],protect;
-      f641_printed.SumKorrStr[2] 'SumKorrStr[2]':[10],protect;
-      f641_printed.SumKorrStr[3] 'SumKorrStr[3]':[10],protect;
-      f641_printed.SumKorrStr[4] 'SumKorrStr[4]':[10],protect;
-      f641_printed.SumKorrStr[5] 'SumKorrStr[5]':[10],protect;
-      f641_printed.SumKorrStr[6] 'SumKorrStr[6]':[10],protect;
-      f641_printed.SumKorrStr[7] 'SumKorrStr[7]':[10],protect;
-      f641_printed.SumKorrStr[8] 'SumKorrStr[8]':[10],protect;
-      f641_printed.SumKorrStr[9] 'SumKorrStr[9]':[10],protect;
-      f641_printed.SumKorrStr[10] 'SumKorrStr[10]':[10],protect;
-      f641_printed.SumKorrStr[11] 'SumKorrStr[11]':[10],protect;
-      f641_printed.SumKorrStr[12] 'SumKorrStr[12]':[10],protect;
-
       f641_printed.sumvar1[1] 'sumvar1[1]':[10],protect;
       f641_printed.sumvar1[2] 'sumvar1[2]':[10],protect;
       f641_printed.sumvar1[3] 'sumvar1[3]':[10],protect;
@@ -305,8 +265,6 @@ Window wnInfoWindow 'wnInfoWindow' ('wnInfoWindow', hcNoContext);
       f641_printed.sumvar2[11] 'sumvar2[11]':[10],protect;
       f641_printed.sumvar2[12] 'sumvar2[12]':[10],protect;
 
-      f641_printed.sumvar4[10] 'sumvar4[10]':[10],protect;
-
       f641_printed.sumvar3[1] 'sumvar3[1]':[10],protect;
       f641_printed.sumvar3[2] 'sumvar3[2]':[10],protect;
       f641_printed.sumvar3[3] 'sumvar3[3]':[10],protect;
@@ -332,6 +290,60 @@ Window wnInfoWindow 'wnInfoWindow' ('wnInfoWindow', hcNoContext);
       f641_printed.sumvar4[10] 'sumvar4[10]':[10],protect;
       f641_printed.sumvar4[11] 'sumvar4[11]':[10],protect;
       f641_printed.sumvar4[12] 'sumvar4[12]':[10],protect;
+
+      f641_printed.SaldoType '.SaldoType':[10],protect;
+
+      f641_printed.AgregHandling '.AgregHandling':[10],protect;
+
+      f641_printed.extPar '.extPar':[10],protect;
+      f641_printed.extPar3 '.extPar3':[10],protect;
+      f641_printed.extPar4 '.extPar4':[10],protect;
+      f641_printed.extPar0[1] '.extPar0[1]':[10],protect;
+      f641_printed.extPar0[2] '.extPar0[2]':[10],protect;
+
+
+      f641_printed.isMakeGroup '.isMakeGroup':[10],protect;
+
+      f641_printed.cTopNode '.cTopNode':[10],protect;
+      f641_printed.isPrihodSt '.isPrihodSt':[10],protect;
+
+      f641_printed.nRec '.nRec':[10],protect;
+      f641_printed.crec '.crec':[10],protect;
+      f641_printed.cnode '.cnode':[10],protect;
+      f641_printed.groupFrom '.groupFrom':[10],protect;
+      f641_printed.groupTo '.groupTo':[10],protect;
+      f641_printed.rowsToGroup '.rowsToGroup':[10],protect;
+      f641_printed.rowsToGroup '.rowsToGroup':[10],protect;
+
+      f641_printed.SumKorr[1] 'SumKorr[1]':[10],protect;
+      f641_printed.SumKorr[2] 'SumKorr[2]':[10],protect;
+      f641_printed.SumKorr[3] 'SumKorr[3]':[10],protect;
+      f641_printed.SumKorr[4] 'SumKorr[4]':[10],protect;
+      f641_printed.SumKorr[5] 'SumKorr[5]':[10],protect;
+      f641_printed.SumKorr[6] 'SumKorr[6]':[10],protect;
+      f641_printed.SumKorr[7] 'SumKorr[7]':[10],protect;
+      f641_printed.SumKorr[8] 'SumKorr[8]':[10],protect;
+      f641_printed.SumKorr[9] 'SumKorr[9]':[10],protect;
+      f641_printed.SumKorr[10] 'SumKorr[10]':[10],protect;
+      f641_printed.SumKorr[11] 'SumKorr[11]':[10],protect;
+      f641_printed.SumKorr[12] 'SumKorr[12]':[10],protect;
+
+      f641_printed.SumKorrStr[1] 'SumKorrStr[1]':[10],protect;
+      f641_printed.SumKorrStr[2] 'SumKorrStr[2]':[10],protect;
+      f641_printed.SumKorrStr[3] 'SumKorrStr[3]':[10],protect;
+      f641_printed.SumKorrStr[4] 'SumKorrStr[4]':[10],protect;
+      f641_printed.SumKorrStr[5] 'SumKorrStr[5]':[10],protect;
+      f641_printed.SumKorrStr[6] 'SumKorrStr[6]':[10],protect;
+      f641_printed.SumKorrStr[7] 'SumKorrStr[7]':[10],protect;
+      f641_printed.SumKorrStr[8] 'SumKorrStr[8]':[10],protect;
+      f641_printed.SumKorrStr[9] 'SumKorrStr[9]':[10],protect;
+      f641_printed.SumKorrStr[10] 'SumKorrStr[10]':[10],protect;
+      f641_printed.SumKorrStr[11] 'SumKorrStr[11]':[10],protect;
+      f641_printed.SumKorrStr[12] 'SumKorrStr[12]':[10],protect;
+
+
+      f641_printed.sumvar4[10] 'sumvar4[10]':[10],protect;
+
       */
     End; // Browse
 

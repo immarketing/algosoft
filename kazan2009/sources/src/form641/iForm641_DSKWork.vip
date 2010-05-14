@@ -97,6 +97,7 @@
     SaveMyDsk(extClName7,  'iForm641.extClName7');
     SaveMyDsk(excCode13,   'iForm641.excCode13');
 
+    SaveMyDsk (coTableToSum,    'iForm641.coTableToSum' );
 
   end;
 
@@ -159,6 +160,8 @@
 
     ReadMyDsk (extClName7,  'iForm641.extClName7', dc);
     ReadMyDsk (excCode13,   'iForm641.excCode13', dc);
+
+    ReadMyDsk (coTableToSum,'iForm641.coTableToSum', dc);
 
     CheckDefaultValues;
   end;

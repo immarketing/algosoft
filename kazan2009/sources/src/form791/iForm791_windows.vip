@@ -153,6 +153,7 @@ Window wnInfoWindow 'gg' ('gg', hcNoContext);
 
       f791_printed.extraRazn791 '.extraRazn791':[10],protect;
 
+      f791_printed.isLeaf       '.isLeaf':[10],protect;
 
     End; // Browse
 
