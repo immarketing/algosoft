@@ -20,7 +20,7 @@
     reportScale :=  scl;
   end;
 
-  var reportScaleName : longint;
+  var reportScaleName : String;
 
   procedure SetScaleName (const sclNm : String);
   begin

@@ -28,7 +28,7 @@ tabbedSheet tabbed
   buttons
   cmReport;
   cmCancel;
-  //cmTest;
+!  cmTest;
   <<
 
    Типовая форма бюджета .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@

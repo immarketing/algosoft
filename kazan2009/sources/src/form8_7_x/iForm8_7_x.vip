@@ -31,11 +31,14 @@
 
 #include podpis.vih
 
+#include BudCdfc.vih
+#include BudCdfcIerar.vih
+
 // Для попадания примера в список отчетов -
 // раскомментировать конструкцию VipInterface (Implements для Атлантиса 5.1)
 
 #ifdef Atl51
-VipInterface UserReport_szmn_form8_11_1_2010  Implements IUserReport
+VipInterface UserReport_szmn_form8_7_x_2010  Implements IUserReport
   Licensed(Free)
 ;
 #else
@@ -46,7 +49,7 @@ VipInterface UserReport_szmn_form8_11_1_2010  Implements IUserReport
 Пример пользовательского отчета #1
 #end
 
-Interface UserReport_szmn_form8_11_1_2010;
+Interface UserReport_szmn_form8_7_x_2010;
 
 create view;
 
@@ -54,13 +57,13 @@ create view;
 // Запуск отчета на выполнение при выборе его из списка отчетов
 procedure Run;
 begin
-  RunInterface('szmn_bud_Form8_11_1_2010' );
+  RunInterface('szmn_bud_Form8_7_x_2010' );
 end;
 !-------------------------------------------------------------------------------
 // Наименование отчета в списке
 function GetReportName: String;
 begin
-  GetReportName := 'Форм 8.11.1 (вариант 2010 года)';
+  GetReportName := 'Формы 8.7.x, 8.9, 8.15, 8.21 (вариант 2010 года)';
 end;
 !-------------------------------------------------------------------------------
 function GetGroupName (Level : Word) : String;
@@ -86,28 +89,28 @@ end;
 !-------------------------------------------------------------------------------
 end.
 
-form8_11_1showdebug menu
+form8_7_x_showdebug menu
 {
-  - 'Показать отладочную информацию', cmShowDebug8_11_1, 'Отладочная информация' ;
+  - 'Показать отладочную информацию', cmShowDebug8_7_x, 'Отладочная информация' ;
 }
 
 //vipInterface #szmn_bud_Form791_2010 licensed(free);
 
-Interface #szmn_bud_Form8_11_1_2010
-  '-= СЗМН Бюджет. Формы 8.11.1 Вариант 2010 года =- ' (,hcNoContext,) EscClose, Cyan;
+Interface #szmn_bud_Form8_7_x_2010
+  '-= СЗМН Бюджет. Формы 8.7.x, 8.9, 8.15, 8.21. Вариант 2010 года =- ' (,hcNoContext,) EscClose, Cyan;
   //show at  (0,0,70,10)
   show at  (0,0,100,30)
   ;
 
 !#include iForm831x_memtbls.vip
-#include iForm8_11_1_createview.vip
-#include iForm8_11_1_windows.vip
-#include iForm8_11_1_proc.vip
+#include iForm8_7_x_createview.vip
+#include iForm8_7_x_windows.vip
+#include iForm8_7_x_proc.vip
 
 Handleevent
   cmHotKeys : {
     var mn : longint ;
-    mn := LoadMenu('form8_11_1showdebug') ;
+    mn := LoadMenu('form8_7_x_showdebug') ;
     var i : integer;
     i := RunLoadMenu (mn);
     //message  ('i == ' + i);
@@ -120,7 +123,7 @@ Handleevent
     doHandlecmReport;
   }
 
-  cmShowDebug8_11_1: {
+  cmShowDebug8_7_x: {
     //doHandlecmShowDebug832();
 
   }
@@ -144,8 +147,7 @@ Handleevent
   cmTest : {
     //doHandlecmTest;
   }
-  */
-  /*
+
   cmApply:
   {
     doPrintReport();
