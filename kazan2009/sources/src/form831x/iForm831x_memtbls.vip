@@ -2,7 +2,7 @@
 table struct f831_selectedperiods
 (
   rangeid          : word ,
-  cPeriod          : comp 
+  cPeriod          : comp
 )
 with index
 (
@@ -10,6 +10,22 @@ with index
 )
 ;
 
+table struct f831_attributes
+(
+  nRec             : comp "nRec",
+!  Name             : String ,
+  row              : word,
+  col              : word,
+  vType            : word,
+  vString          : String ,
+  vDouble          : double
+)
+with index
+(
+  f831_attr_nrec = NREC(Unique, Surrogate)
+!  ,  f831_attr_nm   = Name (unique)
+)
+;
 /*
 table struct f791_2fields
 (

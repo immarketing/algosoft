@@ -88,10 +88,18 @@ ObjInterface Iszmn_bud_Form831x_2010;
 
 end;
 
+ObjInterface #Iszmn_bud_XLS_attributes;
+  procedure ClearAllValues;
+
+  procedure AddValueString(prow:word; pcol:word; vl : String);
+  procedure AddValueNumber(prow:word; pcol:word; vl : Double);
+end;
+
 VipInterface
 #szmn_bud_Form831x_2010
 implements
-  Iszmn_bud_Form831x_2010
+  Iszmn_bud_Form831x_2010,
+  #Iszmn_bud_XLS_attributes
 
 #Licensed_Free
 ;

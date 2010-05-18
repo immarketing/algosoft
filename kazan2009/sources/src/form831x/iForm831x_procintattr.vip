@@ -1,0 +1,31 @@
+  /*
+
+  cgAttrType_Str      =  0;   // 0 -  STRING
+  cgAttrType_Dbl      =  1;   // 1 -  DOUBLE
+  cgAttrType_Date     =  2;   // 2 -  DATE
+  cgAttrType_Time     =  3;   // 3 -  TIME
+  cgAttrType_Memo     =  4;   // 4 -  MEMO
+  cgAttrType_Comp     =  5;   // 5 -  Comp
+
+  */
+
+  procedure ClearAllValues;
+  begin
+    delete all f831_attributes;
+  end;
+
+  procedure AddValueString(prow:word; pcol:word; vl : String);
+  begin
+    insert f831_attributes set f831_attributes.row := prow,
+                               f831_attributes.col := pcol,
+                               f831_attributes.vString := vl,
+                               f831_attributes.vType := cgAttrType_Str;
+  end;
+
+  procedure AddValueNumber(prow:word; pcol:word; vl : Double);
+  begin
+    insert f831_attributes set f831_attributes.row := prow,
+                               f831_attributes.col := pcol,
+                               f831_attributes.vDouble := vl,
+                               f831_attributes.vType := cgAttrType_Dbl;
+  end;

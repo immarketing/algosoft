@@ -1,3 +1,6 @@
+
+#include iForm831x_procintattr.vip
+
   // процедуры и функции объектного интерфейса
   var templateRec      : TTemplateRecord; // настройки шаблона
   var budVariantsSetup : TBudVariantRecordArray3; // обслуживаем 3 варианта

@@ -393,6 +393,30 @@
     }
   end;
 
+  procedure DoPrintAttributesAtBegin;
+  begin
+    _loop f831_attributes {
+      case f831_attributes.vType of
+        cgAttrType_Str : {
+          xlSetCellStringValue( f831_attributes.vString,
+                                f831_attributes.row,
+                                f831_attributes.col,
+                                f831_attributes.row,
+                                f831_attributes.col
+                                ); //
+        }
+        cgAttrType_Dbl : {
+          xlSetCellNumberValue( f831_attributes.vDouble,
+                                f831_attributes.row,
+                                f831_attributes.col,
+                                f831_attributes.row,
+                                f831_attributes.col
+                                        ); //
+        }
+      end;
+    }
+  end;
+
   procedure doPrintReport8311;
   begin
     var tt:word;
@@ -419,6 +443,8 @@
     xlRunMacro('setRowToFill('+String (templateRec.rowToStartWith)+')');
 
     xlSetActiveSheetByName(dataSheetName);
+
+    DoPrintAttributesAtBegin ;
 
     xlSetCellStringValue(sPeriod, templateRec.periodNameCell.row,
                                   templateRec.periodNameCell.col,

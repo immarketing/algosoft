@@ -36,6 +36,7 @@
   #define szmn_bud_Ierarhycodificator szmn_bud_Ierarhycodificator_
 
   #define szmn_bud_Form8_7_x_2010 szmn_bud_Form8_7_x_2010_
+  #define Iszmn_bud_XLS_attributes Iszmn_bud_XLS_attributes_
 
 #ELSE
 
@@ -59,6 +60,7 @@
   #define szmn_bud_Ierarhycodificator szmn_bud_Ierarhycodificator
 
   #define szmn_bud_Form8_7_x_2010 szmn_bud_Form8_7_x_2010
+  #define Iszmn_bud_XLS_attributes Iszmn_bud_XLS_attributes
 
 #ENDIF
 

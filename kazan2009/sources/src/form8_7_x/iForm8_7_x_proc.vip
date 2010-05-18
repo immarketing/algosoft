@@ -27,8 +27,8 @@
     var tmplRec : TTemplateRecord;
 
     tmplRec.sPath := sPath;
-    tmplRec.dataSheetName := 'datas8.3.1.x';
-    tmplRec.repSheetName := 'rep8.3.1.x';
+    tmplRec.dataSheetName := 'datas8.7.x';
+    tmplRec.repSheetName := 'rep8.7.x';
     tmplRec.tmplRow :=  15;
     tmplRec.tmplRowName := 'ROWORDINAL';
     tmplRec.tmplLastTblRowName := 'ROWTBLFINISH';
@@ -40,8 +40,8 @@
     tmplRec.scaleNameCell.row := 4;
     tmplRec.scaleNameCell.col := 3;
 
-    tmplRec.startMacrosName := 'REP_BegoreReportPrint831x';
-    tmplRec.finishMacrosName := 'AfterPrint831x';
+    tmplRec.startMacrosName := 'REP_BegoreReportPrint87x';
+    tmplRec.finishMacrosName := 'AfterPrint87x';
 
     reporter.SetBudVariants(repVarsArray);
     reporter.SetTemplate (tmplRec);
@@ -66,6 +66,11 @@
     }
 
     reporter.SetIsDebugDatas(isDebugDatas);
+
+    reporter.ClearAllValues;
+
+    reporter.AddValueString(4,6, fpTForm.LEVELCODE);
+    reporter.AddValueString(4,7, fpTForm.name);
 
     reporter.DoPrintReport;
   end;
