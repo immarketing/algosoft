@@ -1,0 +1,84 @@
+create view
+var
+  paramSopr   : comp;
+  pcSopr      : comp;
+  cST_INC     : comp;
+
+  cTBL_SOOTV  : comp;
+  cTBL_SOOTV3 : comp;
+  TargetBudGroup : comp;
+
+  dtStart, dtFinish : date;
+  cFltrCO     : comp;
+  sFltrUsDesc : String;
+
+  docToCheck  : byte;
+  prbToCheck  : byte;
+  BaseDocToCheck : byte;
+
+  useFilter   : byte;
+
+  showUnCor   : byte;
+
+as
+select *
+  from  KatSopr,
+        SpSopr,
+        SPECMTR,
+        SALDTUNE,
+        SALDTUNE st_inc,
+        loc_inx,
+        FPKATIMP,
+        fpco fltrfpco,
+        KatMC,
+        KatUsl,
+        KatDoc,
+
+        BaseDoc chBaseDoc,
+        StepDoc chStepDoc,
+        SpStep  chSpStep,
+        KatMC   chKatMC,
+        KatUsl  chKatUsl
+ where ((
+!   pcSopr   == KatSopr.nRec and
+
+!   and
+    root == KatSopr.nRec and
+
+    (  ((docToCheck and word(1)) > 0 and KatSopr.VidSopr = 111 ) or
+      ((docToCheck and word(2)) > 0 and KatSopr.VidSopr = 204 ) or
+      ((docToCheck and word(4)) > 0 and KatSopr.VidSopr = 504 ) or
+      ((docToCheck and word(8)) > 0 and KatSopr.VidSopr = 602 ) ) and
+
+   KatSopr.nRec == SpSopr.cSopr and
+   SpSopr.nrec == SPECMTR.CSPEC and
+   SPECMTR.CSALDTUNE == SALDTUNE.NREC and
+   cST_INC == st_inc.nRec and
+
+   cTBL_SOOTV == FPKATIMP.nrec and
+
+   cFltrCO == fltrfpco.nRec and
+
+   SpSopr.cMCUsl == katMC.nRec and
+   SpSopr.cMCUsl == katUsl.nRec and
+   KatSopr.VidSopr == KatDoc.TIDKGAL  and
+
+
+   root == chBaseDoc.nRec and
+   (
+      ((BaseDocToCheck and word(1)) > 0 and chBaseDoc.viddoc = 101 ) or
+      ((BaseDocToCheck and word(2)) > 0 and chBaseDoc.viddoc = 111 ) or
+      ((BaseDocToCheck and word(4)) > 0 and chBaseDoc.viddoc = 201 )
+   ) and
+   chBaseDoc.nRec == chStepDoc.cBaseDoc and
+   chStepDoc.nRec == chSpStep.cStepDoc  and
+
+   chSpStep.cMCUsl == chKatMC.nRec and
+   chSpStep.cMCUsl == chKatUsl.nRec 
+
+
+ ))
+ bounds byDates =  dtStart<<=KatSopr.dsopr(noindex) and dtFinish >>= KatSopr.dsopr (noindex)
+ bounds byCO    =  cFltrCO==KatSopr.COTVPODR (noindex)
+ bounds byDesc  =  sFltrUsDesc == KatSopr.descr (noindex)
+ ;

@@ -1,0 +1,62 @@
+  /*
+  проверка несоответствия центра ответственности из документа и из настройки целевого учета.
+  Если найдена проблема, то функция возвращает истину и в параметре возвращается описание проблемы.
+  */
+  function isCurrentWrong1(out comment : string):boolean;
+  begin
+    result := false;
+    comment := '';
+
+    var co1,co2 : comp;
+    var cd1,cd2 : string;
+
+    co1 := KatSopr.COTVPODR;
+    co2 := 0;
+
+    co2 := getCUAnVal (coSpSopr, SpSopr.NRec, 22);
+
+   if (getfirst fpco where ((co1 == fpco.nrec)) = tsOK){
+      cd1 := fpco.code;
+    }
+
+    if (getfirst fpco where ((co2 == fpco.nrec)) = tsOK){
+      cd2 := fpco.code;
+    }
+    //Message ('co: '+co1 + ''#13'' + co2);
+    //Message ('cd: '+cd1 + ''#13'' + cd2);
+
+    if (SubStr(cd1,1,4) <> SubStr (cd2,1,4) ) {
+      result  := true;
+      comment := 'Первые 4 символа кода ЦО из документа не совпадают с таковыми из целевого учета';
+    }
+  end;
+
+  function isCurrentDOWrong1(out comment : string):boolean;
+  begin
+    result := false;
+    comment := '';
+
+    var co1,co2 : comp;
+    var cd1,cd2 : string;
+
+    co1 := chBaseDoc.COTVPODR;
+    co2 := 0;
+
+    co2 := getCUAnVal (coBaseDoc, chBaseDoc.NRec, 22);
+
+   if (getfirst fpco where ((co1 == fpco.nrec)) = tsOK){
+      cd1 := fpco.code;
+    }
+
+    if (getfirst fpco where ((co2 == fpco.nrec)) = tsOK){
+      cd2 := fpco.code;
+    }
+    //Message ('co: '+co1 + ''#13'' + co2);
+    //Message ('cd: '+cd1 + ''#13'' + cd2);
+
+    if (SubStr(cd1,1,4) <> SubStr (cd2,1,4) ) {
+      result  := true;
+      comment := 'Первые 4 символа кода ЦО из документа не совпадают с таковыми из целевого учета';
+    }
+  end;
+

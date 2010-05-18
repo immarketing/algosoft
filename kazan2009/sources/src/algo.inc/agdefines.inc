@@ -38,6 +38,8 @@
   #define szmn_bud_Form8_7_x_2010 szmn_bud_Form8_7_x_2010_
   #define Iszmn_bud_XLS_attributes Iszmn_bud_XLS_attributes_
 
+  #define szmn_doccheck szmn_doccheck_
+
 #ELSE
 
   #define szmn_bud_Form641_2010 szmn_bud_Form641_2010
@@ -61,6 +63,8 @@
 
   #define szmn_bud_Form8_7_x_2010 szmn_bud_Form8_7_x_2010
   #define Iszmn_bud_XLS_attributes Iszmn_bud_XLS_attributes
+
+  #define szmn_doccheck szmn_doccheck
 
 #ENDIF
 
