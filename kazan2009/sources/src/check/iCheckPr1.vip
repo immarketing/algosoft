@@ -42,7 +42,7 @@
     co1 := chBaseDoc.COTVPODR;
     co2 := 0;
 
-    co2 := getCUAnVal (coBaseDoc, chBaseDoc.NRec, 22);
+    co2 := getCUAnVal (coSpStep, chSpStep.NRec, 22);
 
    if (getfirst fpco where ((co1 == fpco.nrec)) = tsOK){
       cd1 := fpco.code;
@@ -59,4 +59,3 @@
       comment := 'Первые 4 символа кода ЦО из документа не совпадают с таковыми из целевого учета';
     }
   end;
-

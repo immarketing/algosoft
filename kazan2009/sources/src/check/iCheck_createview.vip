@@ -20,6 +20,8 @@ var
 
   showUnCor   : byte;
 
+  chStage     : byte; // этап проверки. 1 - проверяем накладные, 2 - проверяем ДО
+
 as
 select *
   from  KatSopr,
@@ -34,6 +36,9 @@ select *
         KatUsl,
         KatDoc,
 
+        used_vidsopr,
+        used_basedocs,
+
         BaseDoc chBaseDoc,
         StepDoc chStepDoc,
         SpStep  chSpStep,
@@ -43,12 +48,25 @@ select *
 !   pcSopr   == KatSopr.nRec and
 
 !   and
-    root == KatSopr.nRec and
+    //root == KatSopr.nRec and
+    //0 <<= KatSopr.nRec and
 
-    (  ((docToCheck and word(1)) > 0 and KatSopr.VidSopr = 111 ) or
+    root == used_vidsopr.vidsopr and
+    used_vidsopr.vidsopr == KatSopr.VidSopr and
+    dtStart<<=KatSopr.dsopr (noindex) and dtFinish >>= KatSopr.dsopr (noindex) and
+    //111 == KatSopr.VidSopr and
+    //KatSopr.VidSopr /== used_vidsopr.vidsopr and
+
+    /*
+    ( (chStage <> 1 and KatSopr.nRec = 0) or
+
+      ( chStage = 1 and (
+      ((docToCheck and word(1)) > 0 and KatSopr.VidSopr = 111 ) or
       ((docToCheck and word(2)) > 0 and KatSopr.VidSopr = 204 ) or
       ((docToCheck and word(4)) > 0 and KatSopr.VidSopr = 504 ) or
-      ((docToCheck and word(8)) > 0 and KatSopr.VidSopr = 602 ) ) and
+      ((docToCheck and word(8)) > 0 and KatSopr.VidSopr = 602 ) ) )
+      ) and
+      */
 
    KatSopr.nRec == SpSopr.cSopr and
    SpSopr.nrec == SPECMTR.CSPEC and
@@ -64,21 +82,55 @@ select *
    KatSopr.VidSopr == KatDoc.TIDKGAL  and
 
 
-   root == chBaseDoc.nRec and
-   (
+   //root == chBaseDoc.nRec and
+   //0 <<= chBaseDoc.nRec and
+
+   /*
+   (  (chStage <> 2 and chBaseDoc.nRec = 0) or
+
+      ( chStage = 2 and
+      ( chBaseDoc.DDOC >= tStart and chBaseDoc.DDOC <= dtFinish ) and
+      (
       ((BaseDocToCheck and word(1)) > 0 and chBaseDoc.viddoc = 101 ) or
       ((BaseDocToCheck and word(2)) > 0 and chBaseDoc.viddoc = 111 ) or
       ((BaseDocToCheck and word(4)) > 0 and chBaseDoc.viddoc = 201 )
+      )
+      )
    ) and
+   */
+   root == used_basedocs.viddoc  and
+   //85849867896968036 == chBaseDoc.nRec and
+   used_basedocs.viddoc == chBaseDoc.viddoc (noindex) and
+   dtStart<<=chBaseDoc.DDOC (noindex) and dtFinish >>= chBaseDoc.DDOC (noindex) and
+
    chBaseDoc.nRec == chStepDoc.cBaseDoc and
    chStepDoc.nRec == chSpStep.cStepDoc  and
 
    chSpStep.cMCUsl == chKatMC.nRec and
-   chSpStep.cMCUsl == chKatUsl.nRec 
+   chSpStep.cMCUsl == chKatUsl.nRec
 
+!   and dtStart<<=KatSopr.dsopr(noindex) and dtFinish >>= KatSopr.dsopr (noindex)
+!   and dtStart<<=chBaseDoc.DDOC(noindex) and dtFinish >>= chBaseDoc.DDOC (noindex)
 
  ))
- bounds byDates =  dtStart<<=KatSopr.dsopr(noindex) and dtFinish >>= KatSopr.dsopr (noindex)
- bounds byCO    =  cFltrCO==KatSopr.COTVPODR (noindex)
- bounds byDesc  =  sFltrUsDesc == KatSopr.descr (noindex)
+ bounds byDef   =  used_vidsopr.vidsopr == KatSopr.VidSopr and
+                   used_basedocs.viddoc == chBaseDoc.viddoc (noindex)
+
+ bounds byDates =  dtStart<<=KatSopr.dsopr(noindex) and dtFinish >>= KatSopr.dsopr (noindex) and
+                   dtStart<<=chBaseDoc.DDOC(noindex) and dtFinish >>= chBaseDoc.DDOC (noindex)
+
+ bounds byCO    =  cFltrCO==KatSopr.COTVPODR (noindex) and
+                   cFltrCO==chBaseDoc.COTVPODR (noindex)
+
+ bounds byDesc  =  sFltrUsDesc == KatSopr.descr (noindex)  and
+                   sFltrUsDesc == chBaseDoc.descr (noindex)
+
+/*
+ bounds byDates =  dtStart<<=KatSopr.dsopr(noindex) and dtFinish >>= KatSopr.dsopr (noindex) and
+                   dtStart<<=chBaseDoc.DDOC(noindex) and dtFinish >>= chBaseDoc.DDOC (noindex)
+ bounds byCO    =  cFltrCO==KatSopr.COTVPODR (noindex) and
+                   cFltrCO==chBaseDoc.COTVPODR (noindex)
+ bounds byDesc  =  sFltrUsDesc == KatSopr.descr (noindex)  and
+                   sFltrUsDesc == chBaseDoc.descr (noindex)
+*/
  ;

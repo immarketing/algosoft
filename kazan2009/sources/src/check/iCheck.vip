@@ -98,42 +98,7 @@ vipInterface #szmn_doccheck licensed(free);
 Interface #szmn_doccheck 'СЗ проверка документов' (,hcNoContext,) EscClose, Cyan;
   show at  (0,0,100,30);
 
-!#include alg5503_memtbls.inc
-
-table struct local loc_inx
-(
-  wSTnRec : comp,
-  wKau : word,
-  inx : integer
-)
-with index
-(
-  loc_inx01 = wSTnRec+wKau (unique)
-)
-;
-
-table struct local resSopr
-(
-  soprNRec : comp
-)
-with index
-(
-  resSopr01 = soprNRec (unique)
-)
-;
-
-table struct local resSpSopr
-(
-  SpSoprNRec : comp,
-  soprNRec : comp,
-  res : boolean,
-  comments : lvar
-)
-with index
-(
-  SpSopr01 = SpSoprNRec (unique)
-)
-;
+#include iCheck_memtbl.vip
 
 #include iCheck_createview.vip
 /*
@@ -203,6 +168,7 @@ select *
  */
  parameters paramSopr;
 
+/*
   BROWSE  brplan_KatSopr;
   show at( , , ,3 );
   table KatSopr;
@@ -264,6 +230,7 @@ select *
   <. 1 .>    <.   2   .>  <. 3 .>
   >>
   end;
+*/
 
   function getIndexInSaldTune(stNRec : comp; wCode : word): integer;
   begin
@@ -300,8 +267,8 @@ select *
   var cSPECMTR : comp;
       wTbl      : word;
   as select * from SPECMTR SPECMTRCU where ((
-    cSPECMTR  == SPECMTRCU.cspec and
-    wTbl      == SPECMTRCU.COTABLE
+    forCU.cSPECMTR  == SPECMTRCU.cspec and
+    forCU.wTbl      == SPECMTRCU.COTABLE
   ))
   ;
 
@@ -417,9 +384,9 @@ select *
 
 
     r1 := isCurrentDOWrong1 (com1);
-    r2 := false ;//isCurrentWrong2 (com2);
-    r3 := false ;//isCurrentWrong3 (com3);
-    r4 := false ;//isCurrentWrong4 (com4);
+    r2 := isCurrentDOWrong2 (com2);
+    r3 := isCurrentDOWrong3 (com3);
+    r4 := isCurrentDOWrong4 (com4);
 
     result := r1 or r2 or /*r3 or */r4;
 
@@ -439,121 +406,144 @@ select *
 
   end;
 
+  procedure BuildUsedVids; forward;
+
   procedure doMakeCheck;
   begin
-    _loop KatSopr {
-      var ew : boolean;
-      ew := false;
-      _loop SpSopr {
-        ew := ew or doCheckCurrent(false);
-        if (ew) break;
-      }
-      //Message ('showUnCor == '+ showUnCor + ''#13'' + 'ew == '+ ew);
-      if ( (not ew) and (showUnCor = 1) ) continue;
-      //Message (1);
+    BuildUsedVids;
+    //set chStage := 1;
 
-      frm.write ( KatSopr.VidSopr );
+    var hasIteration : boolean;
 
-      if (getfirst KatDoc = tsOK){
-        frm.write ( KatDoc.Name );
-      } else {
-        frm.write ( 'Вид документа не определен!' );
-      }
-      frm.write ( KatSopr.nRec );
-      frm.write ( KatSopr.DSopr );
-      frm.write ( KatSopr.NSopr );
-      frm.write ( KatSopr.Descr );
-      frm.write ( KatSopr.SUMMA );
+    hasIteration := false;
 
+    if (getFirst used_vidsopr = tsOK) _loop used_vidsopr {
+      if (getFirst KatSopr = tsOK) _loop KatSopr {
 
-      _loop SpSopr {
+        hasIteration := true;
 
-        frm.write ( SpSopr.nRec );
-        frm.write ( SpSopr.npp );
-        if (SpSopr.prMC =1) {
-          if (getfirst katmc = tsOK){
-            frm.write ( katmc.Name );
-          } else {
-            frm.write ( '' );
-          }
-        } else if (SpSopr.prMC > 1) {
-          if (getfirst katUsl = tsOK){
-            frm.write ( katUsl.Name );
-          } else {
-            frm.write ( '' );
-          }
-        }
-        //frm.write ( SpSopr.nRec );
-        doCheckCurrent(true);
-      }
-      frm.putEvent (feBreak);
-    }
-    frm.putEvent (feBreak);
-
-    _loop chBaseDoc {
-      var ew : boolean;
-      ew := false;
-      _loop chStepDoc {
-        _loop chSpStep {
-          ew := ew or doCheckCurrentDO(false);
+        var ew : boolean;
+        ew := false;
+        _loop SpSopr {
+          ew := ew or doCheckCurrent(false);
           if (ew) break;
         }
-      }
-      if ( (not ew) and (showUnCor = 1) ) continue;
+        //Message ('showUnCor == '+ showUnCor + ''#13'' + 'ew == '+ ew);
+        if ( (not ew) and (showUnCor = 1) ) continue;
+        //Message (1);
 
-      frm.write ( chBaseDoc.VidDoc );
+        frm.write ( KatSopr.VidSopr );
 
-      case chBaseDoc.VidDoc of
-        101 : {
-          frm.write ( 'ДО на закупку' );
+        if (getfirst KatDoc = tsOK){
+          frm.write ( KatDoc.Name );
+        } else {
+          frm.write ( 'Вид документа не определен!' );
         }
-        111 : {
-          frm.write ( 'ДО на предоплату закупок' );
-        }
-        201 : {
-          frm.write ( 'ДО на продажу' );
-        }
-      end;
-
-      /*
-      if (getfirst KatDoc = tsOK){
-        frm.write ( KatDoc.Name );
-      } else {
-        frm.write ( 'Вид документа не определен!' );
-      }
-      */
-      frm.write ( chBaseDoc.nRec );
-      frm.write ( chBaseDoc.DDOC );
-      frm.write ( chBaseDoc.NODOC );
-      frm.write ( chBaseDoc.Descr );
-      frm.write ( chBaseDoc.SUMMA );
+        frm.write ( String(KatSopr.nRec,20,0) );
+        frm.write ( KatSopr.DSopr );
+        frm.write ( KatSopr.NSopr );
+        frm.write ( KatSopr.Descr );
+        frm.write ( KatSopr.SUMMA );
 
 
-      _loop chStepDoc {
-        _loop chSpStep {
+        _loop SpSopr {
 
-          frm.write ( chSpStep.nRec );
-          frm.write ( chSpStep.npp );
-          if (chSpStep.prMC =1) {
-            if (getfirst chkatmc = tsOK){
-              frm.write ( chkatmc.Name );
+          frm.write ( String (SpSopr.nRec,20,0) );
+          frm.write ( SpSopr.npp );
+          if (SpSopr.prMC =1) {
+            if (getfirst katmc = tsOK){
+              frm.write ( katmc.Name );
             } else {
               frm.write ( '' );
             }
-          } else if (chSpStep.prMC > 1) {
-            if (getfirst chkatUsl = tsOK){
-              frm.write ( chkatUsl.Name );
+          } else if (SpSopr.prMC > 1) {
+            if (getfirst katUsl = tsOK){
+              frm.write ( katUsl.Name );
             } else {
               frm.write ( '' );
             }
           }
           //frm.write ( SpSopr.nRec );
-          doCheckCurrentDO(true);
+          doCheckCurrent(true);
         }
+        frm.putEvent (feBreak);
       }
       frm.putEvent (feBreak);
     }
-    frm.putEvent (feBreak);
+
+    //set chStage := 2;
+
+    if (getFirst used_basedocs = tsOK) _loop used_basedocs {
+      if (getFirst chBaseDoc = tsOK) _loop chBaseDoc {
+        hasIteration := true;
+        var ew : boolean;
+        ew := false;
+        _loop chStepDoc {
+          _loop chSpStep {
+            ew := ew or doCheckCurrentDO(false);
+            if (ew) break;
+          }
+        }
+        if ( (not ew) and (showUnCor = 1) ) continue;
+
+        frm.write ( chBaseDoc.VidDoc );
+
+        case chBaseDoc.VidDoc of
+          101 : {
+            frm.write ( 'ДО на закупку' );
+          }
+          111 : {
+            frm.write ( 'ДО на предоплату закупок' );
+          }
+          201 : {
+            frm.write ( 'ДО на продажу' );
+          }
+        end;
+
+        /*
+        if (getfirst KatDoc = tsOK){
+          frm.write ( KatDoc.Name );
+        } else {
+          frm.write ( 'Вид документа не определен!' );
+        }
+        */
+        frm.write ( String (chBaseDoc.nRec,20,0 ));
+        frm.write ( chBaseDoc.DDOC );
+        frm.write ( chBaseDoc.NODOC );
+        frm.write ( chBaseDoc.Descr );
+        frm.write ( chBaseDoc.SUMMA );
+
+
+        _loop chStepDoc {
+          _loop chSpStep {
+
+            frm.write ( String (chSpStep.nRec,20,0) );
+            frm.write ( chSpStep.npp );
+            if (chSpStep.prMC =1) {
+              if (getfirst chkatmc = tsOK){
+                frm.write ( chkatmc.Name );
+              } else {
+                frm.write ( '' );
+              }
+            } else if (chSpStep.prMC > 1) {
+              if (getfirst chkatUsl = tsOK){
+                frm.write ( chkatUsl.Name );
+              } else {
+                frm.write ( '' );
+              }
+            }
+            //frm.write ( SpSopr.nRec );
+            doCheckCurrentDO(true);
+          }
+        }
+        frm.putEvent (feBreak);
+      }
+      frm.putEvent (feBreak);
+    }
+
+    if (hasIteration) {
+      //frm.putEvent (feBreak);
+    }
 
     frm.ShowFile('');
 
@@ -600,6 +590,23 @@ select *
       SetTabSootv3(cTBL_SOOTV3);
     }
 
+    PopBounds(tnchBaseDoc);
+    PopBounds(tnKatSopr);
+
+    AddBounds(tbbyDef);
+
+    if ((useFilter and 1) > 0) then {
+      AddBounds(tbbyDates);
+    }
+
+    if ((useFilter and 2) > 0) then {
+      AddBounds(tbbyCO);
+    }
+
+    if ((useFilter and 4) > 0) then {
+      AddBounds(tbbyDesc);
+    }
+    /*
     PopBounds(tnKatsopr);
 
     if ((useFilter and 1) > 0) then {
@@ -613,6 +620,7 @@ select *
     if ((useFilter and 4) > 0) then {
       AddBounds(tbbyDesc);
     }
+    */
 
     doMakeCheck;
 
@@ -631,6 +639,7 @@ select *
     SaveMyDsk (TargetBudGroup, 'iCheck_TargetBudGroup');
 
     SaveMyDsk (docToCheck, 'iCheck_docToCheck');
+    SaveMyDsk (BaseDocToCheck, 'iCheck_BaseDocToCheck');
 
     SaveMyDsk (useFilter, 'iCheck_useFilter');
 
@@ -658,6 +667,7 @@ select *
     ReadMyDsk (TargetBudGroup, 'iCheck_TargetBudGroup', dc);
 
     ReadMyDsk (docToCheck, 'iCheck_docToCheck', dc);
+    ReadMyDsk (BaseDocToCheck, 'iCheck_BaseDocToCheck', dc);
 
     ReadMyDsk (useFilter, 'iCheck_useFilter', dc);
 
@@ -667,8 +677,96 @@ select *
   end;
 
 #include iCheck_wnd.vip
+  procedure BuildUsedVids;
+  begin
+    delete all used_vidsopr;
+    delete all used_basedocs;
+
+    if ((docToCheck and word(1)) > 0) then
+      insert used_vidsopr set used_vidsopr.vidsopr := 111;
+    if ((docToCheck and word(2)) > 0) then
+      insert used_vidsopr set used_vidsopr.vidsopr := 204;
+    if ((docToCheck and word(4)) > 0) then
+      insert used_vidsopr set used_vidsopr.vidsopr := 504;
+    if ((docToCheck and word(8)) > 0) then
+      insert used_vidsopr set used_vidsopr.vidsopr := 602;
+
+
+    if ((BaseDocToCheck and word(1)) > 0) then
+      insert used_basedocs set used_basedocs.viddoc := 101;
+    if ((BaseDocToCheck and word(2)) > 0) then
+      insert used_basedocs set used_basedocs.viddoc := 111;
+    if ((BaseDocToCheck and word(4)) > 0) then
+      insert used_basedocs set used_basedocs.viddoc := 201;
+  end;
+
+  procedure handlecmInit;
+  begin
+
+    //Message (cmInit);
+    dtStart  := cur_date;
+    dtFinish := cur_date;
+
+    docToCheck := 1 + 2 + 4 + 8;
+
+    baseDocToCheck := 1 + 2 + 4;
+
+    useFilter := 1;
+
+    sFltrUsDesc := sgettune ('USER.DESCR');
+
+    ReadDsk();
+    //if TargetBudGroup = 0 then TargetBudGroup := comp('000000000000000Ah');
+    if TargetBudGroup = 0 then TargetBudGroup := comp('00320000000003D1h');
+    if cTBL_SOOTV = 0 then SetTabSootv (comp('013100000000011Bh'));
+
+    if paramSopr = 0 then pcSopr := 281474976710687 else pcSopr := paramSopr ;//281474976710659;//281474976710659; // для отладки
+
+    if (getFirst st_inc = tsOK){};
+    if (getFirst FPKATIMP = tsOK){};
+    if (getFirst fltrfpco = tsOK){};
+
+    if (getFirst used_vidsopr = tsOK){};
+    if (getFirst KatSopr = tsOK){};
+
+    if (getFirst used_basedocs = tsOK){};
+    if (getFirst chBaseDoc = tsOK){};
+    /*
+    runwindowmodal (wCheckFltr);
+
+    abort;
+    */
+  end;
+
+  HandleEvent
+    cmOK : {
+      savedsk;
+      handleOK;
+    }
+
+    /*
+    cmCancel : {
+      closewindow (wCheckFltr);
+    }
+    */
+
+    cmPick : {
+      case curfield of
+        #fltrfpco.name:{
+          RunInterface('F_FPCATALOG::GetCO', word(cgiPick), comp(0), comp(0), cFltrCO);
+        } ;
+        #sFltrUsDesc: {
+          RunInterface('C_COMMON::GetDescr',sFltrUsDesc, '' , true );
+        }
+      end;
+    }
+    cmInit: {
+      handlecmInit;
+    };
+  end;
 
   handleEvent
+    /*
     cmPick: {
       case curfield of
         #FPKATIMP.name : {
@@ -678,34 +776,9 @@ select *
       end;
 
     }
-    cmInit: {
-
-      //Message (cmInit);
-      dtStart  := cur_date;
-      dtFinish := cur_date;
-
-      docToCheck := 1 + 2 + 4 + 8;
-
-      baseDocToCheck := 1 + 2 + 4;
-
-      useFilter := 1;
-
-      sFltrUsDesc := sgettune ('USER.DESCR');
-
-      ReadDsk();
-      //if TargetBudGroup = 0 then TargetBudGroup := comp('000000000000000Ah');
-      if TargetBudGroup = 0 then TargetBudGroup := comp('00320000000003D1h');
-      if cTBL_SOOTV = 0 then SetTabSootv (comp('013100000000011Bh'));
-
-      if paramSopr = 0 then pcSopr := 281474976710687 else pcSopr := paramSopr ;//281474976710659;//281474976710659; // для отладки
-
-      runwindowmodal (wCheckFltr);
-
-      abort;
-    };
     cmDefault: {} ;
     cmOK: {
-      runwindow(wCheckFltr);
+      //runwindow(wCheckFltr);
       //handleOK;
     }
     cmCmd03 : {
@@ -715,8 +788,8 @@ select *
       ar[2] := 200;
 
       SaveMyDsk ('ar', ar);
-      */
     }
+      */
   end;
 
 

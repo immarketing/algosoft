@@ -1,54 +1,105 @@
   /*
   Необходимо определить входимость статьи бюджета в некоторую папку в каталоге статей бюджетов.
   */
-  
+
   create view prob4
   var
     cProb2 : comp; // не нужная ссылка.
-    cFPSTBUD : comp; // 
-  as 
+    cFPSTBUD : comp; //
+  as
   select *
-    from  FPSTBUD FPSTBUDPR4,FPSTBUD FPSTBUD4_1 
+    from  FPSTBUD FPSTBUDPR4,FPSTBUD FPSTBUD4_1
    where ((
-     cFPSTBUD == FPSTBUDPR4.nRec and
-     cFPSTBUD == FPSTBUD4_1.cNode (noindex)
+     prob4.cFPSTBUD == FPSTBUDPR4.nRec and
+     prob4.cFPSTBUD == FPSTBUD4_1.cNode (noindex)
    ))
   ;
-  
+
   function isCurrentWrong4 (out comment : string):boolean;
   begin
     result := false;
     comment := '';
-    
+
     var co1,co2 : comp;
-    
+
     /*
     if (prob2.cFPKATIMP = 0) then {
       result := true;
       comment := 'Не определена рабочая таблица соответствий аналитик 20 и 5017';
     }
     */
-    
+
     co1 := getCUAnVal (coSpSopr, SpSopr.NRec, 20);  // статья бюджета
-    
+
     //Message ('co: '+ String (co1,20,0) + ''#13'' + String (TargetBudGroup,20,0));
-    
+
     prob4.cFPSTBUD := co1;
-    
+
     if (prob4.getFirst FPSTBUD4_1 = tsOK ){
       result := true;
       comment := 'Статья бюджета не должна быть группой';
       exit;
     }
-    
-    
+
+
     if (TargetBudGroup = co1) then exit;
-    
-    
+
+
     while (true) {
       prob4.cFPSTBUD := co1;
       //Message ('prob4.cFPSTBUD: '+ String (prob4.cFPSTBUD,20,0) );
-      
+
+      if (prob4.getFirst FPSTBUDPR4 = tsOK) {
+        if (prob4.FPSTBUDPR4.CNODE = TargetBudGroup) then exit;
+        if (prob4.FPSTBUDPR4.CNODE = 0) then {
+          result := true;
+          comment := 'Статья бюджетов не входит в целевую группу';
+          exit;
+        }
+        co1 := prob4.FPSTBUDPR4.CNODE;
+      } else {
+        result := true;
+        comment := 'Запись в таблице статей не обнаружена';
+        exit;
+      }
+    }
+
+  end;
+
+  function isCurrentDOWrong4 (out comment : string):boolean;
+  begin
+    result := false;
+    comment := '';
+
+    var co1,co2 : comp;
+
+    /*
+    if (prob2.cFPKATIMP = 0) then {
+      result := true;
+      comment := 'Не определена рабочая таблица соответствий аналитик 20 и 5017';
+    }
+    */
+
+    co1 := getCUAnVal (coSpStep, chSpStep.NRec, 20);  // статья бюджета
+
+    //Message ('co: '+ String (co1,20,0) + ''#13'' + String (TargetBudGroup,20,0));
+
+    prob4.cFPSTBUD := co1;
+
+    if (prob4.getFirst FPSTBUD4_1 = tsOK ){
+      result := true;
+      comment := 'Статья бюджета не должна быть группой';
+      exit;
+    }
+
+
+    if (TargetBudGroup = co1) then exit;
+
+
+    while (true) {
+      prob4.cFPSTBUD := co1;
+      //Message ('prob4.cFPSTBUD: '+ String (prob4.cFPSTBUD,20,0) );
+
       if (prob4.getFirst FPSTBUDPR4 = tsOK) {
         if (prob4.FPSTBUDPR4.CNODE = TargetBudGroup) then exit;
         if (prob4.FPSTBUDPR4.CNODE = 0) then {

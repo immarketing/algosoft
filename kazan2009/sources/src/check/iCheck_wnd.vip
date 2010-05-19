@@ -1,5 +1,7 @@
-window wCheckFltr 'Укажите параметры проверки документов';
-  show at  (0,0,100,30);
+//window wCheckFltr 'Укажите параметры проверки документов';
+//screen wCheckFltr 'Укажите параметры проверки документов';
+//  show at  (0,0,100,30);
+//  show at  (,,,);
   tabbedSheet tabbed
     screen  sCheckFltr 'Фильтр';
     show at( , , ,);
@@ -74,25 +76,4 @@ buttons
   end; //screen
 end;
 
-  HandleEvent
-    cmOK : {
-      savedsk;
-      handleOK;
-    }
-
-    cmCancel : {
-      closewindow (wCheckFltr);
-    }
-
-    cmPick : {
-      case curfield of
-        #fltrfpco.name:{
-          RunInterface('F_FPCATALOG::GetCO', word(cgiPick), comp(0), comp(0), cFltrCO);
-        } ;
-        #sFltrUsDesc: {
-          RunInterface('C_COMMON::GetDescr',sFltrUsDesc, '' , true );
-        }
-      end;
-    }
-  end;
-end;  //window
+//end;  //window

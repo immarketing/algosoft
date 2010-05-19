@@ -1,0 +1,56 @@
+
+
+table struct local used_vidsopr
+(
+  vidsopr : longint
+)
+with index
+(
+  used_vidsopr_vidsopr = vidsopr (unique)
+)
+;
+
+table struct local used_basedocs
+(
+  viddoc : longint
+)
+with index
+(
+  used_basedocs_vd = viddoc (unique)
+)
+;
+
+table struct local loc_inx
+(
+  wSTnRec : comp,
+  wKau : word,
+  inx : integer
+)
+with index
+(
+  loc_inx01 = wSTnRec+wKau (unique)
+)
+;
+
+table struct local resSopr
+(
+  soprNRec : comp
+)
+with index
+(
+  resSopr01 = soprNRec (unique)
+)
+;
+
+table struct local resSpSopr
+(
+  SpSoprNRec : comp,
+  soprNRec : comp,
+  res : boolean,
+  comments : lvar
+)
+with index
+(
+  SpSopr01 = SpSoprNRec (unique)
+)
+;
