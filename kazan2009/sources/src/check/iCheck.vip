@@ -408,19 +408,20 @@ select *
 
   procedure BuildUsedVids; forward;
 
-  procedure doMakeCheck;
+  function doMakeCheckNakl : boolean;
   begin
-    BuildUsedVids;
-    //set chStage := 1;
-
-    var hasIteration : boolean;
-
-    hasIteration := false;
-
+    var cnt : longint;
+    cnt := 0;
+    result := false;
     if (getFirst used_vidsopr = tsOK) _loop used_vidsopr {
       if (getFirst KatSopr = tsOK) _loop KatSopr {
+        inc(cnt);
+        //setVisualHeader ;
 
-        hasIteration := true;
+        if (not iNextVisual (FormatStr_3 ( 'Формирование отчета | Этап №%d | Шаг №%d | %s',2,cnt, 'Накладная №'+KatSopr.NSopr+' от '+KatSopr.DSopr))
+        ) {exit};
+
+        result := true;
 
         var ew : boolean;
         ew := false;
@@ -470,12 +471,22 @@ select *
       }
       frm.putEvent (feBreak);
     }
+  end;
 
-    //set chStage := 2;
+  function doMakeCheckDO : boolean;
+  begin
+    result := false;
+    var cnt : longint;
+    cnt := 0;
 
     if (getFirst used_basedocs = tsOK) _loop used_basedocs {
       if (getFirst chBaseDoc = tsOK) _loop chBaseDoc {
-        hasIteration := true;
+        inc(cnt);
+        //setVisualHeader ;
+
+        if (not iNextVisual (FormatStr_3 ( 'Формирование отчета | Этап №%d | Шаг №%d | %s',2,cnt, 'ДО №'+chBaseDoc.NODOC+' от '+ chBaseDoc.DDOC))
+        ) {exit};
+        result := true;
         var ew : boolean;
         ew := false;
         _loop chStepDoc {
@@ -540,12 +551,44 @@ select *
       }
       frm.putEvent (feBreak);
     }
+  end;
+
+  procedure doMakeCheck (mode : byte);
+  begin
+    StartNewVisual ( vtRotateVisual   ,
+                     vfBreak  + vfConfirm + vfScreenBottom + /* vfThread  + */vfTimer ,
+                     'Формирование отчета',
+                     100);
+
+    setVisualHeader (FormatStr_3 ( 'Формирование отчета | Этап №%d | Шаг №%d | %s',1,1, 'Формирование списка видов документов'));
+
+    BuildUsedVids;
+    //set chStage := 1;
+
+    var hasIteration : boolean;
+
+    hasIteration := false;
+
+    case mode of
+      1 : {
+        hasIteration := doMakeCheckNakl;
+      }
+      2 : {
+        hasIteration := doMakeCheckDO;
+      }
+    end;
+
+
+
+
+
+    //set chStage := 2;
+
+    StopVisual ('',0);
 
     if (hasIteration) {
-      //frm.putEvent (feBreak);
+      frm.ShowFile('');
     }
-
-    frm.ShowFile('');
 
   end;
 
@@ -570,7 +613,7 @@ select *
   end;
 
 
-  procedure handleOK;
+  procedure handleOK (mode : byte);
   begin
     //message ('OK');
 
@@ -622,7 +665,7 @@ select *
     }
     */
 
-    doMakeCheck;
+    doMakeCheck (mode);
 
   end;
 
@@ -739,11 +782,15 @@ select *
   end;
 
   HandleEvent
-    cmOK : {
+    cmOkNakl : {
       savedsk;
-      handleOK;
+      handleOK (1);
     }
 
+    cmOkDO : {
+      savedsk;
+      handleOK (2);
+    }
     /*
     cmCancel : {
       closewindow (wCheckFltr);
