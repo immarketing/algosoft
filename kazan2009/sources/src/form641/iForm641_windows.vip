@@ -238,6 +238,12 @@ Window wnInfoWindow 'wnInfoWindow' ('wnInfoWindow', hcNoContext);
 
       f641_printed.isLeaf '.isLeaf':[10],protect;
 
+      f641_printed.extPar '.extPar':[10],protect;
+      f641_printed.extPar3 '.extPar3':[10],protect;
+      f641_printed.extPar4 '.extPar4':[10],protect;
+      f641_printed.extPar0[1] '.extPar0[1]':[10],protect;
+      f641_printed.extPar0[2] '.extPar0[2]':[10],protect;
+
       /*
       f641_printed.sumvar1[1] 'sumvar1[1]':[10],protect;
       f641_printed.sumvar1[2] 'sumvar1[2]':[10],protect;
@@ -294,12 +300,6 @@ Window wnInfoWindow 'wnInfoWindow' ('wnInfoWindow', hcNoContext);
       f641_printed.SaldoType '.SaldoType':[10],protect;
 
       f641_printed.AgregHandling '.AgregHandling':[10],protect;
-
-      f641_printed.extPar '.extPar':[10],protect;
-      f641_printed.extPar3 '.extPar3':[10],protect;
-      f641_printed.extPar4 '.extPar4':[10],protect;
-      f641_printed.extPar0[1] '.extPar0[1]':[10],protect;
-      f641_printed.extPar0[2] '.extPar0[2]':[10],protect;
 
 
       f641_printed.isMakeGroup '.isMakeGroup':[10],protect;
