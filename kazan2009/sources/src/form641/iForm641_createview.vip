@@ -190,6 +190,19 @@ and (
         fpSpAxtf.nRec=comp('0131000000050E0Bh') or
         fpSpAxtf.nRec=comp('0131000000050E0Bh') or
         fpSpAxtf.nRec=comp('0131000000050E0Bh') or
+
+
+        fpSpAxtf.nRec=comp('0131000000050E0Bh') or
+        fpSpAxtf.nRec=comp('013100000005141Ah') or
+        fpSpAxtf.nRec=comp('013100000005160Fh') or
+        fpSpAxtf.nRec=comp('01310000000528A3h') or
+
+        fpSpAxtf.nRec=comp('0131000000051790h') or
+        fpSpAxtf.nRec=comp('0131000000051D05h') or
+        fpSpAxtf.nRec=comp('0131000000051F4Bh') or
+        fpSpAxtf.nRec=comp('01310000000528A4h') or
+
+
         //fpSpAxtf.cKauNode = comp('0131000000051792h') or
         fpSpAxtf.cNode = comp('0131000000050E0Bh') or
         fpSpAxtf.cNode = comp('0131000000050E0Bh') or

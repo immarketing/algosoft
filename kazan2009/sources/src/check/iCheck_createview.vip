@@ -113,17 +113,19 @@ select *
 !   and dtStart<<=chBaseDoc.DDOC(noindex) and dtFinish >>= chBaseDoc.DDOC (noindex)
 
  ))
- bounds byDef   =  used_vidsopr.vidsopr == KatSopr.VidSopr and
-                   used_basedocs.viddoc == chBaseDoc.viddoc (noindex)
+ bounds byDefSopr   =  used_vidsopr.vidsopr == KatSopr.VidSopr (noindex) and
+    dtStart<<=KatSopr.dsopr (noindex) and dtFinish >>= KatSopr.dsopr (noindex)
+ bounds byDefDO     =  used_basedocs.viddoc == chBaseDoc.viddoc (noindex) and
+   dtStart<<=chBaseDoc.DDOC (noindex) and dtFinish >>= chBaseDoc.DDOC (noindex)
 
- bounds byDates =  dtStart<<=KatSopr.dsopr(noindex) and dtFinish >>= KatSopr.dsopr (noindex) and
-                   dtStart<<=chBaseDoc.DDOC(noindex) and dtFinish >>= chBaseDoc.DDOC (noindex)
+ bounds byDatesSopr =  dtStart<<=KatSopr.dsopr(noindex) and dtFinish >>= KatSopr.dsopr (noindex)
+ bounds byDatesDO   =  dtStart<<=chBaseDoc.DDOC(noindex) and dtFinish >>= chBaseDoc.DDOC (noindex)
 
- bounds byCO    =  cFltrCO==KatSopr.COTVPODR (noindex) and
-                   cFltrCO==chBaseDoc.COTVPODR (noindex)
+ bounds byCOSopr    =  cFltrCO==KatSopr.COTVPODR (noindex)
+ bounds byCODO      =  cFltrCO==chBaseDoc.COTVPODR (noindex)
 
- bounds byDesc  =  sFltrUsDesc == KatSopr.descr (noindex)  and
-                   sFltrUsDesc == chBaseDoc.descr (noindex)
+ bounds byDescSopr  =  sFltrUsDesc == KatSopr.descr (noindex)
+ bounds byDescDO    =  sFltrUsDesc == chBaseDoc.descr (noindex)
 
 /*
  bounds byDates =  dtStart<<=KatSopr.dsopr(noindex) and dtFinish >>= KatSopr.dsopr (noindex) and

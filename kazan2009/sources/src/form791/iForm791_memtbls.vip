@@ -72,7 +72,12 @@ table struct f791_printed
   isKAUGroup    : byte,
   isMakeGroup   : byte,
   coTable        : word,
-  extraRazn791   : byte
+  extraRazn791   : byte,
+
+  extPar3       : byte,
+  extPar4       : byte,
+  extPar0       : array [1..2] of byte
+
 )
 with index
 (

@@ -44,12 +44,18 @@ var
   excCode9     : String;
   excCode10    : String;
 
+  extClName3  : String;
+  extClName4  : String;
+  extClName5  : String;
+  extClName6  : String;
+
 
   isShowZeros : boolean;
 
   isShowTimeLabels : boolean;
 
   isDebugDatas     : boolean;
+  isDebugDatas2    : boolean;
 
   coTableToSum : word;
 
@@ -124,35 +130,53 @@ and fpAxTF.NRec    == fpSpAxtf.cMain (noindex)
 
 
 and (
-      not isDebugDatas or
       (
-      isDebugDatas and
+        not isDebugDatas or
+          (
+          isDebugDatas and
+          (
+          fpSpAxtf.nRec=comp('0131000000051792h') or
+          fpSpAxtf.nRec=comp('0131000000051791h') or
+          fpSpAxtf.nRec=comp('0131000000051790h') or
+
+          fpSpAxtf.cKauNode = comp('0131000000051792h') or
+
+          fpSpAxtf.cNode = comp('0131000000051793h') or
+          fpSpAxtf.cNode = comp('0131000000051792h') or
+          fpSpAxtf.cNode = comp('0131000000051791h')
+          )
+          )
+      )
+      and
       (
-      //fpSpAxtf.nRec=comp('0131000000051790h0') or
-      //fpSpAxtf.nRec=comp('0131000000051792h0') or
-      //fpSpAxtf.nRec=comp('0131000000051791h0') or
+        not isDebugDatas2 or
+        (
+        isDebugDatas2 and
+        (
+        fpSpAxtf.nRec=comp('0131000000050E0Bh') or
+        fpSpAxtf.nRec=comp('0131000000050E0Bh') or
+        fpSpAxtf.nRec=comp('0131000000050E0Bh') or
 
-      fpSpAxtf.nRec=comp('0131000000051792h') or
-      fpSpAxtf.nRec=comp('0131000000051791h') or
-      fpSpAxtf.nRec=comp('0131000000051790h') or
 
-      fpSpAxtf.cKauNode = comp('0131000000051792h') or
+        fpSpAxtf.nRec=comp('0131000000050E0Bh') or
+        fpSpAxtf.nRec=comp('013100000005141Ah') or
+        fpSpAxtf.nRec=comp('013100000005160Fh') or
+        fpSpAxtf.nRec=comp('01310000000528A3h') or
 
-      fpSpAxtf.cNode = comp('0131000000051793h') or
-      fpSpAxtf.cNode = comp('0131000000051792h0') or
-      fpSpAxtf.cNode = comp('0131000000051791h0')
+        fpSpAxtf.nRec=comp('0131000000051790h') or
+        fpSpAxtf.nRec=comp('0131000000051D05h') or
+        fpSpAxtf.nRec=comp('0131000000051F4Bh') or
+        fpSpAxtf.nRec=comp('01310000000528A4h') or
 
-      /*
-      fpSpAxtf.nRec=comp('0131000000051790h') or
-      fpSpAxtf.nRec=comp('0131000000051792h') or
-      fpSpAxtf.nRec=comp('0131000000051791h') or
-      fpSpAxtf.cKauNode = comp('0131000000051792h') or
-      fpSpAxtf.cNode = comp('0131000000051792h') or
-      fpSpAxtf.cNode = comp('0131000000051791h')
-      */
+
+        //fpSpAxtf.cKauNode = comp('0131000000051792h') or
+        fpSpAxtf.cNode = comp('0131000000050E0Bh') or
+        fpSpAxtf.cNode = comp('0131000000050E0Bh') or
+        fpSpAxtf.cNode = comp('0131000000050E0Bh')
+        )
+        )
       )
-      )
-      )
+    )
 
 
 //and (fpSpAxtf.nRec=comp('013100000001EBCBh') or fpSpAxtf.cKauNode = comp('013100000001EBCBh')  )

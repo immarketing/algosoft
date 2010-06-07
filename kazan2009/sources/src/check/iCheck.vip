@@ -633,22 +633,47 @@ select *
       SetTabSootv3(cTBL_SOOTV3);
     }
 
-    PopBounds(tnchBaseDoc);
-    PopBounds(tnKatSopr);
 
-    AddBounds(tbbyDef);
+    case mode of
+      1 : {
+        PopBounds(tnKatSopr);
 
-    if ((useFilter and 1) > 0) then {
-      AddBounds(tbbyDates);
-    }
+        AddBounds(tbbyDefSopr);
+        if ((useFilter and 1) > 0) then {
+          AddBounds(tbbyDatesSopr);
+        }
 
-    if ((useFilter and 2) > 0) then {
-      AddBounds(tbbyCO);
-    }
+        if ((useFilter and 2) > 0) then {
+          AddBounds(tbbyCOSopr);
+        }
 
-    if ((useFilter and 4) > 0) then {
-      AddBounds(tbbyDesc);
-    }
+        if ((useFilter and 4) > 0) then {
+          AddBounds(tbbyDescSopr);
+        }
+      }
+      2 : {
+        PopBounds(tnchBaseDoc);
+
+        AddBounds(tbbyDefDO);
+
+        if ((useFilter and 1) > 0) then {
+          AddBounds(tbbyDatesDO);
+        }
+
+        if ((useFilter and 2) > 0) then {
+          AddBounds(tbbyCODO);
+        }
+
+        if ((useFilter and 4) > 0) then {
+          AddBounds(tbbyDescDO);
+        }
+      }
+    end;
+
+
+
+
+
     /*
     PopBounds(tnKatsopr);
 

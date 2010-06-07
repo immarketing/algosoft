@@ -1,0 +1,204 @@
+  procedure doPrintExtraSum641_2 (const periodNum : byte);
+  begin
+    var extraSm : word;
+    extraSm := 0;
+
+    var extraFrm : String;
+    extraFrm := '=СУММ(0';
+
+    _LOOP  fpSpAxtf  {
+      if(isValid(tnfpstbud)) { //chek year
+        if (getFirst f791_printed where (( fpSpAxtf.nRec==f791_printed.cRec)) = tsOK ) {
+        };
+        if (f791_printed.extPar4 = 5){
+          // тут должна быть сумма
+          extraSm := f791_printed.printedAtRow;
+        }
+
+      }
+    }
+
+    if (extraSm <> 0) {
+      _LOOP  fpSpAxtf  {
+        if(isValid(tnfpstbud)) { //chek year
+          if (getFirst f791_printed where (( fpSpAxtf.nRec==f791_printed.cRec)) = tsOK ) {
+          };
+          if (f791_printed.extPar4 = 6){
+            // тут надо сложить
+            extraFrm := extraFrm + ';R[' + (f791_printed.printedAtRow - extraSm) + ']C';
+          }
+          if (f791_printed.extPar4 = 7){
+            // тут надо отнять
+            extraFrm := extraFrm + ';-R[' + (f791_printed.printedAtRow - extraSm) + ']C';
+          }
+        }
+      }
+
+      extraFrm := extraFrm + ')';
+
+      /*
+      var i : byte;
+
+      for (i := 1; i<=12; inc(i)) {
+        if (i > periodNum+1) {
+          xlSetCellFormula( extraFrm,
+                            extraSm,
+                            3 + (i-1)*3 + 2,
+                            extraSm,
+                            3 + (i-1)*3 + 3
+                            );
+        }
+      }
+      */
+      xlSetCellFormula( extraFrm,
+                        extraSm,
+                        3,
+                        extraSm,
+                        7
+                        );
+
+    }
+  end;
+
+  procedure doPrintExtraSum641_0 (const periodNum : byte);
+  begin
+    var extraSm : array [1..2] of word;
+
+    var i : byte;
+    for (i := 1 ; i<=2 ; i := i + 1){
+
+      extraSm[i] := 0;
+    }
+    //extraSm := 0;
+
+    var extraFrm : array [1..2] of String;
+    for (i := 1 ; i<=2 ; i := i + 1){
+      extraFrm[i] := '=СУММ(0';
+    }
+
+
+    _LOOP  fpSpAxtf  {
+      if(isValid(tnfpstbud)) { //chek year
+        if (getFirst f791_printed where (( fpSpAxtf.nRec==f791_printed.cRec)) = tsOK ) {
+        };
+
+        for (i := 1 ; i<=2 ; i := i + 1){
+          if (f791_printed.extPar0[i] = 5){
+            // тут должна быть сумма
+            extraSm[i] := f791_printed.printedAtRow;
+          }
+        }
+      }
+    }
+
+    for (i := 1 ; i<=2 ; i := i + 1){
+      if (extraSm[i] <> 0) {
+        _LOOP  fpSpAxtf  {
+          if(isValid(tnfpstbud)) { //chek year
+            if (getFirst f791_printed where (( fpSpAxtf.nRec==f791_printed.cRec)) = tsOK ) {
+            };
+            if (f791_printed.extPar0[i] = 6){
+              // тут надо сложить
+              extraFrm[i] := extraFrm[i] + ';R[' + (f791_printed.printedAtRow - extraSm[i]) + ']C';
+            }
+            if (f791_printed.extPar0[i]= 7){
+              // тут надо отнять
+              extraFrm[i] := extraFrm[i] + ';-R[' + (f791_printed.printedAtRow - extraSm[i]) + ']C';
+            }
+          }
+        }
+      }
+    }
+
+    for (i := 1 ; i<=2 ; i := i + 1){
+      extraFrm[i] := extraFrm[i] + ')';
+    }
+
+    var j : byte;
+
+    for (i := 1 ; i<=2 ; i := i + 1){
+      if (extraSm[i] = 0) {
+        continue;
+      }
+      /*
+      for (j := 1; j<=12; inc(j)) {
+        if (j > periodNum+1) {
+          xlSetCellFormula( extraFrm[i],
+                            extraSm[i],
+                            3 + (j-1)*3 + 2,
+                            extraSm[i],
+                            3 + (j-1)*3 + 3
+                            );
+        }
+      }
+      */
+      xlSetCellFormula( extraFrm[i],
+                        extraSm[i],
+                        3,
+                        extraSm[i],
+                        7
+                        );
+    }
+  end;
+
+  procedure doPrintExtraSum641 (const periodNum : byte);
+  begin
+    var extraSm : word;
+    extraSm := 0;
+
+    var extraFrm : String;
+    extraFrm := '=СУММ(0';
+
+    _LOOP  fpSpAxtf  {
+      if(isValid(tnfpstbud)) { //chek year
+        if (getFirst f791_printed where (( fpSpAxtf.nRec==f791_printed.cRec)) = tsOK ) {
+        };
+        if (f791_printed.extPar3 = 5){
+          // тут должна быть сумма
+          extraSm := f791_printed.printedAtRow;
+        }
+
+      }
+    }
+
+    if (extraSm <> 0) {
+      _LOOP  fpSpAxtf  {
+        if(isValid(tnfpstbud)) { //chek year
+          if (getFirst f791_printed where (( fpSpAxtf.nRec==f791_printed.cRec)) = tsOK ) {
+          };
+          if (f791_printed.extPar3 = 6){
+            // тут надо сложить
+            extraFrm := extraFrm + ';R[' + (f791_printed.printedAtRow - extraSm) + ']C';
+          }
+          if (f791_printed.extPar3 = 7){
+            // тут надо отнять
+            extraFrm := extraFrm + ';-R[' + (f791_printed.printedAtRow - extraSm) + ']C';
+          }
+        }
+      }
+
+      extraFrm := extraFrm + ')';
+
+      var i : byte;
+
+      /*
+      for (i := 1; i<=12; inc(i)) {
+        if (i > periodNum+1) {
+          xlSetCellFormula( extraFrm,
+                            extraSm,
+                            3 + (i-1)*3 + 2,
+                            extraSm,
+                            3 + (i-1)*3 + 3
+                            );
+        }
+      }
+      */
+      xlSetCellFormula( extraFrm,
+                        extraSm,
+                        3,
+                        extraSm,
+                        7
+                        );
+
+    }
+  end;

@@ -87,11 +87,21 @@ tabbedSheet tabbed
     excCode10  ('',,) : NoProtect,noPickButton,
       {Font = {BackColor = if (excCode10 ='',    ColorNeed,0)}};
 
+    extClName3  ('',,) : NoProtect,noPickButton,
+      {Font = {BackColor = if (extClName3='',    ColorNeed,0)}};
+    extClName4  ('',,) : NoProtect,noPickButton,
+      {Font = {BackColor = if (extClName4='',    ColorNeed,0)}};
+    extClName5  ('',,) : NoProtect,noPickButton,
+      {Font = {BackColor = if (extClName5='',    ColorNeed,0)}};
+    extClName6  ('',,) : NoProtect,noPickButton,
+      {Font = {BackColor = if (extClName6='',    ColorNeed,0)}};
+
     isShowZeros  ('',,) : NoProtect,noPickButton;
 
     isShowTimeLabels  ('',,) : NoProtect,noPickButton;
 
     isDebugDatas  ('',,) : NoProtect,noPickButton;
+    isDebugDatas2 ('',,) : NoProtect,noPickButton;
 
     coTableToSum  ('',,) : NoProtect,noPickButton;
   <<
@@ -114,7 +124,18 @@ tabbedSheet tabbed
         Код аналитики [Разность] .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
      Код аналитики [Уменьшаемое] .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
-  [.] Печатать нулевые`  [.] Показывать время исполнения` [.] Тестовый объем данных`
+ Название классификатора [Дополнительная обработка
+                статьи для 6.4.1].@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+ Название классификатора [Дополнительная обработка
+     статьи для 6.4.1 (сумма №2)].@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+ Название классификатора [Дополнительная обработка
+     статьи для 6.4.1 (сумма №3)].@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+ Название классификатора [Дополнительная обработка
+     статьи для 6.4.1 (сумма №4)].@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+  [.] Печатать нулевые`  [.] Показывать время исполнения`
+
+  [.] Тестовый объем данных` [.] Тестовый объем данных - 2`
 
    coTableToSum для суммировки   .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
   >>

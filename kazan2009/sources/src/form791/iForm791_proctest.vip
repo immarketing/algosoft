@@ -1,6 +1,8 @@
 #include iForm791_extClass.vip
 #include iForm791_DSKWork.vip
 
+#include iForm791_procExtSm.vip
+
   // 0FFFFFFFFFFFFFFFFh
 
   function trimFirst0 (st : String):string;
@@ -908,7 +910,13 @@
                                 f791_printed.isLeaf := fpSpAxtf.isLeaf,
                                 f791_printed.coTable := fpSpAxtf.coTable,
                                 f791_printed.isKAUGroup := isKauGroup (fpSpAxtf.nRec),
-                                f791_printed.extraRazn791 := RaznStatus
+                                f791_printed.extraRazn791 := RaznStatus,
+
+                                f791_printed.extPar3:= GetStBudExtraParameters( coFPSTBUD , fpSpAxtf.CMEAN, extClName3 ),
+                                f791_printed.extPar4:= GetStBudExtraParameters( coFPSTBUD , fpSpAxtf.CMEAN, extClName4 ),
+                                f791_printed.extPar0[1]:= GetStBudExtraParameters( coFPSTBUD , fpSpAxtf.CMEAN, extClName5 ),
+                                f791_printed.extPar0[2]:= GetStBudExtraParameters( coFPSTBUD , fpSpAxtf.CMEAN, extClName6 )
+
 
                                 ;
         lastPrintedAt := repGetPrintRow - 1;
@@ -932,6 +940,10 @@
     printExecutor;
 
     xlSetActiveSheetByName(reportSheetName); //?????_1
+
+    doPrintExtraSum641(0);
+    doPrintExtraSum641_2(0);
+    doPrintExtraSum641_0(0);
 
     xlRunMacro('AfterPrint791');
 

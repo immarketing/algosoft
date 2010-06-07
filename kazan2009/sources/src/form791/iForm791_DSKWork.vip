@@ -1,4 +1,4 @@
-                                                                                           procedure CheckDefValues;
+procedure CheckDefValues;
   begin
     if (extClName = '') {set extClName := 'Характеристики для форм 7.9.1 и 7.9'};
 
@@ -16,6 +16,12 @@
     if (excCode8 = '') {set excCode8 := 'Вычитаемое'};
     if (excCode9 = '') {set excCode9 := 'Разность'};
     if (excCode10 = '') {set excCode10 := 'Уменьшаемое'};
+
+    if (extClName3 = '') {set extClName3 := 'Дополнительная обработка статьи для 6.4.1'};
+    if (extClName4 = '') {set extClName4 := 'Дополнительная обработка статьи для 6.4.1 (сумма №2)'};
+    if (extClName5 = '') {set extClName5 := 'Дополнительная обработка статьи для 6.4.1 (сумма №3)'};
+    if (extClName6 = '') {set extClName6 := 'Дополнительная обработка статьи для 6.4.1 (сумма №4)'};
+
 
     /*
     Дополнительная обработка статьи для 7.9.1 (разность №1)
@@ -70,6 +76,12 @@
     SaveMyDsk(excCode9,    'iForm791.excCode9');
     SaveMyDsk(excCode10,   'iForm791.excCode10');
 
+    SaveMyDsk(extClName3,  'iForm791.extClName3');
+    SaveMyDsk(extClName4,  'iForm791.extClName4');
+    SaveMyDsk(extClName5,  'iForm791.extClName5');
+    SaveMyDsk(extClName6,  'iForm791.extClName6');
+
+
 
     SaveMyDsk (cPodpGrp,'iForm791_cPodpGrp' );
 
@@ -116,6 +128,12 @@
     ReadMyDsk (excCode7,    'iForm791_excCode7', dc);
     //if (extClName = '') {set extClName := 'Характеристики статьи для форм 7.9.1 и 7.9'}
 
+    ReadMyDsk (extClName3,  'iForm791.extClName3', dc);
+    ReadMyDsk (extClName4,  'iForm791.extClName4', dc);
+    ReadMyDsk (extClName5,  'iForm791.extClName5', dc);
+    ReadMyDsk (extClName6,  'iForm791.extClName6', dc);
+
+
     ReadMyDsk (Check,    'iForm791_Check', dc);
 
     //ReadMyDsk (coTableToSum, 'iForm791.coTableToSum', dc);
@@ -123,4 +141,3 @@
 
     CheckDefValues;
   end;
-
