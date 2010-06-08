@@ -1,0 +1,7 @@
+  procedure doHandlecmShowDebug83x; forward;
+
+  procedure ShowDebugDatas;
+  begin
+    //Putcommand(i)
+    doHandlecmShowDebug83x();
+  end;

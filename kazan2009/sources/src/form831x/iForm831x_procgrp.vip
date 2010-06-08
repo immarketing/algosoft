@@ -1,0 +1,35 @@
+  create view forGrouping
+  as
+  select *
+    from
+          f831_printed f831_printed_ord ,
+          f831_printed subp (f831_ptd_cnode_ct)
+   where ((
+     root == f831_printed_ord.nrec and
+     0 << f831_printed_ord.coTable and
+
+     f831_printed_ord.cRec == subp.cNode and
+     0 == subp.coTable
+   ))
+   ;
+
+  Procedure doGroupPrintedDatasAtCurrentPage;
+  begin
+    forGrouping._loop f831_printed_ord {
+      var gs, gf : word;
+      gs := 0;
+      gf := 0;
+
+      if (forGrouping.GetFirst subp = tsOK) {
+        gs := forGrouping.subp.printedAtRow;
+      }
+      if (forGrouping.GetLast subp = tsOK) {
+        gf := forGrouping.subp.printedAtRow;
+      }
+
+      if (gs <> 0 and gf <> 0 ){
+        xlRunMacro('ActiveSheetGroupData('+String ( gs)+','+ String ( gf ) +')');
+      }
+    }
+  end;
+

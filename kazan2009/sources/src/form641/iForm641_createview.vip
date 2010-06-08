@@ -83,6 +83,8 @@ var
 
   coTableToSum : word;
 
+  isUseStPriority   : boolean;
+
 
 
 As select

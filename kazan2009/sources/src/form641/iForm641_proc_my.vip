@@ -1103,7 +1103,7 @@
           if ( periodNum <=10) {
             if (( f641_printed.Sumojid - f641_printed.SumBDSGod) < 0 ){
               // обработаем отрицательную разницу
-              if (f641_printed.prior  = 0 ){
+              if (isUseStPriority and (f641_printed.prior  = 0)) or not isUseStPriority {
                 update current f641_printed set
                 f641_printed.SumKorr[12]    := f641_printed.Sumojid - f641_printed.SumBDSGod,
                 f641_printed.SumKorrStr[12] := '(' +
@@ -1520,6 +1520,8 @@
     SetIsCreateAndKillExcel(true);
 
     isUsing791printed := false;
+
+    set isUseStPriority := false;
 
     if (getFirst fpTForm = tsOK) {
     }

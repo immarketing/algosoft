@@ -1,5 +1,7 @@
 
 #include iForm831x_procintattr.vip
+#include iForm831x_procintgrp.vip
+#include iForm831x_procintdbg.vip
 
   // процедуры и функции объектного интерфейса
   var templateRec      : TTemplateRecord; // настройки шаблона

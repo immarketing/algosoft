@@ -1,10 +1,12 @@
 #include iForm8_7_x_dskwork.vip
 
+  var reporter : #szmn_bud_Form831x_2010
+
   procedure doPrintReport;
   begin
     var repVarsArray : TBudVariantRecordArray3;
 
-    var reporter : #szmn_bud_Form831x_2010;
+    //var reporter : #szmn_bud_Form831x_2010;
 
     repVarsArray[1].cfpBudVar    :=  cPlan;
     repVarsArray[1].regType      :=  150;
@@ -72,6 +74,8 @@
     reporter.AddValueString(4,6, fpTForm.LEVELCODE);
     reporter.AddValueString(4,7, fpTForm.name);
 
+    reporter.SetIsUsingGrouping(isUseDataGrouping);
+
     reporter.DoPrintReport;
   end;
 
@@ -81,17 +85,17 @@
     doPrintReport;
   end
 
-  /*
   procedure doHandlecmShowDebug83x();
   begin
+    reporter.ShowDebugDatas;
     //RunWindowModal( wnInfoWindow );
   end;
-  */
 
   procedure handleInit;
   begin
     set isShowTimeLabels := false;
     set isDebugDatas := false;
+    set isUseDataGrouping := true;
 
     set DSKPREFIX := 'iForm8_7_x';
 

@@ -1,4 +1,5 @@
   function trimFirst0 (st : String):string; forward;
+  procedure doGroupPrintedDatasAtCurrentPage; forward;
 
   create view lvlnmb
   var
@@ -30,6 +31,13 @@
       }
     } while true;
   end;
+
+  function repGetPrintRow: word;
+  begin
+    xlRunMacro('getRowToFill(1,1)');
+    xlGetCellValue(1, 1, result);
+  end;
+
 
   type PArray = array[1..3] of word;
 
@@ -387,7 +395,9 @@
   procedure PrintCurrentRowClassifiedBy(
                                    const classificator : byte;
                                    const extraChar : String;
-                                   const code2010  : String
+                                   const code2010  : String;
+                                   var memTblRec : type$f831_printed;
+                                   var isStoreMemTblRec : boolean
                                    );
   begin
     if ( classificator = 1 /* fpSpAxtf.cNode = 0h */)then {
@@ -397,6 +407,14 @@
     } else {
       PrintCurrentRowClass0 (extraChar, code2010);
     }
+
+    memTblRec.cRec := fpSpAxtf.nRec;
+    memTblRec.printedAtRow := repGetPrintRow - 1;
+    memTblRec.cNode := fpSpAxtf.cNode;
+    memTblRec.code := code2010;
+    memTblRec.coTable := fpSpAxtf.coTable;
+
+    set isStoreMemTblRec := true;
   end;
 
   procedure DoPrintAttributesAtBegin;
@@ -423,9 +441,16 @@
     }
   end;
 
+  procedure ClearTempTables;
+  begin
+    delete all f831_printed;
+  end;
+
   procedure doPrintReport8311;
   begin
     var tt:word;
+
+    ClearTempTables;
 
     //Message ( 'doPrintReport8311');
 
@@ -519,7 +544,18 @@
         extCl1 := GetStBudExtraParameters( coFPSTBUD , superfpSpAxtf.CMEAN, extClName1 );
       }
 
-      PrintCurrentRowClassifiedBy(extCl,extraChar, code2010);
+      var isStoreMR : boolean;
+      isStoreMR := false;
+
+      var memRec : type$f831_printed;
+
+      PrintCurrentRowClassifiedBy(extCl,extraChar, code2010, memRec, isStoreMR);
+
+      if (isStoreMR) {
+        set f831_printed.buffer := memRec;
+        insert current f831_printed;
+      }
+
     }
 
     //ROWTBLFINISH
@@ -529,6 +565,11 @@
 
     xlSetActiveSheetByName(reportSheetName); //?????_1
     //xlRunMacro('AfterPrint831x');
+
+    if (IsGrouping) {
+      doGroupPrintedDatasAtCurrentPage;
+    }
+
     xlRunMacro(templateRec.finishMacrosName);
 
     if isKillExcel then {

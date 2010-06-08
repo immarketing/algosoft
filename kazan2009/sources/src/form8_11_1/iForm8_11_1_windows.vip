@@ -60,6 +60,7 @@ tabbedSheet tabbed
 
     isDebugDatas  ('',,) : NoProtect,noPickButton;
 
+    isUseDataGrouping  ('',,) : NoProtect,noPickButton;
   /*
     extClName  ('',,) : NoProtect,noPickButton,
       {Font = {BackColor = if (extClName='',    ColorNeed,0)}};
@@ -89,7 +90,7 @@ tabbedSheet tabbed
     coTableToSum  ('',,) : NoProtect,noPickButton;
     */
   <<
-  [.] Тестовый объем данных`
+  [.] Тестовый объем данных` [.] Использовать группировку данных`
   >>
   /*
          Название классификатора .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@

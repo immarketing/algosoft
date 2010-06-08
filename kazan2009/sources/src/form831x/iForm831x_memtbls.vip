@@ -26,6 +26,28 @@ with index
 !  ,  f831_attr_nm   = Name (unique)
 )
 ;
+
+table struct f831_printed
+(
+  nRec          : comp "",
+  cRec          : comp ,
+  cnode         : comp,
+  printedAtRow  : word,
+  code          : String,
+  name          : String,
+  coTable       : word
+)
+with index
+(
+  f831_ptd_nrec = NREC(Unique, Surrogate),
+  f831_ptd_crec = crec,
+  f831_ptd_cnode = cnode,
+  f831_ptd_cnode_ct = cnode + coTable + printedAtRow,
+  f831_ptd_cTbl = coTable + printedAtRow
+
+)
+;
+
 /*
 table struct f791_2fields
 (

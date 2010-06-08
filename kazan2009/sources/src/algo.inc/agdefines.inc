@@ -37,6 +37,8 @@
 
   #define szmn_bud_Form8_7_x_2010 szmn_bud_Form8_7_x_2010_
   #define Iszmn_bud_XLS_attributes Iszmn_bud_XLS_attributes_
+  #define iszmn_bud_Form8_7_x_2010_Groupable Iszmn_bud_Form8_7_x_2010_Groupable_
+  #define iszmn_bud_Form8_7_x_2010_Debugable iszmn_bud_Form8_7_x_2010_Debugable_
 
   #define szmn_doccheck szmn_doccheck_
 
@@ -63,6 +65,8 @@
 
   #define szmn_bud_Form8_7_x_2010 szmn_bud_Form8_7_x_2010
   #define Iszmn_bud_XLS_attributes Iszmn_bud_XLS_attributes
+  #define iszmn_bud_Form8_7_x_2010_Groupable Iszmn_bud_Form8_7_x_2010_Groupable
+  #define iszmn_bud_Form8_7_x_2010_Debugable iszmn_bud_Form8_7_x_2010_Debugable
 
   #define szmn_doccheck szmn_doccheck
 

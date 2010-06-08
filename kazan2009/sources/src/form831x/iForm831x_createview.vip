@@ -107,6 +107,8 @@ From
   , f831_selectedperiods f831_selPYear
   , f831_selectedperiods f831_selPYearV2
 
+  , f831_printed
+
  where
 ((
 

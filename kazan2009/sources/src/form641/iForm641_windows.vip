@@ -135,6 +135,9 @@ end; // Screen
     isDebugDatas  ('',,) : NoProtect,noPickButton;
     isDebugDatas2 ('',,) : NoProtect,noPickButton;
     isDebugHideClmns ('',,) : NoProtect,noPickButton;
+
+    isUseStPriority ('',,) : NoProtect,noPickButton;
+
   <<
 
          Название классификатора .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
@@ -182,7 +185,7 @@ end; // Screen
 
   [.] Тестовый объем данных` [.] Тестовый объем данных - 2`
 
-  [.] Скрывать колонки - отладка`
+  [.] Скрывать колонки - отладка` [.] Использовать приоритеты статей`
   >>
   end; // screen  sCheckdop 'Дополнительно';
 end;

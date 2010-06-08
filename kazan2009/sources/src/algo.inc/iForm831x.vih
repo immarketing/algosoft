@@ -95,11 +95,23 @@ ObjInterface #Iszmn_bud_XLS_attributes;
   procedure AddValueNumber(prow:word; pcol:word; vl : Double);
 end;
 
+ObjInterface #iszmn_bud_Form8_7_x_2010_Groupable;
+  procedure SetIsUsingGrouping (bGrp : boolean);
+  function  IsGrouping : boolean;
+  procedure SetGrouperName(sGrpName : String);
+end;
+
+ObjInterface #iszmn_bud_Form8_7_x_2010_Debugable;
+  procedure ShowDebugDatas;
+end;
+
 VipInterface
 #szmn_bud_Form831x_2010
 implements
   Iszmn_bud_Form831x_2010,
-  #Iszmn_bud_XLS_attributes
+  #Iszmn_bud_XLS_attributes ,
+  #iszmn_bud_Form8_7_x_2010_Groupable ,
+  #iszmn_bud_Form8_7_x_2010_Debugable
 
 #Licensed_Free
 ;

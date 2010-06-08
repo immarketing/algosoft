@@ -17,6 +17,7 @@ var
 
   isShowTimeLabels : boolean;
   isDebugDatas     : boolean;
+  isUseDataGrouping  : boolean; // использовать ли группировку данных
 
   Check:integer;
   /*

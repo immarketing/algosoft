@@ -84,6 +84,8 @@
 
     reporter.SetIsDebugDatas(isDebugDatas);
 
+    reporter.SetIsUsingGrouping(isUseDataGrouping);
+
     reporter.DoPrintReport;
   end;
 
@@ -102,6 +104,7 @@
   begin
     set isShowTimeLabels := false;
     set isDebugDatas := false;
+    set isUseDataGrouping := true;
 
     set DSKPREFIX := 'iForm8_11_1';
 

@@ -3,6 +3,7 @@
 #include iForm831x_dskwork.vip
 #include iForm831x_extClass.vip
 #include iForm831x_procreport.vip
+#include iForm831x_procgrp.vip
 
   create view forPeriodSelection
   var
@@ -13,7 +14,7 @@
             fpPeriod monthAfter
   where ((
 
-  cPer == fpPeriod.nRec and
+  forPeriodSelection.cPer == fpPeriod.nRec and
   fpPeriod.CPREV == monthBefore.nRec and
   fpPeriod.nRec == monthAfter.CPREV
   ))

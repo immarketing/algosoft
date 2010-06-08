@@ -1,0 +1,19 @@
+
+  var  IsUsingDataGrouping : boolean;
+
+  procedure SetIsUsingGrouping (bGrp : boolean);
+  begin
+    set IsUsingDataGrouping := bGrp;
+  end;
+
+  function  IsGrouping : boolean;
+  begin
+    set Result := IsUsingDataGrouping
+  end;
+
+  var DataGrouperName : String;
+
+  procedure SetGrouperName(sGrpName : String);
+  begin
+    set DataGrouperName := sGrpName;
+  end;

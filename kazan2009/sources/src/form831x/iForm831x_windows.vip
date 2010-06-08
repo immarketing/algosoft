@@ -150,6 +150,19 @@ Window wnInfoWindow 'Отладочная информация' ('Отладочная информация', hcNoContex
       f831_selPYear.cPeriod '.cPeriod':[10],protect;
     End; // Browse
 
+    Browse brf831_printed 'f831_printed' ('f831_printed',  hcNoContext);
+      //Show at(,6,,10);
+      Table f831_printed;
+    Fields
+      f831_printed.nRec '.nRec':[10],protect;
+      f831_printed.cRec '.cRec':[10],protect;
+      f831_printed.cnode '.cnode':[10],protect;
+      f831_printed.printedAtRow '.printedAtRow':[10],protect;
+      f831_printed.code '.code':[10],protect;
+      f831_printed.name '.name':[10],protect;
+      f831_printed.coTable '.coTable':[10],protect;
+    End; // Browse
+
   end; // tabbedSheet tabbed
 
 End; // Window

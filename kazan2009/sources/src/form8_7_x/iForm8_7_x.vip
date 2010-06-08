@@ -124,7 +124,7 @@ Handleevent
   }
 
   cmShowDebug8_7_x: {
-    //doHandlecmShowDebug832();
+    doHandlecmShowDebug83x();
 
   }
   cmPick: {
