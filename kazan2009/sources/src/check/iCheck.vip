@@ -27,6 +27,8 @@ end;
 
 #include agdefines.inc
 
+#include ExtSoot.vih
+#include ExtAttr.Vih
 
 #include UserReport.vih
 
@@ -305,6 +307,7 @@ select *
 #include iCheckPr2.vip
 #include iCheckPr3.vip
 #include iCheckPr4.vip
+#include iCheckPr5.vip
 
   form frm  ('iCheck_otchet_v2.out','iCheck_otchet_v2');
 
@@ -323,6 +326,9 @@ select *
     var com4  : string;
     var r4    : boolean;
 
+    var com5  : string;
+    var r5    : boolean;
+
     com1  := '';
     r1    := false;
 
@@ -333,8 +339,9 @@ select *
     r2 := isCurrentWrong2 (com2);
     r3 := isCurrentWrong3 (com3);
     r4 := isCurrentWrong4 (com4);
+    r5 := isCurrentWrong5 (com5);
 
-    result := r1 or r2 or /*r3 or */r4;
+    result := r1 or r2 or /*r3 or */r4 or r5;
 
     if (not doprint) exit;
 
@@ -349,6 +356,9 @@ select *
 
     frm.write ( if(r4,1,0) );
     frm.write ( com4 );
+
+    frm.write ( if(r5,1,0) );
+    frm.write ( com5 );
     /*
     _loop SPECMTR {
       _loop SALDTUNE {
@@ -377,6 +387,9 @@ select *
     var com4  : string;
     var r4    : boolean;
 
+    var com5  : string;
+    var r5    : boolean;
+
     com1  := '';
     r1    := false;
 
@@ -387,8 +400,9 @@ select *
     r2 := isCurrentDOWrong2 (com2);
     r3 := isCurrentDOWrong3 (com3);
     r4 := isCurrentDOWrong4 (com4);
+    r5 := isCurrentDOWrong5 (com5);
 
-    result := r1 or r2 or /*r3 or */r4;
+    result := r1 or r2 or /*r3 or */r4 or r5;
 
     if (not doprint) exit;
 
@@ -403,6 +417,9 @@ select *
 
     frm.write ( if(r4,1,0) );
     frm.write ( com4 );
+
+    frm.write ( if(r5,1,0) );
+    frm.write ( com5 );
 
   end;
 
@@ -486,6 +503,7 @@ select *
 
         if (not iNextVisual (FormatStr_3 ( 'Формирование отчета | Этап №%d | Шаг №%d | %s',2,cnt, 'ДО №'+chBaseDoc.NODOC+' от '+ chBaseDoc.DDOC))
         ) {exit};
+
         result := true;
         var ew : boolean;
         ew := false;
@@ -562,6 +580,7 @@ select *
 
     setVisualHeader (FormatStr_3 ( 'Формирование отчета | Этап №%d | Шаг №%d | %s',1,1, 'Формирование списка видов документов'));
 
+
     BuildUsedVids;
     //set chStage := 1;
 
@@ -578,15 +597,11 @@ select *
       }
     end;
 
-
-
-
-
     //set chStage := 2;
-
     StopVisual ('',0);
 
-    if (hasIteration) {
+
+    if (hasIteration or true) {
       frm.ShowFile('');
     }
 
@@ -692,6 +707,9 @@ select *
 
     doMakeCheck (mode);
 
+    PopBounds(tnKatSopr);
+    PopBounds(tnchBaseDoc);
+
   end;
 
   procedure savedsk;
@@ -712,6 +730,9 @@ select *
     SaveMyDsk (useFilter, 'iCheck_useFilter');
 
     SaveMyDsk (showUnCor, 'iCheck_showUnCor');
+
+    SaveMyDsk (cKatImp5, 'iCheck.cKatImp5');
+    SaveMyDsk (cKatImp5Group, 'iCheck.cKatImp5Group');
 
     //SaveMyDsk ('ar', ar);
   end;
@@ -740,6 +761,9 @@ select *
     ReadMyDsk (useFilter, 'iCheck_useFilter', dc);
 
     ReadMyDsk (showUnCor, 'iCheck_showUnCor', dc);
+
+    ReadMyDsk (cKatImp5, 'iCheck.cKatImp5', dc);
+    ReadMyDsk (cKatImp5Group, 'iCheck.cKatImp5Group', dc);
 
     //SaveMyDsk ('ar', ar);
   end;
@@ -783,7 +807,25 @@ select *
 
     sFltrUsDesc := sgettune ('USER.DESCR');
 
+    set cKatImp5Group := comp('01310000000001A1h');
+
+    set sExtAttrCO5 := 'NREC каталога проверки СТАТЬИ-ЦО';
+
     ReadDsk();
+
+    if (cFltrCO <> 0 ) then {
+      InitServTXO(0);
+
+      var eCl : C_ExtClass::iExtAttr;
+
+      eCl.CreateAttr (coFPCO, sExtAttrCO5, cgAttrType_Comp );
+
+      //coSetAttr(coFPCO, cFltrCO, sExtAttrCO5, cKatImp5, sKatImp5);
+      cKatImp5 := eCl.coGetAttr (coFPCO, cFltrCO, sExtAttrCO5);
+
+      DoneServTXO;
+    }
+
     //if TargetBudGroup = 0 then TargetBudGroup := comp('000000000000000Ah');
     if TargetBudGroup = 0 then TargetBudGroup := comp('00320000000003D1h');
     if cTBL_SOOTV = 0 then SetTabSootv (comp('013100000000011Bh'));
@@ -806,6 +848,68 @@ select *
     */
   end;
 
+  procedure handleCMPick;
+  begin
+    case curfield of
+      #fltrfpco.name:{
+        var cCO : comp;
+
+        cCO := cFltrCO;
+
+        RunInterface('F_FPCATALOG::GetCO', word(cgiPick), comp(0), comp(0), cCO );
+
+        if (cCO <> cFltrCO) then {
+          set cFltrCO := cCO;
+
+          if (cFltrCO <> 0 ) then {
+            InitServTXO(0);
+
+            var eCl : C_ExtClass::iExtAttr;
+
+            eCl.CreateAttr (coFPCO, sExtAttrCO5, cgAttrType_Comp );
+
+            //coSetAttr(coFPCO, cFltrCO, sExtAttrCO5, cKatImp5, sKatImp5);
+            cKatImp5 := eCl.coGetAttr (coFPCO, cFltrCO, sExtAttrCO5);
+
+            DoneServTXO;
+          }
+        }
+      } ;
+      #sFltrUsDesc: {
+        RunInterface('C_COMMON::GetDescr',sFltrUsDesc, '' , true );
+      }
+      #sKatImp5 : {
+        // '01310000000001A1h'
+        // '01310000000001A1h'
+        //RunInterface('F_FPBUDGET::GetKatImpRel', word(cgiPick), cKatImp5Group, cKatImp5);
+        // Каталоги соответствий для проверки СТАТЬЯ-ЦО F_FPBUDGET::VEXTSOOT
+
+        var iImpRel : F_FPBUDGET::vExtSoot;
+
+        if iImpRel.RunKatImpKau(cgiPick,0,0,cKatImp5) then {
+          set cKatImp5 := cKatImp5;
+
+          InitServTXO(0);
+
+          var eCl : C_ExtClass::iExtAttr;
+
+          if (cFltrCO <> 0 )then {
+
+            eCl.CreateAttr (coFPCO, sExtAttrCO5, cgAttrType_Comp );
+
+            eCl.coSetAttr(coFPCO, cFltrCO, sExtAttrCO5, cKatImp5, sKatImp5);
+          }
+
+          DoneServTXO;
+        }
+
+        // GetKatImpName
+
+        //RunInterface('F_TXO::TxoKatImpKau', word(cgiPick), cKatImp5Group, cKatImp5);
+      }
+    end;
+  end;
+
   HandleEvent
     cmOkNakl : {
       savedsk;
@@ -823,21 +927,14 @@ select *
     */
 
     cmPick : {
-      case curfield of
-        #fltrfpco.name:{
-          RunInterface('F_FPCATALOG::GetCO', word(cgiPick), comp(0), comp(0), cFltrCO);
-        } ;
-        #sFltrUsDesc: {
-          RunInterface('C_COMMON::GetDescr',sFltrUsDesc, '' , true );
-        }
-      end;
+      handleCMPick;
     }
     cmInit: {
       handlecmInit;
     };
   end;
 
-  handleEvent
+  //handleEvent
     /*
     cmPick: {
       case curfield of
@@ -862,7 +959,7 @@ select *
       SaveMyDsk ('ar', ar);
     }
       */
-  end;
+  //end;
 
 
 End.  // interface

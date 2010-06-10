@@ -15,6 +15,7 @@ end;
 #define GAL8_1
 #define __UKS_PL2__
 
+#define Licensed_Free licensed (FREE)
 
 
 #make "src\check\iCheck.vip"

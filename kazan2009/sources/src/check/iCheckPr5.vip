@@ -1,0 +1,98 @@
+
+  create view prob5
+  var
+    cFPKATIMP : comp; // ссылка на рабочую таблицу соответствий
+    anc1, anc2 : word;
+    cAn1, cAn2 : comp;
+  as
+  select *
+    from  FPKATIMP FPKATIMPPR5,
+          FPIMPREL FPIMPRELpr5
+   where ((
+     prob5.cFPKATIMP == FPKATIMPPR5.nRec and
+     FPKATIMPPR5.nrec == FPIMPRELpr5.CMAIN and
+
+     prob5.anc1 == FPIMPRELpr5.IMPKODAN and
+     prob5.cAn1 == FPIMPRELpr5.CIMPMEAN and
+
+     prob5.anc2 == FPIMPRELpr5.KODAN (noindex)  and
+     prob5.cAn2 == FPIMPRELpr5.CMEAN (noindex)
+   ))
+  ;
+
+
+  function isCurrentWrong5 (out comment : string):boolean;
+  begin
+    result := false;
+    comment := '';
+
+    set prob5.cFPKATIMP := cKatImp5;
+
+    var co1,co2 : comp;
+
+    co1 := getCUAnVal (coSpSopr, SpSopr.NRec, 20);  // статья бюджета
+    co2 := getCUAnVal (coSpSopr, SpSopr.NRec, 22);  // центр ответственности
+
+    //Message ('co: '+co1 + ''#13'' + co2);
+
+    if (prob5.cFPKATIMP = 0) then {
+      result := true;
+      comment := 'Не определена рабочая таблица соответствий аналитик 20 и 22';
+    }
+
+    prob5.anc1 := 20;
+    prob5.anc2 := 22;
+
+    prob5.can1 := co1;
+    prob5.can2 := co2;
+
+    if ( prob5.getfirst FPKATIMPPR5 = tsOK ) then {
+      if ( prob5.getfirst FPIMPRELpr5 = tsOK ) then {
+      } else {
+        result  := true;
+        comment := 'Соответствие значений аналитик в таблице не обнаружено!';
+      }
+    } else {
+      result := true;
+      comment := 'Таблица соответствий <'+ String (prob5.cFPKATIMP,20,0) + '> не обнаружена!';
+    }
+
+  end;
+
+  function isCurrentDOWrong5 (out comment : string):boolean;
+  begin
+    result := false;
+    comment := '';
+
+    var co1,co2 : comp;
+
+    set prob5.cFPKATIMP := cKatImp5;
+
+    co1 := getCUAnVal (coSpStep, chSpStep.NRec, 20);  // статья бюджета
+    co2 := getCUAnVal (coSpStep, chSpStep.NRec, 22);  // центр ответственности
+
+    //Message ('co: '+co1 + ''#13'' + co2);
+
+    if (prob5.cFPKATIMP = 0) then {
+      result := true;
+      comment := 'Не определена рабочая таблица соответствий аналитик 20 и 22';
+    }
+
+    prob5.anc1 := 20;
+    prob5.anc2 := 22;
+
+    prob5.can1 := co1;
+    prob5.can2 := co2;
+
+    if ( prob5.getfirst FPKATIMPPR5 = tsOK ) then {
+      if ( prob5.getfirst FPIMPRELpr5 = tsOK ) then {
+      } else {
+        result  := true;
+        comment := 'Соответствие значений аналитик в таблице не обнаружено!';
+      }
+    } else {
+      result := true;
+      comment := 'Таблица соответствий <'+ String (prob5.cFPKATIMP,20,0) + '> не обнаружена!';
+    }
+
+  end;

@@ -22,8 +22,15 @@ var
 
   chStage     : byte; // этап проверки. 1 - проверяем накладные, 2 - проверяем ДО
 
+  cKatImp5      : comp; // каталог соответствий для проверки Статья-ЦО
+  cKatImp5Group : comp; // Группа каталогов соответствий для проверки Статья-ЦО. 0 - без ограничения
+
+  sExtAttrCO5   : String; // Название внешнего атрибута для хранения нрека таблицы соответствий
+
 as
-select *
+select
+  if(cKatImp5=0   ,'Выберите каталог соответствий', FPKATIMP5.LEVELCODE + '|' + FPKATIMP5.name)  (FieldName = sKatImp5)
+
   from  KatSopr,
         SpSopr,
         SPECMTR,
@@ -43,7 +50,9 @@ select *
         StepDoc chStepDoc,
         SpStep  chSpStep,
         KatMC   chKatMC,
-        KatUsl  chKatUsl
+        KatUsl  chKatUsl,
+
+        FPKATIMP FPKATIMP5
  where ((
 !   pcSopr   == KatSopr.nRec and
 
@@ -107,7 +116,9 @@ select *
    chStepDoc.nRec == chSpStep.cStepDoc  and
 
    chSpStep.cMCUsl == chKatMC.nRec and
-   chSpStep.cMCUsl == chKatUsl.nRec
+   chSpStep.cMCUsl == chKatUsl.nRec and
+
+   cKatImp5 == FPKATIMP5.nRec
 
 !   and dtStart<<=KatSopr.dsopr(noindex) and dtFinish >>= KatSopr.dsopr (noindex)
 !   and dtStart<<=chBaseDoc.DDOC(noindex) and dtFinish >>= chBaseDoc.DDOC (noindex)
