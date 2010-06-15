@@ -1,0 +1,154 @@
+  create view forKauGroup
+  var
+    cRec    : comp;
+    bdVar   : comp;
+    kr      : word;
+
+  as select *
+  from
+    fpSpAxtf,
+    fpSpAxtf fpSpAxtfSub,
+    f831_kauGroups kgps,
+    f831_kauGroups f831_kauGroupsClc,
+    f831_printed   ptd,
+    f831_values  f831_vls,
+    f831_values  f831_vls2
+    where
+    ((
+    forKauGroup.cRec      == fpSpAxtf.nRec and
+    0                     == fpSpAxtf.coTable (noindex) and
+    fpSpAxtf.nrec         == fpSpAxtfSub.cNode (noindex) and
+
+    1 == f831_kauGroupsClc.isToBeCalculated and
+
+    forKauGroup.bdVar      == f831_vls.cBudVar and
+    f831_kauGroupsClc.cRec == f831_vls.cNode  and
+    forKauGroup.kr         == f831_vls.KodReg and
+
+
+    kgps.cRec              == ptd.cRec and
+    forKauGroup.bdVar      == f831_vls2.cBudVar and
+    kgps.cRec              == f831_vls2.cRec and
+    forKauGroup.kr         == f831_vls2.KodReg
+
+    ))
+  ;
+
+  function isKauGroup (const pRec : comp) : byte;
+  begin
+    set forKauGroup.cRec := pRec;
+    set isKauGroup := 0;
+
+    if (forKauGroup.getFirst fpSpAxtf = tsOK ) {
+      if (forKauGroup.getFirst fpSpAxtfSub = tsOK ) {
+        set isKauGroup := 1;
+      }
+    }
+  end;
+
+  procedure doCalculateAnalitAgregatesSumsIteration;
+  begin
+    var i, j : byte;
+
+    /*
+    var locV : array [1..9] of double;
+    for (i := 1; i<=9; inc(i)) {
+      locV[i] := 0;
+    }
+    */
+
+    forKauGroup._loop f831_kauGroupsClc{
+      for (i:=1;i<=3;inc(i)){
+        set forKauGroup.bdVar := budVariantsSetup[i].cfpBudVar;
+        set forKauGroup.kr := budVariantsSetup[i].regType;
+
+        var v : array [1..3] of double;
+        v[1] := 0;
+        v[2] := 0;
+        v[3] := 0;
+
+        forKauGroup._loop f831_vls {
+          v[1] := v[1] + forKauGroup.f831_vls.values[1];
+          v[2] := v[2] + forKauGroup.f831_vls.values[2];
+          v[3] := v[3] + forKauGroup.f831_vls.values[3];
+        }
+
+        update f831_values where ((
+          forKauGroup.bdVar == f831_values.cBudVar and
+          forKauGroup.f831_kauGroupsClc.cRec == f831_values.cRec and
+          forKauGroup.kr == f831_values.KodReg
+        )) set f831_values.values[1] := v[1],
+               f831_values.values[2] := v[2],
+               f831_values.values[3] := v[3]
+               ;
+
+      }
+
+      update f831_kauGroups where ((
+        forKauGroup.f831_kauGroupsClc.cRec == f831_kauGroups.cRec
+      )) set f831_kauGroups.isToBeCalculated := 0
+      ;
+
+      update f831_kauGroups where ((
+        forKauGroup.f831_kauGroupsClc.cNode == f831_kauGroups.cRec
+      )) set f831_kauGroups.isToBeCalculated := 1
+      ;
+    }
+  end;
+
+  procedure doCalculateAnalitAgregatesSums;
+  begin
+    delete all f831_kauGroups;
+
+    insert f831_kauGroups (cRec, cNode, isToBeCalculated)
+    select f831_printed.cRec, f831_printed.cNode, 1 from f831_printed where (( 1 == f831_printed.isKauGroup));
+
+    delete from f831_kauGroups where ((0 == f831_kauGroups.cRec));
+
+    do   {
+      doCalculateAnalitAgregatesSumsIteration;
+    } while (forKauGroup.getFirst f831_kauGroupsClc = tsOK);
+
+    forKauGroup._loop kgps {
+      if (forKauGroup.getFirst ptd = tsOK){
+        var i,j : byte;
+
+        for (i := 1; i<=3;inc (i)){
+          set forKauGroup.bdVar := budVariantsSetup[i].cfpBudVar;
+          set forKauGroup.kr := budVariantsSetup[i].regType;
+
+          if (forKauGroup.getFirst f831_vls2 <> tsOK) {continue;};
+
+          if (budVariantsSetup[i].tmplColMonth <> 0 and forKauGroup.ptd.printedAtRow <> 0 ) then {
+            xlSetCellNumberValue( forKauGroup.f831_vls2.values[1],
+                                  forKauGroup.ptd.printedAtRow,
+                                  budVariantsSetup[i].tmplColMonth ,
+                                  forKauGroup.ptd.printedAtRow,
+                                  budVariantsSetup[i].tmplColMonth
+                                  );
+          }
+
+          if (budVariantsSetup[i].tmplColKvart <> 0 and forKauGroup.ptd.printedAtRow <> 0 ) then {
+            xlSetCellNumberValue( forKauGroup.f831_vls2.values[2],
+                                  forKauGroup.ptd.printedAtRow,
+                                  budVariantsSetup[i].tmplColKvart ,
+                                  forKauGroup.ptd.printedAtRow,
+                                  budVariantsSetup[i].tmplColKvart
+                                  );
+          }
+
+          if (budVariantsSetup[i].tmplColYear <> 0 and forKauGroup.ptd.printedAtRow <> 0 ) then {
+            xlSetCellNumberValue( forKauGroup.f831_vls2.values[3],
+                                  forKauGroup.ptd.printedAtRow,
+                                  budVariantsSetup[i].tmplColYear ,
+                                  forKauGroup.ptd.printedAtRow,
+                                  budVariantsSetup[i].tmplColYear
+                                  );
+          }
+
+        }
+      }
+    }
+
+
+  end;

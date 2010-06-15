@@ -20,5 +20,6 @@ end;
 
 #make "src\check\iCheck.vip"
 #make "src\check\*.frn"
+#make "src\check\*.slk"
 
 

@@ -4,6 +4,7 @@
 #include iForm831x_extClass.vip
 #include iForm831x_procreport.vip
 #include iForm831x_procgrp.vip
+#include iForm831x_procagr.vip
 
   create view forPeriodSelection
   var

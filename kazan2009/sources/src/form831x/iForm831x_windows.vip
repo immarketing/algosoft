@@ -161,6 +161,7 @@ Window wnInfoWindow 'Отладочная информация' ('Отладочная информация', hcNoContex
       f831_printed.code '.code':[10],protect;
       f831_printed.name '.name':[10],protect;
       f831_printed.coTable '.coTable':[10],protect;
+      f831_printed.isKauGroup '.isKauGroup':[10],protect;
     End; // Browse
 
   end; // tabbedSheet tabbed

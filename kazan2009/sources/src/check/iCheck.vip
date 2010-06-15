@@ -18,6 +18,8 @@
 
 !#include selDate.vip
 
+#include Getkau.vih
+
 #component "SZMN"
 
 const
@@ -462,7 +464,8 @@ select *
         frm.write ( KatSopr.NSopr );
         frm.write ( KatSopr.Descr );
         frm.write ( KatSopr.SUMMA );
-
+        frm.write ( KatSoprCO.CODE );
+        frm.write ( KatSoprCO.Name );
 
         _loop SpSopr {
 
@@ -541,6 +544,8 @@ select *
         frm.write ( chBaseDoc.NODOC );
         frm.write ( chBaseDoc.Descr );
         frm.write ( chBaseDoc.SUMMA );
+        frm.write ( BaseDocCO.CODE );
+        frm.write ( BaseDocCO.Name );
 
 
         _loop chStepDoc {
@@ -648,6 +653,8 @@ select *
       SetTabSootv3(cTBL_SOOTV3);
     }
 
+    set useFilter := useFilter or 2;
+
 
     case mode of
       1 : {
@@ -659,7 +666,7 @@ select *
         }
 
         if ((useFilter and 2) > 0) then {
-          AddBounds(tbbyCOSopr);
+          //AddBounds(tbbyCOSopr);
         }
 
         if ((useFilter and 4) > 0) then {
@@ -676,7 +683,7 @@ select *
         }
 
         if ((useFilter and 2) > 0) then {
-          AddBounds(tbbyCODO);
+          //AddBounds(tbbyCODO);
         }
 
         if ((useFilter and 4) > 0) then {
@@ -774,32 +781,49 @@ select *
     delete all used_vidsopr;
     delete all used_basedocs;
 
-    if ((docToCheck and word(1)) > 0) then
-      insert used_vidsopr set used_vidsopr.vidsopr := 111;
-    if ((docToCheck and word(2)) > 0) then
-      insert used_vidsopr set used_vidsopr.vidsopr := 204;
-    if ((docToCheck and word(4)) > 0) then
-      insert used_vidsopr set used_vidsopr.vidsopr := 504;
-    if ((docToCheck and word(8)) > 0) then
-      insert used_vidsopr set used_vidsopr.vidsopr := 602;
+    var l : longint;
 
+    if ((docToCheck and word(1)) > 0) then  {
+      l := insert used_vidsopr set used_vidsopr.vidsopr := 111;
+    }
+    if ((docToCheck and word(2)) > 0) then {
+      l := insert used_vidsopr set used_vidsopr.vidsopr := 204;
+    }
+    if ((docToCheck and word(4)) > 0) then {
+      l := insert used_vidsopr set used_vidsopr.vidsopr := 504;
+    }
+    if ((docToCheck and word(8)) > 0) then {
+      l := insert used_vidsopr set used_vidsopr.vidsopr := 602;
+    }
+    if ((docToCheck and word(16)) > 0) then {
+      l := insert used_vidsopr set used_vidsopr.vidsopr := 201;
+    }
+    if ((docToCheck and word(32)) > 0) then {
+      l := insert used_vidsopr set used_vidsopr.vidsopr := 211;
+    }
 
-    if ((BaseDocToCheck and word(1)) > 0) then
-      insert used_basedocs set used_basedocs.viddoc := 101;
-    if ((BaseDocToCheck and word(2)) > 0) then
-      insert used_basedocs set used_basedocs.viddoc := 111;
-    if ((BaseDocToCheck and word(4)) > 0) then
-      insert used_basedocs set used_basedocs.viddoc := 201;
+    if ((BaseDocToCheck and word(1)) > 0) then {
+      l := insert used_basedocs set used_basedocs.viddoc := 101;
+    }
+    if ((BaseDocToCheck and word(2)) > 0) then {
+      l := insert used_basedocs set used_basedocs.viddoc := 111;
+    }
+    if ((BaseDocToCheck and word(4)) > 0) then {
+      l := insert used_basedocs set used_basedocs.viddoc := 201;
+    }
   end;
 
   procedure handlecmInit;
   begin
 
+    var qwer : F_GetAn::GetKau new;
+    liUsedCO := InitMarker( qwer.GetMarkerName(22) ,8,50,10);
+
     //Message (cmInit);
     dtStart  := cur_date;
     dtFinish := cur_date;
 
-    docToCheck := 1 + 2 + 4 + 8;
+    docToCheck := 1 + 2 + 4 + 8 + 16 + 32;
 
     baseDocToCheck := 1 + 2 + 4;
 
@@ -856,7 +880,7 @@ select *
 
         cCO := cFltrCO;
 
-        RunInterface('F_FPCATALOG::GetCO', word(cgiPick), comp(0), comp(0), cCO );
+        RunInterface('F_FPCATALOG::GetCO', word(cgiPick + cgiMulti + cgiNotEdit + cgiNotClear), comp(0), comp(0), cCO );
 
         if (cCO <> cFltrCO) then {
           set cFltrCO := cCO;
@@ -875,9 +899,35 @@ select *
           }
         }
       } ;
+
+      #sUsedCO : {
+        var qwer : F_GetAn::GetKau new;
+
+        if  (qwer.GetCodeKau(word(cgiPickMult + cgiNotEdit + cgiNotClear ), 22, 0) =0) then {
+          //set cPodpGrp := 0;
+          exit;
+        } else {
+          DoneMarker( liUsedCO ,'');
+          set liUsedCO := InitMarker(qwer.GetMarkerName(22),8,50,10);
+
+          delete all used_co;
+
+          var i : longint;
+
+          for (i := 0; i<= GetMarkerCount (liUsedCO)-1; inc(i)) {
+            var cu : comp;
+
+            GetMarker (liUsedCO, i, cu);
+
+            insert used_co set used_co.cco := cu;
+          }
+        }
+      }
+
       #sFltrUsDesc: {
         RunInterface('C_COMMON::GetDescr',sFltrUsDesc, '' , true );
       }
+
       #sKatImp5 : {
         // '01310000000001A1h'
         // '01310000000001A1h'

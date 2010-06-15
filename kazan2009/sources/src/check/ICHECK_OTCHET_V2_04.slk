@@ -1,0 +1,172 @@
+ID;PWXL;N;E
+P;PGeneral
+P;P0
+P;P0.00
+P;P#,##0
+P;P#,##0.00
+P;P#,##0_Ns_.;;\-#,##0_Ns_.
+P;P#,##0_Ns_.;;[Red]\-#,##0_Ns_.
+P;P#,##0.00_Ns_.;;\-#,##0.00_Ns_.
+P;P#,##0.00_Ns_.;;[Red]\-#,##0.00_Ns_.
+P;P#,##0"$";;\-#,##0"$"
+P;P#,##0"$";;[Red]\-#,##0"$"
+P;P#,##0.00"$";;\-#,##0.00"$"
+P;P#,##0.00"$";;[Red]\-#,##0.00"$"
+P;P0%
+P;P0.00%
+P;P0.00E+00
+P;P##0.0E+0
+P;P#" "?/?
+P;P#" "??/??
+P;Pdd/mm/yyyy
+P;Pdd/mmm/yy
+P;Pdd/mmm
+P;Pmmm/yy
+P;Ph:mm\ AM/PM
+P;Ph:mm:ss\ AM/PM
+P;Ph:mm
+P;Ph:mm:ss
+P;Pdd/mm/yyyy\ h:mm
+P;Pmm:ss
+P;Pmm:ss.0
+P;P@
+P;P[h]:mm:ss
+P;P_-* #,##0"$"_-;;\-* #,##0"$"_-;;_-* "-""$"_-;;_-@_-
+P;P_-* #,##0_Ns_._-;;\-* #,##0_Ns_._-;;_-* "-"_Ns_._-;;_-@_-
+P;P_-* #,##0.00"$"_-;;\-* #,##0.00"$"_-;;_-* "-"??"$"_-;;_-@_-
+P;P_-* #,##0.00_Ns_._-;;\-* #,##0.00_Ns_._-;;_-* "-"??_Ns_._-;;_-@_-
+P;FArial Cyr;M200
+P;FArial Cyr;M200
+P;FArial Cyr;M200
+P;FArial Cyr;M200
+P;EArial Cyr;M200
+P;EArial Cyr;M200
+P;EArial Cyr;M200
+P;EArial Cyr;M200
+P;EArial Cyr;M200
+P;EArial Cyr;M200
+P;EArial Cyr;M200
+P;EArial Cyr;M200
+P;EArial Cyr;M200;SB
+F;P0;DG0G8;M255
+B;Y31;X16;D0 0 30 15
+O;D;V0;K47;G100 0.001
+C;Y1;X1;K".LinkForm 'ICHECK_OTCHET_V2_04_slk' Prototype is 'ICHECK_OTCHET_V2'"
+C;Y2;K".NameInList 'NCINAo/7NJaNAo NHiNCi NBiNJaNCeNCiNsNsNJaNCeNAoNBiNCuNAi NHaNCiNCeNBoNAiNJaNBiNAoNAaNAi 04 (Excel)'"
+C;Y3;K".SlkNumber "
+C;Y4;K".fields //"
+C;Y5;K"VidSoprName"
+C;Y6;K"NSopr"
+C;Y7;K"DSopr"
+C;Y8;K"KatSoprSumma"
+C;Y9;K"Descr"
+C;Y10;K"KatSoprNRec"
+C;Y11;K"CoCode"
+C;Y12;K"CoName"
+C;Y13;K"SpSoprNpp"
+C;Y14;K"MCUslName"
+C;Y15;K"if (isWrong1 =1, 'V', '')"
+C;Y16;K"if (isWrong2 =1, 'V', '')"
+C;Y17;K"''"
+C;Y18;K"if (isWrong4 =1, 'V', '')"
+C;Y19;K"if (isWrong5 =1, 'V', '')"
+C;Y20;K"'1:['+comment1+'] 2:['+comment2 + '] 3:[' + '' + '] 4:[' + comment4 + '] 5:[' + comment5 + ']'"
+C;Y21;K"//comment3"
+C;Y22;K".endfields //"
+F;SDLTBM13;Y23;X2
+C;K"NCANAeNHa NHaNCiNCeNBoNAiNJaNBiNAoNAa"
+F;SDTBM13;X3
+F;SDRTBM13;X4
+F;SDLTBM13;X5
+C;K"NQ NHaNCiNCeNBoNAiNJaNBiNAoNAa"
+F;SDRTBM13;X6
+F;SDLRTBM13;X7
+C;K"NHANAaNAoNAa"
+F;SDLTBM13;X8
+C;K"NDNNBoNAiNAiNAa"
+F;SDRTBM13;X9
+F;SDLTBM13;X10
+C;K"NHANJaNDnNCeNs."
+F;SDLTBM13;X11
+C;K"Nrec"
+F;SDTBM13;X12
+F;SDTBM13;X13
+F;SDLRTBM13;X14
+C;K"NHONCI.NCENCiNHa"
+F;SDTBM13;X15
+C;K"NHONCI. NBINAaNAeNAi."
+F;SDRTBM13;X16
+F;SDLRTBM13;Y24;X2
+C;K"NQNHiNHi"
+F;SDLTBM13;X3
+C;K"NAINHO/NBONDNNHE"
+F;SDTBM13;X4
+F;SDTBM13;X5
+F;SDRTBM13;X6
+F;SDLRTBM13;X7
+C;K"NHINb1"
+F;SDLRTBM13;X8
+C;K"NHINb2"
+F;SDLRTBM13;X9
+C;K"NHINb3"
+F;SDLRTBM13;X10
+C;K"NHINb4"
+F;SDLRBM13;X11
+C;K"NHINb5"
+F;SDLTBM13;X12
+F;SDTBM13;X13
+F;SDTBM13;X14
+F;SDTBM13;X15
+F;SDRTBM13;X16
+C;Y25;X1;K".{ //"
+F;SDLTBM13;Y26;X2
+C;K"^"
+F;SDTBM13;X3
+F;SDRTBM13;X4
+F;SDLTBM13;X5
+C;K"^"
+F;SDRTBM13;X6
+F;SDLRTBM13;X7
+C;K"^"
+F;SDLTBM13;X8
+F;P0;FG0R;SDRTBM13;X9
+C;K"&&&&&&&&&&&&&&&&&&&&.&&"
+F;SDLTBM13;X10
+C;K"^"
+F;SDLTBM13;X11
+C;K"^"
+F;SDTBM13;X12
+F;SDTBM13;X13
+F;SDLRTBM13;X14
+C;K"^"
+F;SDTBM13;X15
+C;K"^"
+F;SDRTBM13;X16
+C;Y27;X1;K".{ //"
+F;SLRTBM0;Y28;X2
+C;K"^"
+F;SLTBM0;X3
+C;K"^"
+F;STBM0;X4
+F;STBM0;X5
+F;SRTBM0;X6
+F;SLRTBM0;X7
+C;K"^"
+F;SLRTBM0;X8
+C;K"^"
+F;SLRTBM0;X9
+C;K"^"
+F;SLRTBM0;X10
+C;K"^"
+F;SLRTBM0;X11
+C;K"^"
+F;P0;FG0L;SLTBM0;X12
+C;K"^"
+F;P0;FG0L;STBM0;X13
+F;P0;FG0L;STBM0;X14
+F;P0;FG0L;STBM0;X15
+F;P0;FG0L;SRTBM0;X16
+C;Y29;X1;K".} //"
+C;Y30;K".} //"
+C;Y31;K".endform //"
+E

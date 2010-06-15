@@ -51,6 +51,10 @@ var
 
   cHashAnnRec  : comp; // ссылка на слой аналитик. Для листа это должна быть собственно, ссылка. Для группы - 0
 
+  bHashAnInx   : byte;
+
+  //valHashAn    : array [1..10] of comp;
+
   // для интерфейсной части
 As select
   if(cPeriod=0   ,'выберите значение',fpPeriod.Name)  (FieldName = sPeriod)
@@ -109,6 +113,14 @@ From
 
   , f831_printed
 
+  , SpSloj
+
+  , f831_hashan
+
+  , f831_kauGroups
+
+  , f831_values
+
  where
 ((
 
@@ -134,7 +146,7 @@ and fpAxTF.NRec    == fpSpAxtf.cMain (noindex)
 //and comp('01310000000439EBh') == fpSpAxtf.nRec
 //0131000000051792h
 
-
+/*
 and (
       not isDebugDatas or
       (
@@ -155,7 +167,41 @@ and (
       )
       )
       )
+*/
+/*
+and (
+      not isDebugDatas or
+      (
+      isDebugDatas and
+      (
+      fpSpAxtf.nRec=comp('0131000000051799h')
+      )
+      )
+      )
+      */
 
+and (
+      not isDebugDatas or
+      (
+      isDebugDatas and
+      (
+      fpSpAxtf.nRec=comp('0131000000051790h0') or
+      fpSpAxtf.nRec=comp('0131000000051792h0') or
+      fpSpAxtf.nRec=comp('0131000000051791h0') or
+
+      fpSpAxtf.nRec=comp('0131000000051792h') or
+      fpSpAxtf.nRec=comp('0131000000051791h') or
+      fpSpAxtf.nRec=comp('0131000000051790h') or
+
+      fpSpAxtf.cKauNode = comp('0131000000051792h') or
+
+      fpSpAxtf.cNode = comp('0131000000051793h') or
+
+      fpSpAxtf.cNode = comp('0131000000051792h0') or
+      fpSpAxtf.cNode = comp('0131000000051791h0')
+      )
+      )
+      )
 
 //and (fpSpAxtf.nRec=comp('013100000001EBCBh') or fpSpAxtf.cKauNode = comp('013100000001EBCBh')  )
 
@@ -187,13 +233,28 @@ and fpV.cPeriod    ==  f831_selPKvart.cPeriod   // ссылка на отобранный период -
 
 and comp(cStBud)   == fpStBud.nrec
 
+and fpSpAxtf.cSloj == SpSloj.cMain
+//and fpSpAxtf.KodGrKAU == SpSloj.KodGrKAU
+
 and fpStBud.ced    == kated.nrec//единицы измерения
-//and fpSpAxtf.cSloj == HashAn.cSloj
+and fpSpAxtf.cSloj == HashAn.cSloj
 //and comp(0)        == HashAn.cBlock //не уверен что всегда 0 из за этого может быть косяк
 
-and fpSpAxtf.CMEAN == HashAn.cAnalit[1] (noindex)
+//and fpSpAxtf.CMEAN == HashAn.cAnalit[1] (noindex)
+and f831_hashan.cValue[1] == HashAn.cAnalit[1] (noindex)
+and f831_hashan.cValue[2] == HashAn.cAnalit[2] (noindex)
+and f831_hashan.cValue[3] == HashAn.cAnalit[3] (noindex)
+and f831_hashan.cValue[4] == HashAn.cAnalit[4] (noindex)
+and f831_hashan.cValue[5] == HashAn.cAnalit[5] (noindex)
+and f831_hashan.cValue[6] == HashAn.cAnalit[6] (noindex)
+and f831_hashan.cValue[7] == HashAn.cAnalit[7] (noindex)
+and f831_hashan.cValue[8] == HashAn.cAnalit[8] (noindex)
+and f831_hashan.cValue[9] == HashAn.cAnalit[9] (noindex)
+and f831_hashan.cValue[10] == HashAn.cAnalit[10] (noindex)
+
 //and comp ('0131000000000057h') == HashAn.cSloj (noindex)
-and fpSpAxtf.cSloj == HashAn.cSloj (noindex)
+//and fpSpAxtf.cSloj == HashAn.cSloj (noindex)
+
 and comp(0)        == HashAn.cBlock (noindex)    //не уверен что всегда 0 из за этого может быть косяк
 
 //and fpSpAxtf.cSloj == fpV2.cSloj

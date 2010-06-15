@@ -1,6 +1,10 @@
+#ifdef _IS_SZMN_DEBUG_
+#include iform831x.prj
+#endif
+
 const
   //ColorNeed = 6;
-  
+
 #include excel.inc
 
 #include GLOCONST.INC
@@ -18,6 +22,7 @@ end;
 #define Licensed_Free licensed (FREE)
 #include szmn_cmn.inc
 
+#include iForm831x.vih
 
 #component "C_Partner"
 
@@ -29,4 +34,3 @@ end;
 #make 'src\cPartner\RepBDR6.vip'
 
 #make 'src\cPartner\*.vip'
-

@@ -1,5 +1,7 @@
   function trimFirst0 (st : String):string; forward;
   procedure doGroupPrintedDatasAtCurrentPage; forward;
+  procedure doCalculateAnalitAgregatesSums; forward;
+  function isKauGroup (const pRec : comp) : byte; forward;
 
   create view lvlnmb
   var
@@ -79,9 +81,35 @@
       reportScale := 1;
     }
 
-    xlSetCellNumberValue(values[1]/reportScale, Nstr, Nstol[1] , Nstr, Nstol[1] );
-    xlSetCellNumberValue(values[2]/reportScale, Nstr, Nstol[2] , Nstr, Nstol[2] );
-    xlSetCellNumberValue(values[3]/reportScale, Nstr, Nstol[3] , Nstr, Nstol[3] );
+    var vls : type$f831_values;
+
+    set vls.cRec := fpSpAxtf.nRec;
+    set vls.cNode := fpSpAxtf.cNode;
+    set vls.KodReg := FP;
+
+    set vls.values[1] := 0;
+    set vls.values[2] := 0;
+    set vls.values[3] := 0;
+    set vls.cBudVar   := CopyBud;
+
+    if (Nstol[1] <> 0 and Nstr <> 0 ) then {
+      xlSetCellNumberValue(values[1]/reportScale, Nstr, Nstol[1] , Nstr, Nstol[1] );
+      set vls.values[1] := values[1]/reportScale;
+    }
+    if (Nstol[2] <> 0 and Nstr <> 0 ) then {
+      xlSetCellNumberValue(values[2]/reportScale, Nstr, Nstol[2] , Nstr, Nstol[2] );
+      set vls.values[2] := values[2]/reportScale;
+    }
+    if (Nstol[3] <> 0 and Nstr <> 0 ) then {
+      xlSetCellNumberValue(values[3]/reportScale, Nstr, Nstol[3] , Nstr, Nstol[3] );
+      set vls.values[3] := values[3]/reportScale;
+    }
+
+    set f831_values.buffer := vls;
+
+    var li : longint;
+
+    li := insert current f831_values;
 
     /*
     if(Check=0) {
@@ -94,6 +122,34 @@
     }
     */
 
+  end;
+
+  procedure SetHashAnFilter;
+  begin
+    delete all f831_hashan;
+
+    var hah : type$f831_hashan;
+
+    var i : byte;
+
+    for (i:=1; i<=10; inc(i) ) {
+      set hah.cValue[i]  := 0;
+    }
+
+    _loop SpSloj {
+      if ( SpSloj.KodGrKau = fpSpAxtf.KodGrKau) then {
+        set hah.cValue[SpSloj.npp] := fpSpAxtf.CMEAN;
+      } else {
+        set hah.cValue[SpSloj.npp] := 1;
+      }
+    }
+
+    set f831_hashan.buffer := hah;
+
+    insert current f831_hashan;
+
+    if (getfirst f831_hashan <> tsOK) {};
+    if (getfirst f831_hashan <> tsOK) {};
   end;
 
   procedure ExcelPrint3( wTbl : word;
@@ -125,6 +181,7 @@
     if (getFirst fpBV = tsOK) {};
 
     if (getFirst superKauSpAxtf = tsOK) {
+      SetHashAnFilter;
       if (getFirst HashAn = tsOK) {
         if (fpSpAxtf.isLeaf = 1) {
           set cHashAnnRec := HashAn.nRec;
@@ -147,13 +204,6 @@
           values[3] += fpv2.summa;
         }
 
-        if (reportScale = 0) {
-          reportScale := 1;
-        }
-        xlSetCellNumberValue(values[1]/reportScale, Nstr, Nstol[1] , Nstr, Nstol[1] );
-        xlSetCellNumberValue(values[2]/reportScale, Nstr, Nstol[2] , Nstr, Nstol[2] );
-        xlSetCellNumberValue(values[3]/reportScale, Nstr, Nstol[3] , Nstr, Nstol[3] );
-
         /*
 
         if(Check=0) {
@@ -171,6 +221,40 @@
       }
     }
 
+    if (reportScale = 0) {
+      reportScale := 1;
+    }
+
+    var vls : type$f831_values;
+
+    set vls.cRec := fpSpAxtf.nRec;
+    set vls.cNode := fpSpAxtf.cNode;
+    set vls.KodReg := FP;
+
+    set vls.values[1] := 0;
+    set vls.values[2] := 0;
+    set vls.values[3] := 0;
+    set vls.cBudVar   := CopyBud;
+
+    if (Nstol[1] <> 0 and Nstr <> 0 ) then {
+      xlSetCellNumberValue(values[1]/reportScale, Nstr, Nstol[1] , Nstr, Nstol[1] );
+      set vls.values[1] := values[1]/reportScale;
+    }
+    if (Nstol[2] <> 0 and Nstr <> 0 ) then {
+      xlSetCellNumberValue(values[2]/reportScale, Nstr, Nstol[2] , Nstr, Nstol[2] );
+      set vls.values[2] := values[2]/reportScale;
+    }
+
+    if (Nstol[3] <> 0 and Nstr <> 0 ) then {
+      xlSetCellNumberValue(values[3]/reportScale, Nstr, Nstol[3] , Nstr, Nstol[3] );
+      set vls.values[3] := values[3]/reportScale;
+    }
+
+    set f831_values.buffer := vls;
+
+    var li : longint;
+
+    li := insert current f831_values;
     /*
     if (getFirst superfpSpAxtf = tsOK) {
       if (getFirst HashAn = tsOK) {
@@ -328,11 +412,20 @@
     // Лист - простая строка
     //xlSetCellStringValue(extraChar + trimFirst0(fpstbud.levelcode), 9, 1, 9, 1);
     //xlSetCellStringValue(extraChar + trimFirst0(fpstbud.abbr), 9, 1, 9, 1);
-    xlSetCellStringValue(extraChar + trimFirst0(code2010), 15, 1, 15, 1);
+    //xlSetCellStringValue(extraChar + trimFirst0(code2010), 15, 1, 15, 1);
+
+    var tCdCol, tNmCol : word;
+
+    if (templateRec.tmplCodePlaceCol <> 0 ) then tCdCol := templateRec.tmplCodePlaceCol else tCdCol := 1;
+    if (templateRec.tmplNamePlaceCol <> 0 ) then tNmCol := templateRec.tmplNamePlaceCol else tNmCol := 2;
+
+
+    xlSetCellStringValue(extraChar + trimFirst0(code2010), templateRec.tmplRow, tCdCol, templateRec.tmplRow, tCdCol);
 
     //xlSetCellStringValue(fpSpAxtf.levelcode, 9, 1, 9, 1); //
     //xlSetCellStringValue(PadCh ('',' ', 2 * getCurrentLevelNumber) + fpSpAxtf.name, 15, 2, 15, 2); //
-    xlSetCellStringValue(PadCh ('',' ', 2 * getCurrentLevelNumber) + name2010, 15, 2, 15, 2); //
+    //xlSetCellStringValue(PadCh ('',' ', 2 * getCurrentLevelNumber) + name2010, 15, 2, 15, 2); //
+    xlSetCellStringValue(PadCh ('',' ', 2 * getCurrentLevelNumber) + name2010, templateRec.tmplRow, tNmCol, templateRec.tmplRow, tNmCol); //
 
     ExcelPrint3(fpSpAxtf.coTable,budVariantsSetup[1].cfpBudVar,budVariantsSetup[1].regType,templateRec.tmplRow,planCols, arValues[1]); // План 1
 
@@ -413,6 +506,7 @@
     memTblRec.cNode := fpSpAxtf.cNode;
     memTblRec.code := code2010;
     memTblRec.coTable := fpSpAxtf.coTable;
+    memTblRec.isKauGroup := isKauGroup (fpSpAxtf.nRec);
 
     set isStoreMemTblRec := true;
   end;
@@ -444,6 +538,8 @@
   procedure ClearTempTables;
   begin
     delete all f831_printed;
+    delete all f831_kauGroups;
+    delete all f831_values;
   end;
 
   procedure doPrintReport8311;
@@ -468,7 +564,9 @@
     reportSheetName  := templateRec.repSheetName;
 
     //xlRunMacro('REP_BegoreReportPrint831x');
-    xlRunMacro(templateRec.startMacrosName);
+    if (templateRec.startMacrosName <> '') then {
+      xlRunMacro(templateRec.startMacrosName);
+    }
     xlRunMacro('setDataSheetName('+dataSheetName+')');
     xlRunMacro('setReportSheetName('+reportSheetName+')');
     xlRunMacro('setRowToFill('+String (templateRec.rowToStartWith)+')');
@@ -570,7 +668,11 @@
       doGroupPrintedDatasAtCurrentPage;
     }
 
-    xlRunMacro(templateRec.finishMacrosName);
+    doCalculateAnalitAgregatesSums;
+
+    if (templateRec.finishMacrosName <> '') then {
+      xlRunMacro(templateRec.finishMacrosName);
+    }
 
     if isKillExcel then {
       xlKillExcel;

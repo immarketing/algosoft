@@ -13,10 +13,11 @@
      FPKATIMPPR5.nrec == FPIMPRELpr5.CMAIN and
 
      prob5.anc1 == FPIMPRELpr5.IMPKODAN and
-     prob5.cAn1 == FPIMPRELpr5.CIMPMEAN and
+     prob5.cAn1 == FPIMPRELpr5.CIMPMEAN
 
-     prob5.anc2 == FPIMPRELpr5.KODAN (noindex)  and
-     prob5.cAn2 == FPIMPRELpr5.CMEAN (noindex)
+     //and
+     //prob5.anc2 == FPIMPRELpr5.KODAN (noindex)  and
+     //prob5.cAn2 == FPIMPRELpr5.CMEAN (noindex)
    ))
   ;
 

@@ -35,7 +35,8 @@ table struct f831_printed
   printedAtRow  : word,
   code          : String,
   name          : String,
-  coTable       : word
+  coTable       : word,
+  isKauGroup    : byte
 )
 with index
 (
@@ -43,10 +44,56 @@ with index
   f831_ptd_crec = crec,
   f831_ptd_cnode = cnode,
   f831_ptd_cnode_ct = cnode + coTable + printedAtRow,
-  f831_ptd_cTbl = coTable + printedAtRow
+  f831_ptd_cTbl = coTable + printedAtRow,
+
+  f831_ptd_kgrp = isKauGroup
 
 )
 ;
+
+table struct f831_values
+(
+  nRec          : comp "",
+  cRec          : comp ,
+  cNode         : comp ,
+  cBudVar       : comp ,
+  KodReg        : word ,
+  values        : array [1..3] of double
+)
+with index
+(
+  f831_vls_nrec = NREC(Unique, Surrogate),
+  f831_vls_crbv = cBudVar + crec + KodReg(unique),
+  f831_vls_crnd = cBudVar + cNode + KodReg ,
+  f831_vls_crec = crec
+)
+;
+
+
+table struct f831_hashan
+(
+  cValue          : array [1..10] of comp
+)
+with index
+(
+  f831_hah_cv = cValue[1] + cValue[2]
+)
+;
+
+table struct f831_kauGroups
+(
+  cRec          : comp,
+  cNode         : comp, // вышестоящий уровень
+  isToBeCalculated : byte
+)
+with index
+(
+  f831_kgrp_cr = cRec(unique),
+  f831_kgrp_clc = isToBeCalculated
+
+)
+;
+
 
 /*
 table struct f791_2fields

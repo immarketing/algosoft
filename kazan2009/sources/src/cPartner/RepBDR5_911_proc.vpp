@@ -1,0 +1,164 @@
+
+  procedure doPrint_9111;
+  begin
+    var reporter : #szmn_bud_Form831x_2010
+
+    var repVarsArray : TBudVariantRecordArray3;
+
+    //var reporter : #szmn_bud_Form831x_2010;
+
+    repVarsArray[1].cfpBudVar    :=  cPlan;
+    repVarsArray[1].regType      :=  150;
+    repVarsArray[1].tmplColMonth :=  3;
+    repVarsArray[1].tmplColKvart :=  0;
+    repVarsArray[1].tmplColYear  :=  8;
+
+    repVarsArray[2].cfpBudVar    :=  cPlanDop;
+    repVarsArray[2].regType      :=  150;
+    repVarsArray[2].tmplColMonth :=  4;
+    repVarsArray[2].tmplColKvart :=  0;
+    repVarsArray[2].tmplColYear  :=  0;
+
+    repVarsArray[3].cfpBudVar    :=  cFact;
+    repVarsArray[3].regType      :=  151;
+    repVarsArray[3].tmplColMonth :=  5;
+    repVarsArray[3].tmplColKvart :=  0;
+    repVarsArray[3].tmplColYear  :=  9;
+
+    var tmplRec : TTemplateRecord;
+
+    tmplRec.sPath := sPath;
+    tmplRec.dataSheetName := 'pZapData';
+    tmplRec.repSheetName := 'IspBDS911';
+    tmplRec.tmplRow :=  38;
+    tmplRec.tmplRowName := 'ROWCL0F911';
+    tmplRec.tmplLastTblRowName := 'ROWENDF911';
+    tmplRec.rowToStartWith := 12;
+
+    tmplRec.periodNameCell.row := 4;
+    tmplRec.periodNameCell.col := 2;
+
+    tmplRec.scaleNameCell.row := 3;
+    tmplRec.scaleNameCell.col := 4;
+
+    tmplRec.startMacrosName := '';
+    tmplRec.finishMacrosName := '';
+
+    reporter.SetBudVariants(repVarsArray);
+    reporter.SetTemplate (tmplRec);
+    reporter.SetStartKillExcel(false, false);
+
+    reporter.SetReportPeriod(cPeriod);
+
+    reporter.SetTypeForm(cTForm);
+
+#ifdef _IS_SZMN_DEBUG_
+    reporter.SetCodificatorByName ('szmn_bud_Ierarhycodificator_');
+#else
+    reporter.SetCodificatorByName ('szmn_bud_Ierarhycodificator');
+#ENDIF
+
+    if(Check=0) {
+      reporter.SetScale (1);
+      reporter.SetScaleName ('Руб.');
+    } else {
+      reporter.SetScale(1000);
+      reporter.SetScaleName ('Тыс. руб.');
+    }
+
+    reporter.SetIsDebugDatas(isDebugDatas);
+
+    reporter.ClearAllValues;
+
+    /*
+    reporter.AddValueString(4,6, fpTForm.LEVELCODE);
+    reporter.AddValueString(4,7, fpTForm.name);
+    */
+
+    //reporter.SetIsUsingGrouping(isUseDataGrouping);
+    reporter.SetIsUsingGrouping( true );
+
+    reporter.DoPrintReport;
+  end;
+
+
+  procedure doPrint_9111_2;
+  begin
+    var reporter : #szmn_bud_Form831x_2010
+
+    var repVarsArray : TBudVariantRecordArray3;
+
+    //var reporter : #szmn_bud_Form831x_2010;
+
+    repVarsArray[1].cfpBudVar    :=  cPlan;
+    repVarsArray[1].regType      :=  150;
+    repVarsArray[1].tmplColMonth :=  0;
+    repVarsArray[1].tmplColKvart :=  0;
+    repVarsArray[1].tmplColYear  :=  0;
+
+    repVarsArray[2].cfpBudVar    :=  cPlanDop;
+    repVarsArray[2].regType      :=  150;
+    repVarsArray[2].tmplColMonth :=  0;
+    repVarsArray[2].tmplColKvart :=  0;
+    repVarsArray[2].tmplColYear  :=  0;
+
+    repVarsArray[3].cfpBudVar    :=  cFact;
+    repVarsArray[3].regType      :=  151;
+    repVarsArray[3].tmplColMonth :=  0;
+    repVarsArray[3].tmplColKvart :=  0;
+    repVarsArray[3].tmplColYear  :=  0;
+
+    var tmplRec : TTemplateRecord;
+
+    tmplRec.sPath := sPath;
+    tmplRec.dataSheetName := 'datas8.7.x';
+    tmplRec.repSheetName := 'rep8.7.x';
+    tmplRec.tmplRow :=  15;
+    tmplRec.tmplRowName := 'ROWORDINAL';
+    tmplRec.tmplLastTblRowName := 'ROWTBLFINISH';
+    tmplRec.rowToStartWith := 9;
+
+    tmplRec.periodNameCell.row := 4;
+    tmplRec.periodNameCell.col := 2;
+
+    tmplRec.scaleNameCell.row := 4;
+    tmplRec.scaleNameCell.col := 3;
+
+    tmplRec.startMacrosName := 'REP_BegoreReportPrint87x';
+    tmplRec.finishMacrosName := 'AfterPrint87x';
+
+    reporter.SetBudVariants(repVarsArray);
+    reporter.SetTemplate (tmplRec);
+    reporter.SetStartKillExcel(true, true);
+
+    reporter.SetReportPeriod(cPeriod);
+
+    reporter.SetTypeForm(cTForm);
+
+#ifdef _IS_SZMN_DEBUG_
+    reporter.SetCodificatorByName ('szmn_bud_Ierarhycodificator_');
+#else
+    reporter.SetCodificatorByName ('szmn_bud_Ierarhycodificator');
+#ENDIF
+
+    if(Check=0) {
+      reporter.SetScale (1);
+      reporter.SetScaleName ('Руб.');
+    } else {
+      reporter.SetScale(1000);
+      reporter.SetScaleName ('Тыс. руб.');
+    }
+
+    reporter.SetIsDebugDatas(isDebugDatas);
+
+    reporter.ClearAllValues;
+
+    /*
+    reporter.AddValueString(4,6, fpTForm.LEVELCODE);
+    reporter.AddValueString(4,7, fpTForm.name);
+    */
+
+    reporter.SetIsUsingGrouping( true );
+
+    reporter.DoPrintReport;
+  end;

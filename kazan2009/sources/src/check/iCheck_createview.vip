@@ -27,9 +27,12 @@ var
 
   sExtAttrCO5   : String; // Название внешнего атрибута для хранения нрека таблицы соответствий
 
+  liUsedCO      : longint;
+
 as
 select
-  if(cKatImp5=0   ,'Выберите каталог соответствий', FPKATIMP5.LEVELCODE + '|' + FPKATIMP5.name)  (FieldName = sKatImp5)
+  if(cKatImp5=0   ,'Выберите каталог соответствий', FPKATIMP5.LEVELCODE + '|' + FPKATIMP5.name)  (FieldName = sKatImp5),
+  if(GetMarkerCount (liUsedCO)>0   ,'Выбрано ' + GetMarkerCount (liUsedCO) + ' ЦО', 'Выберите ЦО' )  (FieldName = sUsedCO)
 
   from  KatSopr,
         SpSopr,
@@ -52,7 +55,12 @@ select
         KatMC   chKatMC,
         KatUsl  chKatUsl,
 
-        FPKATIMP FPKATIMP5
+        used_co ,
+
+        FPKATIMP FPKATIMP5,
+
+        fpco KatSoprCO,
+        fpco BaseDocCO
  where ((
 !   pcSopr   == KatSopr.nRec and
 
@@ -78,6 +86,8 @@ select
       */
 
    KatSopr.nRec == SpSopr.cSopr and
+   KatSopr.COTVPODR == KatSoprCO.nREC and
+
    SpSopr.nrec == SPECMTR.CSPEC and
    SPECMTR.CSALDTUNE == SALDTUNE.NREC and
    cST_INC == st_inc.nRec and
@@ -113,6 +123,7 @@ select
    dtStart<<=chBaseDoc.DDOC (noindex) and dtFinish >>= chBaseDoc.DDOC (noindex) and
 
    chBaseDoc.nRec == chStepDoc.cBaseDoc and
+   chBaseDoc.COTVPODR == BaseDocCO.nRec and
    chStepDoc.nRec == chSpStep.cStepDoc  and
 
    chSpStep.cMCUsl == chKatMC.nRec and
@@ -125,15 +136,22 @@ select
 
  ))
  bounds byDefSopr   =  used_vidsopr.vidsopr == KatSopr.VidSopr (noindex) and
-    dtStart<<=KatSopr.dsopr (noindex) and dtFinish >>= KatSopr.dsopr (noindex)
+    dtStart<<=KatSopr.dsopr (noindex) and dtFinish >>= KatSopr.dsopr (noindex) and
+    KatSopr.COTVPODR/==used_co.cco (noindex)
  bounds byDefDO     =  used_basedocs.viddoc == chBaseDoc.viddoc (noindex) and
-   dtStart<<=chBaseDoc.DDOC (noindex) and dtFinish >>= chBaseDoc.DDOC (noindex)
+   dtStart<<=chBaseDoc.DDOC (noindex) and dtFinish >>= chBaseDoc.DDOC (noindex) and
+   chBaseDoc.COTVPODR/==used_co.cco (noindex)
 
  bounds byDatesSopr =  dtStart<<=KatSopr.dsopr(noindex) and dtFinish >>= KatSopr.dsopr (noindex)
  bounds byDatesDO   =  dtStart<<=chBaseDoc.DDOC(noindex) and dtFinish >>= chBaseDoc.DDOC (noindex)
 
+ /*
  bounds byCOSopr    =  cFltrCO==KatSopr.COTVPODR (noindex)
  bounds byCODO      =  cFltrCO==chBaseDoc.COTVPODR (noindex)
+ */
+
+ //bounds byCOSopr    =  KatSopr.COTVPODR/==used_co.cco (noindex)
+ //bounds byCODO      =  chBaseDoc.COTVPODR/==used_co.cco (noindex)
 
  bounds byDescSopr  =  sFltrUsDesc == KatSopr.descr (noindex)
  bounds byDescDO    =  sFltrUsDesc == chBaseDoc.descr (noindex)

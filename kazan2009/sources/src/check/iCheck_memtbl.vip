@@ -10,6 +10,16 @@ with index
 )
 ;
 
+table struct local used_co
+(
+  cco : comp
+)
+with index
+(
+  used_co_cco = cco 
+)
+;
+
 table struct local used_basedocs
 (
   viddoc : longint

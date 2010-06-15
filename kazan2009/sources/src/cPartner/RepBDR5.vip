@@ -17,7 +17,7 @@ form91showdebug menu
 type
   rep91array = array [1..12] of double;
 
-VipInterface RepBDR5_2010   Licensed(Free);
+VipInterface #RepBDR5_2010   Licensed(Free);
 
 #doc
 Настройка фильтров для отчета График погашения обязательств
@@ -31,6 +31,7 @@ Interface #RepBDR5_2010 '-= Отчетные формы 9.1 и Пояснительная записка. 2010 г. 
 //
 
 #include RepBDR5_91_kaugroup.vpp
+#include RepBDR5_911_proc.vpp
 
 function repGetPrintRow: word;
 begin
@@ -268,8 +269,8 @@ end;
     cRec    : comp;
   as select *
   from
-  //X$Files,
-  ExClassName,
+    //X$Files,
+    ExClassName,
     ExClassVal,
     ExClassSeg
     /*
@@ -1032,6 +1033,8 @@ end;
     } else {
       xlRunMacro('HideSheet(pZap)');
     }
+
+    doPrint_9111;
 
     xlSetActiveSheetByName('Otchet'); //?????_1
 
