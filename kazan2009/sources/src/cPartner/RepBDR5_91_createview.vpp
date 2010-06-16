@@ -104,6 +104,29 @@ and (
       (
       isDebugDatas and
       (
+      fpSpAxtf.nRec=comp('0131000000050E0Bh') or
+      fpSpAxtf.nRec=comp('0131000000050E0Ch') or
+      fpSpAxtf.nRec=comp('0131000000050E0Dh') or
+
+      //fpSpAxtf.nRec=comp('0131000000051792h') or
+      //fpSpAxtf.nRec=comp('0131000000051791h') or
+      //fpSpAxtf.nRec=comp('0131000000051790h') or
+
+      fpSpAxtf.cKauNode = comp('0131000000050E0Ch') or
+
+      fpSpAxtf.cNode = comp('0131000000050E0Bh') 
+
+      //fpSpAxtf.cNode = comp('0131000000051792h0') or
+      //fpSpAxtf.cNode = comp('0131000000051791h0')
+      )
+      )
+      )
+/*
+and (
+      not isDebugDatas or
+      (
+      isDebugDatas and
+      (
       fpSpAxtf.nRec=comp('0131000000051790h0') or
       fpSpAxtf.nRec=comp('0131000000051792h0') or
       fpSpAxtf.nRec=comp('0131000000051791h0') or
@@ -121,6 +144,7 @@ and (
       )
       )
       )
+      */
 /*
 and ( fpSpAxtf.nRec=comp('0131000000051792h') or
       fpSpAxtf.cKauNode = comp('0131000000051792h') or

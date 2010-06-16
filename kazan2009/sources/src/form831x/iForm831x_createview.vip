@@ -110,6 +110,7 @@ From
   , f831_selectedperiods f831_selPKvart
   , f831_selectedperiods f831_selPYear
   , f831_selectedperiods f831_selPYearV2
+  , f831_selectedperiods f831_selPYearAll
 
   , f831_printed
 
@@ -180,6 +181,7 @@ and (
       )
       */
 
+/*
 and (
       not isDebugDatas or
       (
@@ -199,6 +201,27 @@ and (
 
       fpSpAxtf.cNode = comp('0131000000051792h0') or
       fpSpAxtf.cNode = comp('0131000000051791h0')
+      )
+      )
+      )
+*/
+and (
+      not isDebugDatas or
+      (
+      isDebugDatas and
+      (
+
+      fpSpAxtf.nRec=comp('0131000000050E0Eh')
+
+      /*
+      fpSpAxtf.nRec=comp('0131000000050E0Bh') or
+      fpSpAxtf.nRec=comp('0131000000050E0Ch') or
+      fpSpAxtf.nRec=comp('0131000000050E0Dh') or
+
+      fpSpAxtf.cKauNode = comp('0131000000050E0Ch') or
+
+      fpSpAxtf.cNode = comp('0131000000050E0Bh')
+      */
       )
       )
       )
@@ -237,20 +260,22 @@ and fpSpAxtf.cSloj == SpSloj.cMain
 //and fpSpAxtf.KodGrKAU == SpSloj.KodGrKAU
 
 and fpStBud.ced    == kated.nrec//единицы измерения
-and fpSpAxtf.cSloj == HashAn.cSloj
+//and fpSpAxtf.cSloj == HashAn.cSloj
 //and comp(0)        == HashAn.cBlock //не уверен что всегда 0 из за этого может быть косяк
 
 //and fpSpAxtf.CMEAN == HashAn.cAnalit[1] (noindex)
-and f831_hashan.cValue[1] == HashAn.cAnalit[1] (noindex)
-and f831_hashan.cValue[2] == HashAn.cAnalit[2] (noindex)
-and f831_hashan.cValue[3] == HashAn.cAnalit[3] (noindex)
-and f831_hashan.cValue[4] == HashAn.cAnalit[4] (noindex)
-and f831_hashan.cValue[5] == HashAn.cAnalit[5] (noindex)
-and f831_hashan.cValue[6] == HashAn.cAnalit[6] (noindex)
-and f831_hashan.cValue[7] == HashAn.cAnalit[7] (noindex)
-and f831_hashan.cValue[8] == HashAn.cAnalit[8] (noindex)
-and f831_hashan.cValue[9] == HashAn.cAnalit[9] (noindex)
-and f831_hashan.cValue[10] == HashAn.cAnalit[10] (noindex)
+and f831_hashan.cSloj == HashAn.cSloj
+and f831_hashan.CBLOCK == HashAn.CBLOCK
+and f831_hashan.cValue[1] == HashAn.cAnalit[1]
+and f831_hashan.cValue[2] == HashAn.cAnalit[2]
+and f831_hashan.cValue[3] == HashAn.cAnalit[3]
+and f831_hashan.cValue[4] == HashAn.cAnalit[4]
+and f831_hashan.cValue[5] == HashAn.cAnalit[5]
+and f831_hashan.cValue[6] == HashAn.cAnalit[6]
+and f831_hashan.cValue[7] == HashAn.cAnalit[7]
+and f831_hashan.cValue[8] == HashAn.cAnalit[8]
+and f831_hashan.cValue[9] == HashAn.cAnalit[9]
+and f831_hashan.cValue[10] == HashAn.cAnalit[10] 
 
 //and comp ('0131000000000057h') == HashAn.cSloj (noindex)
 //and fpSpAxtf.cSloj == HashAn.cSloj (noindex)
@@ -265,7 +290,8 @@ and word(cFP)        == fpV2.KodReg //план факт резерв
 //and comp(cStBud)     == fpV2.cStBud // статья бюджета
 and superKauSpAxtf.cMEAN == fpV2.cStBud // статья бюджета
 //and cPeriod          == fpV2.cPeriod // ссылка на период
-and fpV2.cPeriod     /==  f831_selPYearV2.cPeriod   // ссылка на отобранные периода - года
+//and fpV2.cPeriod     /==  f831_selPYearV2.cPeriod   // ссылка на отобранные периода - года
+and fpV2.cPeriod     /==  f831_selPYearAll.cPeriod  // ссылка на отобранные периода - все
 
 !and f791_printed.cRec == subp3.cNode
 

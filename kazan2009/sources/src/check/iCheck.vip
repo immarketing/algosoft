@@ -655,6 +655,10 @@ select *
 
     set useFilter := useFilter or 2;
 
+    PopBounds(tnKatSopr);
+    PopBounds(tnchBaseDoc);
+
+    BuildUsedVids;
 
     case mode of
       1 : {

@@ -6,7 +6,8 @@ table struct f831_selectedperiods
 )
 with index
 (
-  f831_slpd_rid = rangeid+cPeriod (unique)
+  f831_slpd_rid = rangeid+cPeriod (unique),
+  f831_slpd_pid = cPeriod
 )
 ;
 
@@ -72,6 +73,8 @@ with index
 
 table struct f831_hashan
 (
+  cSloj           : comp,
+  cBlock           : comp,
   cValue          : array [1..10] of comp
 )
 with index

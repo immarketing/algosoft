@@ -1,0 +1,301 @@
+  procedure ExcelPrint2( CopyBud:comp;
+                         FP:word;
+                         Nstr:word;
+                         Nstol:PArray;
+                         var vl : double
+                         );
+  begin
+    //xlSetCellNumberValue(0 , Nstr, Nstol , Nstr, Nstol );
+    vl      := 0;
+
+    Set cCopyBud:=CopyBud;
+    Set cFP := FP;
+
+    var values : array [1..3] of double;
+    values[1] := 0;
+    values[2] := 0;
+    values[3] := 0;
+
+    _LOOP  fpV {
+      if (getFirst f831_selPYear <> tsOK) {exit};
+      if (getFirst fpP <> tsOK) {exit};
+
+      if (f831_selPYear.cPeriod = cPeriod) {
+        values[1] := fpv.summa;
+      }
+
+      if (getFirst f831_selectedperiods kvart where (( 2 == kvart.rangeid and
+                                                       fpV.cPeriod == kvart.cPeriod )) = tsOK ){
+        values[2] += fpv.summa;
+      }
+
+      values[3] += fpv.summa;
+    }
+
+    if (reportScale = 0) {
+      reportScale := 1;
+    }
+
+    var vls : type$f831_values;
+
+    set vls.cRec := fpSpAxtf.nRec;
+    set vls.cNode := fpSpAxtf.cNode;
+    set vls.KodReg := FP;
+
+    set vls.values[1] := 0;
+    set vls.values[2] := 0;
+    set vls.values[3] := 0;
+    set vls.cBudVar   := CopyBud;
+
+    if (Nstol[1] <> 0 and Nstr <> 0 ) then {
+      xlSetCellNumberValue(values[1]/reportScale, Nstr, Nstol[1] , Nstr, Nstol[1] );
+      set vls.values[1] := values[1]/reportScale;
+    }
+    if (Nstol[2] <> 0 and Nstr <> 0 ) then {
+      xlSetCellNumberValue(values[2]/reportScale, Nstr, Nstol[2] , Nstr, Nstol[2] );
+      set vls.values[2] := values[2]/reportScale;
+    }
+    if (Nstol[3] <> 0 and Nstr <> 0 ) then {
+      xlSetCellNumberValue(values[3]/reportScale, Nstr, Nstol[3] , Nstr, Nstol[3] );
+      set vls.values[3] := values[3]/reportScale;
+    }
+
+    set f831_values.buffer := vls;
+
+    var li : longint;
+
+    li := insert current f831_values;
+
+    /*
+    if(Check=0) {
+      xlSetCellNumberValue(values[1]     , Nstr, Nstol[1] , Nstr, Nstol[1] );
+      xlSetCellNumberValue(values[2]     , Nstr, Nstol[2] , Nstr, Nstol[2] );
+      xlSetCellNumberValue(values[3]     , Nstr, Nstol[3] , Nstr, Nstol[3] );
+      //vl := fpv.summa;
+    } else {
+      //vl := fpv.summa/1000;
+    }
+    */
+
+  end;
+
+  create view forSlojDef
+  var
+    cSlj : comp;
+    kKau : word;
+  as
+  select *
+    from
+          Sloj SlojMain ,
+          Sloj SubSloj,
+
+          SpSloj SpSlojMain,
+          SpSloj SubSpSloj
+   where ((
+     forSlojDef.cSlj == SlojMain.nRec and
+     SlojMain.nRec   == SubSloj.cSloj and
+
+     SlojMain.nRec   == SpSlojMain.cMain and
+     SubSloj.nRec    == SubSpSloj.cMain  and
+     forSlojDef.kKau == SubSpSloj.KODGRKAU
+   ))
+   ;
+
+  procedure SetHashAnFilter(KodReg : byte);
+  begin
+    delete all f831_hashan;
+
+    set forSlojDef.cSlj := fpSpAxtf.cSloj;
+    set forSlojDef.kKau := fpSpAxtf.KodGrKau;
+
+    var hah : type$f831_hashan;
+
+    var i : byte;
+
+    for (i:=1; i<=10; inc(i) ) {
+      set hah.cValue[i]  := 0;
+    }
+
+    if KodReg = 150 and false then {
+      if (forSlojDef.getFirst SlojMain = tsOK){
+        forSlojDef._loop SpSlojMain {
+          if ( forSlojDef.SpSlojMain.KodGrKau = fpSpAxtf.KodGrKau) then {
+            set hah.cValue[SpSloj.npp] := fpSpAxtf.CMEAN;
+          } else {
+            set hah.cValue[SpSloj.npp] := 1;
+          }
+        }
+      }
+
+      hah.cSloj     := fpSpAxtf.cSloj;
+
+    } else {
+
+      var a,i : word;
+      var nc : comp;
+
+      if (forSlojDef.getFirst SlojMain = tsOK){
+        forSlojDef._loop SubSloj {
+          forSlojDef._loop SubSpSloj {
+            if forSlojDef.SubSpSloj.KODGRKAU = forSlojDef.kKau {
+              a := forSlojDef.SubSpSloj.npp;
+              nc := forSlojDef.SubSloj.nRec;
+            }
+          }
+        }
+      }
+      hah.cValue[a] := fpSpAxtf.CMEAN;
+
+      for (i := 1 ; i <= a-1 ; inc(i)) {
+        hah.cValue[i] := fpSpAxtf.CMEAN;
+      }
+      hah.cSloj     := nc;
+    }
+
+    /*
+    */
+    hah.cBlock    := 0;
+
+    set f831_hashan.buffer := hah;
+
+    insert current f831_hashan;
+
+    if (getfirst f831_hashan <> tsOK) {};
+    //if (getfirst f831_hashan <> tsOK) {};
+  end;
+
+  procedure ExcelPrint3( wTbl : word;
+                         CopyBud:comp;
+                         FP:word;
+                         Nstr:word;
+                         Nstol:PArray;
+                         var vl : double
+                         );
+  begin
+    if (wTbl = 22217){ // статья бюджета
+      ExcelPrint2 (CopyBud,FP,Nstr,Nstol,vl);
+      exit;
+    }
+    // аналитика
+    //xlSetCellNumberValue(0 , Nstr, Nstol , Nstr, Nstol );
+    vl      := 0;
+
+    Set cCopyBud:=CopyBud;
+    Set cFP := FP;
+    //Set cHashAnnRec :=
+
+    var values : array [1..3] of double;
+    values[1] := 0;
+    values[2] := 0;
+    values[3] := 0;
+
+
+    if (getFirst fpBV = tsOK) {};
+
+    if (getFirst superKauSpAxtf = tsOK) {
+      SetHashAnFilter(FP);
+      if (getFirst HashAn = tsOK) {
+        if (fpSpAxtf.isLeaf = 1) {
+          set cHashAnnRec := HashAn.nRec;
+        } else {
+          set cHashAnnRec := 0;
+        }
+        _LOOP  fpV2 {
+          /*
+          if (getFirst f831_selPYearV2 <> tsOK) {exit};
+          //if (getFirst fpP <> tsOK) {exit};
+
+          if (f831_selPYearV2.cPeriod = cPeriod) {
+            values[1] := fpv2.summa;
+          }
+
+          if (getFirst f831_selectedperiods kvart where (( 2 == kvart.rangeid and
+                                                           fpV2.cPeriod == kvart.cPeriod )) = tsOK ){
+            values[2] += fpv2.summa;
+          }
+
+          values[3] += fpv2.summa;
+          */
+          if (getFirst f831_selPYearAll = tsOK) and (isValidAll(tnf831_selPYearAll) ){
+            _loop f831_selPYearAll {
+              if f831_selPYearAll.rangeid = 1 then {
+                values[1] := fpv2.summa;
+              }
+              if f831_selPYearAll.rangeid = 2 then {
+                values[2] += fpv2.summa;
+              }
+              if f831_selPYearAll.rangeid = 3 then {
+                values[3] += fpv2.summa;
+              }
+            }
+          }
+        }
+
+        /*
+
+        if(Check=0) {
+          xlSetCellNumberValue(values[1]     , Nstr, Nstol[1] , Nstr, Nstol[1] );
+          xlSetCellNumberValue(values[2]     , Nstr, Nstol[2] , Nstr, Nstol[2] );
+          xlSetCellNumberValue(values[3]     , Nstr, Nstol[3] , Nstr, Nstol[3] );
+          //vl := fpv.summa;
+        } else {
+          xlSetCellNumberValue(values[1]/1000, Nstr, Nstol[1] , Nstr, Nstol[1] );
+          xlSetCellNumberValue(values[2]/1000, Nstr, Nstol[2] , Nstr, Nstol[2] );
+          xlSetCellNumberValue(values[3]/1000, Nstr, Nstol[3] , Nstr, Nstol[3] );
+          //vl := fpv.summa/1000;
+        }
+        */
+      }
+    }
+
+    if (reportScale = 0) {
+      reportScale := 1;
+    }
+
+    var vls : type$f831_values;
+
+    set vls.cRec := fpSpAxtf.nRec;
+    set vls.cNode := fpSpAxtf.cNode;
+    set vls.KodReg := FP;
+
+    set vls.values[1] := 0;
+    set vls.values[2] := 0;
+    set vls.values[3] := 0;
+    set vls.cBudVar   := CopyBud;
+
+    if (Nstol[1] <> 0 and Nstr <> 0 ) then {
+      xlSetCellNumberValue(values[1]/reportScale, Nstr, Nstol[1] , Nstr, Nstol[1] );
+      set vls.values[1] := values[1]/reportScale;
+    }
+    if (Nstol[2] <> 0 and Nstr <> 0 ) then {
+      xlSetCellNumberValue(values[2]/reportScale, Nstr, Nstol[2] , Nstr, Nstol[2] );
+      set vls.values[2] := values[2]/reportScale;
+    }
+
+    if (Nstol[3] <> 0 and Nstr <> 0 ) then {
+      xlSetCellNumberValue(values[3]/reportScale, Nstr, Nstol[3] , Nstr, Nstol[3] );
+      set vls.values[3] := values[3]/reportScale;
+    }
+
+    set f831_values.buffer := vls;
+
+    var li : longint;
+
+    li := insert current f831_values;
+    /*
+    if (getFirst superfpSpAxtf = tsOK) {
+      if (getFirst HashAn = tsOK) {
+        if (getFirst fpV2 = tsOK) {
+          if(Check=0) {
+            xlSetCellNumberValue(fpv2.summa     , Nstr, Nstol , Nstr, Nstol );
+            vl := fpv2.summa;
+          } else {
+            xlSetCellNumberValue(fpv2.summa/1000, Nstr, Nstol , Nstr, Nstol );
+            vl := fpv2.summa/1000;
+          }
+        }
+      }
+    }
+    */
+  end;
+
