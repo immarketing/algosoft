@@ -1230,6 +1230,7 @@ cmPick:
     #sPlanDop  :  RunInterface('F_FpBudget::Budget', word(cgiPick), word(0), word(0), comp(0), cPlanDop, 0, 0);
     #sFact     :  RunInterface('F_FpBudget::Budget', word(cgiPick), word(0), word(0), comp(0), cFact , 0, 0);
     #sTForm    :  RunInterface('F_FpBudget::getTForm', cgiPick, 0, cTForm);
+    #sTForm91  :  RunInterface('F_FpBudget::getTForm', cgiPick, 0, cTForm91);
     #sPeriod   :  RunInterface('F_FpCatalog::getPeriod', cgiPick, comp(0), comp(0), cPeriod, cgSetFPTuneDefault);
 !    #sPersons  :  RunInterface('SelectPersons', sPersons);
 
@@ -1253,6 +1254,7 @@ cmDelOnProtect:
   case curField of
     #sPeriod   : Set cPeriod:=0;
     #sTForm    : Set cTForm:=0;
+    #sTForm91  : Set cTForm91:=0;
     #sPlan    : Set cPlan:=0;
     #sPlanDop  :  Set cPlanDop:=0;
     #sFact     : Set cFact:=0;
