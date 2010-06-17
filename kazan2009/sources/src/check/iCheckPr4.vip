@@ -29,7 +29,7 @@
     }
     */
 
-    co1 := getCUAnVal (coSpSopr, SpSopr.NRec, 20);  // статья бюджета
+    co1 := getCUAnVal (coSpSopr, SpSoprLcl.NRec, 20);  // статья бюджета
 
     //Message ('co: '+ String (co1,20,0) + ''#13'' + String (TargetBudGroup,20,0));
 

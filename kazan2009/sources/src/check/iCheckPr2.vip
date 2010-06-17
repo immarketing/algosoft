@@ -33,8 +33,8 @@
       comment := 'Не определена рабочая таблица соответствий аналитик 20 и 5017';
     }
 
-    co1 := getCUAnVal (coSpSopr, SpSopr.NRec, 20);  // статья бюджета
-    co2 := getCUAnVal (coSpSopr, SpSopr.NRec, 5017);// элемент затрат
+    co1 := getCUAnVal (coSpSopr, SpSoprLcl.NRec, 20);  // статья бюджета
+    co2 := getCUAnVal (coSpSopr, SpSoprLcl.NRec, 5017);// элемент затрат
 
     prob2.anc1 := 20;
     prob2.anc2 := 5017;

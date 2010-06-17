@@ -50,7 +50,7 @@
 
     reporter.SetReportPeriod(cPeriod);
 
-    reporter.SetTypeForm(cTForm);
+    reporter.SetTypeForm(cTForm91);
 
 #ifdef _IS_SZMN_DEBUG_
     reporter.SetCodificatorByName ('szmn_bud_Ierarhycodificator_');
@@ -92,30 +92,30 @@
 
     repVarsArray[1].cfpBudVar    :=  cPlan;
     repVarsArray[1].regType      :=  150;
-    repVarsArray[1].tmplColMonth :=  0;
+    repVarsArray[1].tmplColMonth :=  13;
     repVarsArray[1].tmplColKvart :=  0;
-    repVarsArray[1].tmplColYear  :=  0;
+    repVarsArray[1].tmplColYear  :=  8;
 
     repVarsArray[2].cfpBudVar    :=  cPlanDop;
     repVarsArray[2].regType      :=  150;
-    repVarsArray[2].tmplColMonth :=  0;
+    repVarsArray[2].tmplColMonth :=  14;
     repVarsArray[2].tmplColKvart :=  0;
     repVarsArray[2].tmplColYear  :=  0;
 
     repVarsArray[3].cfpBudVar    :=  cFact;
     repVarsArray[3].regType      :=  151;
-    repVarsArray[3].tmplColMonth :=  0;
+    repVarsArray[3].tmplColMonth :=  5;
     repVarsArray[3].tmplColKvart :=  0;
-    repVarsArray[3].tmplColYear  :=  0;
+    repVarsArray[3].tmplColYear  :=  9;
 
     var tmplRec : TTemplateRecord;
 
     tmplRec.sPath := sPath;
-    tmplRec.dataSheetName := 'datas8.7.x';
-    tmplRec.repSheetName := 'rep8.7.x';
-    tmplRec.tmplRow :=  15;
-    tmplRec.tmplRowName := 'ROWORDINAL';
-    tmplRec.tmplLastTblRowName := 'ROWTBLFINISH';
+    tmplRec.dataSheetName := 'pZapData';
+    tmplRec.repSheetName := 'IspBDS911-1';
+    tmplRec.tmplRow :=  117;
+    tmplRec.tmplRowName := 'ROWCL0F911_1';
+    tmplRec.tmplLastTblRowName := 'ROWENDF911_1';
     tmplRec.rowToStartWith := 9;
 
     tmplRec.periodNameCell.row := 4;
@@ -124,21 +124,21 @@
     tmplRec.scaleNameCell.row := 4;
     tmplRec.scaleNameCell.col := 3;
 
-    tmplRec.startMacrosName := 'REP_BegoreReportPrint87x';
-    tmplRec.finishMacrosName := 'AfterPrint87x';
+    tmplRec.startMacrosName := '';
+    tmplRec.finishMacrosName := '';
 
     reporter.SetBudVariants(repVarsArray);
     reporter.SetTemplate (tmplRec);
-    reporter.SetStartKillExcel(true, true);
+    reporter.SetStartKillExcel(false, false);
 
     reporter.SetReportPeriod(cPeriod);
 
     reporter.SetTypeForm(cTForm);
 
 #ifdef _IS_SZMN_DEBUG_
-    reporter.SetCodificatorByName ('szmn_bud_Ierarhycodificator_');
+    reporter.SetCodificatorByName ('szmn_bud_codificator_');
 #else
-    reporter.SetCodificatorByName ('szmn_bud_Ierarhycodificator');
+    reporter.SetCodificatorByName ('szmn_bud_codificator');
 #ENDIF
 
     if(Check=0) {

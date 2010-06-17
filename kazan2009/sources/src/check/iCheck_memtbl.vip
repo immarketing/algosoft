@@ -16,7 +16,7 @@ table struct local used_co
 )
 with index
 (
-  used_co_cco = cco 
+  used_co_cco = cco (unique)
 )
 ;
 

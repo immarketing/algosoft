@@ -4,8 +4,13 @@ tabbedSheet tabbed
 Screen scKatH01 'Установка фильтров' (,, sci13Esc);
 !  Table KatH;
 Fields
+  sTForm91  ('',,) : Protect,PickButton,
+    {Font = {BackColor = if (cTForm91=0,    ColorNeed,0)}};
+
   sTForm  ('',,) : Protect,PickButton,
     {Font = {BackColor = if (cTForm=0,    ColorNeed,0)}};
+
+
   sPeriod ('',,) : Protect,PickButton,
     {Font = {BackColor = if (cPeriod=0,   ColorNeed,0)}};
   sPlan   ('',,) : Protect,PickButton,
@@ -28,12 +33,15 @@ Fields
   isShowPoyasZap ('') :NoProtect;
   isShowFormName ('') :NoProtect;
 
+  isPrintRenewedPages :NoProtect;
+
 buttons
 cmApply;
 cmCancel;
 <<
 
- Типовая форма бюджета .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+ Типовая форма 9.1     .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+ Типовая форма 9.1.1   .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
  Месяц                 .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
 
 
@@ -50,6 +58,10 @@ cmCancel;
     `Печатать в`
      (.) руб`       [.] Печатать пояснительную записку` [.] Выводить в отчет название типовой формы`
      (.) тыс.руб`
+
+     Печатать страницы обновленных форм:
+     [.] Формы 9.1`
+     [.] Формы 9.1.1`
 
           <.Сформировать.>    <.  Отмена  .>
 >>

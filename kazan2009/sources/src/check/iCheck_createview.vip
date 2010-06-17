@@ -34,8 +34,8 @@ select
   if(cKatImp5=0   ,'Выберите каталог соответствий', FPKATIMP5.LEVELCODE + '|' + FPKATIMP5.name)  (FieldName = sKatImp5),
   if(GetMarkerCount (liUsedCO)>0   ,'Выбрано ' + GetMarkerCount (liUsedCO) + ' ЦО', 'Выберите ЦО' )  (FieldName = sUsedCO)
 
-  from  KatSopr,
-        SpSopr,
+  from  KatSopr KatSoprLcl,
+        SpSopr SpSoprLcl,
         SPECMTR,
         SALDTUNE,
         SALDTUNE st_inc,
@@ -48,6 +48,11 @@ select
 
         used_vidsopr,
         used_basedocs,
+
+        used_vidsopr used_vidsoprLcl,
+        used_basedocs used_basedocsLcl,
+        used_co used_coLcl,
+        used_co used_coLcl2,
 
         BaseDoc chBaseDoc,
         StepDoc chStepDoc,
@@ -62,33 +67,42 @@ select
         fpco KatSoprCO,
         fpco BaseDocCO
  where ((
-!   pcSopr   == KatSopr.nRec and
+!   pcSopr   == KatSoprLcl.nRec and
 
 !   and
-    //root == KatSopr.nRec and
-    //0 <<= KatSopr.nRec and
+    //root == KatSoprLcl.nRec and
+    //0 <<= KatSoprLcl.nRec and
 
-    root == used_vidsopr.vidsopr and
-    used_vidsopr.vidsopr == KatSopr.VidSopr and
-    dtStart<<=KatSopr.dsopr (noindex) and dtFinish >>= KatSopr.dsopr (noindex) and
-    //111 == KatSopr.VidSopr and
-    //KatSopr.VidSopr /== used_vidsopr.vidsopr and
+    //root == used_vidsopr.vidsopr and
+
+    used_vidsoprLcl.vidsopr == KatSoprLcl.VidSopr and
+    dtStart<<=KatSoprLcl.dsopr (noindex) and dtFinish >>= KatSoprLcl.dsopr (noindex) and
+    (
+    ((useFilter and 4) = 0) or (
+    ((useFilter and 4) > 0) and KatSoprLcl.descr = sFltrUsDesc
+    )
+    )
+    and
+
+    KatSoprLcl.COTVPODR/==used_coLcl.cco  and
+    //111 == KatSoprLcl.VidSopr and
+    //KatSoprLcl.VidSopr /== used_vidsopr.vidsopr and
 
     /*
-    ( (chStage <> 1 and KatSopr.nRec = 0) or
+    ( (chStage <> 1 and KatSoprLcl.nRec = 0) or
 
       ( chStage = 1 and (
-      ((docToCheck and word(1)) > 0 and KatSopr.VidSopr = 111 ) or
-      ((docToCheck and word(2)) > 0 and KatSopr.VidSopr = 204 ) or
-      ((docToCheck and word(4)) > 0 and KatSopr.VidSopr = 504 ) or
-      ((docToCheck and word(8)) > 0 and KatSopr.VidSopr = 602 ) ) )
+      ((docToCheck and word(1)) > 0 and KatSoprLcl.VidSopr = 111 ) or
+      ((docToCheck and word(2)) > 0 and KatSoprLcl.VidSopr = 204 ) or
+      ((docToCheck and word(4)) > 0 and KatSoprLcl.VidSopr = 504 ) or
+      ((docToCheck and word(8)) > 0 and KatSoprLcl.VidSopr = 602 ) ) )
       ) and
       */
 
-   KatSopr.nRec == SpSopr.cSopr and
-   KatSopr.COTVPODR == KatSoprCO.nREC and
+   KatSoprLcl.nRec /== SpSoprLcl.cSopr and
+   KatSoprLcl.COTVPODR == KatSoprCO.nREC and
 
-   SpSopr.nrec == SPECMTR.CSPEC and
+   SpSoprLcl.nrec == SPECMTR.CSPEC and
    SPECMTR.CSALDTUNE == SALDTUNE.NREC and
    cST_INC == st_inc.nRec and
 
@@ -96,9 +110,9 @@ select
 
    cFltrCO == fltrfpco.nRec and
 
-   SpSopr.cMCUsl == katMC.nRec and
-   SpSopr.cMCUsl == katUsl.nRec and
-   KatSopr.VidSopr == KatDoc.TIDKGAL  and
+   SpSoprLcl.cMCUsl == katMC.nRec and
+   SpSoprLcl.cMCUsl == katUsl.nRec and
+   KatSoprLcl.VidSopr == KatDoc.TIDKGAL  and
 
 
    //root == chBaseDoc.nRec and
@@ -117,51 +131,63 @@ select
       )
    ) and
    */
-   root == used_basedocs.viddoc  and
-   //85849867896968036 == chBaseDoc.nRec and
-   used_basedocs.viddoc == chBaseDoc.viddoc (noindex) and
-   dtStart<<=chBaseDoc.DDOC (noindex) and dtFinish >>= chBaseDoc.DDOC (noindex) and
 
-   chBaseDoc.nRec == chStepDoc.cBaseDoc and
-   chBaseDoc.COTVPODR == BaseDocCO.nRec and
-   chStepDoc.nRec == chSpStep.cStepDoc  and
+   //root == used_basedocs.viddoc  and
+   //85849867896968036 == chBaseDoc.nRec and
+   used_basedocsLcl.viddoc == chBaseDoc.viddoc (noindex) and
+   dtStart<<=chBaseDoc.DDOC (noindex) and dtFinish >>= chBaseDoc.DDOC (noindex) and
+    (
+    ((useFilter and 4) = 0) or (
+    ((useFilter and 4) > 0) and chBaseDoc.descr = sFltrUsDesc
+    )
+    )
+    and
+
+   chBaseDoc.COTVPODR/==used_coLcl2.cco and
+
+   chBaseDoc.nRec /== chStepDoc.cBaseDoc and
+   chBaseDoc.COTVPODR /== BaseDocCO.nRec and
+   chStepDoc.nRec /== chSpStep.cStepDoc  and
 
    chSpStep.cMCUsl == chKatMC.nRec and
    chSpStep.cMCUsl == chKatUsl.nRec and
 
    cKatImp5 == FPKATIMP5.nRec
 
-!   and dtStart<<=KatSopr.dsopr(noindex) and dtFinish >>= KatSopr.dsopr (noindex)
+!   and dtStart<<=KatSoprLcl.dsopr(noindex) and dtFinish >>= KatSoprLcl.dsopr (noindex)
 !   and dtStart<<=chBaseDoc.DDOC(noindex) and dtFinish >>= chBaseDoc.DDOC (noindex)
 
  ))
- bounds byDefSopr   =  used_vidsopr.vidsopr == KatSopr.VidSopr (noindex) and
-    dtStart<<=KatSopr.dsopr (noindex) and dtFinish >>= KatSopr.dsopr (noindex) and
-    KatSopr.COTVPODR/==used_co.cco (noindex)
+ /*
+
+ bounds byDefSopr   =  used_vidsopr.vidsopr == KatSoprLcl.VidSopr (noindex) and
+    dtStart<<=KatSoprLcl.dsopr (noindex) and dtFinish >>= KatSoprLcl.dsopr (noindex) and
+    KatSoprLcl.COTVPODR/==used_co.cco (noindex)
  bounds byDefDO     =  used_basedocs.viddoc == chBaseDoc.viddoc (noindex) and
    dtStart<<=chBaseDoc.DDOC (noindex) and dtFinish >>= chBaseDoc.DDOC (noindex) and
    chBaseDoc.COTVPODR/==used_co.cco (noindex)
 
- bounds byDatesSopr =  dtStart<<=KatSopr.dsopr(noindex) and dtFinish >>= KatSopr.dsopr (noindex)
+ bounds byDatesSopr =  dtStart<<=KatSoprLcl.dsopr(noindex) and dtFinish >>= KatSoprLcl.dsopr (noindex)
  bounds byDatesDO   =  dtStart<<=chBaseDoc.DDOC(noindex) and dtFinish >>= chBaseDoc.DDOC (noindex)
+ */
 
  /*
- bounds byCOSopr    =  cFltrCO==KatSopr.COTVPODR (noindex)
+ bounds byCOSopr    =  cFltrCO==KatSoprLcl.COTVPODR (noindex)
  bounds byCODO      =  cFltrCO==chBaseDoc.COTVPODR (noindex)
  */
 
- //bounds byCOSopr    =  KatSopr.COTVPODR/==used_co.cco (noindex)
+ //bounds byCOSopr    =  KatSoprLcl.COTVPODR/==used_co.cco (noindex)
  //bounds byCODO      =  chBaseDoc.COTVPODR/==used_co.cco (noindex)
 
- bounds byDescSopr  =  sFltrUsDesc == KatSopr.descr (noindex)
- bounds byDescDO    =  sFltrUsDesc == chBaseDoc.descr (noindex)
+ //bounds byDescSopr  =  sFltrUsDesc == KatSoprLcl.descr (noindex)
+ //bounds byDescDO    =  sFltrUsDesc == chBaseDoc.descr (noindex)
 
 /*
- bounds byDates =  dtStart<<=KatSopr.dsopr(noindex) and dtFinish >>= KatSopr.dsopr (noindex) and
+ bounds byDates =  dtStart<<=KatSoprLcl.dsopr(noindex) and dtFinish >>= KatSoprLcl.dsopr (noindex) and
                    dtStart<<=chBaseDoc.DDOC(noindex) and dtFinish >>= chBaseDoc.DDOC (noindex)
- bounds byCO    =  cFltrCO==KatSopr.COTVPODR (noindex) and
+ bounds byCO    =  cFltrCO==KatSoprLcl.COTVPODR (noindex) and
                    cFltrCO==chBaseDoc.COTVPODR (noindex)
- bounds byDesc  =  sFltrUsDesc == KatSopr.descr (noindex)  and
+ bounds byDesc  =  sFltrUsDesc == KatSoprLcl.descr (noindex)  and
                    sFltrUsDesc == chBaseDoc.descr (noindex)
 */
  ;

@@ -134,6 +134,9 @@
       var a,i : word;
       var nc : comp;
 
+      a := 0;
+      nc := 0;
+
       if (forSlojDef.getFirst SlojMain = tsOK){
         forSlojDef._loop SubSloj {
           forSlojDef._loop SubSpSloj {
@@ -144,12 +147,27 @@
           }
         }
       }
-      hah.cValue[a] := fpSpAxtf.CMEAN;
 
-      for (i := 1 ; i <= a-1 ; inc(i)) {
-        hah.cValue[i] := fpSpAxtf.CMEAN;
+      if (a = 0) then {
+        if (forSlojDef.getFirst SlojMain = tsOK){
+          forSlojDef._loop SpSlojMain {
+            if ( forSlojDef.SpSlojMain.KodGrKau = fpSpAxtf.KodGrKau) then {
+              set hah.cValue[SpSloj.npp] := fpSpAxtf.CMEAN;
+            } else {
+              set hah.cValue[SpSloj.npp] := 1;
+            }
+          }
+        }
+        hah.cSloj     := fpSpAxtf.cSloj;
+
+      } else {
+        hah.cValue[a] := fpSpAxtf.CMEAN;
+
+        for (i := 1 ; i <= a-1 ; inc(i)) {
+          hah.cValue[i] := fpSpAxtf.CMEAN;
+        }
+        hah.cSloj     := nc;
       }
-      hah.cSloj     := nc;
     }
 
     /*

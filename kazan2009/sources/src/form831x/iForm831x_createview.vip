@@ -211,9 +211,6 @@ and (
       isDebugDatas and
       (
 
-      fpSpAxtf.nRec=comp('0131000000050E0Eh')
-
-      /*
       fpSpAxtf.nRec=comp('0131000000050E0Bh') or
       fpSpAxtf.nRec=comp('0131000000050E0Ch') or
       fpSpAxtf.nRec=comp('0131000000050E0Dh') or
@@ -221,7 +218,6 @@ and (
       fpSpAxtf.cKauNode = comp('0131000000050E0Ch') or
 
       fpSpAxtf.cNode = comp('0131000000050E0Bh')
-      */
       )
       )
       )
@@ -275,7 +271,7 @@ and f831_hashan.cValue[6] == HashAn.cAnalit[6]
 and f831_hashan.cValue[7] == HashAn.cAnalit[7]
 and f831_hashan.cValue[8] == HashAn.cAnalit[8]
 and f831_hashan.cValue[9] == HashAn.cAnalit[9]
-and f831_hashan.cValue[10] == HashAn.cAnalit[10] 
+and f831_hashan.cValue[10] == HashAn.cAnalit[10]
 
 //and comp ('0131000000000057h') == HashAn.cSloj (noindex)
 //and fpSpAxtf.cSloj == HashAn.cSloj (noindex)

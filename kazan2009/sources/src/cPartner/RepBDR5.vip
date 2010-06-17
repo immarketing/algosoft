@@ -23,7 +23,7 @@ VipInterface #RepBDR5_2010   Licensed(Free);
 Настройка фильтров для отчета График погашения обязательств
 #end
 Interface #RepBDR5_2010 '-= Отчетные формы 9.1 и Пояснительная записка. 2010 г. v.20100402 =-' DoAccept, EscClose, Cyan;
-  show at (5,5,100,30);
+  show at (5,5,100,35);
 
 #include RepBDR5_91_memtbl.vpp
 
@@ -338,6 +338,9 @@ end;
 
     //if (not ReadMyDsk(sPath  ,'7dsksPath7',isError))  sPersons := 'o?iN???N ??a?N??N';
     if (not ReadMyDsk(cTForm ,'szmn_bud_Form91.cTForm',isError))  cTForm := 0;
+
+    if (not ReadMyDsk(cTForm91 ,'szmn_bud_Form91.cTForm91',isError))  cTForm91 := 0;
+
     if (not ReadMyDsk(cPlan  ,'szmn_bud_Form91.cPlan',isError))  cPlan:=0;
     if (not ReadMyDsk(cPlanDop  ,'szmn_bud_Form91.cPlanDop',isError))  cPlanDop:=0;
 
@@ -376,6 +379,7 @@ end;
     //if (sPath='') set sPath := translatepath('%startpath%Xls\F_FPBUDGET\SZMN_Budjet\tmpl_7_9_1.xls');
 
     SaveMyDsk(cTForm,    'szmn_bud_Form91.cTForm');
+    SaveMyDsk(cTForm91,    'szmn_bud_Form91.cTForm91');
     SaveMyDsk(cPeriod,   'szmn_bud_Form91.cPeriod');
     SaveMyDsk(cPlan,     'szmn_bud_Form91.cPlan');
     SaveMyDsk(cPlanDop,     'szmn_bud_Form91.cPlanDop');
@@ -413,6 +417,8 @@ end;
     cFact:=0;
     cTForm:=0;
     cPeriod:=0;
+
+    set isPrintRenewedPages := 1 or 2;
 
     visualHeaderPause := 20;
 
@@ -1034,7 +1040,17 @@ end;
       xlRunMacro('HideSheet(pZap)');
     }
 
-    doPrint_9111;
+    if ( isPrintRenewedPages and 1) >0 then {
+      doPrint_9111;
+    } else {
+      xlRunMacro('HideSheet(IspBDS911)');
+    }
+
+    if ( isPrintRenewedPages and 2) >0 then {
+      doPrint_9111_2;
+    } else {
+      xlRunMacro('HideSheet(IspBDS911-1)');
+    }
 
     xlSetActiveSheetByName('Otchet'); //?????_1
 

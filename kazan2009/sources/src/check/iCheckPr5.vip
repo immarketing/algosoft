@@ -31,8 +31,8 @@
 
     var co1,co2 : comp;
 
-    co1 := getCUAnVal (coSpSopr, SpSopr.NRec, 20);  // статья бюджета
-    co2 := getCUAnVal (coSpSopr, SpSopr.NRec, 22);  // центр ответственности
+    co1 := getCUAnVal (coSpSopr, SpSoprLcl.NRec, 20);  // статья бюджета
+    co2 := getCUAnVal (coSpSopr, SpSoprLcl.NRec, 22);  // центр ответственности
 
     //Message ('co: '+co1 + ''#13'' + co2);
 

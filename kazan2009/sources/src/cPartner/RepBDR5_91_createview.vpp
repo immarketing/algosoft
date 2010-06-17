@@ -6,6 +6,7 @@ var
  cFact,
  cPeriod,
  cTForm,
+ cTForm91,
  cCopyBud,
  cStBud,
  cFP :comp;
@@ -39,10 +40,13 @@ var
   isShowPoyasZap   : boolean; // показывать пояснительную записку или нет
   isShowFormName   : boolean; // выводить в отчетные формы название типовой формы
 
+  isPrintRenewedPages : byte; // выводить на печать обновленные страницы - 9.1 и 9.1.1
+
 
 As select
   if(cPeriod=0   ,'выберите значение',fpPeriod.Name)   (FieldName = sPeriod)
 , if(cTForm=0    ,'выберите значение',fpTForm.Name)    (FieldName = sTForm)
+, if(cTForm91=0    ,'выберите значение',fpTForm91.Name)    (FieldName = sTForm91)
 , if(cPlan=0     ,'выберите значение',fpBudVar.SBUDSTAGE  + ' | ' + fpBudVar.Name)   (FieldName = sPlan)
 , if(cPlanDop=0     ,'выберите значение',fpBudVarDop.SBUDSTAGE  + ' | ' + fpBudVarDop.Name)   (FieldName = sPlanDop)
 , if(cFact=0     ,'выберите значение',fpBudVar1.SBUDSTAGE + ' | ' + fpBudVar1.Name)  (FieldName = sFact)
@@ -54,6 +58,8 @@ From
  ,synonym  fpPeriod  fpP2
  , fpBudVar  fpBudVarDop
  ,synonym  fpBudVar  fpBudVar1
+
+ , fpTForm fpTForm91
 
  ,fpAxTF Axis1
  ,fpAxTF Axis2
@@ -84,8 +90,7 @@ From
 cPeriod   == fpPeriod.nrec  and
 cTForm         == fpTForm.nrec    and
 
-
-
+cTForm91         == fpTForm91.nrec    and
 
 cPlan     == fpBudVar.nrec   and
 cPlanDop  == fpBudVarDop.nrec   and
@@ -114,7 +119,7 @@ and (
 
       fpSpAxtf.cKauNode = comp('0131000000050E0Ch') or
 
-      fpSpAxtf.cNode = comp('0131000000050E0Bh') 
+      fpSpAxtf.cNode = comp('0131000000050E0Bh')
 
       //fpSpAxtf.cNode = comp('0131000000051792h0') or
       //fpSpAxtf.cNode = comp('0131000000051791h0')

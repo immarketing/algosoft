@@ -129,8 +129,8 @@ var
 
 as
 select *
-  from  KatSopr,
-        SpSopr,
+  from  KatSoprLcl,
+        SpSoprLcl,
         SPECMTR,
         SALDTUNE,
         SALDTUNE st_inc,
@@ -141,18 +141,18 @@ select *
         KatUsl,
         KatDoc
  where ((
-!   pcSopr   == KatSopr.nRec and
+!   pcSopr   == KatSoprLcl.nRec and
 
 !   and
-    root == KatSopr.nRec and
+    root == KatSoprLcl.nRec and
 
-    (  ((docToCheck and word(1)) > 0 and KatSopr.VidSopr = 111 ) or
-      ((docToCheck and word(2)) > 0 and KatSopr.VidSopr = 204 ) or
-      ((docToCheck and word(4)) > 0 and KatSopr.VidSopr = 504 ) or
-      ((docToCheck and word(8)) > 0 and KatSopr.VidSopr = 602 ) ) and
+    (  ((docToCheck and word(1)) > 0 and KatSoprLcl.VidSopr = 111 ) or
+      ((docToCheck and word(2)) > 0 and KatSoprLcl.VidSopr = 204 ) or
+      ((docToCheck and word(4)) > 0 and KatSoprLcl.VidSopr = 504 ) or
+      ((docToCheck and word(8)) > 0 and KatSoprLcl.VidSopr = 602 ) ) and
 
-   KatSopr.nRec == SpSopr.cSopr and
-   SpSopr.nrec == SPECMTR.CSPEC and
+   KatSoprLcl.nRec == SpSoprLcl.cSopr and
+   SpSoprLcl.nrec == SPECMTR.CSPEC and
    SPECMTR.CSALDTUNE == SALDTUNE.NREC and
    cST_INC == st_inc.nRec and
 
@@ -160,14 +160,14 @@ select *
 
    cFltrCO == fltrfpco.nRec and
 
-   SpSopr.cMCUsl == katMC.nRec and
-   SpSopr.cMCUsl == katUsl.nRec and
-   KatSopr.VidSopr == KatDoc.TIDKGAL
+   SpSoprLcl.cMCUsl == katMC.nRec and
+   SpSoprLcl.cMCUsl == katUsl.nRec and
+   KatSoprLcl.VidSopr == KatDoc.TIDKGAL
 
  ))
- bounds byDates =  dtStart<<=KatSopr.dsopr(noindex) and dtFinish >>= KatSopr.dsopr (noindex)
- bounds byCO    =  cFltrCO==KatSopr.COTVPODR (noindex)
- bounds byDesc  =  sFltrUsDesc == KatSopr.descr (noindex)
+ bounds byDates =  dtStart<<=KatSoprLcl.dsopr(noindex) and dtFinish >>= KatSoprLcl.dsopr (noindex)
+ bounds byCO    =  cFltrCO==KatSoprLcl.COTVPODR (noindex)
+ bounds byDesc  =  sFltrUsDesc == KatSoprLcl.descr (noindex)
  ;
  */
  parameters paramSopr;
@@ -175,16 +175,16 @@ select *
 /*
   BROWSE  brplan_KatSopr;
   show at( , , ,3 );
-  table KatSopr;
+  table KatSoprLcl;
   Fields
-    KatSopr.nrec 'KatSopr.nrec':[10],protect;
+    KatSoprLcl.nrec 'KatSoprLcl.nrec':[10],protect;
   end;
 
   BROWSE  brplan_SpSopr;
   show at( ,4 , ,7);
-  table SpSopr;
+  table SpSoprLcl;
   Fields
-    SpSopr.nrec 'SpSopr.nrec':[10],protect;
+    SpSoprLcl.nrec 'SpSoprLcl.nrec':[10],protect;
 
   end;
 
@@ -334,7 +334,7 @@ select *
     com1  := '';
     r1    := false;
 
-    cnrec := SpSopr.NRec;
+    cnrec := SpSoprLcl.NRec;
 
 
     r1 := isCurrentWrong1 (com1);
@@ -432,19 +432,19 @@ select *
     var cnt : longint;
     cnt := 0;
     result := false;
-    if (getFirst used_vidsopr = tsOK) _loop used_vidsopr {
-      if (getFirst KatSopr = tsOK) _loop KatSopr {
+    if (getFirst used_vidsoprLcl = tsOK) _loop used_vidsoprLcl {
+      if (getFirst KatSoprLcl = tsOK) _loop KatSoprLcl {
         inc(cnt);
         //setVisualHeader ;
 
-        if (not iNextVisual (FormatStr_3 ( 'Формирование отчета | Этап №%d | Шаг №%d | %s',2,cnt, 'Накладная №'+KatSopr.NSopr+' от '+KatSopr.DSopr))
+        if (not iNextVisual (FormatStr_3 ( 'Формирование отчета | Этап №%d | Шаг №%d | %s',2,cnt, 'Накладная №'+KatSoprLcl.NSopr+' от '+KatSoprLcl.DSopr))
         ) {exit};
 
         result := true;
 
         var ew : boolean;
         ew := false;
-        _loop SpSopr {
+        _loop SpSoprLcl {
           ew := ew or doCheckCurrent(false);
           if (ew) break;
         }
@@ -452,39 +452,39 @@ select *
         if ( (not ew) and (showUnCor = 1) ) continue;
         //Message (1);
 
-        frm.write ( KatSopr.VidSopr );
+        frm.write ( KatSoprLcl.VidSopr );
 
         if (getfirst KatDoc = tsOK){
           frm.write ( KatDoc.Name );
         } else {
           frm.write ( 'Вид документа не определен!' );
         }
-        frm.write ( String(KatSopr.nRec,20,0) );
-        frm.write ( KatSopr.DSopr );
-        frm.write ( KatSopr.NSopr );
-        frm.write ( KatSopr.Descr );
-        frm.write ( KatSopr.SUMMA );
+        frm.write ( String(KatSoprLcl.nRec,20,0) );
+        frm.write ( KatSoprLcl.DSopr );
+        frm.write ( KatSoprLcl.NSopr );
+        frm.write ( KatSoprLcl.Descr );
+        frm.write ( KatSoprLcl.SUMMA );
         frm.write ( KatSoprCO.CODE );
         frm.write ( KatSoprCO.Name );
 
-        _loop SpSopr {
+        _loop SpSoprLcl {
 
-          frm.write ( String (SpSopr.nRec,20,0) );
-          frm.write ( SpSopr.npp );
-          if (SpSopr.prMC =1) {
+          frm.write ( String (SpSoprLcl.nRec,20,0) );
+          frm.write ( SpSoprLcl.npp );
+          if (SpSoprLcl.prMC =1) {
             if (getfirst katmc = tsOK){
               frm.write ( katmc.Name );
             } else {
               frm.write ( '' );
             }
-          } else if (SpSopr.prMC > 1) {
+          } else if (SpSoprLcl.prMC > 1) {
             if (getfirst katUsl = tsOK){
               frm.write ( katUsl.Name );
             } else {
               frm.write ( '' );
             }
           }
-          //frm.write ( SpSopr.nRec );
+          //frm.write ( SpSoprLcl.nRec );
           doCheckCurrent(true);
         }
         frm.putEvent (feBreak);
@@ -499,7 +499,7 @@ select *
     var cnt : longint;
     cnt := 0;
 
-    if (getFirst used_basedocs = tsOK) _loop used_basedocs {
+    if (getFirst used_basedocsLcl = tsOK) _loop used_basedocsLcl {
       if (getFirst chBaseDoc = tsOK) _loop chBaseDoc {
         inc(cnt);
         //setVisualHeader ;
@@ -566,7 +566,7 @@ select *
                 frm.write ( '' );
               }
             }
-            //frm.write ( SpSopr.nRec );
+            //frm.write ( SpSoprLcl.nRec );
             doCheckCurrentDO(true);
           }
         }
@@ -653,12 +653,13 @@ select *
       SetTabSootv3(cTBL_SOOTV3);
     }
 
-    set useFilter := useFilter or 2;
-
-    PopBounds(tnKatSopr);
-    PopBounds(tnchBaseDoc);
+    set useFilter := useFilter or 2 or 1;
 
     BuildUsedVids;
+
+    /*
+    PopBounds(tnKatSopr);
+    PopBounds(tnchBaseDoc);
 
     case mode of
       1 : {
@@ -696,7 +697,7 @@ select *
       }
     end;
 
-
+    */
 
 
 
@@ -718,8 +719,8 @@ select *
 
     doMakeCheck (mode);
 
-    PopBounds(tnKatSopr);
-    PopBounds(tnchBaseDoc);
+    //PopBounds(tnKatSopr);
+    //PopBounds(tnchBaseDoc);
 
   end;
 
@@ -779,11 +780,17 @@ select *
     //SaveMyDsk ('ar', ar);
   end;
 
+  procedure ClearTempData;
+  begin
+    //delete all used_co;
+    delete all used_vidsopr;
+    delete all used_basedocs;
+  end;
+
 #include iCheck_wnd.vip
   procedure BuildUsedVids;
   begin
-    delete all used_vidsopr;
-    delete all used_basedocs;
+    ClearTempData;
 
     var l : longint;
 
@@ -817,8 +824,12 @@ select *
     }
   end;
 
+  procedure BuildUsedCO (mrk : longint); forward;
+
   procedure handlecmInit;
   begin
+
+    set prbToCheck := 1 or 2 or 8 or 16;
 
     var qwer : F_GetAn::GetKau new;
     liUsedCO := InitMarker( qwer.GetMarkerName(22) ,8,50,10);
@@ -854,6 +865,8 @@ select *
       DoneServTXO;
     }
 
+    BuildUsedCO (0);
+
     //if TargetBudGroup = 0 then TargetBudGroup := comp('000000000000000Ah');
     if TargetBudGroup = 0 then TargetBudGroup := comp('00320000000003D1h');
     if cTBL_SOOTV = 0 then SetTabSootv (comp('013100000000011Bh'));
@@ -865,7 +878,7 @@ select *
     if (getFirst fltrfpco = tsOK){};
 
     if (getFirst used_vidsopr = tsOK){};
-    if (getFirst KatSopr = tsOK){};
+    if (getFirst KatSoprLcl = tsOK){};
 
     if (getFirst used_basedocs = tsOK){};
     if (getFirst chBaseDoc = tsOK){};
@@ -874,6 +887,26 @@ select *
 
     abort;
     */
+  end;
+
+  procedure BuildUsedCO (mrk : longint);
+  begin
+    delete all used_co;
+
+    if (mrk = 0 ) then {
+      var qwer : F_GetAn::GetKau new;
+      set mrk := InitMarker(qwer.GetMarkerName(22),8,50,10);
+    }
+
+    var i : longint;
+
+    for (i := 0; i<= GetMarkerCount (mrk)-1; inc(i)) {
+      var cu : comp;
+
+      GetMarker (mrk, i, cu);
+
+      insert used_co set used_co.cco := cu;
+    }
   end;
 
   procedure handleCMPick;
@@ -914,17 +947,8 @@ select *
           DoneMarker( liUsedCO ,'');
           set liUsedCO := InitMarker(qwer.GetMarkerName(22),8,50,10);
 
-          delete all used_co;
+          BuildUsedCO (liUsedCO);
 
-          var i : longint;
-
-          for (i := 0; i<= GetMarkerCount (liUsedCO)-1; inc(i)) {
-            var cu : comp;
-
-            GetMarker (liUsedCO, i, cu);
-
-            insert used_co set used_co.cco := cu;
-          }
         }
       }
 

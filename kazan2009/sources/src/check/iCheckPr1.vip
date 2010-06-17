@@ -10,10 +10,10 @@
     var co1,co2 : comp;
     var cd1,cd2 : string;
 
-    co1 := KatSopr.COTVPODR;
+    co1 := KatSoprLcl.COTVPODR;
     co2 := 0;
 
-    co2 := getCUAnVal (coSpSopr, SpSopr.NRec, 22);
+    co2 := getCUAnVal (coSpSopr, SpSoprLcl.NRec, 22);
 
    if (getfirst fpco where ((co1 == fpco.nrec)) = tsOK){
       cd1 := fpco.code;
