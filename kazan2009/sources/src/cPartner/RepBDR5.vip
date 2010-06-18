@@ -419,6 +419,7 @@ end;
     cPeriod:=0;
 
     set isPrintRenewedPages := 1 or 2;
+    set isPrintOld91Page := false;
 
     visualHeaderPause := 20;
 
@@ -430,7 +431,7 @@ end;
     podpisanty.setprefix('szmn_bud_Form91');
     podpisanty.reinit;
 
-    isShowPoyasZap   := true;
+    isShowPoyasZap   := false;
     isShowFormName   := false;
 
     //if (not ReadMyDsk(sPath,'dsksPath',isError))  sPath := '';
@@ -917,120 +918,125 @@ end;
     var stepsTotal : byte;
     stepstotal := 4;
 
-    _LOOP  fpSpAxtf    {
-      NextVisual;
-      if(isValid(tnfpstbud) or (1=1))       { //chek year
-        inc(tt);
-        if ( fpSpAxtf.coTable = coFPSTBUD ) {
-          extCl := GetStBudExtraParameters( coFPSTBUD , fpSpAxtf.CMEAN ,extClName );
-        } else {
-          extCl := 0;
-        }
+    if isPrintOld91Page then {
 
-        var code2010, name2010 : String;
-        GetCurrentCodeName (code2010, name2010);
+      _LOOP  fpSpAxtf    {
+        NextVisual;
+        if(isValid(tnfpstbud) or (1=1))       { //chek year
+          inc(tt);
+          if ( fpSpAxtf.coTable = coFPSTBUD ) {
+            extCl := GetStBudExtraParameters( coFPSTBUD , fpSpAxtf.CMEAN ,extClName );
+          } else {
+            extCl := 0;
+          }
 
-        xlSetCellNumberValue(extCl     , 1+tt, 41, 1+tt, 41);
+          var code2010, name2010 : String;
+          GetCurrentCodeName (code2010, name2010);
 
-        //xlSetCellStringValue(fpSpAxtf.code, 1+tt, 1, 1+tt, 1); //
-        xlSetCellStringValue(code2010, 1+tt, 1, 1+tt, 1); //
+          xlSetCellNumberValue(extCl     , 1+tt, 41, 1+tt, 41);
 
-        //xlSetCellStringValue(PadCh ('',' ', 2 * getCurrentLevelNumber) + fpstbud.Name, 1+tt, 2, 1+tt, 2); //
-        //xlSetCellStringValue(PadCh ('',' ', 2 * getCurrentLevelNumber) + fpSpAxtf.name, 1+tt, 2, 1+tt, 2); //
-        xlSetCellStringValue(PadCh ('',' ', 2 * getCurrentLevelNumber) + name2010, 1+tt, 2, 1+tt, 2); //
+          //xlSetCellStringValue(fpSpAxtf.code, 1+tt, 1, 1+tt, 1); //
+          xlSetCellStringValue(code2010, 1+tt, 1, 1+tt, 1); //
 
-        //xlSetCellStringValue(extraChar + trimFirst0(fpstbud.LevelCode), 1+tt, 40, 1+tt, 40); //
-        xlSetCellStringValue(extraChar + code2010, 1+tt, 40, 1+tt, 40); //
-        xlSetCellStringValue(kated.name, 1+tt, 27, 1+tt, 27);
-        var pl, fc: rep91array;
-        var i : byte;
-        for (i := 1; i<=12; i := i +1) {
-          pl[i] := 0;
-          fc[i] := 0;
-        }
-        ExcelPrint_2010(fpSpAxtf.coTable,cPlan,150,1+tt,2,pl);
-        //ExcelPrint_2010(fpSpAxtf.coTable,cPlan,150,1+tt,3,pl);
-        ExcelPrint_2010(fpSpAxtf.coTable,cFact,151,1+tt,14, fc);
+          //xlSetCellStringValue(PadCh ('',' ', 2 * getCurrentLevelNumber) + fpstbud.Name, 1+tt, 2, 1+tt, 2); //
+          //xlSetCellStringValue(PadCh ('',' ', 2 * getCurrentLevelNumber) + fpSpAxtf.name, 1+tt, 2, 1+tt, 2); //
+          xlSetCellStringValue(PadCh ('',' ', 2 * getCurrentLevelNumber) + name2010, 1+tt, 2, 1+tt, 2); //
 
-        var wasNonZeros : boolean;
-        wasNonZeros := false
-        for (i := 1; i<=12; i := i +1) {
-          if ( abs (pl[i]) > 0.0000001 or abs (fc[i]) > 0.0000001 ) then {
-            wasNonZeros := true
-            break;
+          //xlSetCellStringValue(extraChar + trimFirst0(fpstbud.LevelCode), 1+tt, 40, 1+tt, 40); //
+          xlSetCellStringValue(extraChar + code2010, 1+tt, 40, 1+tt, 40); //
+          xlSetCellStringValue(kated.name, 1+tt, 27, 1+tt, 27);
+          var pl, fc: rep91array;
+          var i : byte;
+          for (i := 1; i<=12; i := i +1) {
+            pl[i] := 0;
+            fc[i] := 0;
+          }
+          ExcelPrint_2010(fpSpAxtf.coTable,cPlan,150,1+tt,2,pl);
+          //ExcelPrint_2010(fpSpAxtf.coTable,cPlan,150,1+tt,3,pl);
+          ExcelPrint_2010(fpSpAxtf.coTable,cFact,151,1+tt,14, fc);
+
+          var wasNonZeros : boolean;
+          wasNonZeros := false
+          for (i := 1; i<=12; i := i +1) {
+            if ( abs (pl[i]) > 0.0000001 or abs (fc[i]) > 0.0000001 ) then {
+              wasNonZeros := true
+              break;
+            }
+          }
+
+          if ( not wasNonZeros) then {
+            if (not isShowZeros and fpSpAxtf.isLeaf = 1) {
+              dec(tt);
+              continue;
+            }
+          }
+
+          if (tt mod visualHeaderPause) = 0 then {
+            setVisualHeader (FormatStr_4 ( 'Выгрузка данных формы 9.1 | %d из %d | %d | %s',1,stepstotal, tt ,fpSpAxtf.Name));
+          }
+
+          insert f91_printed set f91_printed.cRec := fpSpAxtf.nRec ,
+                                  f91_printed.printedAtRow := 1+tt,
+                                  f91_printed.cNode  := fpSpAxtf.cNode,
+                                  //f91_printed.code   := extraChar + trimFirst0(fpstbud.levelcode),
+                                  f91_printed.code   := name2010,
+                                  //f91_printed.name   := PadCh ('',' ', 2 * getCurrentLevelNumber) + fpSpAxtf.name,
+                                  f91_printed.name   := PadCh ('',' ', 2 * getCurrentLevelNumber) + name2010,
+                                  /*
+                                  f91_printed.sum1   := pl,
+                                  f91_printed.sum[2] := fc,
+                                  f91_printed.sum[3] := 0,
+                                  */
+                                  f91_printed.extPar := extCl,
+                                  //f91_printed.extPar1:= extCl1,
+                                  f91_printed.isLeaf := fpSpAxtf.isLeaf,
+                                  f91_printed.coTable := fpSpAxtf.coTable,
+                                  f91_printed.isKAUGroup := isKauGroup (fpSpAxtf.nRec)
+
+                                  ;
+          var j : byte;
+          for (j := 1; j<=12; j := j +1) {
+            update current f91_printed set f91_printed.sum1[j] := pl[j], f91_printed.sum2[j] := fc[j];
           }
         }
-
-        if ( not wasNonZeros) then {
-          if (not isShowZeros and fpSpAxtf.isLeaf = 1) {
-            dec(tt);
-            continue;
-          }
-        }
-
-        if (tt mod visualHeaderPause) = 0 then {
-          setVisualHeader (FormatStr_4 ( 'Выгрузка данных формы 9.1 | %d из %d | %d | %s',1,stepstotal, tt ,fpSpAxtf.Name));
-        }
-
-        insert f91_printed set f91_printed.cRec := fpSpAxtf.nRec ,
-                                f91_printed.printedAtRow := 1+tt,
-                                f91_printed.cNode  := fpSpAxtf.cNode,
-                                //f91_printed.code   := extraChar + trimFirst0(fpstbud.levelcode),
-                                f91_printed.code   := name2010,
-                                //f91_printed.name   := PadCh ('',' ', 2 * getCurrentLevelNumber) + fpSpAxtf.name,
-                                f91_printed.name   := PadCh ('',' ', 2 * getCurrentLevelNumber) + name2010,
-                                /*
-                                f91_printed.sum1   := pl,
-                                f91_printed.sum[2] := fc,
-                                f91_printed.sum[3] := 0,
-                                */
-                                f91_printed.extPar := extCl,
-                                //f91_printed.extPar1:= extCl1,
-                                f91_printed.isLeaf := fpSpAxtf.isLeaf,
-                                f91_printed.coTable := fpSpAxtf.coTable,
-                                f91_printed.isKAUGroup := isKauGroup (fpSpAxtf.nRec)
-
-                                ;
-        var j : byte;
-        for (j := 1; j<=12; j := j +1) {
-          update current f91_printed set f91_printed.sum1[j] := pl[j], f91_printed.sum2[j] := fc[j];
-        }
+        else{}
       }
-      else{}
+
+      update f91_printed where (( 1 == f91_printed.isKAUGroup))
+             set f91_printed.isMakeGroup := 1
+             ;
+
+      updateIsMakeGroup;
+
+      calculateGroupBorders;
+
+      doGroupData;
+
+      /*
+      _loop TabPersons{
+        xlSetCellStringValue(TabPersons.name, 1+tt, 41, 1+tt, 41);
+        xlSetCellStringValue(TabPersons.work, 1+tt, 42, 1+tt, 42);
+        inc(tt);
+      }
+      xlSetCellStringValue(tt, 1, 43, 1, 43);
+      */
+
+
+      xlRunMacro('GalFpUser_AfterReport');
+
+      xlSetActiveSheetByName('Otchet'); //?????_1
+
+      groupExcelDatas91(5);
+
+      tt := tt + 10;
+
+      printSigners (tt );
+
+      tt := tt + 4;
+      printExecutor (tt);
+    } else {
+      xlRunMacro('HideSheet(Otchet)');
     }
-
-    update f91_printed where (( 1 == f91_printed.isKAUGroup))
-           set f91_printed.isMakeGroup := 1
-           ;
-
-    updateIsMakeGroup;
-
-    calculateGroupBorders;
-
-    doGroupData;
-
-    /*
-    _loop TabPersons{
-      xlSetCellStringValue(TabPersons.name, 1+tt, 41, 1+tt, 41);
-      xlSetCellStringValue(TabPersons.work, 1+tt, 42, 1+tt, 42);
-      inc(tt);
-    }
-    xlSetCellStringValue(tt, 1, 43, 1, 43);
-    */
-
-
-    xlRunMacro('GalFpUser_AfterReport');
-
-    xlSetActiveSheetByName('Otchet'); //?????_1
-
-    groupExcelDatas91(5);
-
-    tt := tt + 10;
-
-    printSigners (tt );
-
-    tt := tt + 4;
-    printExecutor (tt);
 
     tms[6] := Cur_Time;
 

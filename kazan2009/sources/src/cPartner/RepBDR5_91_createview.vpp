@@ -40,6 +40,8 @@ var
   isShowPoyasZap   : boolean; // показывать пояснительную записку или нет
   isShowFormName   : boolean; // выводить в отчетные формы название типовой формы
 
+  isPrintOld91Page : boolean; // выводить на печать 9.1 старого образца
+
   isPrintRenewedPages : byte; // выводить на печать обновленные страницы - 9.1 и 9.1.1
 
 

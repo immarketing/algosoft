@@ -211,6 +211,9 @@ and (
       isDebugDatas and
       (
 
+      fpSpAxtf.nRec=comp('01310000000F18F7h')
+      /*
+
       fpSpAxtf.nRec=comp('0131000000050E0Bh') or
       fpSpAxtf.nRec=comp('0131000000050E0Ch') or
       fpSpAxtf.nRec=comp('0131000000050E0Dh') or
@@ -218,6 +221,7 @@ and (
       fpSpAxtf.cKauNode = comp('0131000000050E0Ch') or
 
       fpSpAxtf.cNode = comp('0131000000050E0Bh')
+      */
       )
       )
       )
