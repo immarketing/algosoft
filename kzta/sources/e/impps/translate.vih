@@ -1,0 +1,6 @@
+#component "kzta"
+objinterface oTranslate;
+  function lat2ru(s: string): string;
+end;
+
+vipinterface translate implements otranslate licensed(free);

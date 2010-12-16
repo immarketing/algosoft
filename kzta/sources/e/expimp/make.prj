@@ -1,0 +1,45 @@
+#include expimp\translate.vih
+const
+  #include Galnet.csc;
+  #include mark.inc
+  #include fldcolor.inc
+  c_russia = 2;
+  w_an_naim   = 10017;
+  w_an_marka  = 10012;
+  w_an_diam   = 10013;
+  w_an_tolsh  = 10014;
+  w_an_shir   = 10015;
+  w_an_dlin   = 10016;
+  w_an_gost   = 10010;
+  w_an_gosts  = 10011;
+  w_an_profil = 10018;
+  w_an_nskl   = 10019;
+  w_an_grsnab = 10020;
+  w_an_vidpriemki = 10021;
+  w_an_srokisp = 10022;
+  c_grnal_18  = 0001000000000001h;
+  c_zoloto    = 0000000000000007h;
+  c_serebro   = 0000000000000003h;
+  c_platina   = 0000000000000006h;
+  c_palladiy  = 0000000000000005h;
+  c_other     = 0001000000000001h;
+end;
+
+#make "*.vip"
+
+/*#make "imp_dogovor.vip"
+#make "createotped.vip"
+#make "translate.vip"
+#make "imp_zak.vip"
+#make "imp_mol.vip"
+#make "imp_persons.vip"
+#make "imp_org.vip"
+#make "imp_org_userreport.vip"
+#make "imp_plpor.vip"
+#make "imp_plpor_userreport.vip"
+#make "imp_mat.vip"
+#make "imp_mat_userreport.vip"
+#make "imp_pki.vip"
+#make "imp_pki_userreport.vip"
+#make "imp_ins.vip"
+#make "imp_ins_userreport.vip"*/

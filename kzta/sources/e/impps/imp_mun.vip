@@ -1,0 +1,139 @@
+#component "KZTA"
+interface imp_mun;
+const
+    mat_path = 'D:\gal\kzta\данные\МАТЕРИАЛЫ\MAT.DBF';
+    mun_path = 'D:\gal\kzta\данные\МАТЕРИАЛЫ\MUN.DBF';
+end;
+table struct kom (
+  nk: string[6],
+  name: string[200],
+  en: double,
+  chdrps: comp,
+  haskom: boolean
+) with index (
+  i01 = nk (unique)
+);
+create view
+as select *
+from kom, mun,mun mun1,mat,katmc,hdr_ps,ps_lines,distdoc,kated,katotped;
+
+screen scmain;
+<<
+>>
+end;
+
+procedure loaddbf; {
+  var l,i,cnt: longint;
+  //чтение mun
+  SetVisualHeader('Чтение '+mun_path);
+  delete all mun;
+  l := dbfopen(mun_path, stopen);
+  cnt := 0; i := 0;
+  if dbfgetfirst(l) = 0 then do { cnt := cnt + 1; } while dbfgetnext(l) = 0;
+  if dbfgetfirst(l) = 0 then do {
+    i := i + 1;
+    if not nextvisual then break;
+    if ( i mod 1000 = 0) then { SetVisualHeader('Чтение '+mun_path+''#13'Обработка строки '+i+' из '+cnt); }
+    clearbuffer(#mun);
+    mun.nk       := trim(dbfgetfieldvalue(l, 'nk'));
+    mun.en       := dbfgetfieldvalue(l, 'en');
+    mun.snm      := trim(dbfgetfieldvalue(l, 'snm'));
+    mun.nru      := dbfgetfieldvalue(l, 'nru');
+    mun.eim      := trim(dbfgetfieldvalue(l, 'eim'));
+    mun.name     := trim(dbfgetfieldvalue(l, 'ik1'))+' '+trim(dbfgetfieldvalue(l, 'ik2'));
+    insert current mun;
+  } while dbfgetnext(l) = 0;
+  dbfclose(l);
+  delete all kom;
+  insert kom (nk,name,en) select mun.nk,mun.name,mun.en from mun ignore_errors(tsDuplicatekey);
+  //чтение mat
+  SetVisualHeader('Чтение '+mat_path);
+  delete all mat;
+  l := dbfopen(mat_path, stopen);
+  cnt := 0; i := 0;
+  if dbfgetfirst(l) = 0 then do { cnt := cnt + 1; } while dbfgetnext(l) = 0;
+  if dbfgetfirst(l) = 0 then do {
+    i := i + 1;
+    if not nextvisual then break;
+    if ( i mod 10000 = 0) then { SetVisualHeader('Чтение '+mat_path+''#13'Обработка строки '+i+' из '+cnt); }
+    clearbuffer(#mat);
+    mat.nom      := trim(dbfgetfieldvalue(l, 'nom'));
+    mat.snm      := trim(dbfgetfieldvalue(l, 'snm'));
+    insert current mat;
+  } while dbfgetnext(l) = 0;
+  dbfclose(l);
+}
+
+function getoe(cMC_: comp; n_:string):comp; {
+  result := 0;
+  if getfirst kated where ((n_ == kated.kod)) <> tsOk then
+    if getfirst kated where ((n_ == kated.abbr)) <> tsOk then { result:=0 };
+  if getfirst katotped where ((1==katotped.prmc and cMC_==katotped.cmcusl and kated.nrec==katotped.ckated)) = tsOk then result := katotped.nrec;
+}
+
+procedure importmun; {
+  var i,j: integer;
+  SetVisualHeader('импорт');
+  _loop kom {
+    clearbuffer (#hdr_ps);
+    hdr_ps.ctypeizd:=0;
+    hdr_ps.cizd:=0;
+    hdr_ps.kind:=25;
+    hdr_ps.active:=1;
+    hdr_ps.name:=kom.name;
+    hdr_ps.DOCCODE:=kom.nk;
+    hdr_ps.ednorm:=1;
+    hdr_ps.product:=1;
+    hdr_ps.wsrcmode:=1;
+    hdr_ps.wsrctext:=2;
+    hdr_ps.cdocnastr:=0001000000000001h;
+    hdr_ps.pargroup:=0000000000000027h;
+    hdr_ps.ced:=0;
+    hdr_ps.vid:=2;
+    insert current hdr_ps;
+    update current kom set kom.chdrps:=hdr_ps.nrec;
+    i := 1;
+    _loop mun where ((kom.nk == mun.nk)) {
+      clearbuffer(#ps_lines);
+      ps_lines.chdr := hdr_ps.nrec;
+      ps_lines.lnum := i*10;
+      ps_lines.kol  := mun.nru/mun.en;
+      ps_lines.procex := 100;
+      ps_lines.timeposted := 1;
+      if length(mun.snm)<6 {
+        ps_lines.cdoc := 0;
+        ps_lines.tdoc := 25;
+        update current mun set mun.imported := false;
+      } else {
+        ps_lines.wdet := 4;
+        if (getfirst mat where ((mun.snm==mat.snm))=tsOk) and (getfirst katmc where ((mat.nom==katmc.barkod))=tsOk) {
+          ps_lines.cdet := katmc.nrec;
+          ps_lines.ced  := getoe(katmc.nrec, mun.eim);
+        }
+        update current mun set mun.imported := true;
+      }
+      insert current ps_lines;
+      update current mun set mun.cpslines:=ps_lines.nrec;
+      inc(i);
+    }
+  }
+  setvisualheader('Обновление');
+  _loop mun where not mun.imported {
+    if (getfirst kom where ((mun.snm == kom.nk)) and kom.chdrps>0) = tsOk {
+      update ps_lines where ((mun.cpslines == ps_lines.nrec)) set ps_lines.cdoc := kom.chdrps;
+      update current mun set mun.imported := true;
+    } else {
+      logstrtofile('c:\333.log',mun.snm);
+    }
+  }
+}
+
+handleevent
+  cminit: {
+    startnewvisual(vtRotateVisual, vftimer+vfbreak, '', 0);
+    loaddbf;
+    importmun;
+    stopvisual('',0);
+  }
+end;
+end.

@@ -1,0 +1,18 @@
+#component "kzta"
+interface translate;
+  const
+    LAT_U = 'ABCEHKMOPTX';
+    LAT_L = 'abcehkmoptx';
+    RUS_U = '€‚‘…’•';
+    RUS_L = ' Άα¥­ª¬®ΰβε';
+    L = 11;
+  end;
+  function lat2ru(s: string): string; {
+    var i: byte;
+    for (i:=0;i<=L;i:=i+1) {
+      s := replace(s, LAT_U[i], RUS_U[i]);
+      s := replace(s, LAT_L[i], RUS_L[i]);
+    }
+    result := s;
+  }
+end.

@@ -1,0 +1,131 @@
+#include expimp\translate.vih
+const
+  #include Galnet.csc;
+  #include mark.inc
+  #include fldcolor.inc
+  c_russia = 2;
+  w_an_naim   = 10017;
+  w_an_marka  = 10012;
+  w_an_diam   = 10013;
+  w_an_tolsh  = 10014;
+  w_an_shir   = 10015;
+  w_an_dlin   = 10016;
+  w_an_gost   = 10010;
+  w_an_gosts  = 10011;
+  w_an_profil = 10018;
+  w_an_nskl   = 10019;
+  w_an_grsnab = 10020;
+  w_an_vidpriemki = 10021;
+  w_an_srokisp = 10022;
+  c_grnal_18  = 0001000000000001h;
+  c_zoloto    = 0000000000000007h;
+  c_serebro   = 0000000000000003h;
+  c_platina   = 0000000000000006h;
+  c_palladiy  = 0000000000000005h;
+  c_other     = 0001000000000001h;
+end;
+table struct mnvs (
+  nrec: comp,
+  syswhere: string[7],
+  syswhat: string[7],
+  kol: double,
+  kind: byte,
+  coop: byte,
+  shifrzak: string[12]
+) with index (
+  i00 = nrec (unique,surrogate),
+  i01 = syswhere + syswhat,
+  i02 = syswhat + syswhere
+);
+table struct detail (
+  sysnum:string[7],
+  sootvkey: string[50],
+  sootvkey2: string[50],
+  obozn: string[22],
+  razmer: string[17],
+  rezba: string[3],
+  diametr: string[5],
+  dlina: string[3],
+  pokrytie: string[3],
+  gost: string[12],
+  name: string[18],
+  marshrut: string[30],
+  cex_izg: string[10]
+) with index (
+  i01 = sysnum,
+  i02 = sootvkey,
+  i03 = gost,
+  i04 = obozn
+);
+table struct detali (
+  i: string[18],
+  hant: string[13],
+  ip: string[4],
+  raz: string[20],
+  kod: word,
+  koddet: word,
+  sootvkey: string[50]
+) with index (
+  i01 = sootvkey,
+  i02 = ip + i + hant,
+  i03 = koddet,
+  i04 = hant,
+  i05 = i + ip + hant
+);
+table struct karm (
+  snm : string[6],
+  koddet: string[6],
+  nci: string[2],
+  nru: double,
+  nruz: double,
+  kim: double,
+  cpodr:comp
+) with index (
+  i01 = koddet
+);
+table struct mun (
+  nk: string[6],
+  en: double,
+  snm: string[6],
+  nru: double,
+  eim: string[7],
+  name: string[200],
+  cpslines: comp,
+  imported: boolean
+) with index (
+  i01 = nk
+);
+table struct mat (
+  snm: string[6],
+  nom: string[12]
+) with index (
+  i01 = snm
+);
+table struct npki (
+  noriz: double,
+  shifrzak: string[9],
+  kodpotr:string[12],
+  noth:double,
+  nom: string[12]
+) with index (
+  i01=shifrzak,
+  i02=nom
+);
+table struct pkizak (
+  shifrzak: string[9],
+  name:string[100]
+) with index (
+  i01 = shifrzak (unique)
+);
+table struct tsootv (
+  nrec: comp,
+  koddet: word,
+  sysnum:string[7]
+) with index (
+  i00 = nrec (unique,surrogate),
+  i01 = sysnum,
+  i02 = koddet
+);
+#make "translate.vip"
+#make "impps.vip"
+//#make "imp_mun.vip"

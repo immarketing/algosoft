@@ -1,0 +1,7 @@
+#include GloDefs.inc
+#include Predefs.inc
+#include DocDefs.inc
+#include dictypes.def
+#include oalgfldsys.vih
+#make "algfldsys_501.vip"
+#make "algfldsys_502.vip"

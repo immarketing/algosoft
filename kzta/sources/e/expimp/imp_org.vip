@@ -1,0 +1,166 @@
+#component "kzta"
+interface imp_org;
+  const 
+    WM_INSERT = 1;
+    WM_UPDATE = 2;
+    c_russia = 2;
+  end;
+  var
+    tr: translate;
+    sDBFPath: string;
+  table struct torg (
+    rcod: string[5],
+    rnaim: string[80],
+    raddr: string[80],
+    rinn: string[15],
+    rkpp: string[20],
+    corg: comp
+  );
+  create view 
+  as select *
+  from torg, katorg, katorg ko, katorgdescr, kontrier, addressn, podrinfo;
+  screen scmain;
+    show at (,,,4);
+    fields
+      sDbfPath: noprotect,pickbutton;
+    buttons
+      cmLoadDBF;
+      cmDoImport;
+<<
+  `Путь к дбф` .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ (kodif.dbf)
+  <. Загрузка DBF .>  <. Импорт .>
+>>
+  end;
+  browse brOrg; 
+    show at (,5,,);
+    table torg;
+    fields
+      torg.rcod  'rcod' : [5], protect;
+      torg.rnaim 'rnaim': [40], protect;
+      torg.raddr 'raddr': [20], protect;
+      torg.rinn  'rinn' : [15], protect;
+      torg.rkpp  'rkpp' : [20], protect;
+      if(torg.corg<>0, if(GetAnyKau(0, 1, torg.corg),GivenAnName(1),'????'), 'Импорт') 'Орг. галактики': [20], protect;
+  end;
+  procedure loaddbf; {
+    var l: longint;
+    startnewvisual(vtRotateVisual, vftimer+vfbreak, 'Reading '+sdbfpath, 0);
+    delete all torg;
+    l := dbfopen(sdbfpath, stopen);
+    if dbfgetfirst(l) = 0 then
+    do {
+      if not nextvisual then break;
+      clearbuffer(tntorg);
+      torg.rcod  := trim(dbfgetfieldvalue(l, 'rcod'));
+      torg.rnaim := tr.lat2ru(trim(dbfgetfieldvalue(l, 'rnaim')));
+      torg.raddr := tr.lat2ru(trim(dbfgetfieldvalue(l, 'raddr')));
+      while (pos('  ', torg.raddr) > 0)
+        torg.raddr := replace(torg.raddr, '  ', ' ');
+      torg.rinn  := trim(dbfgetfieldvalue(l, 'rinn'));
+      torg.rkpp  := trim(dbfgetfieldvalue(l, 'rkpp'));
+      if getfirst katorg where (( torg.rcod == katorg.code)) = tsOk then
+        torg.corg := katorg.nrec;
+      insert current torg;
+    } while dbfgetnext(l) = 0;
+    dbfclose(l);
+    stopvisual('',0);
+    rereadrecord(tntorg);
+  }
+  function gettiporg(s: string): string; {
+    case substr(s,1,pos(' ', s)-1) of
+      'ОАО' : result := 'ОАО';
+      'ООО' : result := 'ООО';
+      'ЗАО' : result := 'ЗАО';
+      'ЧП' : result := 'ИП';
+      'ИП' : result := 'ИП';
+      'ТОО' : result := 'ТОО';
+      'ФГУП' : result := 'ФГУП';
+      'КБ' : result := 'КБ';
+      'СП' : result := 'СП';
+      'ПО' : result := 'ПО';
+    else
+      result := '';
+    end;
+  }
+  procedure doimport; {
+    var workmode: byte;
+    var cnt_, i_: longint;
+    cnt_ := recordsintable(tntorg); i_ := 0;
+    startnewvisual(vtRotateVisual, vftimer+vfbreak, '', 0);
+    _loop torg {
+      i_ := i_ + 1;
+      if not nextvisual then break;
+      SetVisualHeader('Обработка строки '+i_+' из '+cnt_+''#13''+torg.rcod+' '+torg.rnaim);
+      if getfirst katorg where ((torg.corg == katorg.nrec)) = tsOk {
+        workmode := WM_UPDATE;
+        continue;
+      } else {
+        workmode := WM_INSERT;
+        clearbuffer(#katorg);
+      };
+      set katorg.NAME      := torg.rnaim            ; // наим.организации или ФИО физ.лица        │ 
+      set katorg.CODE      := torg.rcod             ; // внутрений номер                          │ 
+      set katorg.TIPORG    := gettiporg(torg.rnaim) ; // ООО, ЗАО, НТО, МП, СП, ЧП и т.п.         │ 
+      set katorg.ADDR      := torg.raddr            ; // адрес контрагента                        │ 
+      set katorg.UNN       := torg.rinn             ; // учетный номер налогоплательщика          │ 
+      set katorg.kodplatnds:= torg.rkpp             ;
+      set katorg.cstate    := c_russia              ; // Страна
+      var on_: string; on_ := katorg.name;
+      var j_:integer; j_ := 0;
+      while (getfirst ko where ((on_  == ko.name and katorg.cstate == ko.cstate and katorg.unn == ko.unn)) and katorg.nrec <> ko.nrec) = tsOk and j_<=10 {
+        j_ := j_ + 1;
+        on_  := on_ +'.';
+      }
+      set katorg.name := on_;
+      if j_=10 then message('j=10');
+      case workmode of
+        WM_UPDATE: update current katorg;
+        WM_INSERT: {
+          insert current katorg;
+          clearbuffer(#katorgdescr);
+          set katorgdescr.CODE      := 1           ; // внутренний код иерархии                  │ 
+          set katorgdescr.ISLEAF    := 1           ; // признак листа                            │ 
+          set katorgdescr.CREC      := katorg.NREC ; // ссылка на KatOrg                         │ 
+          set katorgdescr.NAME      := katorg.NAME ; // Имя уровня                               │ 
+          insert current katorgdescr;
+          clearbuffer(#kontrier);
+          set kontrier.CGROUP    := katorgdescr.NREC ; // некий пращур записи с кодом Kod          │ 
+          set kontrier.CRECDS    := katorgdescr.NREC ; // ссылка на орг. по которой сформ. эта     │ 
+          set kontrier.NAME      := katorg.NAME      ; // наименование уровня                      │ 
+          set kontrier.ISLEAF    := 0                ; // признак нижнего уровня                   │ 
+          insert current kontrier;
+          clearbuffer(#addressn);
+          set addressn.OBJTYPE   := 3     ; // Внутренний тип объекта                   │ 
+          set addressn.SADDRESS1 := katorg.ADDR ; // Полный почтовый адрес                    │ 
+          insert current addressn;
+          clearbuffer(#podrinfo);
+          set podrinfo.CPODR    := katorg.NREC   ; // Nrec из KatPodr                          │ 
+          set podrinfo.INSNOMER := addressn.NREC ; // Код Инспекции                            │ 
+          insert current podrinfo;
+        }
+      end;
+      update current torg set torg.corg := katorg.nrec;
+    } // loop
+    StopVisual('',0);
+  }
+  handleevent
+    cmPick: {
+      var s: string;
+      s := GetFileName('*.dbf', 'Путь к дбф');
+      if s<>'' then set sDBFPath := s;
+    }
+    cmLoadDBF: {
+      LoadDbf;
+    }
+    cmDoImport: {
+      DoImport;
+    }
+    cmInit: {
+      readmydsk(sdbfpath, 'imp_org_sdbfpath', false); 
+    }
+    cmDone: {
+      savemydsk(sdbfpath, 'imp_org_sdbfpath');
+    }
+  end;
+  
+end.
