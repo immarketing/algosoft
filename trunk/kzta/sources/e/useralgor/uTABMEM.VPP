@@ -1,0 +1,44 @@
+/*
+ ╔═══════════════════════════════════════════════════════════════════════════╗
+ ║                     (c) 1994,97 корпорация ГАЛАКТИКА                      ║
+ ║ Проект        : ГАЛАКТИКА                                                 ║
+ ║ Система       : Производственное планирование                             ║
+ ║ Версия        : 6.00                                                      ║
+ ║ Назначение    : Редактирование спецификации производственной программы    ║
+ ║ Ответственный : Сенькевич Игорь Казимирович (IGORS)                       ║
+ ║ Параметры     : есть                                                      ║
+ ╚═══════════════════════════════════════════════════════════════════════════╝
+*/
+
+table struct vtHor
+(
+  cNrec        : comp,
+  Name         : string[80],
+  TypeF        : LongInt,
+  TypeHier     : comp,
+  KodGrKau     : word,
+  TypeGl       : LongInt,
+  NumFix       : word,
+  NppGrKau     : word,    // номер в группе КАU
+  NumAll       : longint, // уникальный номер
+  Num          : longint,
+  VidSum       : longint, // что хранится
+  KolSum       : word, // сколько всего значений хранится
+  cMnAnal      : comp,
+  cVtHor       : comp
+)
+with Index
+(
+ vtHor01 = cNrec + TypeHier + NppGrKau + VidSum,
+ vtHor02 = Num,
+ vtHor03 = NumAll,
+ vtHor04 = cVtHor ,
+ vtHor05 = NumFix,
+ vtHor06 = TypeHier + KodGrKau + cNrec,
+ vtHor07 = KodGrKau + cNrec + VidSum,     //???
+ vtHor08 = TypeHier + VidSum + cVtHor + NumAll,
+ vtHor09 = TypeHier + NumAll
+ );
+
+type TVtHor  = record as table VtHor;
+

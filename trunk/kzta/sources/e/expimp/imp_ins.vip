@@ -1,0 +1,230 @@
+#component "KZTA"
+interface imp_ins 'Импорт Инструмента';
+  show at (,,55,7); 
+  const
+    csloj_      = 0001000000000003h;
+    c_mask      = 0001000000000003h;
+  end;
+  var
+    sDBFPath: string;
+    tr: translate;
+    flags: byte;
+  create view 
+  as select *
+  from katmc, hashan ha, katkau, 
+       spkau, kated, katotped, groupmc,
+       attrval av, naldrag;
+  
+  screen scmain;
+    fields
+      sDbfPath: noprotect,pickbutton;
+      flags: noprotect;
+    buttons
+      cmDoImport;
+<<
+
+  `Путь к дбф` .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+                                        (vygins.dbf)
+  [.] Обновлять существующие МЦ`                                        
+  
+  <.      Импорт     .>
+
+>>
+  end;
+  
+  function get_str_to_space(var s_: string): string; {
+    result := substr(s_, 1, pos(' ', s_)-1);
+    s_ := substr(s_, pos(' ', s_)+1, length(s_));    
+  }
+  
+  procedure log_(s_: string); {
+    //logstrtofile('d:\1.txt', s_);
+  }
+  
+  function GetStrSpKau(wgrkode: word; s_: string): comp; {
+    if s_='' {
+      result := 0;
+      exit;
+    }
+    if getfirst spkau where ((wgrkode == spkau.KODGRKAU and
+                              s_      == spkau.name)) <> tsOk {
+      insert spkau set spkau.name = s_,
+                       spkau.kodgrkau = wgrkode;
+    }
+    result := spkau.nrec;
+  }
+  
+  function GetNumKau(kodgr_: word; d_: double): comp; {
+    if getfirst katkau where ((kodgr_ == katkau.KODGROUP)) = tsOk {
+      var i: integer; i := 1;
+      while i<=katkau.valdot do {
+        i := i + 1;
+        d_ := d_  * 10;
+      }
+      result := string(round(d_));
+    } else {
+      result := 0;
+    }
+  }
+ 
+  
+  procedure hashan_block1(nskl: string; var cha_: comp); {
+    var an: array [1..1] of comp;
+    an[1]  := GetNumKau(w_an_nskl, nskl);
+    if getfirst ha where (( csloj_ == ha.csloj and
+                            0      == ha.cblock and
+                            an[1]  == ha.canalit[1] )) <> tsOk {
+      insert ha set ha.canalit[1]  = an[1] ,
+                    ha.cblock      = 0,
+                    ha.csloj       = csloj_,
+                    ha.npp         = '1';
+    }
+    set cha_ := ha.nrec;
+  }
+  
+  procedure addotped(cobj: comp; wvidobj: word; ckated: comp); {
+    if getfirst kated where ((ckated == kated.nrec)) = tsOk {
+      insert katotped set katotped.name = kated.name,
+                          katotped.prmc = wvidobj,
+                          katotped.cmcusl = cobj,
+                          katotped.koef = 1,
+                          katotped.akt = 1,
+                          katotped.diskret = kated.diskret,
+                          katotped.abbr = kated.abbr;
+    }  
+  }
+  
+  function get_groupmc(name_: string): comp; {
+    if getfirst groupmc where ((name_ == groupmc.kod)) <> tsOk {
+      insert groupmc set groupmc.kod = name_,
+                         groupmc.name = name_,
+                         groupmc.ced = 0000000000000070h,
+                         groupmc.lkod = length(name_);
+      addotped(groupmc.nrec, 3, groupmc.ced);
+    }
+    result := groupmc.nrec;
+  }
+  
+  function get_kated(code_: string): comp; {
+    case code_ of
+      '43': code_ := '9';
+      '55': code_ := '2';
+    end;
+    if getfirst av where ((4 == av.cattrnam and (av.vstring = code_) )) = tsOk {
+      result := av.crec;
+    } else {
+      result := 0;
+    };
+  }
+  
+  procedure AddDragMet(cMC_, cDragMet_: comp; kol_: double); {
+    insert naldrag set naldrag.TIDK = 3,
+                       naldrag.CKATOS = cMC_,
+                       naldrag.CKATDRAG = cDragMet_,
+                       naldrag.kol = kol_;
+  }
+  
+  procedure DoImport;
+    var
+      kodsys  : comp;
+      nom     : string[22];
+      naim    : string[100];
+      ei_code : word;
+      nskl    : word;
+      gr_code : word;
+      zol     : double;
+      ser     : double;
+      plat    : double;
+      palad   : double;
+      other   : double; 
+      cgrmc   : comp;
+  {
+    var l, cnt, i: longint;
+    l := dbfopen(sdbfpath, stopen);
+    startnewvisual(vtRotateVisual, vftimer+vfbreak, 'Чтение '+sdbfpath, 0);
+    //определяем количество строк в дбф-ке
+    cnt := 0;
+    if dbfgetfirst(l) = 0 then
+    do {
+      cnt := cnt + 1;
+    } while dbfgetnext(l) = 0;
+    //грузим.
+    i := 0;
+    var cha1, cha2 : comp;
+    if dbfgetfirst(l) = 0 then
+    do {
+      i := i + 1;
+      if not nextvisual then break;
+      SetVisualHeader('Обработка строки '+i+' из '+cnt);
+      kodsys   := trim(dbfgetfieldvalue(l, 'kodsys'));
+      nom      := trim(dbfgetfieldvalue(l, 'nom'));
+      naim     := tr.lat2ru(trim(dbfgetfieldvalue(l, 'buh_name')));
+      ei_code  := trim(dbfgetfieldvalue(l, 'ei_code'));
+      nskl     := trim(dbfgetfieldvalue(l, 'nskl'));
+      gr_code  := trim(dbfgetfieldvalue(l, 'gr_code'));
+      zol      := trim(dbfgetfieldvalue(l, 'zol'));
+      ser      := trim(dbfgetfieldvalue(l, 'ser'));
+      plat     := trim(dbfgetfieldvalue(l, 'plat'));
+      palad    := trim(dbfgetfieldvalue(l, 'palad'));
+      other    := trim(dbfgetfieldvalue(l, 'other'));
+      log_('barkod: '+nom);
+      hashan_block1(nskl,cha1);
+      cgrmc := get_groupmc(gr_code);
+      if getfirst katmc where ((nom == katmc.barkod)) <> tsOk {
+        insert katmc set katmc.name = naim,
+                         katmc.barkod = nom,
+                         katmc.cgroupmc = cgrmc,
+                         katmc.ced = get_kated(ei_code),
+                         katmc.chashan = cha1,
+                         katmc.classgr = 1,
+                         katmc.cgrnal = c_grnal_18,
+                         katmc.cmaskmc = c_mask,
+                         katmc.csloj   = csloj_,
+                         katmc.kgroupmc = gr_code,
+                         KATMC.PRMAT = 2;
+        if zol   > 0 then AddDragMet(katmc.nrec, c_zoloto  , zol  );
+        if ser   > 0 then AddDragMet(katmc.nrec, c_serebro , ser  );
+        if plat  > 0 then AddDragMet(katmc.nrec, c_platina , plat );
+        if palad > 0 then AddDragMet(katmc.nrec, c_palladiy, palad);
+        if other > 0 then AddDragMet(katmc.nrec, c_other   , other);
+      } else {
+        if (flags and 1) > 0 then
+        update current katmc set katmc.name = naim,
+                                 katmc.barkod = nom,
+                                 katmc.cgroupmc = cgrmc,
+                                 katmc.ced = get_kated(ei_code),
+                                 katmc.chashan = cha1,
+                                 katmc.classgr = 1,
+                                 katmc.cgrnal = c_grnal_18,
+                                 katmc.cmaskmc = c_mask,
+                                 katmc.csloj   = csloj_,
+                                 katmc.kgroupmc = gr_code,
+                                 KATMC.PRMAT = 2;
+      }
+    } while dbfgetnext(l) = 0;
+    dbfclose(l);
+    stopvisual('',0);
+  }
+  handleevent
+    cmDoImport: {
+      DoImport;
+    }
+    cmPick: {
+      case curfield of
+        #sDbfPath: {
+          var s: string;
+          s := GetFileName('*.dbf', 'Путь к дбф');
+          if s<>'' then set sDBFPath := s;
+        }
+      end;
+    }
+    cmInit: {
+      readmydsk(sdbfpath, 'imp_ins_sdbfpath', false); 
+      readmydsk(flags   , 'imp_ins_flags'   , false); 
+    }
+    cmDone: {
+      savemydsk(sdbfpath, 'imp_ins_sdbfpath');
+      savemydsk(flags   , 'imp_ins_flags');
+    }
+  end;
+end.

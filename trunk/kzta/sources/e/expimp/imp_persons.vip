@@ -1,0 +1,292 @@
+#include catfunc.vih
+#component "KZTA"
+interface imp_persons;
+const
+  MAINLINK_DOLJ = 472;
+  ENTRYPOINT_DOLJ = -22;
+end;
+table struct tpers (
+  tabnmb: string[20],
+  podrcode: string[3],
+  fam: string[50],
+  im: string[50],
+  otch: string[50],
+  sex: char,
+  dpriem: date,
+  doljcode: string[10],
+  doljname: string[70],
+  cdolj: comp,
+  cpodr: comp,
+  cshr: comp
+) with index (
+  i01 = tabnmb,
+  i02 = cshr + cdolj
+);
+table struct tdolj (
+  cdep: comp,
+  cpodr: comp,
+  cdolj: comp,
+  cnt: longint
+) with index (
+  i01 = cdep + cdolj (unique)
+);
+var
+  cf: CatalogsFunctions;
+create view
+var
+  sxlspath: string;
+  cmaindolj: comp;
+  tr: translate;
+as select *,
+         cf.GetCatalogsName(cmaindolj) (fieldname=smaindolj)
+from tpers, persons, katpodr kp, catalogs, extcatlinks, catalogs catdolj, 
+     catalogs catshr, tdolj, staffstruct, lschet, deponkart, appointments, vacancy
+where (( tpers.cshr == catshr.nrec
+));
+screen scMain;
+  fields
+    sxlspath: noprotect, pickbutton;
+    smaindolj: protect, pickbutton;
+  buttons
+    cmDoOk;
+    cmCreatePersons;
+<<
+  `Путь к xls-файлу` .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+  `Каталог для должностей` .@@@@@@@@@@@@@@@@@@@@@@@
+  
+    <. Продолжить .> <. Сформировать сотрудников .>
+>>
+end;
+window wInfo;
+  browse brInfo;
+    show at (,,,10);
+    table tpers;
+    fields
+      tpers.tabnmb 'tabnmb': [10], protect;
+      tpers.podrcode 'podrcode': [3], protect;
+      tpers.fam+' '+tpers.im+' '+tpers.otch 'FIO': [70], protect;
+      tpers.sex 'sex': [1], protect;
+      tpers.dpriem 'dpriem': [10], protect;
+      tpers.doljcode 'doljcode': [10], protect;
+      tpers.doljname 'doljname': [20], protect;
+      if(GetAnyKau(0, 2, tpers.cpodr),GivenAnName(1),'') 'cpodr': [10], protect;
+      catshr.name 'cshr': [10], protect;
+  end;
+  browse brDolj;
+    show at (,11,,);
+    table tdolj;
+    fields
+      tdolj.cdep 'cdep': [10], protect;
+      tdolj.cdolj 'cdolj': [10], protect;
+      tdolj.cnt 'cnt': [10], protect;
+  end;
+end;
+function xlrowcount: longint; {
+  var l,y: longint;
+  var s1,s2: string;
+  l := 32000;
+  y := l;
+  startnewvisual(vtRotateVisual, vftimer+vfbreak, 'Определение количества строк в xls-файле', 0);
+  while true do {
+    if not nextvisual {
+      message('Расчет количества строк в xls-файле прерван.'#13'Количество строк определено как 0');
+      result := 0;
+      break;
+    }
+    xlgetcellvalue(y,1,s1);
+    xlgetcellvalue(y+1,1,s2);
+    //log_('l='+l+'; y='+y+'; s1='+s1+'; s2='+s2);
+    if s1<>'' and s2='' {
+      result := y;
+      break;
+    } else {
+      l := l div 2;
+      if l=0 then l := 1;
+      y := y + l * if(s1='',-1,1);
+    }
+    if y=0 then {
+      result := 0;
+      break;
+    }
+  }
+  stopvisual('',0);
+}
+function FirstCharUp(s: string): string; {
+  result := upcase(substr(s,1,1))+locase(substr(s,2,length(s)-1));
+}
+function filltables:boolean; {
+  setvisualheader('Чтение xls-файла');
+  if not xlOpenNewExcel(false) {
+    stopvisual('',0);
+    Message('Ошибка запуска excel');
+    result := false;
+    exit;
+  }
+  if not xlOpenWorkBook(sxlspath) {
+    stopvisual('',0);
+    Message('Ошибка открытия xls-файла');
+    xlkillexcel;
+    result := false;
+    exit;
+  }
+  var cnt: longint;
+  cnt := xlrowcount;
+  xlReadMatrixFromExcel(2,1,cnt,10);
+  cnt := cnt - 1;
+  delete all tpers;
+  var y: longint; y := 1;
+  var s: string;
+  for (y:=1;y<=cnt;y:=y+1) {
+    clearbuffer (tntpers);
+    xlReadFromMatrix(y,1,s); tpers.tabnmb := trim(s);
+    xlReadFromMatrix(y,2,s); tpers.podrcode := trim(s);
+    while (length(tpers.podrcode)<2) do { tpers.podrcode := '0'+tpers.podrcode;}
+    xlReadFromMatrix(y,3,s); tpers.fam := FirstCharUp(tr.lat2ru(trim(s)));
+    xlReadFromMatrix(y,4,s); tpers.im := FirstCharUp(tr.lat2ru(trim(s)));
+    xlReadFromMatrix(y,5,s); tpers.otch := FirstCharUp(tr.lat2ru(trim(s)));
+    xlReadFromMatrix(y,7,s); tpers.sex := upcase(tr.lat2ru(trim(s)));
+    xlReadFromMatrix(y,8,s); tpers.dpriem := strtodate(s,'DD.MM.YYYY');
+    xlReadFromMatrix(y,9,s); tpers.doljcode := trim(s);
+    xlReadFromMatrix(y,10,s); tpers.doljname := tr.lat2ru(trim(s));
+    if (getfirst kp where ((tpers.podrcode == kp.kod)) and kp.sklad=0) = tsOk then tpers.cpodr := kp.nrec
+    else if (getfirst kp where ((tpers.podrcode == kp.kod)) and kp.sklad=1) = tsOk then tpers.cpodr := kp.nrec;
+    case tpers.tabnmb of 
+      '5324' :tpers.cshr := 0001000000000003h;
+      '94150':tpers.cshr := 0001000000000030h;
+      '1427' :tpers.cshr := 000100000000001Bh;
+      '62262':tpers.cshr := 000100000000001Ch;
+      '48758':tpers.cshr := 000100000000000Ch;
+      '55024':tpers.cshr := 000100000000002Dh;
+      '33032':tpers.cshr := 0001000000000011h;
+      '40433':tpers.cshr := 0001000000000004h;
+      '32394':tpers.cshr := 000100000000002Ah;
+    else
+      if (getfirst extcatlinks where ((11 /== extcatlinks.objtype and
+                                      1  /== extcatlinks.modtype and
+                                      tpers.cpodr /== extcatlinks.extcat and
+                                      extcatlinks.staffcat /== catalogs.nrec)) ) = tsOk {
+        tpers.cshr := extcatlinks.staffcat;
+      }
+    end;
+    if (tpers.doljcode <> '0') {
+      if (getfirst catalogs where ((cmaindolj == catalogs.cparent and tpers.doljcode == catalogs.code)) ) <> tsOk {
+        insert catalogs set catalogs.cparent := cmaindolj,
+                            catalogs.groupcode := 2,
+                            catalogs.name := tpers.doljname,
+                            catalogs.code := tpers.doljcode,
+                            catalogs.mainlink := MAINLINK_DOLJ; 
+      }
+      tpers.cdolj := catalogs.nrec;
+    }
+    insert current tpers;
+  }
+  delete all tdolj;
+  insert tdolj (cdep, cpodr, cdolj, cnt)
+  select tp.cshr, tp.cpodr, tp.cdolj, doljcnt.cnt
+    from tpers tp,
+         (select count(*)(fieldname=cnt)
+            from tpers tp1 where (( tp.cshr == tp1.cshr and tp.cdolj == tp1.cdolj )) ) doljcnt
+   where tp.cdolj <> 0
+  ignore_errors(tsDuplicatekey);
+  var oldcdep: comp; oldcdep := 0;
+  var num_: word;
+  _loop tdolj where tdolj.cdolj <> 0 {
+    if tdolj.cdep <> oldcdep then { num_ := 1; oldcdep := tdolj.cdep; } else { num_ := num_ + 1; };
+    if getfirst staffstruct where ((tdolj.cdep == staffstruct.department and tdolj.cdolj == staffstruct.post)) <> tsOk {
+      insert staffstruct set staffstruct.seqnmb := num_,
+                             staffstruct.department := tdolj.cdep,
+                             staffstruct.post := tdolj.cdolj,
+                             staffstruct.workstations := tdolj.cnt,
+                             staffstruct.workers := 0,
+                             staffstruct.dinput := date(1,3,2010),
+                             staffstruct.cpodr := tdolj.cpodr;
+    }
+  }
+}
+procedure CreatePersons; {
+  _loop tpers {
+    if getfirst persons where (('С'==persons.isemployee and tpers.tabnmb == persons.tabnmb)) = tsOk then continue;
+    clearbuffer(tnpersons);
+    persons.isemployee := 'С';
+    persons.fio := tpers.fam+' '+tpers.im+' '+tpers.otch;
+    persons.sex := tpers.sex;
+    persons.department := tpers.cshr;
+    persons.galdep := tpers.cpodr;
+    persons.tabnmb := tpers.tabnmb;
+    persons.appdate := tpers.dpriem;
+    insert current persons;
+    clearbuffer(tnlschet);
+    lschet.tabn := persons.tabnmb;
+    lschet.cex := persons.galdep;
+    lschet.cappoint := tpers.cdolj;
+    lschet.kassir := '+';
+    lschet.profs := '-';
+    lschet.datpos := persons.appdate;
+    lschet.datn13 := persons.appdate;
+    lschet.datnvis := persons.appdate;
+    lschet.pens := '+';
+    lschet.tperson := persons.nrec;
+    lschet.lgssuda := 1;
+    lschet.char1 := '+';
+    lschet.char3 := '+';
+    lschet.char6 := '+';
+    lschet.char9 := '9';
+    insert current lschet;
+    clearbuffer(tndeponkart);
+    deponkart.clschet := lschet.nrec;
+    deponkart.cperson := persons.nrec;
+    insert current deponkart;
+    clearbuffer(tnappointments);
+    appointments.person := persons.nrec;
+    appointments.department := persons.department;
+    appointments.post := tpers.cdolj;
+    appointments.emprate := 1;
+    appointments.rate := 1;
+    appointments.waddword1 := 1;
+    appointments.apptabnmb := persons.tabnmb;
+    appointments.appointdate := persons.appdate;
+    insert current appointments;
+    update current persons set persons.APPOINTCUR := appointments.nrec;
+    clearbuffer(tnvacancy);
+    vacancy.person := persons.nrec;
+    vacancy.appoint := appointments.nrec;
+    if getfirst staffstruct where ((tpers.cshr == staffstruct.department and tpers.cdolj == staffstruct.post)) = tsOk {
+      vacancy.staffstr := staffstruct.nrec;
+    }
+    vacancy.rate := 1;
+    insert current vacancy;
+  }
+}
+handleevent
+  cmDoOk: {
+    startnewvisual(vtRotateVisual, vftimer+vfbreak, '', 0);
+    filltables;
+    stopvisual('',0);
+    runwindow(wInfo);
+  }
+  cmCreatePersons: {
+    CreatePersons;
+  }
+  cmpick: {
+    case curfield of 
+      #sxlspath: {
+        var s: string;
+        s := GetFileName('*.xls', 'Путь к xls-файлу');
+        if s<>'' then set sxlspath := s;
+      }
+      #smaindolj: {
+        runinterface(Z_STAFFCAT::PickCatalog2, ENTRYPOINT_DOLJ, cmaindolj, 0);
+        rereadrecord;
+      }
+    end;
+  }
+  cmInit: {
+    if not readmydsk(sxlspath, 'imp_persons_sxlspath', false) then sxlspath := '';
+    if not readmydsk(cmaindolj, 'imp_persons_cmaindolj', false) then cmaindolj := MAINLINK_DOLJ;
+  }
+  cmDone: {
+    savemydsk(sxlspath, 'imp_persons_sxlspath');
+    savemydsk(cmaindolj, 'imp_persons_cmaindolj');
+  }
+end;
+end.
