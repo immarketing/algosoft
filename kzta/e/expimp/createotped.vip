@@ -1,0 +1,30 @@
+interface createotped;
+create view
+as select * from katmc, kated, katotped oe;
+screen scmain;
+<<
+>>
+end;
+handleevent
+  cmInit: {
+    logstrtofile('c:\createotped.log','----------------------------------------'+cur_date()+' '+cur_time());
+    _loop katmc {
+      if getfirst oe where ((1 == oe.prmc and katmc.nrec == oe.cmcusl and 1 == oe.akt)) <> tsOk {
+        if getfirst kated where ((katmc.ced == kated.nrec)) = tsOk then {
+          insert oe set oe.prmc := 1,
+                        oe.cmcusl := katmc.nrec,
+                        oe.akt := 1,
+                        oe.pr := 0,
+                        oe.diskret := kated.diskret,
+                        oe.abbr := kated.abbr,
+                        oe.ckated := kated.nrec,
+                        oe.name := kated.name,
+                        oe.koef := 1;
+        } else {
+          logstrtofile('c:\createotped.log',katmc.barkod+' '+katmc.name);
+        }
+      }
+    }
+  }
+end;
+end.

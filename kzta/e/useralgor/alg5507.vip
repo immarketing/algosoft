@@ -1,0 +1,247 @@
+#component "M_MNPLAN"
+VipInterface alg5507 Implements oAlgoritm_Sys;
+Interface alg5507 '' (,hcNoContext,) EscClose, Cyan;
+
+var
+  cFormPl_: comp;
+
+table struct ts (
+  typ: word,
+  cPS: comp,
+  cMarsh: comp,
+  kol: double,
+  level: byte
+) with index (
+  i01 = level + cPS,
+  i02 = typ,
+  i03 = level + typ,
+  i04 = cMarsh
+);
+
+table struct tt (
+  cmk: comp,
+  trud: double
+) with index (
+  i01 = cmk
+);
+
+create view
+as select *
+from formpl, ts, tt, spmnplan, mnplan, spmnpl, valspmnp
+where ((
+  cFormPl_ == formpl.nrec
+))
+;
+
+
+create view v
+var
+  vcmarsh: comp;
+as select *
+from marsh_sp msp, normas n, hdr_ps hps
+where ((
+  vcmarsh    /== msp.cmarsh and
+  (35          = msp.wope) and
+  11005      /== n.tmaster and
+  msp.nrec   /== n.cmaster and
+  11007       == n.tobject and
+  msp.nope    == n.cobject and
+  101         == n.normsort and
+  (n.tresource = 4) and
+  4           == hps.ctypeizd and
+  n.cresource == hps.cizd and
+  25          == hps.kind and
+  (hps.active  = 1)
+));
+
+Function GetNum : word;
+{
+ GetNum := 5507;
+}
+
+function GetName : string;
+{
+ GetName := 'КЗТА.Расчет трудоемкости цеха по позициям планов и ПЗ';
+}
+
+#define S st.push('
+#define E ');
+
+Function GetMemo ( st:oSteckCommonString ) : Boolean;
+{
+  GetMemo := True;
+  //#s     Расчет количества по позициям ПЗ с начала года (комплект) #e
+}
+
+Function GetNameInter : String;
+{
+  GetNameInter := 'alg5507' ;
+}
+
+Function GetNameInterPr : String;
+{
+  GetNameInterPr := 'alg5507_Setup' ;
+}
+
+Function InitInter( Var pt:TRecAcc ) : Boolean;
+{
+  InitInter := true;
+}
+
+Function DoneInter( Var pt:TRecAcc ) : Boolean;
+{
+  DoneInter := True;
+}
+
+window winfo escclose; 
+  browse brinfo;
+  table ts;
+  fields
+    ts.level 'level': [3], protect;
+    if(GetAnyKau(0, 25, ts.cPS), GivenAnName(1), '') 'ПС': [20], protect;
+    if(GetAnyKau(0, 24, ts.cMarsh), GivenAnName(1), '') 'МК': [20], protect;
+    ts.kol 'kol':[8,4], protect;
+  end;
+end;
+
+window winfo2 escclose; 
+  browse brinfo2;
+  table tt;
+  fields
+    if(GetAnyKau(0, 24, tt.cmk), GivenAnName(1), '') 'МК': [20], protect;
+    tt.trud 'trud':[8,4], protect;
+  end;
+end;
+
+procedure sostav(lvl: byte; d: date); {
+  insert ts (typ, cPS, cMarsh, kol, level)
+  select psl.wdet, 
+         if(psl.cdet>0 and psl.wdet=4,hps2.nrec,if(psl.tdoc=25,psl.cdoc,0)), 
+         km.nrec,
+         ts1.kol*psl.kol/if(hps1.ednorm>0,hps1.ednorm,1),
+         lvl+1
+    from ts ts1, hdr_ps hps1, ps_lines psl, hdr_ps hps2, katmarsh km
+   where (( lvl        == ts1.level
+        and ts1.cPS    == hps1.nrec
+        and hps1.nrec  == psl.chdr
+        and ( psl.active = 0 and ((psl.dtbeg=0 and psl.dtend=0) or (psl.dtbeg<=d and psl.dtend>=d)) )
+        and 4         /== hps2.ctypeizd 
+        and if(psl.cdet>0 and psl.wdet=4,psl.cdet,0) /== hps2.cizd
+        and 25        /== hps2.kind
+        and (hps2.active = 1)
+        and 4          == km.tobject
+        and if(psl.cdet>0 and psl.wdet=4,psl.cdet,0) == km.cobject
+        and (km.active  = 1)
+  ));
+  rereadrecord(#ts);
+  //runwindowmodal(winfo);
+  if getfirst ts where ((lvl+1 == ts.level and 0 << ts.cPS)) = tsOk then sostav(lvl+1, d);
+}
+
+function getkoeftime(_t: word): double; {
+  case _t of
+    2: result := 1/60;
+    3: result := 1/3600;
+    4: result := 24;
+    5: result := 168;
+  else
+    result := 1;
+  end;
+}
+
+function gettrud(_cmarsh, _cpodr: comp; d: date): double; {
+  //message(string(_cmarsh,0,0)+' '+string(_cpodr,0,0)+' '+d);
+  delete all ts;
+  v.vcmarsh := _cmarsh;
+  v._loop {
+    insert ts set ts.typ := 4, 
+                  ts.cPS := if(v.n.tdoc=25 and v.n.cdoc>0,v.n.cdoc,v.hps.nrec),
+                  ts.cMarsh := _cmarsh,
+                  ts.kol := v.n.rasx/if(v.n.DNORMED>0,v.n.DNORMED,1),
+                  ts.level := 1;
+  }
+  //runwindowmodal(winfo);
+  sostav(1,d);
+  delete all tt;
+  insert tt (cmk, trud)
+  select km.nrec, double(pv.value[2])*ts.kol/if(n.dnormed>0,n.dnormed,1)*n.rasx*getkoeftime(pv.value[1])
+    from ts, katmarsh km, marsh_sp msp, normas n, paramvol pv
+   where (( 0 << ts.cMarsh
+        and ts.cMarsh   == km.nrec
+        and 2           == msp.tdep
+        and _cpodr      == msp.cdep
+        and km.nrec     == msp.cmarsh
+        and (msp.wope=35 and msp.active=0 and ((msp.dtbeg=0 and msp.dtend=0) or (msp.dtbeg<=d and msp.dtend>=d)) )
+        and 11005      /== n.tmaster 
+        and msp.nrec   /== n.cmaster 
+        and 11007       == n.tobject 
+        and msp.nope    == n.cobject 
+        and 102         == n.normsort 
+        and (n.active = 0)
+        and 11000       == pv.tobject
+        and n.nrec      == pv.cobject
+  ))
+  ;
+  //runwindowmodal(winfo);
+  //runwindowmodal(winfo2);
+  var _d: double; _d := 0;
+  _loop tt {
+    _d := _d + tt.trud;
+  }
+  result := _d;
+}
+
+Function RunInter( wflag:Word; Var pt:TRecAcc ) : Boolean;
+{
+  cFormPl_ := pt.cFormPl;
+  if getfirst formpl <> tsOk {
+    message('Не найдены настройки алгоритма.');
+    exit;
+  }
+  var _cpodr, _cmarsh: comp;
+  var _d: date;
+  startnewvisual(vtRotateVisual, 0, '', 0);
+  if getfirst mnplan where ((pt.cmnplan == mnplan.nrec)) = tsOk {
+    _cpodr := mnplan.canval1;
+    _d := mnplan.startdate;
+    if _cpodr = 0 then {
+      message('В документе не установлено подразделение, по которому необходимо выполнить расчет.');
+      stopvisual('', 0);
+      exit;
+    }
+    if _d = 0 {
+      message('В документе не установлена Дата начала. Расчет будет выполнен на текущую дату');
+      _d := cur_date;
+    }
+    var _tr: double;
+    _loop spmnplan where ((mnplan.nrec == spmnplan.cmnplan)) {
+      setvisualheader(if(GetAnyKau(0, 4, spmnplan.cizd), GivenAnName(1), ''));
+      _cmarsh := spmnplan.canval1;
+      _loop spmnpl where ((spmnplan.nrec == spmnpl.cspmnplan)) {
+        _loop valspmnp where ((spmnpl.nrec == valspmnp.cspmnpl)) {
+          _tr := gettrud(_cmarsh, _cpodr, _d);
+          case formpl.resword[1] of
+            1 : ValSpMnP.kol := _tr;
+            2 : ValSpMnP.price := _tr;
+            3 : ValSpMnP.vprice := _tr;
+            4 : ValSpMnP.summa := _tr;
+            5 : ValSpMnP.kolfield5 := _tr;
+            6 : ValSpMnP.kolfact := _tr;
+            7 : ValSpMnP.pricefact := _tr;
+            8 : ValSpMnP.kolfield6 := _tr;
+            9 : ValSpMnP.summafact := _tr;
+            10: ValSpMnP.kolfield7 := _tr;
+            11: ValSpMnP.kolfield1 := _tr;
+            12: ValSpMnP.kolfield2 := _tr;
+            13: ValSpMnP.kolfield3 := _tr;
+            14: ValSpMnP.kolfield4 := _tr;
+          end;
+          update current valspmnp;
+        }
+      }
+    }
+  }
+  stopvisual('', 0);
+  RunInter := true;
+}
+End.  // interface

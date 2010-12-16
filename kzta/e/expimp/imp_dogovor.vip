@@ -1,0 +1,573 @@
+#component "KZTA"
+interface imp_dogovor 'Импорт договоров', escclose;
+  show at (,,57, 7);
+  const
+    status_isp = 1;
+    status_clo = 4;
+    dir_buy = 2;
+    dir_sell = 1;
+    with_nds = 1;
+    no_nds = 2;
+  end;
+  table struct tdog(
+    nrec: comp,
+    NODOC_EXT: string[40],
+    NODOC: string[40],
+    DDOC: date,
+    DBEG: date,
+    DEND: date,
+    KOD_CONTRAG: string[20],
+    fiootv: string[120],
+    tabnotv: string[5],
+    podrotv: string[4],
+    status: word,
+    sval: string[4],
+    summa: double,
+    sumnonds: double,
+    direct: word,
+    ground: string,
+    nds: word,
+    corg: comp,
+    cpodr: comp,
+    cperson: comp
+  ) with index (
+    i00 = nrec (unique, surrogate),
+    i01 = NODOC
+  );
+  table struct torg (
+    nrec: comp,
+    name: string
+  ) with index (
+    i01 = nrec,
+    i02 = name
+  );
+  table struct tstage(
+    nrec: comp,
+    cdog: comp,
+    num: string[10],
+    status: word,
+    summa: double,
+    sumnonds: double,
+    direct: word,
+    ground: string[250],
+    nds: word
+  ) with index (
+    i00 = nrec (unique, surrogate),
+    i01 = cdog
+  );
+  table struct tSchet (
+    sch: string[6],
+    corg: comp
+  ) with index (
+    i01 = corg
+  );
+  var
+    sxlspath, schpath: string;
+    flags: word;
+    lMarker: longint;
+
+  create view
+  as select *,
+            if(GetAnyKau(0, 1, brdog.corg),GivenAnName(1),'??') (fieldname=fOrg),
+            if(GetAnyKau(0, 2, brdog.cpodr),GivenAnName(1),'??') (fieldname=fPodr),
+            if(GetAnyKau(0, 3, brdog.cperson),GivenAnName(1),'??') (fieldname=fPers)
+  from tdog, tdog brdog, tstage, tstage brstage, katorg, katpodr, tschet, persons, appointments, catalogs, torg, dogovor d, ierdog, attrdog, soprhoz, grdescr
+  where ((  brdog.nrec == brstage.cdog
+  ))
+  ;
+  procedure import_dogovor; forward;
+
+  screen sctune;
+    fields
+      sxlspath: noprotect, pickbutton;
+      flags: noprotect;
+      schpath: noprotect, pickbutton;
+    buttons
+      cmcancel;
+      cmcontinue, default;
+<<
+
+ `Путь к xls-файлу` .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+ [.] Загружать закрытые договора и этапы`
+ `Путь к папке со счетами` .@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+ <. Отмена .>                          <. Продолжить .>
+
+>>
+  end;
+  window wschet 'Счета';
+    browse brschet;
+    table tschet;
+    fields
+      tschet.sch 'sch': protect;
+      if(GetAnyKau(0, 1, tschet.corg),GivenAnName(1),'??'): protect;
+    end;
+  end;
+  window winfo 'Импорт договоров';
+    screen scdog;
+      show at (,,,4);
+      buttons
+        cmImp;
+<<
+ <. Импорт .>
+>>
+    end;
+    browse brdog (,,sci1378InsPM);
+      show at (,5,,15);
+      table brdog;
+      fields
+        {font={color=if(brdog.corg=0 or brdog.cperson=0 or brdog.cpodr=0, 2, 0)}};
+        if(foundmarker(lMarker,brdog.nrec),'V', ''):[1], skip;
+        brdog.direct 'Направление': [5],[list dir_buy 'Закупка', dir_sell 'Продажа'];
+        brdog.ddoc 'Дата договора': [10],protect;
+        brdog.nodoc_ext 'Номер внешний': [10],protect;
+        brdog.nodoc 'Номер внутренний': [10],protect;
+        brdog.dbeg 'С': [10],protect;
+        brdog.dend 'По': [10],protect;
+        brdog.kod_contrag 'Код контрагента': [6],protect;
+        brdog.podrotv 'Отв. подр.': [6],protect;
+        brdog.tabnotv 'Отв. таб.н.': [5],protect;
+        brdog.fiootv 'Отв. ФИО': [30],protect;
+        brdog.status 'Статус': [5],[list status_isp 'Открытый', status_clo 'Закрытый'];
+        brdog.sval 'Валюта': [3], protect;
+        brdog.summa 'Сумма с НДС': [8,2], noprotect;
+        brdog.sumnonds 'Сумма без НДС': [8,2], noprotect;
+        brdog.nds 'НДС': [4], [list with_nds '18%', no_nds 'без НДС'];
+        brdog.ground 'Назначение':[10], noprotect;
+    end;
+
+    browse brStage;
+      show at (,16,50,);
+      table brstage;
+      fields
+        brdog.direct 'Направление': [5],[list dir_buy 'Закупка', dir_sell 'Продажа'];
+        brstage.num 'Номер этапа': [5], protect;
+        brstage.summa 'Сумма с НДС': [8,2], protect;
+        brstage.sumnonds 'Сумма без НДС': [8,2], protect;
+        brstage.status 'Статус': [5],[list status_isp 'Открытый', status_clo 'Закрытый'];
+        brstage.ground 'Назначение': [10], noprotect;
+        brstage.nds 'НДС': [4], [list with_nds '18%', no_nds 'без НДС'];
+    end;
+    panel pgal;
+    show at (51,16,,);
+    table brdog;
+    screen scgal;
+
+      fields
+        fOrg: protect, pickbutton;
+        fPodr: protect, pickbutton;
+        fPers: protect, pickbutton;
+        brdog.ground: protect;
+<<
+  `Организация`   .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+  `Подразделение` .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+  `Сотрудник`     .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+  .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+>>
+    end;
+    end;
+    tableevent table brdog;
+      cmPositionChanged: {
+        rereadrecord(#brdog);
+      }
+    end;
+    handleevent
+      cmImp: {
+        import_dogovor;
+      }
+      cmMarkUnMark: {
+        if (FoundMarker(lMarker, brdog.nrec)) { DeleteMarker(lMarker, brdog.nrec); }
+        else { InsertMarker(lMarker, brdog.nrec); }
+        if (getnext brdog)=tsOk {};
+        Rereadrecord(#brdog);
+      }
+      cmSelectAll: {
+        ClearMarker(lMarker);
+        StartNewVisual(vtRotateVisual, vfTimer+vfBreak, ''#3'Выбор ...'#13#3, 1);
+        _try {
+          pushpos(#brdog);
+          _loop brdog {
+            InsertMarker(lMarker, brdog.nrec);
+            NextVisual;
+          }
+        } // try
+        _except
+          on ExUserBreak :
+          {
+            ClearMarker(lMarker);
+          }
+        _finally {
+          poppos(#brdog);
+          ReReadRecord(#brdog);
+          StopVisual('',0);
+        }
+        Rereadrecord(#brdog);
+      }
+      cmUnSelectAll: {
+        ClearMarker(lMarker);
+        Rereadrecord(#brdog);
+      }
+    end;
+  end;
+  procedure log_(s_: string); {
+    logstrtofile('d:\1.txt', s_);
+  }
+  function xlrowcount(_col:longint): longint; {
+    var l,y: longint;
+    var s1,s2: string;
+    l := 32000;
+    y := l;
+    startnewvisual(vtRotateVisual, vftimer+vfbreak, 'Определение количества строк в xls-файле', 0);
+    while true do {
+      if not nextvisual {
+        message('Расчет количества строк в xls-файле прерван.'#13'Количество строк определено как 0');
+        result := 0;
+        break;
+      }
+      xlgetcellvalue(y,_col,s1);
+      xlgetcellvalue(y+1,_col,s2);
+      //log_('l='+l+'; y='+y+'; s1='+s1+'; s2='+s2);
+      if s1<>'' and s2='' {
+        result := y;
+        break;
+      } else {
+        l := l div 2;
+        if l=0 then l := 1;
+        y := y + l * if(s1='',-1,1);
+      }
+      if y=0 then {
+        result := 0;
+        break;
+      }
+    }
+    stopvisual('',0);
+  }
+  function loadschet(fname:string;schet:string):boolean; {
+    startnewvisual(vtRotateVisual, vftimer+vfbreak, 'Загрузка счета '+schet+' из '+fname, 0);
+    if not xlOpenNewExcel(false) {
+      stopvisual('',0);
+      Message('Ошибка запуска excel');
+      result := false;
+      exit;
+    }
+    if not xlOpenWorkBook(fname) {
+      stopvisual('',0);
+      Message('Ошибка открытия xls-файла');
+      xlkillexcel;
+      result := false;
+      exit;
+    }
+    var cnt: longint;
+    cnt := xlrowcount(2);
+    xlReadMatrixFromExcel(2,1,cnt,3);
+    cnt := cnt - 1;
+    var y: longint;
+    var s, _inn, _kpp, _kod: string;
+    var _corg: comp;
+    for (y:=1;y<cnt;y:=y+1) {
+      _corg := 0;
+      clearbuffer(#tschet);
+      tschet.sch := schet;
+      xlReadFromMatrix(y,1,_kod);
+      _kod := substr(_kod+' ',1,pos(' ',_kod)-1);
+      xlReadFromMatrix(y,2,_inn);
+      xlReadFromMatrix(y,3,_kod);
+      if getfirst katorg where ((_kod == katorg.code)) = tsOk _corg := katorg.nrec
+      else if getfirst katorg where ((_inn == katorg.code)) = tsOk _corg := katorg.nrec
+      else if getfirst katorg where ((_inn == katorg.unn and (_kpp = katorg.kodplatnds) )) = tsOk _corg := katorg.nrec
+      else if getfirst katorg where ((_inn == katorg.unn)) = tsOk then _corg := katorg.nrec;
+      tschet.corg := _corg;
+      insert current tschet;
+    }
+    xlkillexcel;
+    stopvisual('', 0);
+  }
+  procedure UpdateDirections; {
+    startnewvisual(vtRotateVisual, vftimer+vfbreak, 'Обновление направлений договоров', 0);
+    _loop tdog {
+      if getfirst tschet where ((tdog.corg == tschet.corg)) = tsOK {
+          update current tdog set tdog.direct := if(tschet.sch='60',dir_buy,dir_sell);
+          log_('Определено направление договора №'+tdog.nodoc);
+      } else { log_('Не определено направление договора №'+tdog.nodoc); }
+    }
+    stopvisual('',0);
+  }
+  function loadxls: boolean; {
+    startnewvisual(vtRotateVisual, vftimer+vfbreak, 'Чтение xls-файла', 0);
+    if not xlOpenNewExcel(false) {
+      stopvisual('',0);
+      Message('Ошибка запуска excel');
+      result := false;
+      exit;
+    }
+    if not xlOpenWorkBook(sxlspath) {
+      stopvisual('',0);
+      Message('Ошибка открытия xls-файла');
+      xlkillexcel;
+      result := false;
+      exit;
+    }
+
+    delete all torg;
+    insert torg (nrec, name)
+    select katorg.nrec, substr(katorg.name+' ',1,pos(' ',katorg.name)-1) from katorg;
+
+    var cnt: longint;
+    cnt := xlrowcount(4);
+    var loadclosed: boolean;
+    loadclosed := (flags and 1)>0;
+    xlReadMatrixFromExcel(2,1,cnt,104);
+    cnt := cnt - 1;
+
+    var extnum, innum, kkod, docum, s1: string;
+    var sdate: string;
+    var stagenum: string;
+    var sumbeznal, sumsnal: double;
+    var valuta: string[5];
+    var sstatus: string[20];
+    var spo: string[50];
+    var fio: string[120];
+    var tab: string[50];
+    var podr: string[4];
+    var sdir: string[15];
+    var ground_: string[250];
+    var withnds: string[10];
+    var kname: string;
+
+    delete all tdog;
+    var y: longint; y := 1;
+    for (y:=1;y<cnt;y:=y+1) {
+      if not nextvisual then break;
+      if (y mod 100 = 0) then setvisualheader('Чтение xls-файла'#13'Строка '+longint(y+1)+' из '+cnt);
+      xlReadFromMatrix(y,2,extnum);
+      xlReadFromMatrix(y,4,kkod);
+      xlReadFromMatrix(y,3,kname);
+      xlReadFromMatrix(y,5,docum);
+      docum := substr(docum,pos(', ',docum)+2,length(docum));
+      innum := substr(docum,1,pos(', ',docum)-1);
+      sdate := substr(docum,pos(', ',docum)+2, length(docum));
+      xlReadFromMatrix(y,29,podr);
+      xlReadFromMatrix(y,30,tab);
+      tab := substr(tab,pos(' Т',tab)+2,length(tab));
+      xlReadFromMatrix(y,31,fio);
+      xlReadFromMatrix(y,45,stagenum);
+      xlReadFromMatrix(y,46,sstatus);
+      xlReadFromMatrix(y,47,spo);
+      xlReadFromMatrix(y,51,sdir);
+      xlReadFromMatrix(y,74,valuta);
+      xlReadFromMatrix(y,75,sumbeznal);
+      xlReadFromMatrix(y,76,sumsnal);
+      xlReadFromMatrix(y,32,ground_);
+      xlReadFromMatrix(y,100,withnds);
+      if stagenum = 1 {
+        clearbuffer(tntdog);
+        tdog.NODOC_EXT := extnum;
+        tdog.NODOC := innum;
+        tdog.ddoc := strtodate(sdate,'DD.MM.YYYY');
+        tdog.dbeg := strtodate(substr(spo,3,10),'DD.MM.YYYY');
+        tdog.dend := strtodate(substr(spo,17,10),'DD.MM.YYYY');
+        tdog.kod_contrag := kkod;
+        tdog.fiootv := fio;
+        tdog.tabnotv := tab;
+        tdog.podrotv := podr;
+        tdog.status := if(sstatus='Открыт',status_isp, status_clo);
+        tdog.sval := valuta;
+        tdog.summa := sumsnal;
+        tdog.sumnonds := sumbeznal;
+        tdog.direct := if(sdir='Закупка',dir_buy, dir_sell);
+        tdog.ground := ground_;
+        tdog.nds := if(withnds='НДС 18',with_nds, no_nds);
+             if getfirst katorg where ((kkod == katorg.code)) = tsOk then tdog.corg := katorg.nrec
+        else if getfirst katorg where ((kname == katorg.name)) = tsOk then tdog.corg := katorg.nrec
+        else if getfirst torg where ((substr(kkod,1,pos(' ',kkod)-1) == torg.name )) = tsOk then tdog.corg := torg.nrec;
+        if getfirst katpodr where ((podr == katpodr.kod)) = tsOk then tdog.cpodr := katpodr.nrec;
+        if getfirst persons where (('С' == persons.isemployee and tdog.tabnotv == persons.tabnmb)) = tsOk then tdog.cperson := persons.nrec;
+        insert current tdog;
+      }
+      clearbuffer(tntstage);
+      tstage.cdog := tdog.nrec;
+      tstage.num := stagenum;
+      tstage.summa := sumsnal;
+      tstage.sumnonds := sumbeznal;
+      tstage.direct := if(sdir='Закупка',dir_buy, dir_sell);//tdog.direct;
+      tstage.status := if(sstatus='Открыт',status_isp, status_clo);
+      if (tstage.status = status_isp) and (tdog.status = status_clo) then
+        update current tdog set tdog.status := status_isp;
+      tstage.ground := ground_;
+      tstage.nds := if(withnds='НДС 18',with_nds, no_nds);
+      if stagenum <> '1' then
+        update current tdog set tdog.summa := tdog.summa + sumsnal, tdog.sumnonds := tdog.sumnonds + sumbeznal;
+      insert current tstage;
+    }
+    xlkillexcel;
+    stopvisual('',0);
+  }
+  procedure import_dogovor; {
+    var _COTV_MY,    _CCURPODR: comp;
+    var _OTV_MY_FIO, _OTV_MY_POST, _DESGR: string;
+    _loop tdog where foundmarker(lMarker,tdog.nrec) {
+      _COTV_MY := 0; _CCURPODR := 0;
+      _OTV_MY_FIO := ''; _OTV_MY_POST := ''; _DESGR := '';
+      if getfirst persons where ((tdog.cperson == persons.nrec)) = tsOk {
+        _COTV_MY := persons.nrec;
+        _CCURPODR := persons.galdep;
+        if getfirst katpodr where ((_CCURPODR == katpodr.nrec)) = tsOk then _DESGR := katpodr.name;
+        if getfirst grdescr where ((_DESGR == grdescr.desgr)) <> tsOk then
+          insert grdescr set grdescr.desgr := _DESGR, grdescr.name := _DESGR;
+        _OTV_MY_FIO := persons.fio;
+        if getfirst appointments where ((persons.nrec == appointments.person)) = tsOk {
+          if getfirst catalogs where ((appointments.post == catalogs.nrec)) = tsOk
+            _OTV_MY_POST := catalogs.name;
+        }
+      }
+      insert d set
+        d.direct    = tdog.direct,
+        d.tidk      = 400,
+        d.vhodnal   = tdog.nds,
+        d.descr     = 'CONV',
+        d.desgr     = _DESGR,
+        d.cnote     = 23, //исполняемый
+        d.status    = 1,
+        d.cmyorg    = cogettune('MYORG'),
+        d.corg      = tdog.corg,
+        d.cviddog   = if(tdog.direct=dir_buy,0001000000000005h,0001000000000004h),
+        d.viddog    = 0,
+        d.tipmoney  = 1,
+        d.dbeg      = tdog.dbeg,
+        d.dinput    = tdog.ddoc,
+        d.ddoc      = tdog.ddoc,
+        d.dend      = tdog.dend,
+        d.nodoc_ext = tdog.nodoc_ext,
+        d.nodoc     = tdog.nodoc,
+        d.summa     = tdog.summa,
+        d.sumnds    = tdog.summa-tdog.sumnonds,
+        d.CCURPODR  = _CCURPODR;
+      case tdog.direct of
+        dir_buy: {
+          set d.cpol      = d.cmyorg;
+          //set d.cbankpol  = bank2;
+          set d.cgrpol    = d.cmyorg;
+          set d.cplat     = d.corg;
+          //set d.cbankplat = bank1;
+          set d.cgrotp    = d.corg;
+        }
+        dir_sell: {
+          set d.cpol      = d.corg;
+          //set d.cbankpol  = bank1;
+          set d.cgrpol    = d.corg;
+          set d.cplat     = d.cmyorg;
+          //set d.cbankplat = bank2;
+          set d.cgrotp    = d.cmyorg;
+        }
+      end;
+      update current d;
+      //создаем хозоперацию
+      if (getfirst soprhoz where ((d.tidk==soprhoz.tipdoc and
+                                   d.nrec==soprhoz.csoprdoc))<>tsOk) {
+        insert soprhoz set
+          soprhoz.csoprdoc = d.nrec,
+          soprhoz.tipdoc   = d.tidk,
+          soprhoz.tidkgal  = d.tidk,
+          soprhoz.descr    = d.descr,
+          soprhoz.desgr    = d.desgr;
+      }
+      set soprhoz.summa    = d.summa;
+      set soprhoz.datob    = d.ddoc;
+      set soprhoz.nodoc    = d.nodoc;
+      set soprhoz.direct   = d.direct;
+      set soprhoz.descr    = d.descr;
+      set soprhoz.desgr    = d.desgr;
+      update current soprhoz;
+      //добавляем договор в иерархию договоров
+      if (getfirst ierdog where ((d.nrec==ierdog.cuprec and
+                                  d.nrec==ierdog.crec))<>tsOk)
+        insert ierdog set
+          ierdog.cdogovor = d.nrec,
+          ierdog.cuprec = d.nrec,
+          ierdog.isleaf = 1,
+          ierdog.crec = d.nrec;
+      //Прописываем атрибуты договора
+      if (getfirst attrdog where ((d.nrec==attrdog.cdogovor))<>tsOk) {
+        insert attrdog set
+          attrdog.cdogovor    = d.nrec,
+          attrdog.subject1    = tdog.ground,
+          attrdog.COTV_MY     = _COTV_MY,
+          attrdog.OTV_MY_FIO  = _OTV_MY_FIO,
+          attrdog.OTV_MY_POST = _OTV_MY_POST;
+      }
+      else update current attrdog set attrdog.subject1 = tdog.ground;
+    }
+  }
+  handleevent
+    cmInit: {
+      readmydsk(sxlspath, 'imp_dogovor_sxlspath', false);
+      readmydsk(sxlspath, 'imp_dogovor_flags', false);
+      readmydsk(schpath,  'imp_dogovor_schpath', false);
+      lmarker := initmarker('', 8, 100, 10);
+    }
+    cmDone: {
+      savemydsk(sxlspath, 'imp_dogovor_sxlspath');
+      savemydsk(sxlspath, 'imp_dogovor_flags');
+      savemydsk(schpath,  'imp_dogovor_schpath');
+      donemarker(lmarker, '');
+    }
+    cmpick: {
+      case curfield of
+        #sxlspath: {
+          var s: string;
+          s := GetFileName('*.xls', 'Путь к xls-файлу');
+          if s<>'' then set sxlspath := s;
+        }
+        #schpath: {
+          var s: string;
+          s := GetDirName ('Путь к папкет с xls-файлами счетов');
+          if s<>'' then set schpath := s;
+        }
+      end;
+    }
+    cmcontinue: {
+      delete all tdog;
+      delete all tstage;
+      loadxls;
+      var s,ls: string;
+      s := GetFirstFile(schpath, '*.xls');
+      while s <> strDataIsEmpty do {
+        if pos('60',s) > 0 then ls := '60' else if pos('62',s) > 0 then ls := '62';
+        loadschet(s, ls);
+        s := GetNextFile;
+      }
+      UpdateDirections;
+      runwindow(wschet);
+      runwindow(winfo);
+    }
+    cmcancel: {
+      closeinterface(cmcancel);
+    }
+  end;
+end.
+
+interface del_imported_dogs 'Удаление импортированных договоров';
+  show at (,,44,3);
+  create view
+  as select *
+  from dogovor, soprhoz, ierdog, attrdog;
+  screen scmain;
+    buttons
+      cmDel;
+<<
+    <. Удалить импортированные договора .>
+>>
+  end;
+  handleevent
+    cmDel: {
+      StartNewVisual(vtRotateVisual, vfTimer, 'Удаление', 0);
+      _loop dogovor where (dogovor.descr = 'CONV') {
+        delete all soprhoz where ((400 == soprhoz.tipdoc and dogovor.nrec == soprhoz.csoprdoc));
+        delete all ierdog where ((dogovor.nrec==ierdog.cdogovor));
+        delete all attrdog where ((dogovor.nrec == attrdog.cdogovor));
+        delete current dogovor;
+      }
+      StopVisual('',0);
+    }
+  end;
+end.

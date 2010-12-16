@@ -1,0 +1,109 @@
+#component "KZTA"
+interface imp_zakaz 'Импорт заказов';
+  show at (,,59,5);
+  table struct tzak (
+    code: string[9],
+    name: string
+  ) with index (
+    i01 = code
+  );
+  const
+    zakaz_maskmc = 0001000000000005h;
+    csloj_ = 000100000000000Ah;
+  end;
+  var
+    tr: translate;
+    ced_:comp;
+  create view as select * from tzak, hashan, spkau;
+  var
+    sDBFPath: string;
+  screen scmain;
+    fields
+      sDBFPath: noprotect, pickbutton;
+    buttons
+      cmImportZakaz;
+<<
+
+`Путь к dbf-файлу` .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+
+                                             <. Импорт .>
+>>
+  end;
+  browse brmain;
+    table tzak;
+    fields
+      tzak.code 'code': [10], protect;
+      tzak.name 'name': [30], protect;
+  end;
+  procedure addotped(cobj: comp; wvidobj: word; ckated: comp); {
+    if getfirst kated where ((ckated == kated.nrec)) = tsOk {
+      insert katotped set katotped.name = kated.name,
+                          katotped.prmc = wvidobj,
+                          katotped.cmcusl = cobj,
+                          katotped.koef = 1,
+                          katotped.akt = 1,
+                          katotped.diskret = kated.diskret,
+                          katotped.abbr = kated.abbr;
+    }
+  }
+  handleevent
+    cmpick: {
+      if curfield = #sDBFPath {
+        set sDBFPath := getfilename('*.dbf', 'Путь к dbf-файлу с заказами');
+        rescanpanel(#sDBFPath);
+      }
+    }
+    cmImportZakaz: {
+      var l: longint;
+      var scode, sname, grcod: string;
+      var cgr: comp;
+      if getfirst kated where (('шт' == kated.abbr)) = tsok then ced_ := kated.nrec;
+      l := dbfopen(sdbfpath, stopen);
+      if dbfgetfirst(l) = 0 then
+      do {
+        scode := trim(dbfgetfieldvalue(l, 'ZAK'));
+        sname := trim(dbfgetfieldvalue(l, 'NAIM'));
+        if (length(scode)<9 or sname='' or substr(scode,1,2)='80' or substr(scode,1,2)='81' or substr(scode,1,2)='23') continue;
+        insert tzak set tzak.code := scode,
+                        tzak.name := tr.lat2ru(sname);
+        grcod := '7'+substr(scode,1,2);
+        case grcod of
+          '715','716': grcod := '710';
+          '725','726':grcod := '720';
+        end;
+        if getfirst groupmc where ((grcod==groupmc.kod)) = tsOk then cgr := groupmc.nrec;
+        if getfirst katmc where ((scode == katmc.barkod)) <> tsOk {
+          insert katmc set katmc.name = tzak.name,
+                           katmc.barkod = tzak.code,
+                           katmc.cgroupmc = cgr,
+                           katmc.ced = ced_,
+                           katmc.classgr = 1,
+                           katmc.cgrnal = c_grnal_18,
+                           katmc.kgroupmc = grcod,
+                           katmc.kind = 1,
+                           KATMC.PRMAT = 1,
+                           katmc.ctype = 0001000000000001h;
+          addotped(katmc.nrec, 1, ced_);
+        }
+        if katmc.cmaskmc <> zakaz_maskmc {
+          var canval_: comp; canval_ := 0;
+          if getfirst spkau where ((10027 == spkau.kodgrkau and katmc.barkod == spkau.code)) = tsOk then canval_ := spkau.nrec;
+          if getfirst hashan where ((csloj_ == hashan.csloj and 0 == hashan.cblock and canval_ == hashan.canalit[1])) <> tsOk {
+            insert hashan set hashan.csloj := csloj_,
+                              hashan.cblock := 0,
+                              hashan.canalit[1] := canval_,
+                              hashan.npp := '1';
+          }
+          update current katmc set katmc.cmaskmc := zakaz_maskmc, katmc.chashan := hashan.nrec;
+        }
+      } while dbfgetnext(l) = 0;
+      dbfclose(l);
+    }
+    cmInit: {
+      if not readmydsk(sDBFPath,'imp_zakaz_sdbfpath', false) then sDBFPath := '';
+    }
+    cmDone: {
+      savemydsk(sDBFPath,'imp_zakaz_sdbfpath');
+    }
+  end;
+end.

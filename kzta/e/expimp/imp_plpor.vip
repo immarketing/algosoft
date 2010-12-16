@@ -1,0 +1,426 @@
+#component "kzta"
+interface imp_plpor 'Импорт платежных поручений';
+  var
+    sDBFPath: string; 
+    lMarker: longint;
+  table struct tpl (
+    nrec     : comp,
+    ndoc     : string[7],
+    dataop   : date,
+    nschet   : string[25],
+    summa    : double,
+    p_name   : string[160],
+    pschet   : string[25],
+    pbank    : string[70],
+    pmfo     : string[9],
+    ground   : string[210],
+    p_inn    : string[12],
+    kppplat  : string[9],
+    kpppol   : string[9],
+    codkbk   : string[19],
+    codokato : string[11],
+    tidkgal  : word,
+    cplpor   : comp,
+    cplat    : comp,
+    cbankplat: comp,
+    cpol     : comp,
+    cbankpol : comp
+  ) with index (
+    i00 = nrec (unique,surrogate),
+    i01 = dataop + ndoc,
+    i02 = p_name,
+    i03 = pbank,
+    i04 = pmfo
+  );
+  function GetBankName(c_: comp): string; forward;
+  function GetOrgName(c_: comp): string; forward;
+  create view 
+  as select *,
+            GetOrgName(if(tpl.tidkgal=1,tpl.cpol,tpl.cplat)) (fieldname=fGalOrgName),
+            GetBankName(if(tpl.tidkgal=1,tpl.cbankpol,tpl.cbankplat)) (fieldname=fGalBankName),
+            if(GetAnyKau(0, 5019, tpl.cplpor),GivenAnName(1),'Импорт') (fieldname=fGalPlPor)
+  from tpl, tpl tpl1, katb, katbank, katorg, katorg ko, katorgdescr, kontrier, plpor, soprhoz, basefin;
+  
+  screen scmain;
+    show at (,,,5);
+    fields
+      sDbfPath: noprotect,pickbutton;
+    buttons
+      cmLoadDBF;
+      cmDoImport;
+<<
+
+  `Путь к дбф` .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@ (vibor.dbf)
+ 
+ <. Загрузка данных из DBF .>  <. Импорт .>
+>>
+  end;
+  create view v
+  as select * from katb, katorg;
+  function GetBankName(c_: comp): string; {
+    if v.getfirst katb where ((c_==katb.nrec))=tsOk then
+      result := v.katb.name
+    else
+      result := 'Не определен. Импорт.';
+  }
+  function GetOrgName(c_: comp): string; {
+    if v.getfirst katorg where ((c_==katorg.nrec))=tsOk then
+      result := v.katorg.name
+    else
+      result := 'Не определена. Импорт.';
+  }
+  browse brOrg (,,sci1378InsPM); 
+    show at (,6,,);
+    table tpl;
+    fields
+      {font={color=if(foundmarker(lmarker,tpl.nrec),3,0)}};
+      if(tpl.tidkgal=1,'Собств.','Стор.')'Тип пл.пор.': [7] , protect;
+      tpl.dataop 'Дата': [10], protect;
+      tpl.ndoc   '№ пл. пор.': [7] , protect;
+      tpl.summa  'Сумма': [10,2] , protect;
+      tpl.p_name 'Контрагент': [30] , protect;
+      tpl.p_inn 'Контрагент'#13'ИНН': [12] , protect;
+      if(tpl.tidkgal=1,tpl.kpppol,tpl.kppplat) 'Контрагент'#13'КПП': [12] , protect;
+      tpl.pschet 'Контрагент'#13'Счет': [15] , protect;
+      tpl.pbank 'Контрагент'#13'Банк': [30] , protect;
+      tpl.pmfo 'Контрагент'#13'Банк - КБК': [9] , protect;
+      tpl.ground 'Назначение': [15] , protect;
+      fGalOrgName 'Галактика'#13'Организация': [20], protect, pickbutton;
+      fGalBankName 'Галактика'#13'Банк': [10], protect, pickbutton;
+      fGalPlPor 'Галактика'#13'Пл.пор.': [10], protect, pickbutton;
+  end;
+  function GetOrg(inn_, kpp_, name_: string): comp; {
+    result := 0;
+    if getfirst katorg where ((inn_ == katorg.unn and 
+                              (if(kpp_<>''and kpp_<>'0',kpp_=katorg.kodplatnds,true)) )) = tsOk {
+      result := katorg.nrec;
+    } else {
+      if (getfirst katorg where locase(name_) = locase(trim(katorg.name)) ) = tsOk then
+        result := katorg.nrec;
+    }
+  }
+  
+  function GetBank(corg_: comp;mfo_, name_: string): comp; {
+    result := 0;
+    if getfirst katb where ((mfo_ == katb.mfo1)) = tsOk then
+      result := katb.nrec
+    else
+      if (getfirst katb where locase(name_)=trim(katb.name)) = tsOk then
+        result := katb.nrec;
+  }
+  
+  procedure loaddbf; {
+    clearmarker(lmarker);
+    var l: longint;
+    var corg_, cbank_, cmyorg_, cmybank_: comp;
+    cmyorg_ := coGetTune('MYORG');
+    if getfirst katbank where ((coGetTune('MYBANK') == katbank.nrec)) = tsOk then
+      cmybank_ := katbank.cbank;
+    startnewvisual(vtRotateVisual, vftimer+vfbreak, 'Чтение '+sdbfpath, 0);
+    delete all tpl;
+    l := dbfopen(sdbfpath, stopen);
+    if l=0 then {
+      message('Ошибка открытия '+sdbfpath);
+      exit;
+    };
+    if dbfgetfirst(l) = 0 then
+    do {
+      if not nextvisual then break;
+      clearbuffer(tntpl);
+      tpl.ndoc     := trim(dbfgetfieldvalue(l, 'ndoc'));
+      tpl.dataop   := strtodate(trim(dbfgetfieldvalue(l, 'dataop')),'YYYYMMDD');
+      tpl.nschet   := trim(dbfgetfieldvalue(l, 'nschet'));
+      tpl.summa    := trim(dbfgetfieldvalue(l, 'summa'));
+      tpl.p_name   := trim(dbfgetfieldvalue(l, 'p_name'));
+      tpl.pschet   := trim(dbfgetfieldvalue(l, 'pschet'));
+      tpl.pbank    := trim(dbfgetfieldvalue(l, 'pbank'));
+      tpl.pmfo     := trim(dbfgetfieldvalue(l, 'pmfo'));
+      tpl.ground   := trim(dbfgetfieldvalue(l, 'ground'));
+      tpl.p_inn    := trim(dbfgetfieldvalue(l, 'p_inn'));
+      tpl.kppplat  := trim(dbfgetfieldvalue(l, 'kppplat'));
+      tpl.kpppol   := trim(dbfgetfieldvalue(l, 'kpppol'));
+      tpl.codkbk   := trim(dbfgetfieldvalue(l, 'codkbk'));
+      tpl.codokato := trim(dbfgetfieldvalue(l, 'codokato'));
+      tpl.tidkgal  := if(tpl.summa<0,1,2); //1 - собств, 2 - стор
+      tpl.summa    := abs(tpl.summa);
+      if getfirst plpor where ((tpl.tidkgal == plpor.tidkgal and
+                                tpl.dataop  == plpor.datvip and
+                                tpl.ndoc    == plpor.nodok and 
+                                (tpl.summa = plpor.sumplat)
+                               )) = tsOk then {
+        tpl.cplpor    := plpor.nrec;
+        tpl.cplat     := plpor.cplat;
+        tpl.cpol      := plpor.cpol;
+        if getfirst katbank where ((plpor.cbankplat == katbank.nrec)) = tsOk then
+          tpl.cbankplat := katbank.cbank;
+        if getfirst katbank where ((plpor.cbankpol == katbank.nrec)) = tsOk then
+          tpl.cbankpol  := katbank.cbank;
+      } else {
+        corg_ := GetOrg(tpl.p_inn,if(tpl.tidkgal=1,tpl.kpppol,tpl.kppplat),tpl.p_name);
+        cbank_ := GetBank(corg_, tpl.pmfo, tpl.pbank);
+        if tpl.tidkgal=1 {
+          tpl.cplat := cmyorg_;
+          tpl.cbankplat := cmybank_;
+          tpl.cpol := corg_;
+          tpl.cbankpol := cbank_;
+        } else {
+          tpl.cplat := corg_;
+          tpl.cbankplat := cbank_;
+          tpl.cpol := cmyorg_;
+          tpl.cbankpol := cmybank_;          
+        }
+      }
+      insert current tpl;
+    } while dbfgetnext(l) = 0;
+    dbfclose(l);
+    stopvisual('',0);
+    rereadrecord(tntpl);
+  }
+  procedure doimport; {
+    var co_, cb_: comp;
+    var l_: longint; l_ := 0;
+    pushpos(tntpl);
+    
+    if getmarkercount(lmarker)=0 then
+      if (message('Ни одного платежного поручения не помечено.'#13'Импортировать всё?',yesNo)=cmYes)
+        _loop tpl {
+          InsertMarker(lMarker, tpl.nrec);
+        }
+        
+    StartNewVisual(vtRotateVisual, vfTimer+vfBreak, '', 0);
+    _loop tpl where (foundmarker(lmarker,tpl.nrec)) {
+      if not nextvisual then break;
+      l_ := l_ + 1;
+      SetVisualHeader('Импорт платежных поручений'#13''+l_+' из '+getmarkercount(lmarker));
+      co_ := if(tpl.tidkgal=1, tpl.cpol, tpl.cplat);
+      cb_ := if(tpl.tidkgal=1, tpl.cbankpol, tpl.cbankplat);
+      if co_ = 0 then co_ := GetOrg(tpl.p_inn, if(tpl.tidkgal=1,tpl.kpppol,tpl.kppplat), tpl.p_name);
+      if cb_ = 0 then cb_ := GetBank(co_, tpl.pmfo, tpl.pbank);
+      //Создаем, если надо организацию
+      if co_ = 0 then {
+        clearbuffer(#katorg);
+        set katorg.NAME      := tpl.p_name            ; // наим.организации или ФИО физ.лица        │ 
+        set katorg.UNN       := tpl.p_inn             ; // учетный номер налогоплательщика          │ 
+        set katorg.kodplatnds:= if(tpl.tidkgal=1, tpl.kpppol, tpl.kppplat)             ;
+        set katorg.cstate    := c_russia              ; // Страна
+        var on_: string; on_ := katorg.name;
+        var j_:integer; j_ := 0;
+        while (getfirst ko where ((on_  == ko.name and katorg.cstate == ko.cstate and katorg.unn == ko.unn)) and katorg.nrec <> ko.nrec) = tsOk and j_<=10 {
+          j_ := j_ + 1;
+          on_  := on_ +'.';
+        }
+        set katorg.name := on_;
+        insert current katorg;
+        clearbuffer(#katorgdescr);
+        set katorgdescr.CODE      := 1           ; // внутренний код иерархии                  │ 
+        set katorgdescr.ISLEAF    := 1           ; // признак листа                            │ 
+        set katorgdescr.CREC      := katorg.NREC ; // ссылка на KatOrg                         │ 
+        set katorgdescr.NAME      := katorg.NAME ; // Имя уровня                               │ 
+        insert current katorgdescr;
+        clearbuffer(#kontrier);
+        set kontrier.CGROUP    := katorgdescr.NREC ; // некий пращур записи с кодом Kod          │ 
+        set kontrier.CRECDS    := katorgdescr.NREC ; // ссылка на орг. по которой сформ. эта     │ 
+        set kontrier.NAME      := katorg.NAME      ; // наименование уровня                      │ 
+        set kontrier.ISLEAF    := 0                ; // признак нижнего уровня                   │ 
+        insert current kontrier;
+        co_ := katorg.nrec;
+      }
+      //Создаем если надо связку
+      if cb_ = 0 then {
+        clearbuffer(#katb);
+        set katb.NAME     := tpl.pbank     ; // наименование банка                       │ 
+        set katb.CSTATE   := c_russia      ; // страна (NRec из KatState)                │ 
+        set katb.MFO1     := tpl.pmfo      ; // код МФО                                  │ 
+!        katb.KORSCHET := rekvulic.schetrkc ; // кор. счет                                │ 
+        set katb.ISLEAF   := 1             ; // признак листа                            │ 
+        insert current katb;
+        cb_ := katb.nrec;
+      }
+      //Если надо - создаем привязку банка к организации
+      if getfirst katbank where ((cb_ == katbank.cbank and co_ == katbank.corg)) <> tsOk {
+        clearbuffer(#katbank);
+        set katbank.CORG   := co_           ; // номер организации (Nrec из KatOrg)       │ 
+        set katbank.CBANK  := cb_           ; // Nrec из KatB                             │ 
+        set katbank.NAME   := tpl.pbank     ; // наименование банка                       │ 
+        set katbank.MFO1   := tpl.pmfo      ; // код МФО                                  │ 
+        set katbank.SCHET1 := tpl.pschet    ; // счет                                     │ 
+        insert current katbank;     
+      }
+      //Обновим данные в tpl
+      if tpl.tidkgal=1 then {
+        update current tpl set tpl.cbankpol = cb_;
+        update current tpl set tpl.cpol = co_;
+      } else {
+        update current tpl set tpl.cbankplat = cb_;
+        update current tpl set tpl.cplat = co_;
+      }
+      //Ну а теперь создаем платежку
+      if (tpl.cplpor = 0) {
+        clearbuffer(#plpor);
+        set plpor.tidkgal   := tpl.tidkgal   ;
+        set plpor.tidk      := tpl.tidkgal   ;
+        set plpor.direct    := 0             ;
+        set plpor.modedoc   := if(tpl.tidkgal=1,2048,1024);
+        set plpor.cplat     := tpl.cplat     ;
+        set plpor.cbankplat := if(getfirst katbank where ((tpl.cbankplat == katbank.cbank and tpl.cplat == katbank.corg)) = tsOk, katbank.nrec, 0);
+        set plpor.cpol      := tpl.cpol      ;
+        set plpor.cbankpol  := if(getfirst katbank where ((tpl.cbankpol == katbank.cbank and tpl.cpol == katbank.corg)) = tsOk, katbank.nrec, 0);
+        set plpor.sumplat   := tpl.summa     ;
+        set plpor.chozoper  := 0             ;
+
+        set plpor.nodok     := tpl.ndoc               ;
+        set plpor.descr     := sGetTune('User.Descr') ;
+        set plpor.desgr     := sGetTune('User.DesGr') ;
+        set plpor.yeardoc   := year(tpl.dataop)       ;
+        set plpor.datvip    := tpl.dataop             ;
+!        plpor.datots    := tpl.dataop             ;
+!        plpor.datob     := tpl.dataop             ;
+        set plpor.namepl1   := Groupwrap(tpl.ground,1,100);
+        set plpor.namepl2   := Groupwrap(tpl.ground,2,100);
+        set plpor.namepl3   := Groupwrap(tpl.ground,3,100);
+        set plpor.vidoper   := '01'                   ;
+        insert current plpor;
+        clearbuffer(#soprhoz);
+        if (tpl.tidkgal=1) { // собственное
+          set soprhoz.direct   := 2           ;
+          set soprhoz.tipdoc   := 1           ;
+          set soprhoz.tidkgal  := 1           ;
+          set soprhoz.corg     := plpor.cpol  ;
+        } else { // стороннее
+          set soprhoz.direct   := 1           ;
+          set soprhoz.tipdoc   := 2           ;
+          set soprhoz.tidkgal  := 2           ;
+          set soprhoz.corg     := plpor.cplat ;
+        };
+        set soprhoz.datob    := plpor.datob    ;
+        set soprhoz.summa    := plpor.sumplat  ;
+        set soprhoz.csoprdoc := plpor.nrec     ;
+        set soprhoz.nodoc    := plpor.nodok    ;
+        set soprhoz.descr    := plpor.descr    ;
+        set soprhoz.desgr    := plpor.desgr    ;
+        set soprhoz.vhsumhoz := '+'            ;
+        set soprhoz.modedoc  := plpor.modedoc  ;
+        set soprhoz.chozoper := plpor.chozoper ;
+        insert current soprhoz;
+        clearbuffer(#basefin);
+        if (tpl.tidkgal=1) { // собственное
+          set basefin.direct   := 2           ;
+          set basefin.tipdoc   := 1           ;
+          set basefin.tidkgal  := 1           ;
+          set basefin.corg     := plpor.cpol  ;
+        } else { // стороннее
+          set basefin.direct   := 1           ;
+          set basefin.tipdoc   := 2           ;
+          set basefin.tidkgal  := 2           ;
+          set basefin.corg     := plpor.cplat ;
+        };
+        set basefin.csoprdoc := plpor.nrec     ;
+        set basefin.cplpor   := plpor.nrec     ;
+        set basefin.nodoc    := plpor.nodok    ;
+        set basefin.descr    := plpor.descr    ;
+        set basefin.desgr    := plpor.desgr    ;
+        set basefin.ddoc     := plpor.datob    ;
+        set basefin.summa    := plpor.sumplat  ;
+        set basefin.cval     := plpor.cval     ;
+        set basefin.csoprhoz := soprhoz.nrec   ;
+        insert current basefin;        
+        update current tpl set tpl.cplpor := plpor.nrec;
+      }
+    } //main loop
+    StopVisual('',0);
+    message('Импорт завершен.'#13'Обработано записей '+l_+' из '+getmarkercount(lmarker));
+    poppos(tntpl);
+    rereadrecord(tntpl);
+  }
+  handleevent
+    cmPick: {
+      case curfield of
+        #sDbfPath: {
+          var s: string;
+          s := GetFileName('*.dbf', 'Путь к дбф');
+          if s<>'' then set sDBFPath := s;
+        }
+        #fGalOrgName: {
+          var c_: comp;
+          c_ := if(tpl.tidkgal=1, tpl.cpol, tpl.cplat);
+          if runinterface(L_KATORG::GETKATOR,c_, false, 0, 0) = cmDefault {
+            if message('Обновить везде, где встречается контрагент'#13''+tpl.p_name+'?', yesNo )=cmYes {
+              if tpl.tidkgal = 1 then update tpl1 where tpl.p_name=tpl1.p_name set tpl1.cpol = c_
+              else update tpl1 where tpl.p_name=tpl1.p_name set tpl1.cplat = c_;
+            } else {
+              if tpl.tidkgal = 1 then update current tpl set tpl.cpol = c_
+              else update current tpl set tpl.cplat = c_;
+            };
+            rereadrecord(tntpl1);
+            rereadrecord(tntpl);
+          }
+        }
+        #fGalBankName: {
+          var c_: comp;
+          c_ := if(tpl.tidkgal=1, tpl.cbankpol, tpl.cbankplat);
+          if runinterface(L_KATORG::IBANKS, 0, c_) = cmDefault then  {
+            if message('Обновить везде, где встречается банк'#13''+tpl.pbank+'?', yesNo )=cmYes {
+              if tpl.tidkgal = 1 then update tpl1 where tpl.pbank=tpl1.pbank set tpl1.cbankpol = c_
+              else update tpl1 where tpl.pbank=tpl1.pbank set tpl1.cbankplat = c_;              
+            } else {
+              if tpl.tidkgal = 1 then update current tpl set tpl.cbankpol = c_
+              else update current tpl set tpl.cbankplat = c_;
+            }
+          }
+        }
+        #fGalPlPor: {
+          var c_: comp;
+          c_ := tpl.cplpor;
+          runinterface(F_PlPor::PlPor,tpl.tidkgal,tpl.tidkgal,c_);
+        }
+      end;
+    }
+    cmMarkUnMark: {
+      if (FoundMarker(lMarker, tpl.nrec)) DeleteMarker(lMarker, tpl.nrec)
+      else InsertMarker(lMarker, tpl.nrec);
+      if (getnext tpl)=tsOk {};
+      Rereadrecord(tntpl);
+    }
+    cmSelectAll: {
+      ClearMarker(lMarker);
+      StartNewVisual(vtRotateVisual, vfTimer+vfBreak, ''#3'Формирование группы...'#13#3, 1);
+      _try {
+        pushpos(tntpl);
+        _loop tpl {
+          InsertMarker(lMarker, tpl.nrec);
+          NextVisual;
+        }
+      } // try
+      _except
+        on ExUserBreak :
+        {
+          ClearMarker(lMarker);
+        }
+      _finally {
+        poppos(tntpl);
+        ReReadRecord(tntpl);
+        StopVisual('',0);
+      }
+      Rereadrecord(tntpl);
+    }
+    cmUnSelectAll: {
+      ClearMarker(lMarker);
+      Rereadrecord(tntpl);
+    }
+
+    cmLoadDBF: {
+      LoadDbf;
+    }
+    cmDoImport: {
+      DoImport;
+    }
+    cmInit: {
+      readmydsk(sdbfpath, 'imp_plpor_sdbfpath', false); 
+      lMarker := initmarker('', 8, 100, 10);
+    }
+    cmDone: {
+      savemydsk(sdbfpath, 'imp_plpor_sdbfpath');
+      donemarker(lMarker, '');
+    }
+  end;
+end.

@@ -1,0 +1,937 @@
+#component "KZTA"
+interface impps 'Загрузка производственных спецификаций';
+const
+  c_grnal_18 = 0001000000000001h;
+end;
+var
+  tr: translate;           //для преобразования латиницы в русский
+  curmnvs: string[7];      //текущий узел дерева
+  mnvs_path      : string; //пути к файлам
+  detail_path    : string;
+  mnvd_path      : string;
+  mnvk_path      : string;
+  krepesh_path   : string;
+  detali_path    : string;
+  karm_path      : string;
+  mat_path       : string;
+  npki_path      : string;
+  sbpath, matpath: string; //пути к папкам с файлами
+  cgrsb, cgrdet, cgrkr: comp;   //группы мц сборка, деталь, крепеж
+  cedsbdet       : comp;   //единица измерения для сборки и детали
+  fltip          : string;
+  sootv_path     : string;
+  useflt         : byte;
+
+file MemoFile;
+create view
+as select *,
+          if(GetAnyKau(0, 8, cgrdet), GivenAnName(1), '') (fieldname=sgrdet),
+          if(GetAnyKau(0, 8, cgrsb), GivenAnName(1), '') (fieldname=sgrsb),
+          if(GetAnyKau(0, 8, cgrkr), GivenAnName(1), '') (fieldname=sgrkr)
+from mnvs, mnvs trmnvs, mnvs mnvs1,
+     detail, detail trdetail, detail getdetail,
+     detali, detali trdetali, detali getdetali (i05),
+     npki, npki trnpki, katmc trnpkimc,
+     pkizak,
+     tsootv, tsootv brsootv, detail sootvdetail, detali sootvdetali,
+     karm, karm trkarm, karm karm1,
+     mat, mat trmat,
+     katmc trkatmc, kated edsbdet,
+     kated, katotped, katmc, groupmc, distdoc, hdr_ps, hdr_ps hdr_ps2, ps_lines, katpodr, paramvol, asupmemo
+where ((
+  curmnvs           == trmnvs.syswhere and
+  trmnvs.syswhat    == trdetail.sysnum and
+  trmnvs.shifrzak   == trnpki.shifrzak and
+  trnpki.nom        == trnpkimc.barkod and
+  trdetail.sootvkey == trdetali.sootvkey and
+  trdetali.koddet   == trkarm.koddet and
+  trkarm.snm        == trmat.snm and
+  trmat.nom         == trkatmc.barkod and
+  cedsbdet          == edsbdet.nrec and
+  brsootv.koddet    == sootvdetali.koddet and
+  brsootv.sysnum    == sootvdetail.sysnum
+))
+bounds byip = fltip == getdetali.ip;
+
+create view v
+var
+  cnt: longint;
+as select * from detail dail, detali dali where (( dail.sootvkey /== dali.sootvkey ));
+
+window wTunes 'Настройки' escclose;
+  show at (,,65,15);
+  screen scTunes;
+    fields
+      matpath ('Путь к папке с файлами detali, karm, mat, mun',,): noprotect, pickbutton;
+      sbpath ('Путь к папке с файлами mnvs, mnvd, mnvk, detail, krepesh',,): noprotect, pickbutton;
+      sgrdet ('Группа МЦ - детали',,): protect, pickbutton;
+      sgrsb ('Группа МЦ - сборки',,): protect, pickbutton;
+      sgrkr ('Группа МЦ - крепеж',,): protect, pickbutton;
+      edsbdet.name ('Единица измерения для сборок и деталей',,): protect, pickbutton;
+    buttons
+      cmTunesProceed, default;
+<<
+`Путь к папке с файлами detali.dbf, karm.dbf, mat.dbf, mun.dbf`
+ .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+`Путь к папке с файлами mnvs.dbf, mnvd.dbf, mnvk.dbf, detail.dbf, krepesh.dbf`
+ .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+`Группа МЦ - детали`
+ .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+`Группа МЦ - сборки`
+ .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+`Группа МЦ - крепеж`
+ .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+`Единица измерения для сборок, деталей и крепежа`
+ .@@@@@@@@@@@@
+
+                              <. Продолжить .>
+>>
+  end;
+  handleevent
+    cmTunesProceed: {
+      closewindow(wTunes);
+    }
+    cmPick: {
+       var s: string;
+       case curfield of
+        #matpath: {
+          s := GetDirName('Путь к папке с файлами detali, karm, mat, mun');
+          if s <> '' then matpath := s;
+        }
+        #sbpath: {
+          s := GetDirName('Путь к папке с файлами mnvs, mnvd, mnvk, detail, krepesh');
+          if s <> '' then sbpath := s;
+        }
+        #sgrdet: {
+          runinterface(L_MCU::GETGRMCSK, cgrdet);
+        }
+        #sgrsb: {
+          runinterface(L_MCU::GETGRMCSK, cgrsb);
+        }
+        #sgrkr: {
+          runinterface(L_MCU::GETGRMCSK, cgrkr);
+        }
+        #edsbdet.name: {
+          runinterface(L_MCU::GETEDIZM, cedsbdet);
+        }
+      end;
+      rereadrecord;
+    }
+  end;
+end;
+
+window wGetZakaz 'Выбор заказа' doaccept escclose;
+  browse brZak;
+    table pkizak;
+    fields
+      pkizak.shifrzak 'Шифр заказа': [10], protect;
+      pkizak.name 'Галактика - наименование заказа': [30], protect;
+  end;
+  handleevent
+    cmDefault: {
+      update current trmnvs set trmnvs.shifrzak := pkizak.shifrzak;
+      rereadrecord(#trmnvs);
+      closewindow(wGetZakaz);
+    }
+  end;
+end;
+
+function createsootvkey(s: string): string; {
+  result := replace(replace(replace(replace(replace(replace(replace(replace(replace(replace(locase(s),' ',''),'.',''),'_',''),'/',''),'\',''),'ъ','ь'),'ё','е'),'-',''),'+',''),',','');
+}
+
+window wgetdetail 'Выбор Detail' escClose doaccept;
+  browse brgetdetail;
+    table getdetail;
+    fields
+      getdetail.sysnum   'detail'#13'sysnum': [5], protect;
+      getdetail.name     'detail'#13'Наименование': [10], protect,pickbutton;
+      getdetail.gost     'detail'#13'Стандарт': [10], protect;
+      getdetail.obozn    'detail'#13'Обозначение': [10], protect;
+      getdetail.razmer   'detail'#13'Размер': [3], protect;
+      getdetail.rezba    'detail'#13'Резьба': [3], protect;
+      getdetail.diametr  'detail'#13'Диаметр': [3], protect;
+      getdetail.dlina    'detail'#13'Длина': [3], protect;
+      getdetail.pokrytie 'detail'#13'Покрытие': [3], protect;
+      getdetail.marshrut 'detail'#13'Маршрут': [7], protect;
+  end;
+end;
+
+window wgetdetali 'Выбор Detali' escClose doaccept;
+  browse brgetdetali;
+    table getdetali;
+    fields
+      getdetali.koddet 'detali'#13'koddet': [7], protect;
+      getdetali.i      'detali'#13'Наименование': [10], protect, pickbutton;
+      getdetali.hant   'detali'#13'Обозначение1': [10], protect;
+      getdetali.ip     'detali'#13'Обозначение2': [10], protect;
+      getdetali.raz    'detali'#13'Размер': [3], protect;
+      getdetali.kod    'detali'#13'Код': [7], protect;
+  end;
+end;
+
+window wSootv 'Таблица соответствий';
+  browse br_sootv;
+    table brsootv;
+    fields
+    brsootv.sysnum       'detail'#13'sysnum': [5], protect;
+    sootvdetail.name     'detail'#13'Наименование': [10], protect,pickbutton;
+    sootvdetail.gost     'detail'#13'Стандарт': [10], protect;
+    sootvdetail.obozn    'detail'#13'Обозначение': [10], protect;
+    sootvdetail.razmer   'detail'#13'Размер': [3], protect;
+    sootvdetail.rezba    'detail'#13'Резьба': [3], protect;
+    sootvdetail.diametr  'detail'#13'Диаметр': [3], protect;
+    sootvdetail.dlina    'detail'#13'Длина': [3], protect;
+    sootvdetail.pokrytie 'detail'#13'Покрытие': [3], protect;
+    sootvdetail.marshrut 'detail'#13'Маршрут': [7], protect;
+    '*' '':[1], skip, NoAutoSize;
+    brsootv.koddet       'detali'#13'koddet': [7], protect;
+    sootvdetali.i        'detali'#13'Наименование': [10], protect, pickbutton;
+    sootvdetali.hant     'detali'#13'Обозначение1': [10], protect;
+    sootvdetali.ip       'detali'#13'Обозначение2': [10], protect;
+    sootvdetali.raz      'detali'#13'Размер': [3], protect;
+    sootvdetali.kod      'detali'#13'Код': [7], protect;
+  end;
+  tableevent
+    table brsootv;
+    cmPick: {
+      case curfield of
+        #sootvdetail.name: {
+          rereadrecord(#getdetail);
+          if runwindowmodal(wgetdetail) = cmDefault {
+            if brsootv.nrec = 0 then insert current brsootv;
+            if getfirst tsootv where (( getdetail.sysnum == tsootv.sysnum )) = tsOk then {
+              message('Соответствие для такого detail уже существует. Добавлять новое нельзя.');
+              exit;
+            }
+            var oldsysnum: string; oldsysnum := brsootv.sysnum;
+            if oldsysnum <> '' then update detail where ((oldsysnum == detail.sysnum)) set detail.sootvkey := createsootvkey(detail.gost+detail.obozn+detail.razmer);
+            update current brsootv set brsootv.sysnum := getdetail.sysnum;
+            if (brsootv.koddet<>'') and (getfirst detali where ((brsootv.koddet==detali.koddet)) = tsOk) then
+              update current getdetail set getdetail.sootvkey := detali.sootvkey;
+          }
+        }
+        #sootvdetali.i: {
+          if boundactive(tbbyip) subbounds(tbbyip);
+          rereadrecord(#getdetali);
+          if runwindowmodal(wgetdetali) = cmDefault {
+            if brsootv.nrec = 0 then insert current brsootv;
+            update current brsootv set brsootv.koddet := getdetali.koddet;
+            if brsootv.sysnum<>'' and getfirst detail where ((brsootv.sysnum == detail.sysnum)) = tsOk {
+              update current detail set detail.sootvkey := getdetali.sootvkey;
+            }
+          }
+        }
+      end;
+      rereadrecord(#brsootv);
+    }
+    cmDeleteRecord: {
+      if brsootv.sysnum <> '' and getfirst detail where ((brsootv.sysnum == detail.sysnum))=tsOk {
+        update current detail set detail.sootvkey := createsootvkey(detail.gost+detail.obozn+detail.razmer);
+      }
+      delete current brsootv;
+      rereadrecord(#brsootv);
+    }
+  end;
+end;
+
+window wGetSootv 'Установка соответствия' doaccept escclose;
+  screen scgetsootv;
+    show at(,,,2);
+    fields
+      trdetail.name+' '+trdetail.gost+' '+trdetail.obozn+' '+
+      trdetail.razmer+' '+trdetail.pokrytie: skip;
+      fltip: noprotect;
+      useflt: noprotect;
+<<
+  Установка соответствия для .@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
+  .@@@@@@@@@@@  [.] Установить фильтр по Обозначению 1`
+>>
+  end;
+  browse brgetsootv;
+    show at(,3,,);
+    table getdetali;
+    fields
+      getdetali.i 'Наименование': [18],protect;
+      getdetali.ip 'Обозначение 1': [4],protect;
+      getdetali.hant 'Обозначение 2': [13],protect;
+      getdetali.raz 'Размер': [17],protect;
+      getdetali.koddet 'Код': [8],protect;
+  end;
+  handleevent
+    cmDefault: {
+      update current trdetail set trdetail.sootvkey := getdetali.sootvkey;
+      if getfirst tsootv where ((trdetail.sysnum == tsootv.sysnum)) <> tsOk {
+        clearbuffer(#tsootv);
+        tsootv.sysnum := trdetail.sysnum;
+        tsootv.koddet := getdetali.koddet;
+        insert current tsootv;
+      } else {
+        tsootv.koddet := getdetali.koddet;
+        update current tsootv;
+      }
+      rereadrecord;
+      rereadrecord(#trdetail);
+      closewindow(wGetSootv);
+    }
+  end;
+end;
+
+screen scTop;
+  show at (,,,5);
+  fields
+    recordsintable(tndetail): skip, left;
+    v.cnt: pickbutton, protect, left;
+    recordsintable(tndetail)-v.cnt:skip, left;
+  buttons
+    cmOpenTunes;
+    cmReadData;
+    cmImport;
+    cmOpenSootv;
+    cmFindSootv;
+    cmSaveSootv;
+<<
+ Позиций для поиска соответствий: .@@@@@@@ Найдено соответствий: .@@@@@@@@ Не найдено соответствий: .@@@@@@@@
+ <. Открыть настройки .> <. Считать данные .> <. Создать ПС .> <. Таблица соответствий .>
+
+ <. Определить соответствия .> <. Сохранить таблицу соответствий .>
+>>
+end;
+
+tree tree_mnvs;
+  show at (,6,,15);
+  table trmnvs;
+  fields
+    {font={color=if(trdetali.koddet='',10,3)}};
+    trmnvs.syswhat 'sysnum': [10], protect;
+    if(trmnvs.kind=0,'сборка',if(trmnvs.kind=3,'деталь',if(trmnvs.kind=5,'крепеж',trmnvs.kind))) 'тип': [4], protect;
+    trdetail.name 'Наименование': [10], protect;
+    trdetail.gost 'Стандарт': [10], protect;
+    trdetail.obozn 'Обозначение': [10], protect;
+    trdetail.pokrytie 'Покрытие': [3], protect;
+    trdetail.marshrut 'Маршрут': [7], protect;
+    trdetail.cex_izg 'Изготовитель': [3], protect;
+    trmnvs.shifrzak 'Шифр заказа':[9], protect, pickbutton;
+    trmnvs.kol  'Норма': [6], protect;
+    trdetail.sootvkey 'ключ соответствия': [10], protect,pickbutton;
+    trdetali.koddet 'kod_det': [5], protect;
+end;
+browse brmat;
+  show at (,16,40,);
+  table trkarm;
+  fields
+    trkarm.snm 'snm': [5], protect;
+    trkarm.nci 'nci' : [2], protect;
+    trkatmc.barkod 'баркод': [10], protect;
+    trkatmc.name 'наименование':[30], protect;
+    trkarm.nru  'nru': [8,4], protect;
+    trkarm.nruz 'nruz': [8,4], protect;
+    trkarm.kim  'kim': [8,4], protect;
+end;
+browse brpki;
+  show at (41,16,,);
+  table trnpki;
+  fields
+    trnpki.noriz 'Норма':[4,2], protect;
+    trnpki.kodpotr 'Подр.':[3], protect;
+    trnpki.noth 'Брак':[8,2], protect;
+    trnpki.nom 'Баркод':[8], protect;
+    trnpkimc.name 'Наименование':[30], protect;
+end;
+
+procedure processmnvs; {
+  SetVisualHeader('Определение сборок верхнего уровня');
+  _loop mnvs where mnvs.syswhere <> '' {
+    if getfirst mnvs1 where ((mnvs.syswhere == mnvs1.syswhat)) <> tsOk {
+      insert mnvs1 set mnvs1.syswhere := '',
+                       mnvs1.syswhat := mnvs.syswhere,
+                       mnvs1.kol := 0;
+    }
+  }
+}
+
+procedure savedbfsootv; {
+  var l: longint;
+  if existfile(sootv_path) then deletefile(sootv_path);
+  l := dbfopen(sootv_path, stcreate);
+  dbfaddfield(l, 'koddet', DbNum, 15, 0);
+  dbfaddfield(l, 'sysnum', DbChar, 7, 0);
+  _loop tsootv {
+    DBFPutFieldValue(l, 'koddet', tsootv.koddet);
+    DBFPutFieldValue(l, 'sysnum', tsootv.sysnum);
+    DBFInsertRecord(l);
+  }
+  DBFClose(l);
+}
+
+procedure loaddbf; {
+  var l, cnt, i: longint;
+  //чтение mnvs
+  SetVisualHeader('Чтение '+mnvs_path);
+  delete all mnvs;
+  l := dbfopen(mnvs_path, stopen);
+  cnt := 0; i := 0;
+  if dbfgetfirst(l) = 0 then do { cnt := cnt + 1; } while dbfgetnext(l) = 0;
+  if dbfgetfirst(l) = 0 then do {
+    i := i + 1;
+    if not nextvisual then break;
+    if ( i mod 1000 = 0) then { SetVisualHeader('Чтение '+mnvs_path+''#13'Обработка строки '+i+' из '+cnt); }
+    clearbuffer(#mnvs);
+    mnvs.syswhere := trim(dbfgetfieldvalue(l, 'syswho'));
+    mnvs.syswhat  := trim(dbfgetfieldvalue(l, 'syswhat'));
+    mnvs.kol      := trim(dbfgetfieldvalue(l, 'kolvo'));
+    mnvs.kind     := trim(dbfgetfieldvalue(l, 'p_konech'));
+    mnvs.coop     := trim(dbfgetfieldvalue(l, 'coopera'));
+    insert current mnvs;
+  } while dbfgetnext(l) = 0;
+  dbfclose(l);
+  processmnvs;
+  //чтение mnvd
+  SetVisualHeader('Чтение '+mnvd_path);
+  l := dbfopen(mnvd_path, stopen);
+  cnt := 0; i := 0;
+  if dbfgetfirst(l) = 0 then do { cnt := cnt + 1; } while dbfgetnext(l) = 0;
+  if dbfgetfirst(l) = 0 then do {
+    i := i + 1;
+    if not nextvisual then break;
+    if ( i mod 1000 = 0) then { SetVisualHeader('Чтение '+mnvd_path+''#13'Обработка строки '+i+' из '+cnt); }
+    clearbuffer(#mnvs);
+    mnvs.syswhere := trim(dbfgetfieldvalue(l, 'syswho'));
+    mnvs.syswhat  := trim(dbfgetfieldvalue(l, 'syswhat'));
+    mnvs.kol      := trim(dbfgetfieldvalue(l, 'kolvo'));
+    mnvs.kind     := trim(dbfgetfieldvalue(l, 'p_konech'));
+    mnvs.coop     := trim(dbfgetfieldvalue(l, 'coopera'));
+    insert current mnvs;
+  } while dbfgetnext(l) = 0;
+  dbfclose(l);
+  //чтение mnvk
+  SetVisualHeader('Чтение '+mnvk_path);
+  l := dbfopen(mnvk_path, stopen);
+  cnt := 0; i := 0;
+  if dbfgetfirst(l) = 0 then do { cnt := cnt + 1; } while dbfgetnext(l) = 0;
+  if dbfgetfirst(l) = 0 then do {
+    i := i + 1;
+    if not nextvisual then break;
+    if ( i mod 1000 = 0) then { SetVisualHeader('Чтение '+mnvk_path+''#13'Обработка строки '+i+' из '+cnt); }
+    clearbuffer(#mnvs);
+    mnvs.syswhere := trim(dbfgetfieldvalue(l, 'syswho'));
+    mnvs.syswhat  := trim(dbfgetfieldvalue(l, 'syswhat'));
+    mnvs.kol      := trim(dbfgetfieldvalue(l, 'kolvo'));
+    mnvs.kind     := 5;
+    mnvs.coop     := trim(dbfgetfieldvalue(l, 'coopera'));
+    insert current mnvs;
+  } while dbfgetnext(l) = 0;
+  dbfclose(l);
+  //чтение detail
+  SetVisualHeader('Чтение '+detail_path);
+  delete all detail;
+  l := dbfopen(detail_path, stopen);
+  cnt := 0; i := 0;
+  if dbfgetfirst(l) = 0 then do { cnt := cnt + 1; } while dbfgetnext(l) = 0;
+  if dbfgetfirst(l) = 0 then do {
+    i := i + 1;
+    if not nextvisual then break;
+    if ( i mod 1000 = 0) then { SetVisualHeader('Чтение '+detail_path+''#13'Обработка строки '+i+' из '+cnt); }
+    clearbuffer(#detail);
+    detail.sysnum := trim(dbfgetfieldvalue(l, 'sysnum'));
+    if detail.sysnum = '' then continue;
+    detail.obozn := replace(dbfgetfieldvalue(l,'obozn'),' ', '');
+    detail.razmer := trim(dbfgetfieldvalue(l,'razmer'));
+    detail.name := trim(dbfgetfieldvalue(l,'name'));
+    detail.marshrut := trim(dbfgetfieldvalue(l,'marshrut'));
+    detail.cex_izg := trim(dbfgetfieldvalue(l,'zex_izg'));
+    if length(detail.cex_izg) = 1 then detail.cex_izg := '0'+detail.cex_izg;
+    detail.sootvkey := createsootvkey(detail.gost+detail.obozn+detail.razmer);
+    detail.sootvkey2 := createsootvkey(detail.gost+detail.obozn);
+    insert current detail;
+  } while dbfgetnext(l) = 0;
+  dbfclose(l);
+  //чтение krepesh
+  SetVisualHeader('Чтение '+krepesh_path);
+  l := dbfopen(krepesh_path, stopen);
+  cnt := 0; i := 0;
+  if dbfgetfirst(l) = 0 then do { cnt := cnt + 1; } while dbfgetnext(l) = 0;
+  if dbfgetfirst(l) = 0 then do {
+    i := i + 1;
+    if not nextvisual then break;
+    if ( i mod 1000 = 0) then { SetVisualHeader('Чтение '+krepesh_path+''#13'Обработка строки '+i+' из '+cnt); }
+    clearbuffer(#detail);
+    detail.sysnum := trim(dbfgetfieldvalue(l, 'sysnum'));
+    detail.obozn := replace(dbfgetfieldvalue(l,'obozn'),' ', '');
+    detail.name := replace(dbfgetfieldvalue(l,'name'),' ', '');
+    detail.gost := trim(dbfgetfieldvalue(l, 'standart'));
+    detail.rezba := trim(dbfgetfieldvalue(l, 'rezba'));
+    detail.diametr := trim(dbfgetfieldvalue(l, 'diametr'));
+    detail.diametr := trim(dbfgetfieldvalue(l, 'diametr'));
+    detail.dlina := trim(dbfgetfieldvalue(l, 'dlina'));
+    detail.pokrytie := trim(dbfgetfieldvalue(l, 'pokrytie'));
+    detail.sootvkey := createsootvkey(detail.gost+detail.obozn+detail.razmer+detail.pokrytie);
+    insert current detail;
+  } while dbfgetnext(l) = 0;
+  dbfclose(l);
+  //чтение detali
+  SetVisualHeader('Чтение '+detali_path);
+  delete all detali;
+  l := dbfopen(detali_path, stopen);
+  cnt := 0; i := 0;
+  if dbfgetfirst(l) = 0 then do { cnt := cnt + 1; } while dbfgetnext(l) = 0;
+  if dbfgetfirst(l) = 0 then do {
+    i := i + 1;
+    if not nextvisual then break;
+    if ( i mod 1000 = 0) then { SetVisualHeader('Чтение '+detali_path+''#13'Обработка строки '+i+' из '+cnt); }
+    clearbuffer(#detali);
+    detali.i        := trim(dbfgetfieldvalue(l, 'i'));
+    detali.ip       := trim(dbfgetfieldvalue(l, 'ip'));
+    detali.hant     := trim(dbfgetfieldvalue(l, 'hant'));
+    detali.raz      := trim(dbfgetfieldvalue(l, 'raz'))+trim(dbfgetfieldvalue(l, 'mp'));
+    detali.kod      := dbfgetfieldvalue(l, 'kod');
+    detali.koddet   := dbfgetfieldvalue(l, 'kod_det');
+    detali.sootvkey := createsootvkey(detali.ip+detali.hant+detali.raz);
+    insert current detali;
+  } while dbfgetnext(l) = 0;
+  dbfclose(l);
+ //чтение npki
+  SetVisualHeader('Чтение '+npki_path);
+  delete all npki;
+  l := dbfopen(npki_path, stopen);
+  cnt := 0; i := 0;
+  if dbfgetfirst(l) = 0 then do { cnt := cnt + 1; } while dbfgetnext(l) = 0;
+  if dbfgetfirst(l) = 0 then do {
+    i := i + 1;
+    if not nextvisual then break;
+    if ( i mod 1000 = 0) then { SetVisualHeader('Чтение '+npki_path+''#13'Обработка строки '+i+' из '+cnt); }
+    clearbuffer(#npki);
+    npki.noriz    := trim(dbfgetfieldvalue(l, 'noriz'));
+    npki.shifrzak := trim(dbfgetfieldvalue(l, 'shifrzak'));
+    if npki.shifrzak = '' then continue;
+    npki.kodpotr  := trim(dbfgetfieldvalue(l, 'kodpotr'));
+    if length(npki.kodpotr)=1 then npki.kodpotr := '0'+npki.kodpotr;
+    npki.noth     := trim(dbfgetfieldvalue(l, 'noth'));
+    npki.nom      := trim(dbfgetfieldvalue(l, 'nom'));
+    insert current npki;
+  } while dbfgetnext(l) = 0;
+  dbfclose(l);
+
+  delete all pkizak;
+  insert pkizak(shifrzak)
+  select npki.shifrzak
+  from npki ignore_errors(tsDuplicateKey);
+  _loop pkizak {
+    if getfirst katmc where ((pkizak.shifrzak /== katmc.barkod)) = tsOk then {
+      update current pkizak set pkizak.name := katmc.name
+    } else {
+      delete current pkizak;
+    }
+  }
+
+
+  //чтение karm
+  SetVisualHeader('Чтение '+karm_path);
+  delete all karm;
+  l := dbfopen(karm_path, stopen);
+  cnt := 0; i := 0;
+  if dbfgetfirst(l) = 0 then do { cnt := cnt + 1; } while dbfgetnext(l) = 0;
+  if dbfgetfirst(l) = 0 then do {
+    i := i + 1;
+    if not nextvisual then break;
+    if ( i mod 1000 = 0) then { SetVisualHeader('Чтение '+karm_path+''#13'Обработка строки '+i+' из '+cnt); }
+    clearbuffer(#karm);
+    karm.snm      := trim(dbfgetfieldvalue(l, 'snm'));
+    karm.koddet   := trim(dbfgetfieldvalue(l, 'kod_det'));
+    karm.nci      := trim(dbfgetfieldvalue(l, 'nci'));
+    karm.nru      := trim(dbfgetfieldvalue(l, 'nru'));
+    karm.nruz     := trim(dbfgetfieldvalue(l, 'nruz'));
+    karm.kim      := trim(dbfgetfieldvalue(l, 'kim'));
+    if length(karm.nci)=1 then karm.nci := '0'+karm.nci;
+    //if getfirst katpodr where ((0==katpodr.sklad and karm.nci==katpodr.kod)) = tsOk then karm.cpodr := katpodr.nrec;
+    //if length(karm.snm)<6 { addkomplekt(karm.koddet,karm.nru,karm.snm); } else {
+    insert current karm;
+    //}
+  } while dbfgetnext(l) = 0;
+  dbfclose(l);
+  //чтение mat
+  SetVisualHeader('Чтение '+mat_path);
+  delete all mat;
+  l := dbfopen(mat_path, stopen);
+  cnt := 0; i := 0;
+  if dbfgetfirst(l) = 0 then do { cnt := cnt + 1; } while dbfgetnext(l) = 0;
+  if dbfgetfirst(l) = 0 then do {
+    i := i + 1;
+    if not nextvisual then break;
+    if ( i mod 10000 = 0) then { SetVisualHeader('Чтение '+mat_path+''#13'Обработка строки '+i+' из '+cnt); }
+    clearbuffer(#mat);
+    mat.nom      := trim(dbfgetfieldvalue(l, 'nom'));
+    mat.snm      := trim(dbfgetfieldvalue(l, 'snm'));
+    insert current mat;
+  } while dbfgetnext(l) = 0;
+  dbfclose(l);
+  rereadrecord;
+  //чтение tsootv
+  SetVisualHeader('Чтение '+sootv_path);
+  delete all tsootv;
+  if existfile(sootv_path) {
+    l := dbfopen(sootv_path, stopen);
+    cnt := 0; i := 0;
+    if dbfgetfirst(l) = 0 then do { cnt := cnt + 1; } while dbfgetnext(l) = 0;
+    if dbfgetfirst(l) = 0 then do {
+      i := i + 1;
+      if not nextvisual then break;
+      clearbuffer(#tsootv);
+      tsootv.sysnum := trim(dbfgetfieldvalue(l, 'sysnum'));
+      tsootv.koddet := trim(dbfgetfieldvalue(l, 'koddet'));
+      if getfirst detail where ((tsootv.sysnum == detail.sysnum)) = tsOk then
+      if getfirst detali where ((tsootv.koddet == detali.koddet)) = tsOk then
+        update current detail set detail.sootvkey := detali.sootvkey;
+      insert current tsootv;
+    } while dbfgetnext(l) = 0;
+    dbfclose(l);
+  }
+  rereadrecord;
+}
+
+procedure addotped(cobj: comp; wvidobj: word; ckated: comp); {
+  if getfirst kated where ((ckated == kated.nrec)) = tsOk {
+    insert katotped set katotped.name = kated.name,
+                        katotped.prmc = wvidobj,
+                        katotped.cmcusl = cobj,
+                        katotped.koef = 1,
+                        katotped.akt = 1,
+                        katotped.diskret = kated.diskret,
+                        katotped.abbr = kated.abbr;
+  }
+}
+
+Function GetSbDet(name_, obozn_, razmer_, kod_, altkod_: string; cgr_:comp): comp; {
+  if length(kod_)=9 then {
+    if getfirst katmc where ((kod_ == katmc.barkod)) = tsOk then result := katmc.nrec else result := 0;
+  } else {
+    if getfirst katmc where ((kod_ == katmc.barkod)) <> tsOk {
+      clearbuffer(#katmc);
+      katmc.name := name_+' '+obozn_+' '+razmer_;
+      katmc.obozn := obozn_;
+      katmc.barkod := kod_;
+      katmc.barkod2 := altkod_;
+      katmc.cgroupmc := cgr_;
+      katmc.kind := 1;
+      katmc.prmat := 1;
+      katmc.ctype := 0001000000000001h;
+      katmc.classgr := 1;
+      katmc.kgroupmc := if(getfirst groupmc where ((cgr_ == groupmc.nrec)) = tsOk, groupmc.kod, '');
+      katmc.ced := cedsbdet;
+      insert current katmc;
+      addotped(katmc.nrec, 1, cedsbdet);
+    }
+    result := katmc.nrec;
+  }
+}
+
+function getoe(cMC_: comp; n_:string):comp; {
+  result := 0;
+  if getfirst kated where ((n_ == kated.kod)) <> tsOk then
+    if getfirst kated where ((n_ == kated.abbr)) <> tsOk then { result:=0 };
+  if getfirst katotped where ((1==katotped.prmc and cMC_==katotped.cmcusl and kated.nrec==katotped.ckated)) = tsOk then result := katotped.nrec;
+}
+
+procedure CreatePS(cRec_, cPS_: comp; num_: integer); {
+  var cMC_: comp;
+  var i: integer;
+  var kd_: string;
+  if getfirst mnvs where ((cRec_ == mnvs.nrec)) = tsOk {
+    logstrtofile('d:\2.log',mnvs.syswhat+' '+mnvs.syswhere);
+    if (getfirst detail where ((mnvs.syswhat == detail.sysnum)) = tsOk) and (getfirst detali where ((detail.sootvkey == detali.sootvkey)) = tsOk) {
+      case mnvs.kind of
+        0,3: cMC_ := GetSbDet(detail.name,
+                               detail.obozn,
+                               detail.razmer,
+                               if(mnvs.shifrzak<>'',mnvs.shifrzak,detali.koddet),
+                               detail.sysnum,
+                               if(mnvs.kind=0,cgrsb,if(mnvs.kind=3,cgrdet,0))
+                              );
+        5:   cMC_ := GetSbDet(detail.name,
+                               detail.gost+' '+detail.obozn,
+                               detail.pokrytie,
+                               detali.koddet,
+                               detail.sysnum,
+                               cgrkr
+                              );
+      end;
+      kd_ := detali.koddet;
+      if cPS_ <> 0 { //добавляем если надо в ПС текущую позицию
+        clearbuffer(#ps_lines);
+        ps_lines.chdr := cPS_;
+        ps_lines.lnum := num_*10;
+        ps_lines.cdet := cMC_;
+        ps_lines.wdet := 4;
+        ps_lines.kol  := mnvs.kol;
+        ps_lines.ced  := getoe(katmc.nrec, cedsbdet);
+        ps_lines.procex := 100;
+        ps_lines.timeposted := 1;
+        ps_lines.wkodgr1 := 2;
+        ps_lines.canval1 := if(getfirst katpodr where ((0==katpodr.sklad and detail.cex_izg==katpodr.kod))=tsok,katpodr.nrec,0);
+        if detail.marshrut<>'' {
+          clearbuffer(#asupmemo);
+          MemoFile.OpenMemo (asupmemo.comment);
+          MemoFile.Write (detail.marshrut);
+          MemoFile.Close;
+          insert current asupmemo;
+          ps_lines.memo := asupmemo.nrec;
+        }
+        insert current ps_lines;
+      }
+      if (getfirst mnvs1 where ((mnvs.syswhat == mnvs1.syswhere)) = tsOk) or
+         (getfirst karm where ((detali.koddet == karm.koddet)) = tsOk) { //если есть дети или материалы, создаем ПС
+            if getfirst distdoc where ((4==distdoc.wtype and cMC_==distdoc.cobject and 25==distdoc.wdoctype)) <> tsOk {
+              clearbuffer(#distdoc);
+              distdoc.wtype := 4;
+              distdoc.cobject := cMC_;
+              distdoc.wdoctype := 25;
+              if getfirst katmc where ((cMC_ == katmc.nrec)) = tsOk {
+                distdoc.cgroup := katmc.cgroupmc;
+                distdoc.sname := katmc.name;
+                distdoc.scode := katmc.barkod;
+                distdoc.sobozn := katmc.obozn;
+                distdoc.sgrname := if(GetAnyKau(0, 8, katmc.cgroupmc), GivenAnName(1), '');
+              }
+              insert current distdoc;
+            }
+            if getfirst hdr_ps where ((4==hdr_ps.ctypeizd and cMC_==hdr_ps.cizd and 25==hdr_ps.kind and 1==hdr_ps.active)) <> tsOk {
+              clearbuffer (#hdr_ps);
+              hdr_ps.ctypeizd:=4;
+              hdr_ps.cizd:=cMC_;
+              hdr_ps.kind:=25;
+              hdr_ps.active:=1;
+              hdr_ps.name:=detail.name+' '+detail.obozn+' '+detail.razmer;
+              hdr_ps.ednorm:=1;
+              hdr_ps.product:=1;
+              hdr_ps.wsrcmode:=1;
+              hdr_ps.wsrctext:=2;
+              hdr_ps.cdocnastr:=0001000000000001h;
+              hdr_ps.pargroup:=0000000000000027h;
+              hdr_ps.ced:=if(getfirst katotped where ((1==katotped.prmc and cMC_==katotped.cmcusl and 1==katotped.akt))=tsOk,katotped.nrec,0);
+              insert current hdr_ps;
+              i := 1;
+              //вставляем позиции спецификации - материалы
+              _loop karm1 where ((detali.koddet == karm1.koddet)) {
+                if length(karm1.snm)<6{
+                  if (getfirst hdr_ps2 where ((2==hdr_ps2.vid)) and hdr_ps2.DOCCODE=karm1.snm) = tsOk {
+                      clearbuffer(#ps_lines);
+                      ps_lines.chdr := hdr_ps.nrec;
+                      ps_lines.lnum := i*10;
+                      ps_lines.cdoc := hdr_ps2.nrec;
+                      ps_lines.tdoc := 25;
+                      ps_lines.kol  := karm1.nru/100;
+                      ps_lines.ced  := 0;
+                      ps_lines.procex := 100;
+                      ps_lines.timeposted := 1;
+                      ps_lines.wpodr:=2;
+                      ps_lines.cpodr:=if(getfirst katpodr where ((0==katpodr.sklad and karm1.nci==katpodr.kod))=tsok,katpodr.nrec,0);
+                      insert current ps_lines;
+                  }
+                } else {
+                  if (getfirst mat where ((karm1.snm == mat.snm)) = tsOk) {
+                    if getfirst katmc where ((mat.nom == katmc.barkod)) = tsOk {
+                      clearbuffer(#ps_lines);
+                      ps_lines.chdr := hdr_ps.nrec;
+                      ps_lines.lnum := i*10;
+                      ps_lines.cdet := katmc.nrec;
+                      ps_lines.wdet := 4;
+                      ps_lines.kol  := karm1.nru/100;
+                      ps_lines.ced  := if(getfirst katotped where ((1==katotped.prmc and katmc.nrec==katotped.cmcusl and 1==katotped.akt)) = tsOk, katotped.nrec, 0);
+                      ps_lines.procex := 100;
+                      ps_lines.timeposted := 1;
+                      ps_lines.wpodr:=2;
+                      ps_lines.cpodr:=karm1.cpodr;
+                      insert current ps_lines;
+                    }
+                  }
+                }
+                inc(i);
+              } //закончили добавлять материаы
+              //добавляем ПКИ
+              if mnvs.shifrzak <> '' then
+              _loop npki where ((mnvs.shifrzak == npki.shifrzak)) {
+                clearbuffer(#ps_lines);
+                ps_lines.chdr := hdr_ps.nrec;
+                ps_lines.lnum := i*10;
+                if getfirst katmc where ((npki.nom == katmc.barkod))=tsOk then
+                  ps_lines.cdet := katmc.nrec;
+                ps_lines.wdet := 4;
+                ps_lines.kol  := npki.noriz;
+                ps_lines.ced  := if(getfirst katotped where ((1==katotped.prmc and katmc.nrec==katotped.cmcusl and 1==katotped.akt)) = tsOk, katotped.nrec, 0);
+                ps_lines.procex := 100;
+                ps_lines.timeposted := 1;
+                ps_lines.wpodr:=2;
+                ps_lines.cpodr:=if(getfirst katpodr where ((0 == katpodr.sklad and npki.kodpotr == katpodr.kod))=tsOk,katpodr.nrec,0);
+                insert current ps_lines;
+                if npki.noth>0 {
+                  clearbuffer (#paramvol);
+                  paramvol.cobject  := ps_lines.nrec;
+                  paramvol.tobject  := 11053;
+                  paramvol.value[1] := npki.noth/npki.noriz*100;
+                  paramvol.valempty[1] := 1;
+                  insert current paramvol;
+                }
+                inc(i);
+              }
+              //добавляем подчиненные детали/сборки
+              _loop mnvs1 where ((mnvs.syswhat == mnvs1.syswhere)) {
+                pushpos(#mnvs);
+                pushpos(#mnvs1);
+                pushpos(#detail);
+                pushpos(#detali);
+                pushpos(#hdr_ps);
+                CreatePS(mnvs1.nrec, hdr_ps.nrec, i);
+                poppos(#hdr_ps);
+                poppos(#detali);
+                poppos(#detail);
+                poppos(#mnvs1);
+                poppos(#mnvs);
+                inc(i);
+              }
+        }
+      } //конец создания PS
+    } //if getfirst detail
+  } //if getfirst mnvs
+}
+
+procedure refreshpaths; {
+  mnvs_path      := sbpath+'\MNVS.DBF';
+  detail_path    := sbpath+'\detail.DBF';
+  mnvd_path      := sbpath+'\mnvd.DBF';
+  mnvk_path      := sbpath+'\mnvk.DBF';
+  krepesh_path   := sbpath+'\krepesh.DBF';
+  sootv_path     := sbpath+'\sootv.dbf';
+  detali_path    := matpath+'\detali.DBF';
+  karm_path      := matpath+'\karm.DBF';
+  mat_path       := matpath+'\mat.DBF';
+  npki_path      := matpath+'\npki.DBF';
+}
+
+handleevent
+  cmSaveSootv: {
+    savedbfsootv;
+  }
+  cmFindSootv: {
+    pushpos(#trdetail);
+    _loop detail {
+      if getfirst detali where ((detail.sootvkey == detali.sootvkey)) <> tsOk
+        if getfirst detali where ((detail.sootvkey2 == detali.sootvkey)) = tsOk {
+          update current detail set detail.sootvkey := detali.sootvkey;
+          if getfirst tsootv where ((detail.sysnum == tsootv.sysnum)) <> tsOk {
+            clearbuffer(#tsootv);
+            tsootv.sysnum := detail.sysnum;
+            tsootv.koddet := detali.koddet;
+            insert current tsootv;
+          }
+        }
+    }
+    poppos(#trdetail);
+  }
+  cmOpenSootv: {
+    runwindow(wSootv);
+    rereadrecord(#trmnvs);
+  }
+  cmCheckField: {
+    case curfield of
+      #useflt: {
+        if useflt=1 then {
+          //if not ConditionActive(tbbyip) then
+          addbounds(tbbyip)
+        } else {
+          //if ConditionActive(tbbyip) then
+          subbounds(tbbyip);
+        }
+        rereadrecord(#getdetali);
+      }
+    end;
+  }
+  cmDelOnProtect: {
+    case curfield of
+      #trdetail.sootvkey: {
+        update current trdetail set trdetail.sootvkey:=createsootvkey(trdetail.gost+trdetail.obozn+trdetail.razmer+detail.pokrytie);
+        delete all tsootv where ((trdetail.sysnum == tsootv.sysnum));
+        rereadrecord;
+      }
+    end;
+  }
+  cmPick: {
+    case curfield of
+      #trmnvs.shifrzak: {
+        runwindowmodal(wGetZakaz);
+      }
+      #trdetail.sootvkey: {
+        runwindowmodal(wGetSootv);
+      }
+      #v.cnt: {
+        var cnt_:longint; cnt_ := 0;
+        v._loop dail {
+          cnt_ := cnt_ + 1;
+        }
+        v.cnt := cnt_;
+        rereadrecord;
+      }
+    end;
+  }
+  cmImport: {
+    startnewvisual(vtRotateVisual, vftimer+vfbreak, 'Создание производственных спецификаций', 0);
+    CreatePS(trmnvs.nrec,0,1);
+    StopVisual('',0);
+  }
+  cmOpenTunes: {
+    runwindowmodal(wTunes);
+  }
+  cmReadData: {
+    if sbpath='' or matpath='' {
+      message('Не все настройки были определены');
+      exit;
+    }
+    refreshpaths;
+    startnewvisual(vtRotateVisual, vftimer+vfbreak, '', 0);
+    loaddbf;
+    stopvisual('',0);
+    rereadrecord;
+    rereadrecord(#trmnvs);
+  }
+  cmInit: {
+    if not readmydsk(matpath, 'impps_matpath', false) then matpath := '';
+    if not readmydsk(sbpath, 'impps_sbpath', false) then sbpath := '';
+    if not readmydsk(cgrdet, 'impps_cgrdet', false) then cgrdet := 0;
+    if not readmydsk(cgrsb, 'impps_cgrsb', false) then cgrsb := 0;
+    if not readmydsk(cgrkr, 'impps_cgrkr', false) then cgrkr := 0;
+    if not readmydsk(cedsbdet, 'impps_cedsbdet', false) then cedsbdet := 0;
+    refreshpaths;
+  }
+  cmDone: {
+    savemydsk(matpath, 'impps_matpath');
+    savemydsk(sbpath, 'impps_sbpath');
+    savemydsk(cgrdet, 'impps_cgrdet');
+    savemydsk(cgrsb, 'impps_cgrsb');
+    savemydsk(cgrkr, 'impps_cgrkr');
+    savemydsk(cedsbdet, 'impps_cedsbdet');
+    savedbfsootv;
+  }
+  cmTreeTop: {
+    curmnvs := '';
+  }
+  cmTreeDown: {
+    curmnvs := trmnvs.syswhat;
+  }
+  cmTreeUp: {
+    curmnvs := trmnvs.syswhere;
+  }
+  cmTreeNodeType: {
+    if (TreeIsTerminal(tree_mnvs)) TreeSetNodeType(tree_mnvs,2);
+  }
+  cmTreeNeedOwner: {
+    TreeJumpToRecord(tree_mnvs, trmnvs.syswhere);
+  }
+end;
+end.
+.form createps
+.ard
+.nameinlist 'КЗТА.Импорт производственных спецификаций'
+.f 'NUL'
+.begin
+  runinterface(KZTA::impps);
+end.
+.endform
