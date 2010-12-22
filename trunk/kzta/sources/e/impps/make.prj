@@ -126,6 +126,6 @@ table struct tsootv (
   i01 = sysnum,
   i02 = koddet
 );
-#make "translate.vip"
-#make "impps.vip"
+#make "e\impps\translate.vip"
+#make "e\impps\impps.vip"
 //#make "imp_mun.vip"

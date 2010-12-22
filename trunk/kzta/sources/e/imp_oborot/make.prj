@@ -1,5 +1,5 @@
-const
+//const
 #include mark.inc
 sci1378InsPM = 6958;
 end;
-#make "*.vip"
+#make "e\imp_oborot\*.vip"
