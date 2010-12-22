@@ -25,7 +25,7 @@ const
   c_other     = 0001000000000001h;
 end;
 
-#make "*.vip"
+#make "e\expimp\*.vip"
 
 /*#make "imp_dogovor.vip"
 #make "createotped.vip"

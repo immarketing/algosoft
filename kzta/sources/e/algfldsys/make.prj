@@ -3,5 +3,5 @@
 #include DocDefs.inc
 #include dictypes.def
 #include oalgfldsys.vih
-#make "algfldsys_501.vip"
-#make "algfldsys_502.vip"
+#make "e\algfldsys\algfldsys_501.vip"
+#make "e\algfldsys\algfldsys_502.vip"

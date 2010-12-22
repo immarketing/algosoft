@@ -14,4 +14,4 @@ const
   #include mark.inc
 end;
 
-#make "*.vip"
+#make "e\useralgor\*.vip"
