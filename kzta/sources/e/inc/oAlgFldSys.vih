@@ -1,0 +1,65 @@
+/*
+ ษอออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออป
+ บ                     (c) 1994,2004 ชฎเฏฎเ ๆจ๏ €€’€                    บ
+ บ เฎฅชโ        : €€’€                                                 บ
+ บ ‘จแโฅฌ        : ซ ญจเฎข ญจฅ                                              บ
+ บ ฅเแจ๏        : 7.11                                                      บ
+ บ  งญ ็ฅญจฅ    : ฎฏจแ ญจฅ ฎก๊ฅชโฎข คซ๏ "‘จแโฅฌญ๋ๅ  ซฃ. ข๋็จแซ๏ฅฌ๋ๅ ฏฎซฅฉ"  บ
+ บ โขฅโแโขฅญญ๋ฉ : ซจฌฎขจ็ จชโฎเ ฅฎญจคฎขจ็ (VICTOR)                       บ
+ บ  เ ฌฅโเ๋     : ญฅโ                                                       บ
+ ศอออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออออผ
+*/
+
+#ifdef ComponentVersion
+#component "M_MnPlan"
+#end
+
+//#include objintpl.vin
+#include typetbl.vpp
+#include steck.vin
+
+ObjInterface oAlgFld_Sys;
+  Function GetNameInter : string;
+  Function GetNameInterPr : string;
+  Function GetNum : word;
+  Function GetName : string;
+  Function CheckEnableUseAlgFld ( Var FlagParam : LongInt; NameInterFace : string ) : boolean;
+  Function GetNameColumn ( Var  FlagParam : LongInt ) : string;
+  Function GetNameFld ( stSpMnPlan : TSpMnPlan; stSpMnPl : TSpMnPl ) : string;
+  Function CheckSpMnPlan_SpMnPl ( FlagMode : word; stSpMnPlan : TSpMnPlan; stSpMnPl : TSpMnPl ) : boolean;
+  Procedure DeleteCache;
+  Function GetPropFld ( stSpMnPlan : TSpMnPlan; stSpMnPl : TSpMnPl;  FlagProp : LongInt ) : comp;
+  Function GetPickInterface ( Var  FlagParam : LongInt; stSpMnPlan : TSpMnPlan; stSpMnPl : TSpMnPl ) : comp;
+  Function GetMemo ( st:oSteckCommonString ) : Boolean;
+      // ฎซใ็จโ์ ใแโ ญฎขจโ์ ฏ เ ฌฅโเ
+  Function SetGetParam ( Var  FlagParam : LongInt;
+                         Var  Direction : word;
+                         Var  cValue    : Comp  ;
+                         Var  dValue    : Double;
+                         Var  lValue    : LongInt;
+                         Var  wValue    : Word  ;
+                         Var  dtValue   : Date  ;
+                         Var  dttValue  : _DateTime;
+                         Var  sValue    : s250  ) : Boolean;
+  Function InitInter ( ccFormPl : comp; FlagParam : LongInt ) : Boolean;
+  Function DoneInter : Boolean;
+End;
+
+ObjInterface oAlgFldSetup;  //'ญ แโเฎฉช  "‘จแโฅฌญ๋ๅ จญโฅเไฅฉแฎข"
+ Function asInitInter( p_cFormPl:Comp ) : Boolean;
+ Function asDoneInter : Boolean;
+ Event Procedure asCloseParentWindow( wFlag:Word );
+ Procedure asOnCmSetDefault;
+ Procedure asOnSetWayAccou( p_cWayAccou:Comp );
+End;
+
+ObjInterface oRegAlgFldSys;
+  Function GetAlgFldSys(ss: string) : oAlgFld_Sys;
+  Function GetAlgFldSysNum(num: word) : oAlgFld_Sys;
+  Function RegTabAlgFldSys (FlagReread : boolean ):boolean;
+end;
+
+
+
+
+

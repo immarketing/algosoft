@@ -1,0 +1,150 @@
+/*
+ ╔═══════════════════════════════════════════════════════════════════════════╗
+ ║                     (c) 1994,00 корпорация ГАЛАКТИКА                      ║
+ ║ Проект        : ГАЛАКТИКА                                                 ║
+ ║ Система       : Производственное планирование                             ║
+ ║ Версия        : 6.00                                                      ║
+ ║ Назначение    : Стек для передачи параметров                              ║
+ ║ Ответственный : Сенькевич Игорь Казимирович (IGORS)                       ║
+ ║ Параметры     :                                                           ║
+ ╚═══════════════════════════════════════════════════════════════════════════╝
+*/
+
+#ifndef __STECK_VIN
+#define __STECK_VIN
+
+#ifdef ComponentVersion
+#component "M_MnPlan"
+#end
+
+ObjInterface SteckPar;
+
+   Procedure SetSloj(cpSloj:comp);
+   Function  GetSloj:comp;
+   Function  GetSlojCorresp:comp;
+
+   //...функции работы со стеком
+   Procedure InitSteck;
+   Procedure PushSteck(   ccNrec : TMnAnalParSt );
+   Function  PopSteck(var ccNrec : TMnAnalParSt ) : Boolean;
+   Function  GetFullSteck   : Boolean;
+   Function  GetKolPosSteck : word;
+   Procedure Restore ( pwMysteck : word );
+end;
+
+ObjInterface oSteckCommon;
+   //...функции работы со стеком
+   Procedure Init;
+
+   Procedure Push (    st : TStrAndNum );
+   Function  Pop : TStrAndNum;
+   Procedure Pop1(var vr : TStrAndNum);
+
+   Function  GetFull    : Boolean;
+   Function  GetKolPos  : word;
+end;
+
+ObjInterface oSteckCommonTFindAn ;
+   //...функции работы со стеком
+   Procedure Init;
+   Procedure Push (    st : TFindAn );
+   Function  Pop : TFindAn;
+   Function  GetFull    : Boolean;
+   Function  GetKolPos  : word;
+end;
+
+ObjInterface oSteckCommonLongInt ;
+   //...функции работы со стеком
+   Procedure Init;
+   Procedure Push (    st : LongInt );
+   Function  Pop : LongInt;
+   Function  GetFull    : Boolean;
+   Function  GetKolPos  : word;
+   Procedure Restore ( pwMysteck : word );
+end;
+
+ObjInterface oSteckCommonComp ;
+   //...функции работы со стеком
+   Procedure Init;
+   Procedure Push (    st : Comp );
+   Function  Pop : Comp;
+   Function  GetFull    : Boolean;
+   Function  GetKolPos  : Comp;
+   Procedure Restore ( pwMysteck : word );
+end;
+
+ObjInterface oSteckCommonWord ;
+   //...функции работы со стеком
+   Procedure Init;
+   Procedure Push (    st : word );
+   Function  Pop : Word;
+   Function  GetFull    : Boolean;
+   Function  GetKolPos  : Word;
+   Procedure Restore ( pwMysteck : word );
+end;
+
+ObjInterface oSteckCommonString ;
+   //...функции работы со стеком
+   Procedure Init;
+   Procedure InvertSteck;
+   Procedure Push (    st : String );
+   Function  Pop : String;
+   Function  GetFull    : Boolean;
+   Function  GetKolPos  : Word;
+   Procedure Restore ( pwMysteck : word );
+end;
+
+ObjInterface SetupMnf; Forward;
+ObjInterface oUtil_Service; Forward;
+
+ObjInterface Util_GETNAME;
+
+  Function GetNKau(coTable:word;nR:comp):string;
+  Function GetNKauKod(wKG : word; nR:comp ):string;
+
+  Function GetNKaU_MnAnal( stMnAnal:TMnanal ):string;
+  function GetNameObjPl (  stSpMnPl : TSpMnPl;
+                           flag:word   // 0 - получить по шаблону
+                                       // 1 - получить с учетом аналитики
+                         ): string;
+
+  function GetNameSpObjAcc ( stSpObjAcc : TSpObjAcc;
+                             flag:word   // 1- cPos 2- cObject
+                           ): string;
+
+  Function GetManualKodGrKAUWay( ccWayAccou:comp; npp : word ):word;
+  Function GetManualKodGrKAU( ccMnplan:comp; npp : word ):word;
+  Function GetManualFieldKauWay( ccWayAccou:comp; npp : word ):string;
+  Function GetManualFieldKau( ccMnplan:comp; npp : word ):string;
+  Function IndAn(ind:word;stMnAnal:TMnanal):comp;
+  Function GetEdTimeName( p_wEdTime:Word ) : String;
+  Function GetFieldEdIzmName(
+                              p_cSpMnPl : Comp;
+                              p_cntFld  : LongInt;
+                              p_iSetPl  : SetupMnf;
+                              p_usrv    : oUtil_Service
+                            ) : String;
+  Function GetFieldTypeEdName(
+                               p_cSpMnPl : Comp;
+                               p_cntFld  : LongInt;
+                               p_iSetPl  : SetupMnf;
+                               p_usrv    : oUtil_Service
+                             ) : String;
+end;
+
+  VipInterface GetNKau implements Util_GETNAME
+#ifdef ATL51
+  Licensed (FREE)
+#endif
+;
+
+VipInterface Steck implements SteckPar #Licensed_Free;
+VipInterface SteckTStrAndNum implements oSteckCommon #Licensed_Free;
+VipInterface SteckTFindAn implements oSteckCommonTFindAn #Licensed_Free;
+VipInterface SteckLongInt implements oSteckCommonLongInt #Licensed_Free;
+VipInterface SteckString implements oSteckCommonString #Licensed_Free;
+VipInterface SteckWord implements oSteckCommonWord #Licensed_Free;
+VipInterface SteckComp implements oSteckCommonComp #Licensed_Free;
+VipInterface SteckC2 implements oSteckCommonComp #Licensed_Free;
+
+#endif //__STECK_VIN
