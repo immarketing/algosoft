@@ -113,21 +113,28 @@ function getCurrentHash(url, tmplS, tmplF, cr) {
 	var resp = UrlFetchApp.fetch(url);
 	//Browser.msgBox(resp.getContentText());
 	var contText = resp.getContentText();
+	contText=contText.replace(/\n|\r|\f/g, " ");
 	
-	var tmplt = "("+ getUnEsc(tmplS) + ".+" + getUnEsc(tmplF) + ")";
+	var tmplt = "("+ getUnEsc(tmplS) + ".+?" + getUnEsc(tmplF) + ")";
 	
 	//tmplt = getUnEsc(tmplt);
 	
 	if (gotT) {
 		var expr = new RegExp(tmplt , "mig");
-		contText=contText.replace(/\n|\r|\f/g, " ");
-		var result = expr.exec(contText);
-		if (result){
-			contText = result[0];
+		
+		var fnd = "";
+		var result = null;
+		
+		while ( (result = expr.exec(contText)) != null ) {
+			fnd += result[0];
+		}
+		
+		if (fnd != ""){
+			contText = fnd;
 		}
 	}
 	
-	//SpreadsheetApp.getActiveSpreadsheet().getActiveSheet().getRange(cr, 6).setValue(contText);	
+	SpreadsheetApp.getActiveSpreadsheet().getActiveSheet().getRange(cr, 6).setValue(contText);	
 	
 	var sgn = Utilities.computeHmacSha256Signature(contText, "0", Utilities.Charset.UTF_8);
 	return Utilities.base64Encode(sgn);
