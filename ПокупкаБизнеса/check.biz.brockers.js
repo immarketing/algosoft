@@ -87,6 +87,7 @@ function checkAllRows(sndMl) {
 }
 
 function sndMail(mess) {
+	mess = mess + "<br>Осталось: " +MailApp.getRemainingDailyQuota+" писем на сегодня. <br>";
 	MailApp.sendEmail("info@aleksey-gorbunov.info", "Есть новые предложения!", "", {
 		htmlBody : mess
 	});
