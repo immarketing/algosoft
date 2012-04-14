@@ -1,0 +1,153 @@
+/**
+ * ------------------------------------------------------------------------
+ * JA Business Template for Joomla 1.7.x
+ * ------------------------------------------------------------------------
+ * Copyright (C) 2004-2011 J.O.O.M Solutions Co., Ltd. All Rights Reserved.
+ * @license - Copyrighted Commercial Software
+ * Author: J.O.O.M Solutions Co., Ltd
+ * Websites:  http://www.joomlart.com -  http://www.joomlancers.com
+ * This file may not be redistributed in whole or significant part.
+ * ------------------------------------------------------------------------
+ */
+ 
+/* STYLING THE MENU
+-----------------------------------*/
+#ja-splitmenu { font-family: 'TitilliumText22LLight'; }
+
+#ja-splitmenu li { padding: 0 5px; }
+
+#ja-splitmenu li.first-item { padding-left: 0; }
+
+#ja-splitmenu li a {
+	color: #A38D80;
+	font-size: 15px;
+	margin-top: 10px;
+	padding: 10px 10px 11px;
+}
+
+#ja-splitmenu li.first-item a { padding-left: 0; }
+
+#ja-splitmenu li a:hover,
+#ja-splitmenu li a.active:hover { color: #fd8900; }
+
+#ja-splitmenu li a.active {
+	color: #dd6d14;
+}
+
+#ja-splitmenu li.haschild a.active {
+	background: #473329;
+}
+
+#ja-splitmenu ul { float: left; margin-bottom: -1px; }
+
+#ja-splitmenu li.active:sfhover { background: none; }
+
+#ja-splitmenu li a span.menu-title { padding: 0; }
+
+#ja-splitmenu li.haschild  a span.menu-title, 
+#ja-splitmenu li.haschild:hover a span.menu-title {
+	background: url(../../images/arrow3.png) no-repeat scroll right center;
+	padding-left: 0;
+	padding-right: 12px;
+}
+
+#ja-splitmenu li.haschild  a:hover span.menu-title, 
+#ja-splitmenu li.haschild:hover a:hover span.menu-title,
+#ja-splitmenu li.active.haschild a.active:hover span.menu-title, 
+#ja-splitmenu li.active.haschild:hover a.active:hover span.menu-title {
+	background: url(../../images/arrow7.png) no-repeat scroll right center;
+}
+
+#ja-splitmenu li.active.haschild a.active span.menu-title {
+	background: url(../../images/arrow5.png) no-repeat scroll right center;
+}
+
+/* Sub Nav ---*/
+#ja-subnav {
+	background: url(../../images/subnav-bg.gif) repeat-x left top #473329;
+	border-bottom: 1px solid #110d0b;
+}
+
+#ja-subnav ul li {
+	margin: 0;
+	padding: 8px 5px;
+}
+
+#ja-subnav ul li.last-item { background: none; }
+#ja-subnav ul li.first-item a { padding-left: 10px; }
+
+#ja-subnav ul li a {
+	color: #A38D80;
+	display: block;
+	padding: 7px 10px;
+}
+
+#ja-subnav ul li a:hover { color: #fadd67; }
+
+#ja-subnav ul li a.active,
+#ja-subnav ul li.active a.active, 
+#ja-subnav ul li.active a.active:hover, 
+#ja-subnav ul li.active a.active:active, 
+#ja-subnav ul li.active a.active:focus {
+	background: #35271f;
+	color: #d8b784;
+	font-weight: bold;
+}
+
+#ja-subnav ul li.haschild a.haschild span.menu-title {
+	background: url(../../images/arrow8-dropline.png) no-repeat scroll right center;
+}
+
+#ja-subnav ul li.active.haschild a.active.haschild span.menu-title {
+	background: url(../../images/arrow-dropline-hv.png) no-repeat scroll right center;
+}
+
+#ja-subnav ul li.haschild a.haschild:hover span.menu-title,
+#ja-subnav ul li.active.haschild:hover a.active.haschild:hover span.menu-title {
+	background: url(../../images/arrow5.png) no-repeat scroll right center;
+}
+
+/* Sub Nav (lv2) ---*/
+#ja-subnav ul li ul {
+	background: #554239;
+	border: 1px solid #403129;
+	border-top: 0;
+	color: #A38D80;
+	padding: 0;
+	top: 3.5em;
+}
+
+#ja-subnav li.first-item { margin-left: 0 !important; }
+
+#ja-subnav li.first-item a { padding-left: 0; }
+
+#ja-subnav ul li ul li { background: none; border-top: 1px solid #5f4b42; padding: 0; }
+
+#ja-subnav ul li ul li.first-item { border-top: 0; }
+
+#ja-subnav ul li ul li a {
+	color: #A38D80;
+	font-size: 98%;
+	padding: 5px 10px !important;
+}
+
+#ja-subnav ul li ul li a:hover,
+#ja-subnav ul li ul li a:active { color: #fadd67; }
+
+#ja-subnav ul li ul li.active a.active,
+#ja-subnav ul li ul li.active a.active:hover, 
+#ja-subnav ul li ul li.active a.active:active, 
+#ja-subnav ul li ul li.active a.active:focus {
+	background: none;
+	color: #fd8900;
+}
+
+#ja-subnav ul li ul li a span.menu-title,
+#ja-subnav ul li ul li a:hover span.menu-title { background: none; }
+
+#ja-subnav ul li ul li.haschild a.haschild span.menu-title,
+#ja-subnav ul li ul li.haschild:hover a.haschild:hover span.menu-title,
+#ja-subnav ul li ul li.active.haschild a.active.haschild span.menu-title,
+#ja-subnav ul li ul li.active.haschild:hover a.active.haschild:hover span.menu-title {
+	background: url(../../images/arrow6.png) no-repeat scroll right center;
+}

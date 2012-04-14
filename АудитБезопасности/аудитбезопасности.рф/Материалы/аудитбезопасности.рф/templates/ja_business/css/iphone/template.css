@@ -1,0 +1,197 @@
+/**
+ * ------------------------------------------------------------------------
+ * JA Business Template for Joomla 1.7.x
+ * ------------------------------------------------------------------------
+ * Copyright (C) 2004-2011 J.O.O.M Solutions Co., Ltd. All Rights Reserved.
+ * @license - Copyrighted Commercial Software
+ * Author: J.O.O.M Solutions Co., Ltd
+ * Websites:  http://www.joomlart.com -  http://www.joomlancers.com
+ * This file may not be redistributed in whole or significant part.
+ * ------------------------------------------------------------------------
+ */
+
+ /* COMMON STYLE
+--------------------------------------------------------- */
+body.bd .main { width: auto !important; }
+
+body.iphone #ja-search { top: 0px; }
+
+#ja-search form  {
+	-moz-box-shadow: 0px 0px 0px rgba(0, 0, 0, 0.0);
+	-webkit-box-shadow: 0px 0px 0px rgba(0, 0, 0, 0.0);
+}
+
+#ja-search form input.button { display: none; }
+
+body.iphone #ja-search .inputbox { width: 99%; }
+
+h1.logo a { background-image: url(../../images/iphone-logo.png); }
+
+/* Blog View ---*/
+
+.img-border {
+	border: solid 1px #e3e3e3;
+	float: left;
+	margin: 5px 15px 5px 0;
+	padding: 4px;
+	max-width: 98%;
+}
+
+img.img-noborder.left {
+	float: left;
+	margin: 15px 15px 0 0;
+}
+
+img.img-noborder.right {
+	float: right;
+	margin: 15px 0 0 15px;
+}
+
+#jac-wrapper li.buttons input {
+	font-size: 8pt !important;
+	height: 23px;
+	line-height: 20px;
+}
+
+div.userBlock { margin-top: 0px; }
+
+div.userItemHeader h3.userItemTitle, div.userItemHeader h3.userItemTitle a,
+div.catItemHeader h3.catItemTitle, div.catItemHeader h3.catItemTitle a,
+div.itemHeader h2.itemTitle {
+	font-size: 14pt;
+	color: #DD6D14;
+	font-family: Helvetica,sans-serif;
+}
+
+div.itemRelated h3 { font-size: 14pt; }
+
+body.iphone div.userItemToolbar span { font-size: 85%; }
+
+.contact_email div { padding: 4px 0px; }
+
+.contact_email label {
+	width: 150px;
+	display: inline-block;
+	vertical-align: top;
+}
+
+.contact_email label#contact_email_copymsg { width: auto; }
+
+div.itemCommentsForm form label.formName, 
+div.itemCommentsForm form label.formEmail, 
+div.itemCommentsForm form label.formUrl { font-size: 12px; }
+
+div.itemCommentsForm form input#submitCommentButton { font-size: 12px; }
+
+.cat-children{
+	background-color: white;
+	border: 1px solid #878787;
+	border-bottom-left-radius: 8px 8px;
+	border-bottom-right-radius: 8px 8px;
+	border-top-left-radius: 8px 8px;
+	border-top-right-radius: 8px 8px;
+	display: block;
+	height: auto;
+	margin: 3px 9px 17px;
+	padding:10px;
+}
+
+body.com_content #ja-container .leading { padding:9px;}
+
+.categories-list {
+	background-color: white;
+	border: 1px solid #878787;
+	border-bottom-left-radius: 8px 8px;
+	border-bottom-right-radius: 8px 8px;
+	border-top-left-radius: 8px 8px;
+	border-top-right-radius: 8px 8px;
+	display: block;
+	height: auto;
+	margin: 3px 9px 17px;
+	padding:10px;
+}
+
+#jac-wrapper ul.pageslist{
+    margin: 0 auto;
+    padding: 15px 0 0;
+}
+
+.content-article .img-border {
+	width: 100%;
+}
+
+#jac-wrapper .type_captcha span label {
+	margin: 0px;
+	padding: 0px 0px5px 0px;
+}
+
+
+.ja-business-blog dd.create span {
+	padding-right: 3px;
+}
+
+.categories-list.bloglist ul li {
+	border: solid 1px #878787;
+	-webkit-border-radius: 8px;
+	margin: 5px 0px 10px;
+	padding: 0px 2%;
+	width: 95%;
+}
+
+.bloglist .jitem-title {
+	color: #755A35;
+	font-family: 'TitilliumText22LLight',Arial,Helvetica,sans-serif;
+	font-size: 180%;
+	font-weight: bold;
+}
+
+.bloglist .jitem-title a { color: #755A35; }
+
+.bloglist .jitem-title a:hover,
+.bloglist .jitem-title a:focus,
+.bloglist .jitem-title a:active { color: #DD6D14; }
+.categories-list.bloglist .category-desc img {
+	width: 100%;
+}
+
+#ja-login p#form-login-submit input.button {
+	float: left; 
+	min-width: 10%;
+	margin-left: 55px;
+}
+
+#form-login-submit input#modlgn-remember {
+	border: none; 
+	background: none; 
+	padding: 0px;
+	margin: 0px;
+	-webkit-border-radius: 0px;
+	border-radius: 0px;
+	height: normal;
+}
+
+.ja-content-main .counter {
+	top: 45px;
+}
+
+p.readmore {
+	display: inline;
+	font-weight: normal;
+}
+
+p.readmore a {
+	font-weight: normal;
+	background: url(../../images/readon-bg.png) no-repeat scroll 0 center;
+	color: #AB9A84;
+	padding: 0 10px 0 14px;
+}
+
+p.readmore a:hover,
+p.readmore a:focus {
+	background-image: url(../../images/readon-hover.png);
+	color: #dd6d14;
+}
+
+.contentheading a, .contentheading a:hover, .contentheading a:active, .contentheading a:focus {
+	color: #DD6D14;
+}

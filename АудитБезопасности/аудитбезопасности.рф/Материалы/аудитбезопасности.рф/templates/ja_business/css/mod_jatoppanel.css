@@ -1,0 +1,121 @@
+/**
+ * ------------------------------------------------------------------------
+ * JA Business Template for Joomla 1.7.x
+ * ------------------------------------------------------------------------
+ * Copyright (C) 2004-2011 J.O.O.M Solutions Co., Ltd. All Rights Reserved.
+ * @license - Copyrighted Commercial Software
+ * Author: J.O.O.M Solutions Co., Ltd
+ * Websites:  http://www.joomlart.com -  http://www.joomlancers.com
+ * This file may not be redistributed in whole or significant part.
+ * ------------------------------------------------------------------------
+ */
+ 
+/* COMMON STYLE
+--------------------------------------------------------- */
+#ja-toppanel {	left: 0; z-index: 900; }
+
+#ja-toppanel .ja-toppanel-wraper {
+	background: none;
+	border: 0;
+	padding: 20px 0 10px;
+}
+
+#ja-toppanel .ja-toppanel-content { color: #877460; }
+
+#ja-toppanel .ja-toppanel-content ul.ja-toppanel-col li {
+	float: left;
+	padding: 0;
+}
+
+#ja-toppanel .ja-toppanel-content ul.ja-toppanel-col li.first-item { width: 45%; }
+#ja-toppanel .ja-toppanel-content ul.ja-toppanel-col li.last-item { width: 54.9%; }
+
+#ja-toppanel ul.ja-toppanel-col li div.ja-moduletable {
+	background: none;
+	border: 0;
+	margin: 0;
+	padding: 0;
+}
+
+#ja-toppanel ul.ja-toppanel-col li div.ja-moduletable h3 {
+	border: 0;
+	color: #f3c685;
+	margin: 0 !important;
+	padding: 0 !important;
+}
+
+#ja-toppanel div.form-info { padding: 0 0 20px; font-style: italic; }
+
+#ja-toppanel .ja-toppanel-panels .open {
+	background: none;
+	border-top: 0;
+}
+
+#ja-toppanel .ja-toppanel-button-subwap .ja-toppanel-button-l,
+#ja-toppanel .ja-toppanel-button-subwap .ja-toppanel-button-r { display: none; }
+
+#ja-toppanel .ja-toppanel-container {
+	overflow: visible;
+	position: relative;
+}
+
+#ja-toppanel .ja-toppanel-panels {
+	overflow: visible;
+	position: relative;
+	margin-bottom: 5px;
+}
+
+#ja-toppanel .ja-toppanel-panels > div:first-child{
+	height:auto !important;
+}
+
+#ja-toppanel .ja-toppanel-panels .ja-toppanel-button-wraper {
+	height: 1px;
+}
+
+#ja-toppanel .left {
+	position: absolute;
+	right: 20px !important;
+	left: auto !important;
+	float: none !important;
+	width: 80px;
+}
+
+#ja-toppanel .img-border.left {
+	position: static;
+	float: left !important;
+}
+
+#ja-toppanel .right {
+	position: absolute;
+	left: 20px !important;
+	right: auto !important;
+	float: none !important;
+}
+
+#ja-toppanel .left .ja-toppanel-button {
+	background: url(../images/live-bg.gif) repeat-x left bottom;
+	font-weight: bold;
+	font-size: 92%;
+	text-transform: uppercase;
+	padding: 2px 10px;	
+}
+
+#ja-toppanel .open .left .ja-toppanel-button,
+#ja-toppanel .openpannel .left .ja-toppanel-button  {
+	background: #000;
+	color: #ccc;
+}
+
+#ja-toppanel .right .ja-toppanel-button {
+	background: #000;
+	width: 104px;
+	padding: 0 5px 4px 6px;
+}
+
+#ja-toppanel .right .ja-toppanel-button input { vertical-align: middle; }
+
+.ja-toppanel-button-wraper .right label {
+	display: block;
+	float: none;
+}

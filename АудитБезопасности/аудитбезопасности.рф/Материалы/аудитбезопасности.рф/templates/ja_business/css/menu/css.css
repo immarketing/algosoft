@@ -1,0 +1,93 @@
+/**
+ * ------------------------------------------------------------------------
+ * JA Business Template for Joomla 1.7.x
+ * ------------------------------------------------------------------------
+ * Copyright (C) 2004-2011 J.O.O.M Solutions Co., Ltd. All Rights Reserved.
+ * @license - Copyrighted Commercial Software
+ * Author: J.O.O.M Solutions Co., Ltd
+ * Websites:  http://www.joomlart.com -  http://www.joomlancers.com
+ * This file may not be redistributed in whole or significant part.
+ * ------------------------------------------------------------------------
+ */
+ 
+/* STYLING THE MENU
+-----------------------------------*/
+/* 1st level */
+
+#ja-cssmenu li {
+	padding: 0 5px;
+	font-family: 'TitilliumText22LLight';
+}
+
+#ja-cssmenu li a {
+	color: #A38D80;
+	font-size: 15px;
+	margin-top: 10px;
+	padding: 10px 10px 10px;
+}
+
+#ja-cssmenu li a:hover,
+#ja-cssmenu li a:focus,
+#ja-cssmenu li a:active { color: #fd8900; }
+
+#ja-cssmenu li a.active,
+#ja-cssmenu li a.active:hover,
+#ja-cssmenu li a.active:active,
+#ja-cssmenu li a.active:focus {
+	color: #fd8900;
+}
+
+#ja-cssmenu li a.haschild:hover,
+#ja-cssmenu li.havechildsfhover a {
+	background: #e5ded8;
+	border: 1px solid #f4efea;
+	border-bottom: 0;
+	color: #703a19;
+	padding: 9px 9px 10px;
+}
+
+/* 2nd level and above */
+#ja-cssmenu li ul {
+	background: #e5ded8;
+	border: 1px solid #f4efea;
+	border-top: 0;
+	color: #73695c;
+}
+
+#ja-cssmenu li li {
+	font-family: Arial, Helvetica, sans-serif;
+}
+
+#ja-cssmenu li ul a {
+	font-size: 100%;
+	color: #73695c !important;
+}
+
+#ja-cssmenu li ul a:hover,
+#ja-cssmenu li ul a:focus,
+#ja-cssmenu li ul a:active { color: #dd6d14 !important; }
+
+#ja-cssmenu li ul a.active {
+	color: #dd6d14 !important;
+}
+
+#ja-cssmenu li ul ul { border-top: 1px solid #e5ded8; }
+
+#ja-cssmenu li ul li {
+	border-bottom: 1px solid #d2c7be;
+	border-top: 1px solid #f0ebe8;
+	background: none;
+}
+
+#ja-cssmenu li ul li.first-item { border-top: 0; }
+#ja-cssmenu li ul li.last-item { border-bottom: 0; }
+
+#ja-cssmenu li ul li a {
+	padding: 4px 10px;
+}
+
+#ja-cssmenu li ul li a.haschild:hover,
+#ja-cssmenu li.havechildsfhover ul li a {
+	border: 0;
+}
+
