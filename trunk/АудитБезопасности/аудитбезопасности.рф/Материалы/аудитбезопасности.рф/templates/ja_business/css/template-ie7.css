@@ -1,0 +1,138 @@
+/**
+ * ------------------------------------------------------------------------
+ * JA Business Template for Joomla 1.7.x
+ * ------------------------------------------------------------------------
+ * Copyright (C) 2004-2011 J.O.O.M Solutions Co., Ltd. All Rights Reserved.
+ * @license - Copyrighted Commercial Software
+ * Author: J.O.O.M Solutions Co., Ltd
+ * Websites:  http://www.joomlart.com -  http://www.joomlancers.com
+ * This file may not be redistributed in whole or significant part.
+ * ------------------------------------------------------------------------
+ */
+
+/* COMMON STYLE
+--------------------------------------------------------- */
+
+br.clearfix { display: none !important; line-height: normal !important; }
+
+.button, button { overflow: visible; height: auto; line-height: normal !important; }
+
+#ja-topheader div.button p { padding-top: 25px; }
+
+#ja-navhelper #ja-search {
+	position: relative;
+	width: 265px;
+	top: 0px;
+}
+
+#ja-navhelper #ja-bottombar {
+	float: none;
+	position: absolute;
+	right: 20px;
+	top: 8px;
+}
+
+.ja-links {
+	padding-right: 10px;
+	position: absolute;
+	right: 0;
+	top: 10px;
+}
+
+.business-blog.catItemView div.catItemReadMore { top: -39px; }
+
+.ja-toppanel-button-wraper .right input { margin-top: 0px; padding: 0px !important; }
+
+div.k2TagCloudBlock { zoom: 1; }
+
+div.subCategory { margin: 0 26px !important; }
+
+/* Pagination ---*/
+.pagination .pagination ul li { line-height: 0; }
+
+.pagination .pagination ul li span,
+.pagination .pagination ul li strong {
+	padding: 0 7px;
+	height: 30px;
+	line-height: 30px;
+}
+
+.com_search .pagination ul li { line-height: 0; }
+
+.com_search .pagination ul li span,
+.com_search .pagination ul li strong {
+	padding: 0 7px;
+	height: 20px;
+}
+
+#component-contact div.contact_email label { margin-top: 1px; }
+
+#component-contact div.contact_email #contact_textmsg { margin-bottom: -1px; }
+
+br.clearfix {
+	overflow: hidden !important;
+	height: 0 !important;
+	line-height: 0;
+}
+
+div.k2UsersBlock ul li.odd,
+div.k2UsersBlock ul li.even { display: inline; width: 222px; zoom: 1; }
+
+#form-login #form-login-remember .inputbox {
+	background: none;
+	border: 0;
+	outline: none;
+}
+
+input[type="radio"] { border: 0; }
+
+.ja-megamenu ul.level1 li.mega {
+	background: url(../images/subnav-sep2.gif) repeat-x left bottom !important;
+	zoom: 1;
+}
+
+.contact div.contact_email input#contact_email_copy {
+	margin-top: 0px; 
+	background: none;
+} 
+
+dl.article-info {
+	zoom: 1;
+}
+
+#jac-rss {
+	vertical-align: middle;
+}
+
+#jac-wrapper li span.jac-form-guest .inputbox {float:left}
+.contact .contact-form .contact-row input {float:left}
+
+#jac-wrapper .comment-menu .menu-content li a {
+	display: block;
+	height: 23px;
+	line-height: 23px;
+	padding: 0px 8px;
+	text-decoration: none;
+}
+
+#jac-wrapper .comment-menu {
+	position: relative; 
+}
+
+#jac-wrapper .comment-menu .menu-content {
+	top: 19px;
+	right: 0px;
+}
+
+#jac-wrapper .form-comment {
+	overflow: hidden;
+}
+
+.content-article {
+	width: 100%;
+}
+
+.login_remember input.inputbox {
+	margin: -2px 0px 0px 0px !important;
+	padding: 0px !important;
+}

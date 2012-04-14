@@ -1,0 +1,49 @@
+/**
+ * ------------------------------------------------------------------------
+ * JA Business Template for Joomla 1.7.x
+ * ------------------------------------------------------------------------
+ * Copyright (C) 2004-2011 J.O.O.M Solutions Co., Ltd. All Rights Reserved.
+ * @license - Copyrighted Commercial Software
+ * Author: J.O.O.M Solutions Co., Ltd
+ * Websites:  http://www.joomlart.com -  http://www.joomlancers.com
+ * This file may not be redistributed in whole or significant part.
+ * ------------------------------------------------------------------------
+ */
+.ja-megamenu  .ja-slidenews-item {
+	border-bottom: none !important;
+	border-top: 1px dotted #CCCCCC !important;
+	width: 84%;
+}
+
+ 
+.ja-megamenu  .ja-slidenews-item:first-child { border-top: none !important; }
+
+.ja-megamenu .moduleItemDateCreated { left: 0; position: absolute; top: 10px; width: 30px; }
+
+.ja-megamenu .ja-slidenews-item{ padding-left: 40px !important; position: relative; }
+
+.ja-megamenu .moduleItemDateCreated span.date { color: #C3BBB6; font-size: 200%; font-weight: bold; }
+
+.ja-megamenu .moduleItemDateCreated span {
+	display: block;
+	line-height: 1;
+	text-align: center;
+	text-transform: uppercase;
+}
+
+.ja-megamenu .moduleItemDateCreated span.month { color: #C3BBB6; letter-spacing: 0; }
+
+.ja-megamenu .moduleItemDateCreated span.year { color: #C3BBB6; font-size: 92%; letter-spacing: 0; }
+
+#bd .ja-megamenu .childcontent .ja-moduletable a.ja-title {
+	background: none repeat scroll 0 0 transparent;
+	border: 0 none;
+	color: #6D625B !important;
+	font-family: Arial,Helvetica,sans-serif;
+	font-size: 100%;
+	font-weight: bold;
+	margin: 0 !important;
+	padding: 0;
+}
+
+.ja-slidenews-item img { float: left; }

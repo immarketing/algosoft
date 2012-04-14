@@ -1,0 +1,49 @@
+/**
+ * ------------------------------------------------------------------------
+ * JA Business Template for Joomla 1.6.x
+ * ------------------------------------------------------------------------
+ * Copyright (C) 2004-2009 J.O.O.M Solutions Co., Ltd. All Rights Reserved.
+ * @license - Copyrighted Commercial Software
+ * Author: J.O.O.M Solutions Co., Ltd
+ * Websites:  http://www.joomlart.com -  http://www.joomlancers.com
+ * This file may not be redistributed in whole or significant part.
+ * ------------------------------------------------------------------------
+ */
+ 
+/*style for module*/
+ul.jac-lasmod-main {
+	background: none;
+	list-style: none;
+}
+li.jac-has-layout{
+	background: none !important;
+	list-style: none;
+}
+
+li.jac-has-layout img {
+	margin-top: 5px;
+	padding: 3px;
+	float: left;
+	margin-right: 10px;
+	background: #fff;
+	border: 1px solid #ccc;
+	display: block;
+}
+
+.jac-lasmod-author, .jac-lasmod-time, .jac-lasmod-time SPAN{
+	float: left;
+}
+.jac-lasmod-author{
+	width:50%;
+	font-weight:bold;
+}
+
+.jac-lasmod-time {
+	width: 99%;
+	color: #BEB4A5;
+}
+
+.jac-lasmod-vote {
+	color: #FD8900;
+	font-weight: bold;
+}
