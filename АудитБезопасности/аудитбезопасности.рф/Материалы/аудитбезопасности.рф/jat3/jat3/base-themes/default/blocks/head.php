@@ -16,6 +16,8 @@ var tmplurl='<?php echo JURI::base(true)."/templates/".T3_ACTIVE_TEMPLATE ?>/';
 var isRTL = <?php echo $this->isRTL()?'true':'false' ?>;
 </script>
 
+<link href='http://fonts.googleapis.com/css?family=Open+Sans:400,300,700,400italic,300italic,700italic|Istok+Web:400,400italic,700,700italic|Ubuntu:400,300,500,700,300italic,400italic,500italic,700italic&subset=cyrillic-ext,latin,cyrillic' rel='stylesheet' type='text/css'>
+
 <jdoc:include type="head" />
 
 <?php if (T3Common::mobile_device_detect()=='iphone'):?>
